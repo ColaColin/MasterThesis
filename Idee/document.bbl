@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{anonymous2020threehead}
+Anonymous.
+\newblock Three-head neural network architecture for alphazero learning.
+\newblock In {\em Submitted to International Conference on Learning
+  Representations}, 2020.
+\newblock under review.
+
+\bibitem{arjovsky2017wasserstein}
+Martin Arjovsky, Soumith Chintala, and L{\'e}on Bottou.
+\newblock Wasserstein gan.
+\newblock {\em arXiv preprint arXiv:1701.07875}, 2017.
+
+\bibitem{goodfellow2014generative}
+Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
+  Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
+\newblock Generative adversarial nets.
+\newblock In {\em Advances in neural information processing systems}, pages
+  2672--2680, 2014.
+
+\bibitem{guid2011using}
+Matej Guid and Ivan Bratko.
+\newblock Using heuristic-search based engines for estimating human skill at
+  chess.
+\newblock {\em ICGA journal}, 34(2):71--81, 2011.
+
+\end{thebibliography}
