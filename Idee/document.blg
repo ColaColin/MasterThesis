@@ -3,44 +3,49 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: document.aux
 The style file: plain.bst
 Database file #1: document.bib
-You've used 4 entries,
+Warning--to sort, need author or key in leela0sq
+Warning--to sort, need author or key in leela0propagation
+Warning--to sort, need author or key in leela0kldgain
+Warning--to sort, need author or key in leela0wdl
+You've used 18 entries,
             2118 wiz_defined-function locations,
-            521 strings with 4706 characters,
-and the built_in function-call counts, 1526 in all, are:
-= -- 144
-> -- 81
-< -- 1
-+ -- 32
-- -- 28
-* -- 103
-:= -- 254
-add.period$ -- 13
-call.type$ -- 4
-change.case$ -- 26
+            587 strings with 7210 characters,
+and the built_in function-call counts, 6029 in all, are:
+= -- 551
+> -- 376
+< -- 2
++ -- 153
+- -- 134
+* -- 416
+:= -- 1001
+add.period$ -- 54
+call.type$ -- 18
+change.case$ -- 112
 chr.to.int$ -- 0
-cite$ -- 4
-duplicate$ -- 60
-empty$ -- 115
-format.name$ -- 28
-if$ -- 318
+cite$ -- 22
+duplicate$ -- 197
+empty$ -- 443
+format.name$ -- 134
+if$ -- 1246
 int.to.chr$ -- 0
-int.to.str$ -- 4
-missing$ -- 4
-newline$ -- 24
-num.names$ -- 8
-pop$ -- 30
+int.to.str$ -- 18
+missing$ -- 11
+newline$ -- 93
+num.names$ -- 28
+pop$ -- 165
 preamble$ -- 1
-purify$ -- 22
+purify$ -- 98
 quote$ -- 0
-skip$ -- 45
+skip$ -- 154
 stack$ -- 0
-substring$ -- 79
-swap$ -- 17
-text.length$ -- 1
+substring$ -- 239
+swap$ -- 43
+text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 16
-warning$ -- 0
-while$ -- 13
-width$ -- 5
-write$ -- 46
+type$ -- 72
+warning$ -- 4
+while$ -- 40
+width$ -- 20
+write$ -- 182
+(There were 4 warnings)

@@ -1,4 +1,20 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{leela0sq}
+\url{https://blog.lczero.org/search?updated-max=2019-01-08T10:35:00%2B01:00&max-results=11}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0propagation}
+\url{https://github.com/LeelaChessZero/lc0/pull/700}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0kldgain}
+\url{https://github.com/LeelaChessZero/lc0/pull/721}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0wdl}
+\url{https://github.com/LeelaChessZero/lc0/pull/635}.
+\newblock Accessed: 2019-11-29.
 
 \bibitem{anonymous2020threehead}
 Anonymous.
@@ -7,22 +23,87 @@ Anonymous.
   Representations}, 2020.
 \newblock under review.
 
-\bibitem{arjovsky2017wasserstein}
-Martin Arjovsky, Soumith Chintala, and L{\'e}on Bottou.
-\newblock Wasserstein gan.
-\newblock {\em arXiv preprint arXiv:1701.07875}, 2017.
-
-\bibitem{goodfellow2014generative}
-Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley,
-  Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
-\newblock Generative adversarial nets.
-\newblock In {\em Advances in neural information processing systems}, pages
-  2672--2680, 2014.
+\bibitem{anthony2017thinking}
+Thomas Anthony, Zheng Tian, and David Barber.
+\newblock Thinking fast and slow with deep learning and tree search.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  5360--5370, 2017.
 
 \bibitem{guid2011using}
 Matej Guid and Ivan Bratko.
 \newblock Using heuristic-search based engines for estimating human skill at
   chess.
 \newblock {\em ICGA journal}, 34(2):71--81, 2011.
+
+\bibitem{howard2019searching}
+Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo~Chen, Mingxing
+  Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, et~al.
+\newblock Searching for mobilenetv3.
+\newblock {\em arXiv preprint arXiv:1905.02244}, 2019.
+
+\bibitem{DBLP:journals/corr/abs-1810-12348}
+Jie Hu, Li~Shen, Samuel Albanie, Gang Sun, and Andrea Vedaldi.
+\newblock Gather-excite: Exploiting feature context in convolutional neural
+  networks.
+\newblock {\em CoRR}, abs/1810.12348, 2018.
+
+\bibitem{hu2018squeeze}
+Jie Hu, Li~Shen, and Gang Sun.
+\newblock Squeeze-and-excitation networks.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 7132--7141, 2018.
+
+\bibitem{NoCastleChess}
+Vladimir Kramnik.
+\newblock Kramnik and alphazero: How to rethink chess.
+\newblock
+  \url{https://www.chess.com/article/view/no-castling-chess-kramnik-alphazero}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{lan2019multiple}
+Li-Cheng Lan, Wei Li, Ting-Han Wei, I~Wu, et~al.
+\newblock Multiple policy value monte carlo tree search.
+\newblock {\em arXiv preprint arXiv:1905.13521}, 2019.
+
+\bibitem{oracledevs}
+Aditya Prasad.
+\newblock Lessons from implementing alphazero.
+\newblock
+  \url{https://medium.com/oracledevs/lessons-from-implementing-alphazero-7e36e9054191}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{silver2016mastering}
+David Silver, Aja Huang, Chris~J Maddison, Arthur Guez, Laurent Sifre, George
+  Van Den~Driessche, Julian Schrittwieser, Ioannis Antonoglou, Veda
+  Panneershelvam, Marc Lanctot, et~al.
+\newblock Mastering the game of go with deep neural networks and tree search.
+\newblock {\em nature}, 529(7587):484, 2016.
+
+\bibitem{silver2018general}
+David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
+  Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore
+  Graepel, et~al.
+\newblock A general reinforcement learning algorithm that masters chess, shogi,
+  and go through self-play.
+\newblock {\em Science}, 362(6419):1140--1144, 2018.
+
+\bibitem{silver2017mastering}
+David Silver, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja
+  Huang, Arthur Guez, Thomas Hubert, Lucas Baker, Matthew Lai, Adrian Bolton,
+  et~al.
+\newblock Mastering the game of go without human knowledge.
+\newblock {\em Nature}, 550(7676):354, 2017.
+
+\bibitem{wu2019accelerating}
+David~J Wu.
+\newblock Accelerating self-play learning in go.
+\newblock {\em arXiv preprint arXiv:1902.10565}, 2019.
+
+\bibitem{oracledevs6}
+Anthony Young.
+\newblock Lessons from implementing alphazero, part 6.
+\newblock
+  \url{https://medium.com/oracledevs/lessons-from-alpha-zero-part-6-hyperparameter-tuning-b1cfcbe4ca9a}.
+\newblock Accessed: 2019-11-29.
 
 \end{thebibliography}

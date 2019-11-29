@@ -1,13 +1,16 @@
-\BOOKMARK [1][-]{section.1}{Basics AlphaZero}{}% 1
-\BOOKMARK [1][-]{section.2}{Previous work}{}% 2
-\BOOKMARK [1][-]{section.3}{Motivation and possible improvemennts}{}% 3
-\BOOKMARK [2][-]{subsection.3.1}{Means of evaluation}{section.3}% 4
-\BOOKMARK [2][-]{subsection.3.2}{Understanding the learning process}{section.3}% 5
-\BOOKMARK [2][-]{subsection.3.3}{Suggested improvements to be researched}{section.3}% 6
-\BOOKMARK [1][-]{section.4}{Introduction}{}% 7
-\BOOKMARK [2][-]{subsection.4.1}{Related work}{section.4}% 8
-\BOOKMARK [2][-]{subsection.4.2}{Subsection with a ref to a label}{section.4}% 9
-\BOOKMARK [1][-]{section.5}{Images!}{}% 10
-\BOOKMARK [2][-]{subsection.5.1}{Itemization}{section.5}% 11
-\BOOKMARK [2][-]{subsection.5.2}{Tables}{section.5}% 12
-\BOOKMARK [1][-]{section.6}{Text with footnote}{}% 13
+\BOOKMARK [1][-]{section.1}{AlphaZero basics}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{The AlphaZero algorithm}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{Previous work}{}% 3
+\BOOKMARK [2][-]{subsection.2.1}{Network and training modifications}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.2}{Modification of the tree search}{section.2}% 5
+\BOOKMARK [2][-]{subsection.2.3}{Learning target modifications}{section.2}% 6
+\BOOKMARK [2][-]{subsection.2.4}{Training data enhancements}{section.2}% 7
+\BOOKMARK [1][-]{section.3}{Motivation}{}% 8
+\BOOKMARK [1][-]{section.4}{Goals}{}% 9
+\BOOKMARK [2][-]{subsection.4.1}{Means of evaluation}{section.4}% 10
+\BOOKMARK [2][-]{subsection.4.2}{Understanding the learning process}{section.4}% 11
+\BOOKMARK [2][-]{subsection.4.3}{Specific improvements to be investigated}{section.4}% 12
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Network modifications}{subsection.4.3}% 13
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Playing games as trees}{subsection.4.3}% 14
+\BOOKMARK [3][-]{subsubsection.4.3.3}{Automatic ways to find auxilary targets}{subsection.4.3}% 15
+\BOOKMARK [3][-]{subsubsection.4.3.4}{Using the self-playing phase as an evolutionary process}{subsection.4.3}% 16
