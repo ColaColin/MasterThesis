@@ -5,14 +5,14 @@
 \contentsline {section}{\numberline {2}Previous work}{3}{section.2}
 \contentsline {subsection}{\numberline {2.1}Network and training modifications}{3}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}Modification of the tree search}{4}{subsection.2.2}
-\contentsline {subsection}{\numberline {2.3}Learning target modifications}{4}{subsection.2.3}
-\contentsline {subsection}{\numberline {2.4}Training data enhancements}{5}{subsection.2.4}
+\contentsline {subsection}{\numberline {2.3}Learning target modifications}{5}{subsection.2.3}
+\contentsline {subsection}{\numberline {2.4}Training data enhancements}{6}{subsection.2.4}
 \contentsline {section}{\numberline {3}Motivation}{6}{section.3}
 \contentsline {section}{\numberline {4}Goals}{6}{section.4}
-\contentsline {subsection}{\numberline {4.1}Means of evaluation}{6}{subsection.4.1}
-\contentsline {subsection}{\numberline {4.2}Understanding the learning process}{7}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.1}Means of evaluation}{7}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Understanding the learning process}{8}{subsection.4.2}
 \contentsline {subsection}{\numberline {4.3}Specific improvements to be investigated}{8}{subsection.4.3}
 \contentsline {subsubsection}{\numberline {4.3.1}Network modifications}{8}{subsubsection.4.3.1}
-\contentsline {subsubsection}{\numberline {4.3.2}Playing games as trees}{8}{subsubsection.4.3.2}
-\contentsline {subsubsection}{\numberline {4.3.3}Automatic ways to find auxilary targets}{8}{subsubsection.4.3.3}
-\contentsline {subsubsection}{\numberline {4.3.4}Using the self-playing phase as an evolutionary process}{9}{subsubsection.4.3.4}
+\contentsline {subsubsection}{\numberline {4.3.2}Playing games as trees}{9}{subsubsection.4.3.2}
+\contentsline {subsubsection}{\numberline {4.3.3}Automatic ways to find auxilary targets}{9}{subsubsection.4.3.3}
+\contentsline {subsubsection}{\numberline {4.3.4}Using the self-playing phase as an evolutionary process}{10}{subsubsection.4.3.4}

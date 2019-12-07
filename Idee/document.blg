@@ -7,45 +7,45 @@ Warning--to sort, need author or key in leela0sq
 Warning--to sort, need author or key in leela0propagation
 Warning--to sort, need author or key in leela0kldgain
 Warning--to sort, need author or key in leela0wdl
-You've used 18 entries,
+You've used 17 entries,
             2118 wiz_defined-function locations,
-            587 strings with 7210 characters,
-and the built_in function-call counts, 6029 in all, are:
-= -- 551
-> -- 376
+            579 strings with 7064 characters,
+and the built_in function-call counts, 5714 in all, are:
+= -- 518
+> -- 363
 < -- 2
-+ -- 153
-- -- 134
-* -- 416
-:= -- 1001
-add.period$ -- 54
-call.type$ -- 18
-change.case$ -- 112
++ -- 148
+- -- 130
+* -- 392
+:= -- 948
+add.period$ -- 51
+call.type$ -- 17
+change.case$ -- 107
 chr.to.int$ -- 0
-cite$ -- 22
-duplicate$ -- 197
-empty$ -- 443
-format.name$ -- 134
-if$ -- 1246
+cite$ -- 21
+duplicate$ -- 186
+empty$ -- 418
+format.name$ -- 130
+if$ -- 1182
 int.to.chr$ -- 0
-int.to.str$ -- 18
-missing$ -- 11
-newline$ -- 93
-num.names$ -- 28
-pop$ -- 165
+int.to.str$ -- 17
+missing$ -- 10
+newline$ -- 88
+num.names$ -- 26
+pop$ -- 162
 preamble$ -- 1
-purify$ -- 98
+purify$ -- 94
 quote$ -- 0
-skip$ -- 154
+skip$ -- 146
 stack$ -- 0
-substring$ -- 239
-swap$ -- 43
+substring$ -- 215
+swap$ -- 42
 text.length$ -- 2
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 72
+type$ -- 68
 warning$ -- 4
-while$ -- 40
-width$ -- 20
-write$ -- 182
+while$ -- 36
+width$ -- 19
+write$ -- 171
 (There were 4 warnings)

@@ -29,12 +29,6 @@ Thomas Anthony, Zheng Tian, and David Barber.
 \newblock In {\em Advances in Neural Information Processing Systems}, pages
   5360--5370, 2017.
 
-\bibitem{guid2011using}
-Matej Guid and Ivan Bratko.
-\newblock Using heuristic-search based engines for estimating human skill at
-  chess.
-\newblock {\em ICGA journal}, 34(2):71--81, 2011.
-
 \bibitem{howard2019searching}
 Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo~Chen, Mingxing
   Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, et~al.
