@@ -1,3 +1,5 @@
+# Don't run this directly, use the build.sh script
+
 from distutils.core import setup, Extension
 from Cython.Build import cythonize
 import numpy

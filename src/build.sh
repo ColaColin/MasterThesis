@@ -1,3 +1,8 @@
+#! /bin/bash
+
+# Run without parameters to build
+# Run with a single parameter "clean" to clean generated files
+
 if [[ $# -eq 0 ]] ; then
     python setup.py build_ext --inplace
 elif [ $1 == "clean" ]; then
