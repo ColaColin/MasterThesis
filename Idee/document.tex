@@ -64,7 +64,7 @@
       Investigation of possible improvements to increase the efficiency of the AlphaZero algorithm.}
 
 \author{\textsc{Colin Clausen}\\[1cm]
-        7.12.2019\\[3cm]}
+        15.12.2019\\[3cm]}
 
 \date{Dozent: \textsc{Prof. Dr.-Ing. Sven Tomforde}}
 
@@ -136,7 +136,7 @@ The original network used in AlphaZero is a tower of 20 or 40 residual network b
 \begin{itemize}
  \item Enhancing the blocks with Squeeze-and-excitation elements \cite{hu2018squeeze}, has been proposed by the Leela Chess Zero projects, which reimplements AlphaZero for Chess as a distributed effort \cite{leela0sq}.
        A very similar approach is used in \cite{wu2019accelerating} which also cites the similarity to Squeeze-and-excitation networks.
- \item The original design of the network only uses 2 layers in the policy head and a single filter in the value head, using 32 filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
+ \item The original design of the network only uses 2 filters in the policy head and a single filter in the value head, using 32 filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
  \item Cyclic learning rates can be used to improve the network fitting to the data, \cite{oracledevs6} shows a modest speed up.
 \end{itemize}
 
@@ -199,13 +199,57 @@ Additionally it shall be attempted to find metrics by which to measure the effec
 
 \section{Goals}
 
-The general plan is as follows, I will describe the steps in-depth in the following subsections.
+The general goals are as follows, more details are provided in the following subsections.
 
 \begin{enumerate}
  \item Implement a clean version of the algorithm, taking special care to modularize the system as much as possible to be able to quickly switch on or off modifications to the base algorithm.
+ 
  \item Specify metrics to be used to evaluate proposed improvements as well as metrics that can give a deeper understanding of the training process.
- \item Implement previously published improvements, at least ones that are not too complicated. This has the advantage of speeding up experiments, as well as makes sure that proposed improvements are tested to improve performance on top of known enhancements.
+ 
+ \item Implement previously published enhancements that promise good improvements for their respective implementation complexity. This has the advantage of speeding up experiments, as well as ensures that proposed improvements are tested to improve performance on top of known enhancements.
+ \\\\
+ \textbf{Obligatory}
+\begin{enumerate}
+ \item Use Squeeze-and-excitation elements in the networks \cite{hu2018squeeze}.
+ \item Increase the number of filters in the network heads \cite{oracledevs6}.
+ \item Use a cyclic learning rate \cite{oracledevs6}.
+ \item Use playout caps to generate more games \cite{wu2019accelerating}.
+ \item Predict the opponents reply to regularize training \cite{wu2019accelerating}.
+ \item Predict a drawing probability directly \cite{leela0wdl}.
+ \item Handle duplicate positions in the training data \cite{oracledevs6}.
+ \item Improve the training window size to more quickly discard the first iteration of training data. \cite{oracledevs6}.
+\end{enumerate}
+
+
+ \textbf{Optional}
+\begin{enumerate}
+  \item Combine two networks in the search process \cite{lan2019multiple}.
+  \item Propagate terminal states in the search tree.
+  \item Detect and handle positional transpositions in the search tree.
+  \item Use the Kullback-Leibler to determine how certain the tree search is on a given position and reduce or increase the number of evaluations based on it \cite{leela0kldgain}.
+  \item Forced Playouts and Policy Target Pruning, as described in \cite{wu2019accelerating}.
+  \item Use a modification of the value target that considers the predicted value of a position according to the MCTS search. \cite{oracledevs6}.
+\end{enumerate}
+
+\pagebreak
+
  \item Implement specific ideas to improve the algorithm beyond the published ones and evaluate them, based on the metrics defined before.
+ \\\\
+ \textbf{Obligatory}
+\begin{enumerate}
+  \item Use Gather-Excite blocks \cite{DBLP:journals/corr/abs-1810-12348}.
+  \item Use the network blocks of the mobilenetv3 \cite{howard2019searching}.
+  \item Play games as trees to improve the value target.
+  \item Use internal network features of previous iterations as automatic auxilary targets.
+  \item Adapt the self-playing phase to search for better hyperparameters in an evolutionary process.
+\end{enumerate}
+ \textbf{Optional}
+\begin{enumerate}
+  \item Use network pruning to reduce the size of the network used for self-play \cite{DBLP:journals/corr/MolchanovTKAK16}. 
+  \item Use an evolutionary algorithm to find auxilary targets.
+\end{enumerate}
+
+ 
 \end{enumerate}
 
 

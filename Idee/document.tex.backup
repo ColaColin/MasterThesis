@@ -204,7 +204,11 @@ The general plan is as follows, I will describe the steps in-depth in the follow
 \begin{enumerate}
  \item Implement a clean version of the algorithm, taking special care to modularize the system as much as possible to be able to quickly switch on or off modifications to the base algorithm.
  \item Specify metrics to be used to evaluate proposed improvements as well as metrics that can give a deeper understanding of the training process.
- \item Implement previously published improvements, at least ones that are not too complicated. This has the advantage of speeding up experiments, as well as makes sure that proposed improvements are tested to improve performance on top of known enhancements.
+ \item Implement previously published enhancements that promise good improvements for their respective implementation complexity. This has the advantage of speeding up experiments, as well as ensures that proposed improvements are tested to improve performance on top of known enhancements.
+\begin{enumerate}
+ \item test
+\end{enumerate}
+
  \item Implement specific ideas to improve the algorithm beyond the published ones and evaluate them, based on the metrics defined before.
 \end{enumerate}
 
@@ -241,9 +245,11 @@ A better understanding of the learning progress could be valuable to suggest add
 
 Further statistics could be collected on the training progress, such has the variation of positions encountered, win/loss rates between the first and second player, draw rates or various statistics on the behavior of the tree search.
 
-Specifically I want to ask the question: ''Can ``
+Specifically I want to ask the questions: ''Can a forgetting and relearning cycle in the learning process be found using a fixed dataset of Connect 4 positions? What statistics have to be tracked for this? ``
 
 \subsection{Specific improvements to be investigated}
+
+As a last step of my work on the AlphaZero algorithm I want to implement some specific ideas and evaluate them for their potential of increasing learning efficiency.
 
 \subsubsection{Network modifications}
 

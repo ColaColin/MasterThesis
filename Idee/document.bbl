@@ -59,6 +59,12 @@ Li-Cheng Lan, Wei Li, Ting-Han Wei, I~Wu, et~al.
 \newblock Multiple policy value monte carlo tree search.
 \newblock {\em arXiv preprint arXiv:1905.13521}, 2019.
 
+\bibitem{DBLP:journals/corr/MolchanovTKAK16}
+Pavlo Molchanov, Stephen Tyree, Tero Karras, Timo Aila, and Jan Kautz.
+\newblock Pruning convolutional neural networks for resource efficient transfer
+  learning.
+\newblock {\em CoRR}, abs/1611.06440, 2016.
+
 \bibitem{oracledevs}
 Aditya Prasad.
 \newblock Lessons from implementing alphazero.
