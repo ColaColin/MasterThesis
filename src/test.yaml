@@ -1,0 +1,15 @@
+instanceA:
+  name: TypeA
+  param1: 420
+
+instanceX:
+  name: TypeX
+  param1: 2
+  param2: 3
+  aInstance: $instanceA
+
+instanceB:
+  name: TypeB
+  param1: 0
+  aInstance: $instanceX
+
