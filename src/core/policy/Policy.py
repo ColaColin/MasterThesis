@@ -10,6 +10,13 @@ class Policy(metaclass=abc.ABCMeta):
         @return: list of tuples (move distribution, win probabilities)
         """
 
+    @abc.abstractmethod
+    def getUUID(self):
+        """
+        fitting the policy should give it a UUID which can then be used to identify this policy
+        """
+
+    @abc.abstractmethod
     def fit(self, data):
         """
         Fits the policy to the data given.
@@ -17,12 +24,14 @@ class Policy(metaclass=abc.ABCMeta):
         @return: Nothing, the Policy is modified instead.
         """
 
+    @abc.abstractmethod
     def load(self, packed):
         """
         load a stored policy from the given parameters
         @packed policy parameters, produced by store
         """
-
+    
+    @abc.abstractmethod
     def store(self):
         """
         @return Policy configuration, as a byte array (may be compressed) to be loaded by load()
