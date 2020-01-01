@@ -1,0 +1,35 @@
+reporter:
+  name: SingleProcessReporter
+  windowSize: 50000
+
+updater:
+  name: SingleProcessUpdater
+  framesPerIteration: 20000
+  trainEpochs: 5
+
+mnk:
+  name: MNKGame
+  m: 3
+  n: 3
+  k: 3
+
+resnet:
+  name: PytorchPolicy
+  blocks: 3
+  filters: 16
+  protoState: $mnk
+
+mcts:
+  name: MctsPolicyIterator
+  nodes: 25
+
+tempDecider:
+  name: TemperatureMoveDecider
+
+selfplayer:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
