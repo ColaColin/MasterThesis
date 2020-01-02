@@ -73,9 +73,15 @@ class GameState(metaclass=abc.ABCMeta):
     def encodeIntoTensor(self, tensor, batchIndex, augment):
         """
         Write floats that represent the game situation into the given tensor
-        @param tensor: A tensor object of shape (batchIndex, ) + getDataShape()
+        @param tensor: A tensor object (numpy!) of shape (batchIndex, ) + getDataShape()
         @param batchIndex: Use this to write to the specific batch index
         @param augment: If true the data may be augmented randomly by whatever means the GameState implementation thinks fit the game (rotation, mirroring, etc)
+        """
+
+    @abc.abstractmethod
+    def store(self):
+        """
+        @return: A representation of the GameState as a byte array (numpy) for external storage and later usage via the static load()
         """
 
     @abc.abstractstaticmethod
@@ -86,18 +92,19 @@ class GameState(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def store(self):
-        """
-        @return: A representation of the GameState as a byte array (numpy) for external storage and later usage via the static load()
-        """
-
-    @abc.abstractmethod
     def __eq__(self, other):
         """
         Compare this GameState for equality to another
         """
 
+    @abc.abstractmethod
     def __hash__(self):
         """
         Calculate a hash for this GameState
+        """
+
+    @abc.abstractmethod
+    def __str__(self):
+        """
+        Produce a human readable string for debugging purposes
         """
