@@ -3,7 +3,7 @@ import abc
 class GameState(metaclass=abc.ABCMeta):
     """
     Creating a new GameState object should initialize a new game to be played from the starting position.
-    GameState objects are immutable, playMove produces a copy.
+    GameState objects are intended to be immutable, playMove produces a copy.
     """
 
     @abc.abstractmethod
@@ -36,6 +36,7 @@ class GameState(metaclass=abc.ABCMeta):
         """
         @return: a list of indices of moves that can be played by the player on turn. Move indices are always between 0 and getMoveCount().
         A move with a given index should always refer the same action in the game.
+        Consider using some sort of internal cache to speed up this call as much as possible, do not just iterate all moves and filter every time!
         """
 
     @abc.abstractmethod

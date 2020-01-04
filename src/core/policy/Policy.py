@@ -6,7 +6,7 @@ class Policy(metaclass=abc.ABCMeta):
         """
         @param batch: a batch of encoded game states, encoding happens by the GameState implenentation, typically this should be tensors of some kind
         @param asyncCall: if set this is called in a moment where the cpu would otherwise by idle, waiting for gpu work. 
-            If the Policy does not gpu work this is just called at the end of this method.
+            If the Policy does no gpu work this shall just be called at the end of this method.
         @return: list of tuples (move distribution, win probabilities)
         """
 

@@ -21,7 +21,11 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  nodes: 25
+  expansions: 25
+  cpuct: 1.5
+  handleTranspositions: False
+  rootNoise: 0.2
+  drawValue: 0.5
 
 tempDecider:
   name: TemperatureMoveDecider

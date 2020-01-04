@@ -31,7 +31,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
             movesToPlay = map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy))
            
-            self.open = list(map(lambda state, move: state.playMove(move), zip(self.open, movesToPlay)))
+            self.open = map(lambda state, move: state.playMove(move), zip(self.open, movesToPlay))
 
             policyUpdater.update(self.policy)
 
@@ -51,15 +51,17 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
                 prevStateUUID = None
                 for state, iPolicy in trackList:
-                    record = dict()
-                    record["knownResults"] = [result]
-                    record["policyRaw"] = iPolicy[1]["policyRaw"]
-                    record["policyIterated"] = iPolicy[0]
-                    record["uuid"] = uuid.uuid4()
-                    record["parent"] = prevStateUUID
-                    prevStateUUID = record["uuid"]
-                    record["policyUUID"] = policyUUID
-                    reports.append(record)
+                    # do not learn from terminal states, there is no move that can be made on them
+                    if not state.hasEnded():
+                        record = dict()
+                        record["knownResults"] = [result]
+                        record["generics"] = dict(iPolicy[1])
+                        record["policyIterated"] = iPolicy[0]
+                        record["uuid"] = uuid.uuid4()
+                        record["parent"] = prevStateUUID
+                        prevStateUUID = record["uuid"]
+                        record["policyUUID"] = policyUUID
+                        reports.append(record)
                 
                 self.tracking[idx] = None
 
