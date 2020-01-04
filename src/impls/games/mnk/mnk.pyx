@@ -151,7 +151,8 @@ cdef class MNKGameData():
         self.lastMove = -1
 
     def isEqual(self, MNKGameData other):
-        if self._mnk.turn != other._mnk.turn or self._mnk.m != other._mnk.m or self._mnk.n != other._mnk.n:
+        if self._mnk.turn != other._mnk.turn or self._mnk.m != other._mnk.m or self._mnk.n != other._mnk.n \
+            or self._mnk.k != other._mnk.k or self._mnk.winningPlayer != other._mnk.winningPlayer:
             return False
         return areFieldsEqual(self._mnk.m, self._mnk.n, self._mnk.board, other._mnk.board)
 
@@ -368,8 +369,7 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         
         return result
 
-    @staticmethod
-    def load(encoded):
+    def load(self, encoded):
         cdef unsigned char m = encoded[0]
         cdef unsigned char n = encoded[1]
         cdef unsigned char k = encoded[2]

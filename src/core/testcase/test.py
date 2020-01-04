@@ -33,12 +33,6 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         The example games have to end in a terminal state!
         """
 
-    @abc.abstractmethod
-    def callLoad(self, encoded):
-        """
-        This should call the load method impl for the tested class
-        """
-
     def printGameWithTensor(self, game):
         tensor = np.zeros((1,) + game.getDataShape(), dtype=np.float32)
         game.encodeIntoTensor(tensor, 0, False)
@@ -47,6 +41,9 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         print(gs, ts)        
 
     def test_ExampleGames(self):
+        """
+        provided examples should play out as expected
+        """
         prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
 
         def playGameByMoves(moves):
@@ -80,7 +77,7 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         """
         self.assertFalse(self.subject.hasEnded())
 
-    def test_gameEndsIn1000Turns(self):
+    def test_gameEndsEventually(self):
         """
         At most 10000 turns should be plenty to reach a termainl state in any game that is used with AlphaZero.
         No matter how the players play.
@@ -141,23 +138,23 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         self.assertNotEqual(hash(gameA), hash(gameC), "hash(gameA) != hash(gameC)")
         self.assertNotEqual(hash(gameB), hash(gameC), "hash(gameB) != hash(gameC)")
 
+    def playRandomGame(self, idx):
+        game = self.subject
+        results = []
+        for i in range(idx % 50):
+            game = playRandomMove(game, i, idx * 7919)
+            results.append(game)
+            if game.hasEnded():
+                break
+        return results
+
     def test_hashProperties(self):
         """
         When playing random games there should be less than 20% hash collisions and 
         at most 16 states that share a single hash in the generated states.
         """
-        numTestGames = 100
-        def playRandomGame(idx):
-            game = self.subject
-            results = []
-            for i in range(idx % 50):
-                game = playRandomMove(game, i, idx * 7919)
-                results.append(game)
-                if game.hasEnded():
-                    break
-            return results
-
-        states = map(lambda x: playRandomGame(x), range(numTestGames))
+        numTestGames = 250
+        states = map(lambda x: self.playRandomGame(x), range(numTestGames))
         statesByHash = dict()
         uniqueStates = 0
         oCnt = 0
@@ -186,7 +183,7 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
                 a = allStates[aIdx]
                 b = allStates[bIdx]
                 if a == b:
-                    self.assertEqual(hash(a), hash(b))
+                    self.assertEqual(hash(a), hash(b), "Equality must imply equal hash values")
 
         uniqueHashes = len(statesByHash)
         dupes = uniqueStates - uniqueHashes
@@ -207,12 +204,21 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         aStore = gameA.store()
         cStore = gameC.store()
 
-        aLoaded = self.callLoad(aStore)
-        cLoaded = self.callLoad(cStore)
+        aLoaded = self.subject.load(aStore)
+        cLoaded = self.subject.load(cStore)
 
+        # first some tests on "known" sets of games, where we have two games known to be equal, without object identity
         self.assertNotEqual(aLoaded, self.subject, "aLoaded is not an empty game")
+        self.assertNotEqual(cLoaded, self.subject, "cLoaded is not an empty game")
         self.assertEqual(gameA, aLoaded, "gameA == aLoaded")
         self.assertEqual(gameC, cLoaded, "gameC == cLoaded")
         self.assertEqual(hash(gameA), hash(aLoaded), "hash(gameA) == hash(aLoaded)")
         self.assertEqual(hash(gameC), hash(cLoaded), "hash(gameC) == hash(cLoaded)")
-        
+
+        numTestGames = 250
+        states = map(lambda x: self.playRandomGame(x), range(numTestGames))
+        for ss in states:
+            for s in ss:
+                stored = s.store()
+                loaded = self.subject.load(stored)
+                self.assertEqual(loaded, s)

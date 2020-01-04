@@ -84,8 +84,8 @@ class GameState(metaclass=abc.ABCMeta):
         @return: A representation of the GameState as a byte array (numpy) for external storage and later usage via the static load()
         """
 
-    @abc.abstractstaticmethod
-    def load(encoded):
+    @abc.abstractmethod
+    def load(self, encoded):
         """
         Create a new GameState object from an encoded representation produced by store()
         @param encoded: The encoded representation. Typically a byte array.

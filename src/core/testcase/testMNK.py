@@ -8,10 +8,6 @@ class MNKTest(unittest.TestCase, TestGameStateSanity, metaclass=abc.ABCMeta):
     
     def setUp(self):
         self.subject = MNKGameState(4, 3, 3)
-        self.subject.getGameName()
-
-    def callLoad(self, encoded):
-        return MNKGameState.load(encoded)
 
     def getExampleGameSequences(self):
         examples = []
