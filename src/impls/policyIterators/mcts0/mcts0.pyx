@@ -38,8 +38,6 @@ cdef int bestLegalValue(float [:] ar):
 cdef object dconsts = {}
 
 cdef object getDconst(int n):
-    if n < 3:
-        n = 3
     global dconsts
     if not n in dconsts:
         dconsts[n] = np.asarray([10.0 / n] * n, dtype=np.float32)
@@ -58,12 +56,8 @@ cdef class MCTSNode():
     # does this node have a network evaluation already?
     cdef int isExpanded
 
-    # a list of (MCTSnode, compressed move idx)
-    cdef object parentNodes
-
-    # Repository of nodes already encountered in the search used to track node transpositions. a Dict game state -> node.
-    # The reason why games should have a good __hash__ and __eq__
-    cdef object nodeRepository
+    # a tuple (MCTSnode, compressed move idx)
+    cdef object parentNode
 
     # maps move indices to indices in the edge-arrays. This means those arrays can only track legal moves and
     # thus be smaller than the maximum number of moves possible, which is helpful in games with many illegal moves.
@@ -95,16 +89,14 @@ cdef class MCTSNode():
     # the raw network output for the state value
     cdef object netValueEvaluation
 
-    def __init__(self, state, parentNodes = [], noiseMix = 0.25, nodeRepository = None):
+    def __init__(self, state, parentNode = None, noiseMix = 0.25):
         self.state = state
-
-        self.nodeRepository = nodeRepository
 
         self.noiseMix = noiseMix
 
         self.isExpanded = 0
 
-        self.parentNodes = parentNodes
+        self.parentNode = parentNode
 
         self.children = {}
 
@@ -136,8 +128,7 @@ cdef class MCTSNode():
 
     cdef int _pickMove(self, float cpuct):
 
-        # TODO any reason why this is not decided on creation of the node? This calls python len()
-        cdef int useNoise = len(self.parentNodes) == 0
+        cdef int useNoise = self.parentNode == None
 
         if useNoise and self.noiseCache is None:
             self.noiseCache = np.random.dirichlet(getDconst(self.numMoves)).astype(np.float32)
@@ -194,15 +185,7 @@ cdef class MCTSNode():
                 compressedNodeIdx = ix
                 break
 
-        if not (self.nodeRepository is None) and newState in self.nodeRepository:
-            knownNode = self.nodeRepository[newState]
-            knownNode.parentNodes.append((self, compressedNodeIdx))
-            return knownNode
-
-        cdef MCTSNode newNode = MCTSNode(newState, [(self, compressedNodeIdx)], self.noiseMix, self.nodeRepository)
-
-        if not (self.nodeRepository is None):
-            self.nodeRepository[newState] = newNode
+        cdef MCTSNode newNode = MCTSNode(newState, (self, compressedNodeIdx), self.noiseMix)
 
         return newNode
 
@@ -221,14 +204,18 @@ cdef class MCTSNode():
         backup results found in a leaf up the tree
         @param vs: win chances by the network, indexed by player numbers, 0 stands for draw chance.
         """
-        cdef int pMove
-        cdef MCTSNode pNode
+
+        if self.parentNode == None:
+            return
+
+        cdef MCTSNode pNode = self.parentNode[0]
+        cdef int pMove = self.parentNode[1]
         
-        for pNode, pMove in self.parentNodes:
-            pNode.edgeVisits[pMove] += 1
-            pNode.allVisits += 1
-            pNode.edgeTotalValues[pMove] += vs[pNode.state.getPlayerOnTurnNumber()] + vs[0] * drawValue
-            pNode.backup(vs, drawValue)
+        pNode.edgeVisits[pMove] += 1
+        pNode.allVisits += 1
+        pNode.edgeTotalValues[pMove] += vs[pNode.state.getPlayerOnTurnNumber()] + vs[0] * drawValue
+        pNode.backup(vs, drawValue)
+
     
     cdef void expand(self, object movePMap, object vs, float drawValue):
         """
@@ -278,21 +265,16 @@ cdef class MCTSNode():
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """
-    AlphaZero-style MCTS implementation with optional move transposition handling
-    and explicit handling of draws.
+    AlphaZero-style MCTS implementation extended with explicit handling of draws.
     FPU for now is just 0, following AlphaZero basics
     """
 
-    def __init__(self, expansions, cpuct, handleTranspositions, rootNoise, drawValue):
+    def __init__(self, expansions, cpuct, rootNoise, drawValue):
         self.expansions = expansions
         self.cpuct = cpuct
-        self.handleTranspositions = handleTranspositions
         self.rootNoise = rootNoise
         self.drawValue = drawValue
-        print("Created MCTS with %i expansions, cpuct = %f, noiseMix = %f, drawValue = %f" % (expansions, cpuct, rootNoise, drawValue))
-        if self.handleTranspositions:
-            print("Following transpositions")
-
+  
     def backupWork(self, backupSet, evalout):
         cdef MCTSNode node
         cdef int idx
@@ -322,7 +304,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         return prepareResult
 
     def iteratePolicy(self, policy, gamesBatch):
-        nodes = [MCTSNode(g, noiseMix = self.rootNoise, nodeRepository = {} if self.handleTranspositions else None) for g in gamesBatch]
+        nodes = [MCTSNode(g, noiseMix = self.rootNoise) for g in gamesBatch]
 
         halfw = len(nodes) // 2
 
@@ -369,7 +351,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             else:
                 preparedDataB = me.cpuWork(nodesB, preparedDataB, evaloutB)
         
-        for _ in range(self.expansions):
+        for e in range(self.expansions):
             for _ in range(2):
                 
                 if asyncA:
@@ -388,6 +370,6 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         for node in nodes:
             generics = dict()
             generics["net_values"] = [x for x in node.netValueEvaluation]
-            result.push((node.getMoveDistribution(), generics))
+            result.append((node.getMoveDistribution(), generics))
         
         return result

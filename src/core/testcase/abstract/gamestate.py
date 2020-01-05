@@ -2,8 +2,6 @@ import abc
 import sys
 import numpy as np
 
-# abstract base tests. Inherit this class, add unittest.TestCase and implement the missing function
-
 def playRandomMove(game, idx, offset):
     if not game.hasEnded():
         moves = game.getLegalMoves()
@@ -210,6 +208,7 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         # first some tests on "known" sets of games, where we have two games known to be equal, without object identity
         self.assertNotEqual(aLoaded, self.subject, "aLoaded is not an empty game")
         self.assertNotEqual(cLoaded, self.subject, "cLoaded is not an empty game")
+
         self.assertEqual(gameA, aLoaded, "gameA == aLoaded")
         self.assertEqual(gameC, cLoaded, "gameC == cLoaded")
         self.assertEqual(hash(gameA), hash(aLoaded), "hash(gameA) == hash(aLoaded)")
@@ -222,3 +221,16 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
                 stored = s.store()
                 loaded = self.subject.load(stored)
                 self.assertEqual(loaded, s)
+
+    def test_storeLoadConsistent(self):
+        """
+        Calling store, load, store should produce the same bytes as the first call to store
+        """
+        numTestGames = 250
+        states = map(lambda x: self.playRandomGame(x), range(numTestGames))
+        for ss in states:
+            for s in ss:
+                stored = s.store()
+                loaded = self.subject.load(stored)
+                stored2 = loaded.store()
+                self.assertEqual(stored.tolist(), stored2.tolist())

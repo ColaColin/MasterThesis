@@ -64,7 +64,7 @@ class GameState(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def getDataShape():
+    def getDataShape(self):
         """
         returns the shape of the game data encoding for policy processing (e.g. the neural net input without the batch dimension, which is the first dimension)
         e.g. (2, width, height) or similar
@@ -95,13 +95,17 @@ class GameState(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def __eq__(self, other):
         """
-        Compare this GameState for equality to another
+        Compare this GameState for equality to another.
+        This implementation is especially important for positional transpositions, so equal should mean equal in
+        terms of gameplay situation. Values that do not matter for the games result should not be part of the comparision.
         """
 
     @abc.abstractmethod
     def __hash__(self):
         """
         Calculate a hash for this GameState
+        This implementation is especially important for positional transpositions, so equal should mean equal in
+        terms of gameplay situation. Values that do not matter for the games result should not be part of the hash.
         """
 
     @abc.abstractmethod

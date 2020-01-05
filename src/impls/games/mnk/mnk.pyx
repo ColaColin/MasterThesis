@@ -254,6 +254,12 @@ cdef class MNKGameData():
     def getLegalMoves(self):
         return self._legalMovesList.copy()
 
+    def getLastMove(self):
+        return self.lastMove
+
+    def _setLastMove(self, int lm):
+        self.lastMove = lm
+
     def _setTurn(self, t):
         self._mnk.turn = t
 
@@ -279,6 +285,8 @@ cdef class MNKGameData():
         result._legalMovesList = list(filter(lambda x: x != legalMoveIndex, self._legalMovesList))
 
         placeStone(result._mnk, x, y)
+
+        self.lastMove = legalMoveIndex
 
         return result
 
@@ -346,10 +354,12 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
 
         cdef unsigned int hashval = self._data.getHash()
         cdef int turn = self._data.getTurn()
+        cdef int lastMove = self._data.getLastMove()
         cdef int idx
         cdef int fsize = self._data.getM() * self._data.getN()
+        
 
-        arSize = 12 + fsize
+        arSize = 16 + fsize
         result = np.zeros(arSize, dtype="uint8")
         
         result[0] = self._data.getM()
@@ -364,8 +374,12 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         result[9] = (turn >> 16) & 255
         result[10] = (turn >> 8) & 255
         result[11] = turn & 255
+        result[12] = (lastMove >> 24) & 255
+        result[13] = (lastMove >> 16) & 255
+        result[14] = (lastMove >> 8) & 255
+        result[15] = (lastMove >> 0) & 255
         for idx in range(fsize):
-            result[12 + idx] = self._data._getBoardByte(idx)
+            result[16 + idx] = self._data._getBoardByte(idx)
         
         return result
 
@@ -382,18 +396,24 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         cdef unsigned char turn16 = encoded[9]
         cdef unsigned char turn8 = encoded[10]
         cdef unsigned char turn0 = encoded[11]
+        cdef unsigned char lastMove24 = encoded[12]
+        cdef unsigned char lastMove16 = encoded[13]
+        cdef unsigned char lastMove8 = encoded[14]
+        cdef unsigned char lastMove0 = encoded[15]
 
         cdef unsigned int hv = (hash24 << 24) | (hash16 << 16) | (hash8 << 8) | hash0
         cdef int t = (turn24 << 24) | (turn16 << 16) | (turn8 << 8) | turn0
+        cdef int lastMove = (lastMove24 << 24) | (lastMove16 << 16) | (lastMove8 << 8) | (lastMove0 << 0)
 
         result = MNKGameState(m, n, k)
         result._data._setWinnerNumber(winner)
         result._data._setHash(hv)
         result._data._setTurn(t)
+        result._data._setLastMove(lastMove)
 
         cdef int fsize = m * n
         for idx in range(fsize):
-            result._data._setBoardByte(idx, encoded[12 + idx])
+            result._data._setBoardByte(idx, encoded[16 + idx])
         
         return result
 
