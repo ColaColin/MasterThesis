@@ -65,7 +65,8 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 
                 self.tracking[idx] = None
 
-        gameReporter.reportGame(reports)
+        if len(reports) > 0:
+            gameReporter.reportGame(reports)
 
     def finalizeGames(self):
         """

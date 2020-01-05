@@ -28,6 +28,7 @@ mcts:
 
 tempDecider:
   name: TemperatureMoveDecider
+  explorationPlyCount: 
 
 selfplayer:
   name: LinearSelfPlayWorker
