@@ -35,13 +35,24 @@ class TestTemperatureMoveDecider(unittest.TestCase):
         move = self.subject.decideMove(game, policy, None)
         self.assertEqual(move, 43)
     
+    def test_pickDeterministicIsUnbiased(self):
+        """
+        The deterministic decision should break ties randomly without bias.
+        """
+        game = FakeGame(11, [0,1])
+        policy = np.array([0.5, 0.5])
+        runs = 1000
+        moves = [self.subject.decideMove(game, policy, None) for _ in range(runs)]
+        ones = len([x for x in moves if x == 1])
+        self.assertTrue(ones > runs * 0.4 and ones < runs * 0.6)
+
     def test_pickProbabilistic1(self):
         game = FakeGame(3, [0,1,2])
         policy = np.array([0.1, 0.5, 0.3, 0.1])
         runs = 1000
         moves = [self.subject.decideMove(game, policy, None) for _ in range(runs)]
         ones = len([x for x in moves if x == 1])
-        self.assertTrue(ones > runs * 0.4)
+        self.assertTrue(ones > runs * 0.4 and ones < runs * 0.8)
 
     def test_pickProbabilistic2(self):
         game = FakeGame(3, [42, 43])
