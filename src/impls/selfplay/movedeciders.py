@@ -18,7 +18,7 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
         self.explorationPlyCount = explorationPlyCount
 
     def decideMove(self, gameState, policyDistribution, extraStats):
-        legalMoves = np.array(gameState.getLegalMoves())
+        legalMoves = np.array(gameState.getLegalMoves(), dtype=np.int)
         # shuffle so in case there are multiple moves with the same highest value 
         # the deterministic play actually picks one of them randomly,
         # instead of producing a bias to whatever move happens to be the lowest index one.
@@ -29,7 +29,7 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
             chosenMove = legalMoves[np.argmax(cleanPolicy)]
         else:
             pSum = np.sum(cleanPolicy)
-            assert aSum > 0
+            assert pSum > 0
             cleanPolicy /= pSum
             chosenMove = np.random.choice(legalMoves, 1, replace=False, p = cleanPolicy)[0]
 
