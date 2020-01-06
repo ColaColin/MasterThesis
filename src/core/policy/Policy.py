@@ -17,22 +17,29 @@ class Policy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def reset(self):
+        """
+        Reset policy parameters. Changes UUID
+        """
+
+    @abc.abstractmethod
     def fit(self, data):
         """
-        Fits the policy to the data given.
-        @param data: a list of GameState objects that will be encoded using their encode function
+        Fits the policy to the data given. Changes the policy UUID. Does not require the policy
+        to randomize parameters before fitting, so e.g. a network can learn based on previous parameters.
+        @param data: a list of dict() objects with data as defined by the GameReporter interface
         @return: Nothing, the Policy is modified instead.
         """
 
     @abc.abstractmethod
     def load(self, packed):
         """
-        load a stored policy from the given parameters
-        @packed policy parameters, produced by store
+        load a stored policy from the given parameters. Modifies this policy.
+        @param packed: policy parameters, produced by store
         """
     
     @abc.abstractmethod
     def store(self):
         """
-        @return Policy configuration, as a byte array (may be compressed) to be loaded by load()
+        @return Policy configuration, as a numpy byte array to be loaded by load()
         """

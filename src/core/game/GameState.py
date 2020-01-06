@@ -19,6 +19,14 @@ class GameState(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def mapPlayerNumberToTurnRelative(self, number):
+        """
+        @return the player number, relative to the current turn. I.e. 0 implies the player is the next to move,
+        3 the player has to wait for 3 turns, etc. Do not call for 0, as player numbers start at 1.
+        0 is the number of the draw result.
+        """
+
+    @abc.abstractmethod
     def hasEnded(self):
         """
         @return: True iff this state represents a game that has ended, no more moves can be played.
@@ -67,7 +75,7 @@ class GameState(metaclass=abc.ABCMeta):
     def getDataShape(self):
         """
         returns the shape of the game data encoding for policy processing (e.g. the neural net input without the batch dimension, which is the first dimension)
-        e.g. (2, width, height) or similar
+        There may be restrictions that apply based on the used Policy impl. A good shape to use is (depth, width, height)
         """
 
     @abc.abstractmethod
@@ -77,6 +85,7 @@ class GameState(metaclass=abc.ABCMeta):
         @param tensor: A tensor object (numpy!) of shape (batchIndex, ) + getDataShape()
         @param batchIndex: Use this to write to the specific batch index
         @param augment: If true the data may be augmented randomly by whatever means the GameState implementation thinks fit the game (rotation, mirroring, etc)
+        # TODO augmment makes no sense like that. There needs to be an augment() on gameState instead, otherwise the changes in the output value are impossible to capture!
         """
 
     @abc.abstractmethod

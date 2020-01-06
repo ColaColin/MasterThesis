@@ -15,20 +15,24 @@ mnk:
 
 resnet:
   name: PytorchPolicy
-  blocks: 3
+  batchSize: 128
+  blocks: 1
   filters: 16
+  headKernel: 1
+  headFilters: 4
   protoState: $mnk
+  device: "cuda:0"
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 25
+  expansions: 15
   cpuct: 1.5
   rootNoise: 0.2
   drawValue: 0.5
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 
+  explorationPlyCount: 12
 
 selfplayer:
   name: LinearSelfPlayWorker

@@ -33,7 +33,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
            
             self.open = map(lambda state, move: state.playMove(move), zip(self.open, movesToPlay))
 
-            policyUpdater.update(self.policy)
+            self.policy = policyUpdater.update(self.policy)
 
     def addTrackingData(self, gameReporter, iteratedPolicy):
         for idx, game in enumerate(self.open):
@@ -57,10 +57,12 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                         record["knownResults"] = [result]
                         record["generics"] = dict(iPolicy[1])
                         record["policyIterated"] = iPolicy[0]
-                        record["uuid"] = uuid.uuid4()
+                        record["uuid"] = str(uuid.uuid4())
                         record["parent"] = prevStateUUID
                         prevStateUUID = record["uuid"]
                         record["policyUUID"] = policyUUID
+                        record["state"] = state.store()
+                        record["gamename"] = state.getGameName()
                         reports.append(record)
                 
                 self.tracking[idx] = None

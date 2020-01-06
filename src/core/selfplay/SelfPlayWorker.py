@@ -5,12 +5,15 @@ class GameReporter(metaclass=abc.ABCMeta):
     def reportGame(self, reports):
         """
         @param reports: A list of game states. A game state is a dict with the following properties:
-        knownResults: list of player number of the winner
-        policyRaw: the tensor output of the policy (assuming a neural net)
+        knownResults: list of player number of the winner that were reached from this state.
+            For a simple self playing implementation there will be exactly one entry here.
+        generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy array-values!
         policyIterated: The move probabilities, improved by MCTS
         uuid: A UUID identifying the state
         parent: UUID of the parent state (None if this is a root)
         policyUUID: the UUID of the policy that was used to play this state
+        state: store() of the actual game state
+        gamename: getGameName() of the game
         """
 
 class PolicyUpdater(metaclass=abc.ABCMeta):
@@ -18,6 +21,7 @@ class PolicyUpdater(metaclass=abc.ABCMeta):
     def update(self, policy):
         """
         Should update the given policy
+        @return: Return a new policy to be used. Can be the old one if no changes were made.
         """
 
 class SelfPlayWorker(metaclass=abc.ABCMeta):

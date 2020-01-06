@@ -43,6 +43,9 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
     def getPlayerOnTurnNumber(self):
         return (self.turn % self.playersCount) + 1
 
+    def mapPlayerNumberToTurnRelative(self, number):
+        assert False, "no test calls this to my knowledege"
+
     def hasEnded(self):
         return self.winner != -1
 
@@ -182,7 +185,10 @@ class RandomPolicy(Policy, metaclass=abc.ABCMeta):
         return self.uuid
 
     def fit(self):
-        pass
+        assert False, "Not implemented"
+
+    def reset(self):
+        assert False, "Not implemented"
 
     def load(self, packed):
         assert False, "Not implemented"

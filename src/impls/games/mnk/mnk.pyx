@@ -135,6 +135,9 @@ cdef void fillNetworkInput0(MNKGameData state, float[:, :, :, :] tensor, int bat
                 b = mapPlayerNumberTurnRel(mnk, b)
             else:
                 b = 2
+            # 0 -> current player
+            # 1 -> next player
+            # 2 -> empty field
             tensor[batchIndex, 0, y, x] = b
 
 cdef class MNKGameData():
@@ -155,6 +158,9 @@ cdef class MNKGameData():
             or self._mnk.k != other._mnk.k or self._mnk.winningPlayer != other._mnk.winningPlayer:
             return False
         return areFieldsEqual(self._mnk.m, self._mnk.n, self._mnk.board, other._mnk.board)
+
+    def mapPlayerNumberToTurnRelative(self, int number):
+        return mapPlayerNumberTurnRel(self._mnk, number)
 
     def toString(self):
         mm = ['.', '░', '█']
@@ -340,6 +346,9 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
 
     def getDataShape(self):
         return (1, self._data.getN(), self._data.getM(), )
+
+    def mapPlayerNumberToTurnRelative(self, int number):
+        return self._data.mapPlayerNumberToTurnRelative(number)
 
     def encodeIntoTensor(self, object tensor, int batchIndex, augment):
         # augment is not implemented so far
