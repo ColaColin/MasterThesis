@@ -1,4 +1,6 @@
 
+from utils.prints import logMsg
+
 from libc.stdlib cimport malloc, free
 from libc.string cimport memcpy
 
@@ -77,7 +79,7 @@ cdef void printField(int m, int n, signed char * field):
             s += "{0:.0f}".format(readField(field, m, x, y)) + " "
         s += "\n"
     
-    print(s)
+    logMsg(s)
 
 cdef void rotateField(signed char* f, int m, int n):
     cdef signed char* tmp = initField(m, n, 0);
@@ -98,4 +100,4 @@ cdef void printFloatField(int m, int n, float* field):
             s += "{0:.4f}".format(readFloatField(field, m, x, y)) + " "
         s += "\n"
     
-    print(s)
+    logMsg(s)

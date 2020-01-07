@@ -1,5 +1,6 @@
 # cython: profile=False
 
+import os
 import abc
 
 import numpy as np
@@ -8,7 +9,6 @@ cimport numpy as np
 import torch
 import torch.cuda
 import torch.nn as nn
-import torch.optim as optim
 from torch.autograd import Variable
 
 import uuid
@@ -20,6 +20,17 @@ from utils.encoding import stringToBytes, bytesToString
 import pytorch_model_summary as pms
 
 import io
+
+import random
+
+import math
+
+import time
+
+from utils.misc import constructor_for_class_name
+
+from utils.prints import logMsg
+
 
 class ResBlock(nn.Module):
     def __init__(self, features):
@@ -93,18 +104,61 @@ class ResCNN(nn.Module):
         else:
             return moveP
         
+def gameResultsToAbsoluteWinTensor(wins, playerCount):
+    result = np.zeros(playerCount, dtype=np.float32)
+    for win in wins:
+        result[win] += 1
+    result /= np.sum(result)
+    return result
+
+def fillTrainingSet(protoState, data, int startIndex, moveOutput, winOutput, networkInput):
+    if len(data) == 0:
+        return
+    moveOutput[startIndex : startIndex + len(data)].fill_(0)
+    winOutput[startIndex : startIndex + len(data)].fill_(0)
+    networkInput[startIndex : startIndex + len(data)].fill_(0)
+
+    cdef float [:,:] moveTensor = moveOutput.numpy()
+    cdef float [:,:] winTensor = winOutput.numpy()
+
+    cdef float [:, :, :, :] inputTensor = networkInput.numpy()
+
+    cdef int fidx, idx, mappedIndex, pid
+
+    for fidx, frame  in enumerate(data):
+        game = protoState.load(data[fidx]["state"])
+
+        newPolicy = data[fidx]["policyIterated"]
+
+        game.encodeIntoTensor(inputTensor, startIndex + fidx, False)
+
+        for idx, p in enumerate(newPolicy):
+            moveTensor[startIndex + fidx, idx] = p
+        
+        absoluteWinners = gameResultsToAbsoluteWinTensor(data[fidx]["knownResults"], game.getPlayerCount()+1)
+
+        winTensor[startIndex + fidx, 0] = absoluteWinners[0]
+        for pid in range(1, game.getPlayerCount()+1):
+            mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
+            winTensor[startIndex + fidx, mappedIndex] = absoluteWinners[pid]
+
+
 
 class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     """
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs):
         self.batchSize = batchSize
         self.device = torch.device(device)
+        
         self.uuid = str(uuid.uuid4())
         self.gameDims = protoState.getDataShape()
         self.protoState = protoState
+
+        self.optimizerName = optimizerName
+        self.optimizerArgs = optimizerArgs
 
         self.blocks = blocks
         self.filters = filters
@@ -115,7 +169,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         self.initNetwork()
 
-        print("\nCreated a PytorchPolicy\n", pms.summary(self.net, torch.zeros((1, 1, 3, 3), device = self.device)))
+        logMsg("\nCreated a PytorchPolicy using device " + str(self.device) + "\n", pms.summary(self.net, torch.zeros((1, ) + self.gameDims, device = self.device)))
 
     def initNetwork(self):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
@@ -123,7 +177,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1)
         self.net = self.net.to(self.device)
 
-    def forward(self, batch, asyncCall = None):
+        # can't use mlconfig, as mlconfig has no access to self.net.parameters :(
+        octor = constructor_for_class_name(self.optimizerName)
+        self.optimizer = octor(self.net.parameters(), **self.optimizerArgs)
+
+    def innerForward(self, batch, asyncCall):
         cdef int thisBatchSize = len(batch)
         
         if thisBatchSize == 0:
@@ -171,11 +229,24 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             winsResult = np.zeros(pcount+1, dtype=np.float32)
             winsResult[0] = winTensor[idx, 0]
             for pid in range(1, pcount+1):
-                mappedIndex = self.protoState.mapPlayerNumberToTurnRelative(pid) + 1
+                mappedIndex = state.mapPlayerNumberToTurnRelative(pid) + 1
                 winsResult[pid] = winTensor[idx, mappedIndex]
 
             results.append((movesResult, winsResult))
 
+        return results
+
+    def forward(self, batch, asyncCall = None):
+        nbatch = len(batch)
+        batchNum = math.ceil(nbatch / self.batchSize)
+        
+        results = []
+        for bi in range(batchNum):
+            batchStart = bi * self.batchSize
+            batchEnd = min((bi+1) * self.batchSize, nbatch)
+            fresult = self.innerForward(batch[batchStart:batchEnd], asyncCall)
+            for fr in fresult:
+                results.append(fr)
         return results
         
 
@@ -185,13 +256,79 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def reset(self):
         self.uuid = str(uuid.uuid4())
         self.initNetwork()
-    
-    def fit(self, data):
+
+    def fit(self, data, epochs):
+        self.uuid = str(uuid.uuid4())
+
+        data = data.copy()
+        recordsCount = len(data)
+        self.trainingInputs = torch.zeros((recordsCount, ) + self.gameDims)
+        self.trainingOutputsMoves = torch.zeros((recordsCount, self.protoState.getMoveCount()))
+        self.trainingOutputsWins = torch.zeros((recordsCount, (self.protoState.getPlayerCount() + 1)))
         self.net.train(True)
 
-        # TODO continue to implement this here
+        logMsg("Preparing epoch of data")
+        pStart = time.time()
+        random.shuffle(data)
+        fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
+        pEnd = time.time()
+        logMsg("Preparing data toook %f seconds" % (time.time() - pStart))
+
+        batchNum = math.ceil(len(data) / self.batchSize)
+
+        for e in range(epochs):
+            logMsg("Starting epoch " + str(e + 1))
+
+            epochStart = time.time()
+            nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
+            mT = Variable(self.trainingOutputsMoves.clone().detach()).to(self.device)
+            wT = Variable(self.trainingOutputsWins.clone().detach()).to(self.device)
+
+            mls = []
+            wls = []
+
+            random.shuffle(data)
+
+            for bi in range(batchNum):
+                batchStart = bi*self.batchSize
+                batchEnd = min((bi+1) * self.batchSize, recordsCount)
+                batchSize = batchEnd - batchStart
+                batchMiddle = batchStart + (batchSize // 2)
+
+                x = nIn[batchStart:batchEnd]
+                yM = mT[batchStart:batchEnd]
+                yW = wT[batchStart:batchEnd]
+
+                self.optimizer.zero_grad()
+
+                mO, wO = self.net(x)
+                # cpu work performed behind calls to pytorch like this can be hidden behind the gpu work
+                fillTrainingSet(self.protoState, data[batchStart:batchMiddle], batchStart, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
+
+                mLoss = -torch.sum(mO * yM) / batchSize
+                wLoss = -torch.sum(wO * yW) / batchSize
+
+                loss = mLoss + wLoss
+                loss.backward()
+
+                # cpu work performed behind calls to pytorch like this can be hidden behind the gpu work
+                fillTrainingSet(self.protoState, data[batchMiddle:batchEnd], batchMiddle, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
+
+                self.optimizer.step()
+
+                mls.append(mLoss.data.item())
+                wls.append(wLoss.data.item())
+            
+            logMsg("Completed Epoch %i with loss (Moves) %f + (Winner) %f in %f seconds" % (e+1, np.mean(mls), np.mean(wls), time.time() - epochStart))
+       
         self.net.train(False)
+
+        del self.trainingInputs
+        del self.trainingOutputsMoves
+        del self.trainingOutputsWins
+        torch.cuda.empty_cache()
+       
 
     def load(self, packed):
         ublen = packed[0]

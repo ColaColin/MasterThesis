@@ -23,11 +23,12 @@ class Policy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def fit(self, data):
+    def fit(self, data, epochs):
         """
         Fits the policy to the data given. Changes the policy UUID. Does not require the policy
         to randomize parameters before fitting, so e.g. a network can learn based on previous parameters.
         @param data: a list of dict() objects with data as defined by the GameReporter interface
+        @param epochs: How many epochs to train
         @return: Nothing, the Policy is modified instead.
         """
 

@@ -2,6 +2,8 @@ import abc
 import sys
 import numpy as np
 
+from utils.prints import logMsg, setLoggingEnabled
+
 def playRandomMove(game, idx, offset):
     if not game.hasEnded():
         moves = game.getLegalMoves()
@@ -36,13 +38,14 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         game.encodeIntoTensor(tensor, 0, False)
         gs = str(game)
         ts = str(tensor)
-        print(gs, ts)        
+        logMsg(gs, ts)        
 
     def test_ExampleGames(self):
         """
         provided examples should play out as expected
         """
         prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+        setLoggingEnabled(prntVerbose)
 
         def playGameByMoves(moves):
             game = self.subject
@@ -58,12 +61,10 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
 
         examples = self.getExampleGameSequences()
 
-        if prntVerbose:
-            print("\nPlaying", len(examples), "examples")
+        logMsg("\nPlaying", len(examples), "examples")
 
         for idx, (moves, expectedTurns, expectedWinner) in enumerate(examples):
-            if prntVerbose:
-                print("Playing example game", idx)
+            logMsg("Playing example game", idx)
             resultState = playGameByMoves(moves)
             self.assertEqual(resultState.getTurn(), expectedTurns)
             self.assertTrue(resultState.hasEnded())
@@ -151,6 +152,9 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         When playing random games there should be less than 20% hash collisions and 
         at most 16 states that share a single hash in the generated states.
         """
+        prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+        setLoggingEnabled(prntVerbose)
+
         numTestGames = 250
         states = map(lambda x: self.playRandomGame(x), range(numTestGames))
         statesByHash = dict()
@@ -187,8 +191,7 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         dupes = uniqueStates - uniqueHashes
         result = dupes / float(uniqueStates)
 
-        if ('-v' in sys.argv) or ('--verbose' in sys.argv):
-            print("\nFound ", uniqueHashes, "unique hashs for", uniqueStates, "unique states. Overall ", oCnt, "moves played! Worst hash has", worstLen, "collisions, it is the hash number", worstHashValue)
+        logMsg("\nFound ", uniqueHashes, "unique hashs for", uniqueStates, "unique states. Overall ", oCnt, "moves played! Worst hash has", worstLen, "collisions, it is the hash number", worstHashValue)
         self.assertTrue(uniqueHashes <= uniqueStates)
         self.assertTrue(result < 0.2)
         self.assertTrue(worstLen < 17)

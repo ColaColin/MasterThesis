@@ -2,6 +2,7 @@ import sys
 
 import mlconfig
 
+from utils.prints import logMsg, setLoggingEnabled
 from core.mains.mlconfsetup import registerClasses
 registerClasses()
 
@@ -12,8 +13,10 @@ registerClasses()
 # "Production" level of performance is best reached however by using a distributed setting
 # where every server runs as many instances as needed to saturate all resources.
 if __name__ == "__main__":
+    setLoggingEnabled(True)
+
     configPath = sys.argv[1]
-    print("Running  " + sys.arv)
+    logMsg("Running  " + sys.arv)
 
     # Make a SelfPlayWorker via the config system. That already includes the policy and policy iterator implementation
     # Then run selfplay with a gameReporter and policyUpdater implementation

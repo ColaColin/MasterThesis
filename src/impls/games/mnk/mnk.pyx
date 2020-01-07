@@ -426,6 +426,16 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         
         return result
 
+    def getLoader(self):
+        m = self._data.getM()
+        n = self._data.getN()
+        k = self._data.getK()
+
+        def loader(encoded):
+            return MNKGameState(m, n, k).load(encoded)
+
+        return loader
+
     def __eq__(self, other):
         return self._data.isEqual(other._data)
 

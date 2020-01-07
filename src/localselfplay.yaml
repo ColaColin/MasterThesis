@@ -13,15 +13,21 @@ mnk:
   n: 3
   k: 3
 
+optimizerArgs:
+  lr: 0.001
+  weight_decay: 0.001
+
 resnet:
   name: PytorchPolicy
   batchSize: 128
   blocks: 1
   filters: 16
   headKernel: 1
-  headFilters: 4
+  headFilters: 1
   protoState: $mnk
   device: "cuda:0"
+  optimizerName: "torch.optim.adamw.AdamW"
+  optimizerArgs: $optimizerArgs
 
 mcts:
   name: MctsPolicyIterator
