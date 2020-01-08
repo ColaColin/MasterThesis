@@ -273,7 +273,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
         pEnd = time.time()
-        logMsg("Preparing data toook %f seconds" % (time.time() - pStart))
+        logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
 
         batchNum = math.ceil(len(data) / self.batchSize)
 

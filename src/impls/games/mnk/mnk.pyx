@@ -167,16 +167,17 @@ cdef class MNKGameData():
         
         if self.lastMove != -1:
             lastMoveX = getMoveX(self._mnk.m, self.lastMove)
-            lastMoveY = getMoveY(self._mnk.n, self.lastMove)
+            lastMoveY = getMoveY(self._mnk.m, self.lastMove)
         else:
-            lastMoveX = -50
-            lastMoveY = -50
+            lastMoveX = -500
+            lastMoveY = -500
         
         m = self._mnk.m
         n = self._mnk.n
         k = self._mnk.k
         mnk = self._mnk
         s = "MNK(%i,%i,%i), " %  (m, n, k)
+
         if not self.hasEnded():
             s += "Turn %i: %s\n" % (mnk.turn+1, mm[getPlayerOnTurnNumberMNK(mnk)])
         elif mnk.winningPlayer > 0:
@@ -292,7 +293,7 @@ cdef class MNKGameData():
 
         placeStone(result._mnk, x, y)
 
-        self.lastMove = legalMoveIndex
+        result.lastMove = legalMoveIndex
 
         return result
 

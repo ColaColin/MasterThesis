@@ -1,6 +1,6 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 10000
+  windowSize: 20000
   reportsPerIteration: 4000
 
 updater:
@@ -22,7 +22,7 @@ resnet:
   name: PytorchPolicy
   batchSize: 128
   blocks: 1
-  filters: 16
+  filters: 64
   headKernel: 1
   headFilters: 1
   protoState: $mnk

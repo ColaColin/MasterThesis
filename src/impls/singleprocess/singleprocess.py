@@ -35,8 +35,8 @@ class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
             reportedData.append(report)
             iterationReports += 1
 
-        while len(reports) > self.windowSize:
-            del reports[0]
+        while len(reportedData) > self.windowSize:
+            del reportedData[0]
 
         if iterationReports > self.reportsPerIteration:
             logMsg("Finished iteration %i with %i reports" % (iterationCounter, iterationReports))
@@ -56,3 +56,5 @@ class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
         if needsFitting:
             policy.fit(reportedData, self.trainEpochs)
             needsFitting = False
+
+        return policy

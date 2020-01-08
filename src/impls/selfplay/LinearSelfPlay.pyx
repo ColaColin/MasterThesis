@@ -22,22 +22,22 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.policy = policy
         self.policyIterator = policyIterator
         self.open = [initialState] * gameCount
+        assert not initialState.hasEnded()
         self.tracking = [None] * gameCount;
         self.moveDecider = moveDecider
 
     def selfplay(self, gameReporter, policyUpdater):
         while True:
-            self.finalizeGames()
-
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
 
             self.addTrackingData(gameReporter, iteratedPolicy)
             self.policy = policyUpdater.update(self.policy)
+            assert not (self.policy is None), "the policy updater returned a None policy!"
 
-            movesToPlay = map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy))
-           
-            self.open = map(lambda state, move: state.playMove(move), zip(self.open, movesToPlay))
+            movesToPlay = list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
+            self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
 
+            self.finalizeGames(gameReporter)
             
 
     def addTrackingData(self, gameReporter, iteratedPolicy):
@@ -46,42 +46,54 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 self.tracking[idx] = []
             
             self.tracking[idx].append([game, iteratedPolicy[idx]])
-            
-        reports = []
-        for idx in range(len(self.tracking)):
-            trackList = self.tracking[idx]
-            if trackList[len(trackList)-1][0].hasEnded():
-                result = trackList[len(trackList)-1][0].getWinnerNumber()
-                policyUUID = self.policy.getUUID()
 
-                prevStateUUID = None
-                for state, iPolicy in trackList:
-                    # do not learn from terminal states, there is no move that can be made on them
-                    if not state.hasEnded():
-                        record = dict()
-                        record["knownResults"] = [result]
-                        record["generics"] = dict(iPolicy[1])
-                        record["policyIterated"] = iPolicy[0]
-                        record["uuid"] = str(uuid.uuid4())
-                        record["parent"] = prevStateUUID
-                        prevStateUUID = record["uuid"]
-                        record["policyUUID"] = policyUUID
-                        record["state"] = state.store()
-                        record["gamename"] = state.getGameName()
-                        reports.append(record)
-                
-                self.tracking[idx] = None
+
+    def handleReportsFor(self, idx, gameReporter):
+        reports = []
+
+        trackList = self.tracking[idx]
+        assert self.open[idx].hasEnded()
+        result = self.open[idx].getWinnerNumber()
+        policyUUID = self.policy.getUUID()
+
+        prevStateUUID = None
+        for state, iPolicy in trackList:
+            # do not learn from terminal states, there is no move that can be made on them
+            assert not state.hasEnded()
+            record = dict()
+            record["knownResults"] = [result]
+            record["generics"] = dict(iPolicy[1])
+            record["policyIterated"] = iPolicy[0]
+            record["uuid"] = str(uuid.uuid4())
+            record["parent"] = prevStateUUID
+            prevStateUUID = record["uuid"]
+            record["policyUUID"] = policyUUID
+            record["state"] = state.store()
+            record["gamename"] = state.getGameName()
+            reports.append(record)
+            
+        self.tracking[idx] = None
 
         if len(reports) > 0:
             gameReporter.reportGame(reports)
 
-    def finalizeGames(self):
+    def finalizeGames(self, gameReporter):
         """
         replace games that have been completed with new games, if desired by the impl.
         After this call all games in self.open should not be in a terminal state.
         The default impl just filters games out and replaces them with new games.
         """
-        self.open = map(lambda x: self.initalState if x.hasEnded() else x, self.open)
+        cdef int idx
+
+        newList = []
+        for idx, o in enumerate(self.open):
+            if o.hasEnded():
+                self.handleReportsFor(idx, gameReporter)
+                newList.append(self.initialState)
+            else:
+                newList.append(o)
+
+        self.open = newList
 
 
 
