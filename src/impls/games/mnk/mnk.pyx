@@ -279,7 +279,7 @@ cdef class MNKGameData():
         return self._hashVal
 
     def playMove(self, int legalMoveIndex):
-        assert legalMoveIndex in self._legalMovesList, "illegal move played"
+        #assert legalMoveIndex in self._legalMovesList, "illegal move played"
 
         cdef int x, y
         x = getMoveX(self._mnk.m, legalMoveIndex)

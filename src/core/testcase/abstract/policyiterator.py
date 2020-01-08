@@ -91,12 +91,34 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
         return self.turn
 
     def getDataShape(self):
-        return (1, )
+        return (3, )
     
     def encodeIntoTensor(self, tensor, batchIndex, augment):
+        """
+        the TestGame tells the player who will win as well as what move to play,
+        depending on what the test policy implementation does what this 
+        it is possible to implement oracle policies to check how the 
+        policyiterator makes use of given information from the policy
+        """
         curPlayer = self.getPlayerOnTurnNumber()
         curProgress = self.playersProgress[curPlayer]
-        tensor[batchIndex][0] = curProgress
+        tensor[batchIndex][0] = self.winningPath[curProgress]
+
+        bestPlayer = curPlayer
+        bestScore = curProgress
+
+        allEven = True
+        for pid in range(1, self.playersCount+1):
+            pProgress = self.playersProgress[pid]
+            if pProgress != curProgress:
+                allEven = False
+            if pProgress > bestScore:
+                bestScore = pProgress
+                bestPlayer = pid
+        
+        tensor[batchIndex][1] = self.getPlayerOnTurnNumber() if allEven else bestPlayer
+
+        tensor[batchIndex][2] = curProgress
     
     def store(self):
         fsize = self.playersCount + self.pathLength
@@ -161,21 +183,46 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
             result += "Winner is " + str(self.winner) + "\n"
         return result
 
-class RandomPolicy(Policy, metaclass=abc.ABCMeta):
-    def __init__(self, moves, players):
+class OraclePolicy(Policy, metaclass=abc.ABCMeta):
+    """
+    OraclePolicy can perfectly predict the winner and/or moves for TestCountGame.
+    It will be a random policy, if told not to predict anything at all.
+    """
+    def __init__(self, moves, players, protoState, predictMoves, predictWinners, errorFrom=9999):
         self.uuid = uuid.uuid4()
         self.moves = moves
         self.players = players
-
+        self.protoState = protoState
+        self.predictMoves = predictMoves
+        self.errorFrom = errorFrom
+        self.predictWinners = predictWinners
+    
     def forward(self, batch, asyncCall = None):
         result = []
-        for _ in batch:
-            m = np.random.uniform(size = self.moves).astype(np.float32)
-            w = np.random.uniform(size = self.players + 1).astype(np.float32)
-            m /= np.sum(m)
-            w /= np.sum(w)
+
+        if self.predictMoves or self.predictWinners:
+            tensors = np.zeros((len(batch), ) + self.protoState.getDataShape(), dtype=np.int32)
+
+        for idx in range(len(batch)):
+            if self.predictMoves or self.predictWinners:
+                batch[idx].encodeIntoTensor(tensors, idx, False)
+
+            if self.predictMoves and self.errorFrom > tensors[idx,2]:
+                m = np.zeros(self.moves, dtype=np.float32)
+                m[tensors[idx,0]] = 1
+            else:
+                m = np.random.uniform(size = self.moves).astype(np.float32)
+                m /= np.sum(m)
+            
+            if self.predictWinners and self.errorFrom > tensors[idx,2]:
+                w = np.zeros(self.players + 1, dtype=np.float32)
+                w[tensors[idx,1]] = 1
+            else:
+                w = np.random.uniform(size = self.players + 1).astype(np.float32)
+                w /= np.sum(w)
+
             result.append((m, w))
-        
+
         if not (asyncCall is None):
             asyncCall()
 
@@ -196,6 +243,7 @@ class RandomPolicy(Policy, metaclass=abc.ABCMeta):
     def store(self):
         assert False, "Not implemented"
 
+
 class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
     """
     Verifes the PolicyIterator impl is able to find obviously good moves when searching enough with a random policy 
@@ -209,23 +257,25 @@ class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
         Setup a field subject with a PolicyIterator implementation to be tested for sane behavior.
         """
 
-    def getTestResult(self, players, moves, pathLength, resetOnError, batchSize):
-        game = TestCountGame(players, pathLength, moves, resetOnError)
-        policy = RandomPolicy(game.getMoveCount(), game.getPlayerCount())
-        winningMove = game.winningPath[0]
-        iterated = self.subject.iteratePolicy(policy, [game] * batchSize)
+    def getTestResult(self, players, moves, pathLength, resetOnError, batchSize, predictMoves=False, predictWins=False, errorFrom=9999):
+        games = []
+        for _ in range(batchSize):
+            games.append(TestCountGame(players, pathLength, moves, resetOnError))
+        policy = OraclePolicy(games[0].getMoveCount(), games[0].getPlayerCount(), games[0], predictMoves, predictWins, errorFrom=errorFrom)
+        winningMoves = [game.winningPath[0] for game in games]
+        iterated = self.subject.iteratePolicy(policy, games)
         self.assertEqual(len(iterated), batchSize)
-        return iterated, winningMove
+        return iterated, winningMoves
 
     def verifyTestResult(self, testResult, requiredPercentage, errorsAllowed):
-        iterated, winningMove = testResult
+        iterated, winningMoves = testResult
         errors = 0
         for i in range(len(iterated)):
-            isOK = iterated[i][0][winningMove] > requiredPercentage
+            isOK = iterated[i][0][winningMoves[i]] > requiredPercentage
             if not isOK:
                 errors += 1
             if errors > errorsAllowed:
-                self.assertTrue(False, "A winning move only got: " + str(iterated[i][0][winningMove]) + ", but required: " + str(requiredPercentage))
+                self.assertTrue(False, "A winning move only got: " + str(iterated[i][0][winningMoves[i]]) + ", but required: " + str(requiredPercentage))
                 break
 
     def test_2Players2Moves1Path5Batch(self):
@@ -233,7 +283,7 @@ class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
         the most simple possible case: pick the right move to win instantly
         """
         testResult = self.getTestResult(2, 2, 1, True, 5)
-        self.verifyTestResult(testResult, 0.65, 2)
+        self.verifyTestResult(testResult, 0.75, 2)
 
     def test_3Players3Moves2Path5Batch(self):
         """
@@ -248,4 +298,22 @@ class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
         """
         testResult = self.getTestResult(2, 8, 1, True, 5)
         self.verifyTestResult(testResult, 0.5, 2)
+
+    def test_usesMoveOraclePolicyCorrectly(self):
+        """
+        Verify the policy iterator can make use of information provided in the moves predicition for states,
+        in face of random winner predicition
+        """
+        testResult = self.getTestResult(2, 2, 12, True, 5, predictMoves=True, errorFrom=9)
+        self.verifyTestResult(testResult, 0.95, 0)
+
+    def test_usesWinnerOraclePolicyCorrectly(self):
+        """
+        Verify the policy iterator can make use of information provided in the winner predicition for states,
+        in face of random move predicition
+        """
+        testResult = self.getTestResult(2, 2, 12, True, 5, predictWins=True, errorFrom=10)
+        self.verifyTestResult(testResult, 0.85, 1)
+
+
 

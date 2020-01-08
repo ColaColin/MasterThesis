@@ -6,6 +6,8 @@ import uuid
 
 import abc
 
+from utils.prints import logMsg
+
 class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def decideMove(self, gameState, policyDistribution, extraStats):
@@ -14,10 +16,12 @@ class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
         """
 
 class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
-    def __init__(self, initalState, policy, policyIterator, gameCount, moveDecider):
-        super().__init__(initalState, policy, policyIterator)
-        self.initalState = initalState;
-        self.open = [initalState] * gameCount
+    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider):
+        logMsg("Creating LinearSelfPlayWorker gameCount=%i" % gameCount)
+        self.initialState = initialState
+        self.policy = policy
+        self.policyIterator = policyIterator
+        self.open = [initialState] * gameCount
         self.tracking = [None] * gameCount;
         self.moveDecider = moveDecider
 
@@ -28,12 +32,13 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
 
             self.addTrackingData(gameReporter, iteratedPolicy)
+            self.policy = policyUpdater.update(self.policy)
 
             movesToPlay = map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy))
            
             self.open = map(lambda state, move: state.playMove(move), zip(self.open, movesToPlay))
 
-            self.policy = policyUpdater.update(self.policy)
+            
 
     def addTrackingData(self, gameReporter, iteratedPolicy):
         for idx, game in enumerate(self.open):

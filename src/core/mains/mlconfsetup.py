@@ -3,9 +3,10 @@ import mlconfig
 from impls.selfplay.LinearSelfPlay import LinearSelfPlayWorker
 from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 from impls.selfplay.movedeciders import TemperatureMoveDecider
-from impls.games.mnk.mnk import MNKGame
+from impls.games.mnk.mnk import MNKGameState
 from impls.mlconf.mlconf import TypeA, TypeB, TypeX
-
+from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater
+from impls.polices.pytorch.policy import PytorchPolicy
 
 def registerClasses():
     mlconfig.register(TypeA)
@@ -15,4 +16,8 @@ def registerClasses():
     mlconfig.register(LinearSelfPlayWorker)
     mlconfig.register(MctsPolicyIterator)
     mlconfig.register(TemperatureMoveDecider)
-    mlconfig.register(MNKGame)
+    mlconfig.register(MNKGameState)
+    mlconfig.register(SingleProcessReporter)
+    mlconfig.register(SingleProcessUpdater)
+    mlconfig.register(PytorchPolicy)
+    mlconfig.register(dict)

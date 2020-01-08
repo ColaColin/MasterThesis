@@ -4,7 +4,7 @@ class GameReporter(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def reportGame(self, reports):
         """
-        @param reports: A list of game state recoordings. A game state recording is a dict with the following properties (there is no actual GameState object here!):
+        @param reports: A list of game state recordings. A game state recording is a dict with the following properties (there is no actual GameState object here!):
         knownResults: list of player number of the winner that were reached from this state.
             For a simple self playing implementation there will be exactly one entry here.
         generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy array-values!
@@ -25,11 +25,6 @@ class PolicyUpdater(metaclass=abc.ABCMeta):
         """
 
 class SelfPlayWorker(metaclass=abc.ABCMeta):
-
-    def __init__(self, initialState, policy, policyIterator):
-        self.initialState = initialState
-        self.policy = policy
-        self.policyIterator = policyIterator
 
     @abc.abstractmethod
     def selfplay(self, gameReporter, policyUpdater):

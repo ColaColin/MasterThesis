@@ -4,7 +4,6 @@ import mlconfig
 
 from utils.prints import logMsg, setLoggingEnabled
 from core.mains.mlconfsetup import registerClasses
-registerClasses()
 
 
 # Play games via a SelfPlayWorker implementation
@@ -15,8 +14,10 @@ registerClasses()
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
+    registerClasses()
+
     configPath = sys.argv[1]
-    logMsg("Running  " + sys.arv)
+    logMsg("Running  ", str(sys.argv))
 
     # Make a SelfPlayWorker via the config system. That already includes the policy and policy iterator implementation
     # Then run selfplay with a gameReporter and policyUpdater implementation

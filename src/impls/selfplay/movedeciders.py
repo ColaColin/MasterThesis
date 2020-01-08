@@ -4,6 +4,8 @@ import abc
 
 import numpy as np
 
+from utils.prints import logMsg
+
 class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
 
     """
@@ -15,6 +17,7 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
         """
         @paramm explorationPlyCount: Until which ply (turn) to explore randomly
         """
+        logMsg("Creating TemperatureMoveDecider(explorationPlyCount=%i)" % explorationPlyCount)
         self.explorationPlyCount = explorationPlyCount
 
     def decideMove(self, gameState, policyDistribution, extraStats):

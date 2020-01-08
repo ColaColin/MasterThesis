@@ -9,6 +9,10 @@ cimport numpy as np
 
 from libc.stdlib cimport rand, RAND_MAX
 
+from utils.prints import logMsg
+
+import random
+
 cdef int bestLegalValue(float [:] ar):
     cdef int n = ar.shape[0]
     
@@ -117,6 +121,9 @@ cdef class MCTSNode():
         self.edgeVisits = None
         self.edgeTotalValues = None
 
+    def getState(self):
+        return self.state
+
     cdef void _lazyInitEdgeData(self):
         if self.numMoves == -1:
             legalMoves = self.state.getLegalMoves()
@@ -128,7 +135,7 @@ cdef class MCTSNode():
 
     cdef int _pickMove(self, float cpuct):
 
-        cdef int useNoise = self.parentNode == None
+        cdef int useNoise = self.parentNode == None and self.noiseMix > 0
 
         if useNoise and self.noiseCache is None:
             self.noiseCache = np.random.dirichlet(getDconst(self.numMoves)).astype(np.float32)
@@ -146,9 +153,13 @@ cdef class MCTSNode():
 
         cdef int decompressedMove
 
-        # first play urgency. Value of moves that have not been considered yet. Setting it to 0 (=bad move)
+        # first play urgency. Value of moves that have not been considered yet. Setting it to 0 (=losing move)
         # is what the original AlphaZero implementation did. There are better ways to handle this value, tbd
-        cdef float fpu = 0
+        # Using 0 is pretty bad however, as it makes it hard to learn from a policy that knows
+        # the correct winners, as they're never even looked at if there was a bad move probability estimation
+        # That's why this uses 0.45 instead, so assume an unplay move is likely slightly worse than a draw
+        # further improvements are probably possible here
+        cdef float fpu = 0.45
 
         for i in range(self.numMoves):
             # TODO consider reducing the size of edgePriors to only contain legal moves
@@ -225,6 +236,7 @@ cdef class MCTSNode():
         """
         self.edgePriors = np.zeros(self.state.getMoveCount(), dtype=np.float32)
         np.copyto(np.asarray(self.edgePriors), movePMap, casting="no")
+
         self.isExpanded = 1
         self.netValueEvaluation = vs
         self.stateValue = vs[self.state.getPlayerOnTurnNumber()] + vs[0] * drawValue
@@ -270,6 +282,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """
 
     def __init__(self, expansions, cpuct, rootNoise, drawValue):
+        logMsg("Creating MctsPolicyIterator(expansions=%i, cpuct=%f,rootNoise=%f, drawValue=%f)" % (expansions, cpuct, rootNoise, drawValue))
         self.expansions = expansions
         self.cpuct = cpuct
         self.rootNoise = rootNoise
@@ -329,7 +342,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         asyncA = True
 
         preparedDataA = self.cpuWork(nodesA, None, None)
-        evaloutA = policy.forward(preparedDataA)
+        evaloutA = policy.forward([p.getState() for p in preparedDataA])
         
         preparedDataB = self.cpuWork(nodesB, None, None)
         evaloutB = None
@@ -351,13 +364,13 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             else:
                 preparedDataB = me.cpuWork(nodesB, preparedDataB, evaloutB)
         
+        cdef int e, ex
         for e in range(self.expansions):
-            for _ in range(2):
-                
+            for ex in range(2):
                 if asyncA:
-                    evaloutB = policy.forward(nodesB, asyncCall = asyncWork)
+                    evaloutB = policy.forward([p.getState() for p in preparedDataB], asyncCall = asyncWork)
                 else:
-                    evaloutA = policy.forward(nodesA, asyncCall = asyncWork)
+                    evaloutA = policy.forward([p.getState() for p in preparedDataA], asyncCall = asyncWork)
                 
                 asyncA = not asyncA
 
@@ -371,5 +384,5 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             generics = dict()
             generics["net_values"] = [x for x in node.netValueEvaluation]
             result.append((node.getMoveDistribution(), generics))
-        
+
         return result
