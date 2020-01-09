@@ -317,6 +317,15 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         else:
             self._data = prepData
 
+    def getM(self):
+        return self._data.getM()
+    
+    def getN(self):
+        return self._data.getN()
+
+    def getK(self):
+        return self._data.getK()
+
     def getGameName(self):
         assert(sizeof(unsigned int) == 4)
         return "MNK(" + str(self._data.getM()) + "," + str(self._data.getN()) + "," + str(self._data.getK()) + ")"

@@ -343,7 +343,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         preparedDataA = self.cpuWork(nodesA, None, None)
         evaloutA = policy.forward([p.getState() for p in preparedDataA])
-        
+
         preparedDataB = self.cpuWork(nodesB, None, None)
         evaloutB = None
 

@@ -7,6 +7,11 @@ from impls.games.mnk.mnk import MNKGameState
 from impls.mlconf.mlconf import TypeA, TypeB, TypeX
 from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater
 from impls.polices.pytorch.policy import PytorchPolicy
+from core.playvs.playvs import PlayVs
+from impls.externalplayers.human import HumanMNKInterface
+
+import sys
+from utils.prints import logMsg, setLoggingEnabled
 
 def registerClasses():
     mlconfig.register(TypeA)
@@ -21,3 +26,16 @@ def registerClasses():
     mlconfig.register(SingleProcessUpdater)
     mlconfig.register(PytorchPolicy)
     mlconfig.register(dict)
+    mlconfig.register(PlayVs)
+    mlconfig.register(HumanMNKInterface)
+
+
+def mlConfigBasedMain():
+    setLoggingEnabled(True)
+    registerClasses()
+    configPath = sys.argv[1]
+    logMsg("Running  ", str(sys.argv))
+
+    config = mlconfig.load(configPath)
+
+    return config

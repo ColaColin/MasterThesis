@@ -240,6 +240,10 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         nbatch = len(batch)
         batchNum = math.ceil(nbatch / self.batchSize)
         
+        if batchNum == 0 and (asyncCall is not None):
+            asyncCall()
+            return []
+
         results = []
         for bi in range(batchNum):
             batchStart = bi * self.batchSize

@@ -15,7 +15,6 @@ iterationCounter = 1
 needsFitting = False
 
 # TODO
-# 2. Make a way to play against a stored policy
 # 3. Make an integrated test, that learns to play MNK(3,3,3) and checks if it plays correctly at some point?
 
 class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):

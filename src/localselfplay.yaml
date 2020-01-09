@@ -1,6 +1,6 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 30000
+  windowSize: 50000
   reportsPerIteration: 9000
   state: /ImbaKeks/runs/mnk333_0
 
@@ -25,19 +25,19 @@ resnet:
   batchSize: 128
   blocks: 1
   filters: 64
-  headKernel: 1
-  headFilters: 1
+  headKernel: 3
+  headFilters: 64
   protoState: $mnk
   device: cuda:0
-  optimizerName: "torch.optim.adamw.AdamW"
+  optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 25
+  expansions: 50
   cpuct: 1.5
-  rootNoise: 0.2
-  drawValue: 0.25
+  rootNoise: 0.5
+  drawValue: 0.5
 
 tempDecider:
   name: TemperatureMoveDecider

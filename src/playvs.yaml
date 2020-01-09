@@ -1,0 +1,51 @@
+playvs:
+  name: PlayVs
+  externalPlayerNumber: 1
+  policy: $resnet
+  policyIterator: $mcts
+  policyUpdater: $loader
+  initialState: $mnk
+  moveDecider: $bestMoves
+  external: $human
+
+human:
+  name: HumanMNKInterface
+
+bestMoves:
+  name: TemperatureMoveDecider
+  explorationPlyCount: -1
+
+loader:
+  name: SingleProcessUpdater
+  trainEpochs: 3
+  state: /ImbaKeks/runs/mnk333_0
+
+mnk:
+  name: MNKGameState
+  m: 3
+  n: 3
+  k: 3
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 50
+  cpuct: 1.5
+  rootNoise: 0
+  drawValue: 0.5
+
+optimizerArgs:
+  name: dict
+  lr: 0.001
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 1
+  filters: 64
+  headKernel: 3
+  headFilters: 64
+  protoState: $mnk
+  device: cuda:0
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
