@@ -180,6 +180,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         # can't use mlconfig, as mlconfig has no access to self.net.parameters :(
         octor = constructor_for_class_name(self.optimizerName)
         self.optimizer = octor(self.net.parameters(), **self.optimizerArgs)
+        self.net.train(False)
 
     def innerForward(self, batch, asyncCall):
         cdef int thisBatchSize = len(batch)
@@ -341,6 +342,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         self.uuid = bytesToString(uuidBytes)
         self.net.load_state_dict(torch.load(modelBuffer))
+
+        self.net.train(False)
 
     def store(self):
         uuidBytes = stringToBytes(self.uuid)

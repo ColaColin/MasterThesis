@@ -28,8 +28,8 @@ mnk:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 50
-  cpuct: 1.5
+  expansions: 15
+  cpuct: 1
   rootNoise: 0
   drawValue: 0.5
 

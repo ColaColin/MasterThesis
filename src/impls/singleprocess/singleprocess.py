@@ -14,9 +14,6 @@ iterationReports = 0
 iterationCounter = 1
 needsFitting = False
 
-# TODO
-# 3. Make an integrated test, that learns to play MNK(3,3,3) and checks if it plays correctly at some point?
-
 class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
     
     def __init__(self, windowSize, reportsPerIteration, state):

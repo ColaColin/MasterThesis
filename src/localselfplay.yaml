@@ -1,12 +1,12 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 50000
-  reportsPerIteration: 9000
+  windowSize: 10000
+  reportsPerIteration: 3000
   state: /ImbaKeks/runs/mnk333_0
 
 updater:
   name: SingleProcessUpdater
-  trainEpochs: 3
+  trainEpochs: 2
   state: /ImbaKeks/runs/mnk333_0
 
 mnk:
@@ -34,7 +34,7 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 50
+  expansions: 30
   cpuct: 1.5
   rootNoise: 0.5
   drawValue: 0.5
