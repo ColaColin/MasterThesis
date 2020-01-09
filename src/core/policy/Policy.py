@@ -42,5 +42,5 @@ class Policy(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def store(self):
         """
-        @return Policy configuration, as a numpy byte array to be loaded by load()
+        @return Policy configuration, as a numpy byte (uint8) array to be loaded by load()
         """

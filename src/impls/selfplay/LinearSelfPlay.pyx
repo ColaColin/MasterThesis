@@ -27,6 +27,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.moveDecider = moveDecider
 
     def selfplay(self, gameReporter, policyUpdater):
+        self.policy = policyUpdater.update(self.policy)
         while True:
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
 

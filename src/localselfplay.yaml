@@ -1,11 +1,13 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 20000
-  reportsPerIteration: 4000
+  windowSize: 30000
+  reportsPerIteration: 9000
+  state: /ImbaKeks/runs/mnk333_0
 
 updater:
   name: SingleProcessUpdater
-  trainEpochs: 2
+  trainEpochs: 3
+  state: /ImbaKeks/runs/mnk333_0
 
 mnk:
   name: MNKGameState
@@ -16,7 +18,7 @@ mnk:
 optimizerArgs:
   name: dict
   lr: 0.001
-  weight_decay: 0.001
+  weight_decay: 0.0001
 
 resnet:
   name: PytorchPolicy
@@ -26,20 +28,20 @@ resnet:
   headKernel: 1
   headFilters: 1
   protoState: $mnk
-  device: "cuda:0"
+  device: cuda:0
   optimizerName: "torch.optim.adamw.AdamW"
   optimizerArgs: $optimizerArgs
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 15
+  expansions: 25
   cpuct: 1.5
   rootNoise: 0.2
-  drawValue: 0.5
+  drawValue: 0.25
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 12
+  explorationPlyCount: 9
 
 selfplayer:
   name: LinearSelfPlayWorker
