@@ -9,7 +9,7 @@ playvs:
   external: $human
 
 human:
-  name: HumanMNKInterface
+  name: HumanConnect4Interface
 
 bestMoves:
   name: TemperatureMoveDecider
@@ -18,20 +18,20 @@ bestMoves:
 loader:
   name: SingleProcessUpdater
   trainEpochs: 3
-  state: /ImbaKeks/runs/mnk764
+  state: /ImbaKeks/runs/connect4
 
 mnk:
-  name: MNKGameState
+  name: Connect4GameState
   m: 7
   n: 6
   k: 4
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 125
+  expansions: 100
   cpuct: 1
   rootNoise: 0
-  drawValue: 0.4
+  drawValue: 0.5
 
 optimizerArgs:
   name: dict

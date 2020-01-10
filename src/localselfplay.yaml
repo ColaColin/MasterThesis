@@ -2,15 +2,15 @@ reporter:
   name: SingleProcessReporter
   windowSize: 500000
   reportsPerIteration: 40000
-  state: /ImbaKeks/runs/mnk764
+  state: /ImbaKeks/runs/connect4
 
 updater:
   name: SingleProcessUpdater
   trainEpochs: 2
-  state: /ImbaKeks/runs/mnk764
+  state: /ImbaKeks/runs/connect4
 
 mnk:
-  name: MNKGameState
+  name: Connect4GameState
   m: 7
   n: 6
   k: 4
@@ -37,11 +37,11 @@ mcts:
   expansions: 250
   cpuct: 1.5
   rootNoise: 0.2
-  drawValue: 0.5
+  drawValue: 0.4
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 30
+  explorationPlyCount: 20
 
 selfplayer:
   name: LinearSelfPlayWorker

@@ -3,10 +3,40 @@ from utils.prints import logMsg
 
 from core.playvs.playvs import ExternalPlayerInterface
 
+class ConsolePlayer(ExternalPlayerInterface, metaclass=abc.ABCMeta):
 
-class HumanMNKInterface(ExternalPlayerInterface, metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def parseMove(self, gameState, moveStr):
+        """
+        Parse the move here
+        """
 
-    def parseMNKMove(self, gameState, moveStr):
+    def showGame(self, gameState):
+        logMsg("++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        logMsg(str(gameState))
+
+    def getMove(self, gameState):
+        mv = -1
+        while mv == -1:
+            try:
+                mv = self.parseMove(gameState, input("Your turn: "))    
+            except:
+                pass
+
+        return mv
+
+    def showFinalResult(self, externalId, gameState):
+        logMsg("Game ended, Winner: %i" % gameState.getWinnerNumber())
+        if gameState.getWinnerNumber() == externalId:
+            logMsg("You won!")
+        elif gameState.getWinnerNumber() == 0:
+            logMsg("Draw!")
+        else:
+            logMsg("You lost!")
+
+class HumanMNKInterface(ConsolePlayer, metaclass=abc.ABCMeta):
+
+    def parseMove(self, gameState, moveStr):
         ms = moveStr.split("-")
         if len(ms) == 2:
             chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -25,23 +55,16 @@ class HumanMNKInterface(ExternalPlayerInterface, metaclass=abc.ABCMeta):
         logMsg("Cannot parse turn (example of a valid turn is 1-a)")
         return -1
 
-    def showGame(self, gameState):
-        logMsg("++++++++++++++++++++++++++++++++++++++++++++++++++++")
-        logMsg(str(gameState))
 
-    def getMove(self, gameState):
-        mv = -1
-        while mv == -1:
-            mv = self.parseMNKMove(gameState, input("Your turn: "))
-        return mv
+class HumanConnect4Interface(ConsolePlayer, metaclass=abc.ABCMeta):
 
-    def showFinalResult(self, externalId, gameState):
-        logMsg("Game ended, Winner: %i" % gameState.getWinnerNumber())
-        if gameState.getWinnerNumber() == externalId:
-            logMsg("You won!")
-        elif gameState.getWinnerNumber() == 0:
-            logMsg("Draw!")
+    def parseMove(self, gameState, moveStr):
+
+        result = int(moveStr) - 1
+        if result in gameState.getLegalMoves():
+            return result
         else:
-            logMsg("You lost!")
+            logMsg("That move is illegal")
+            return -1
 
-        
+        return -1
