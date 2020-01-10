@@ -5,15 +5,19 @@ class GameReporter(metaclass=abc.ABCMeta):
     def reportGame(self, reports):
         """
         @param reports: A list of game state recordings. A game state recording is a dict with the following properties (there is no actual GameState object here!):
+
         knownResults: list of player number of the winner that were reached from this state.
             For a simple self playing implementation there will be exactly one entry here.
-        generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy array-values!
+        generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy arrays. 
+            No other numpy array types are supported!
         policyIterated: The move probabilities, improved by MCTS
         uuid: A UUID identifying the state
         parent: UUID of the parent state (None if this is a root)
         policyUUID: the UUID of the policy that was used to play this state
-        state: store() of the actual game state
+        state: store() of the actual game state. Numpy array.
         gamename: getGameName() of the game
+
+        This call takes ownership of the given reports and might modify them for the purpose of storing them.
         """
 
 class PolicyUpdater(metaclass=abc.ABCMeta):
