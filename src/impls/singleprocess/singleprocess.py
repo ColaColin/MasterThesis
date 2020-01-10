@@ -80,6 +80,9 @@ class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
         for report in reports:
             reportedData.append(report)
             iterationReports += 1
+            if iterationReports % 1000 == 0:
+                frac = (iterationReports / self.reportsPerIteration) * 100
+                logMsg("Iteration is %f %% finished" % (frac))
 
         while len(reportedData) > self.windowSize:
             del reportedData[0]

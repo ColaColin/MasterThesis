@@ -8,6 +8,10 @@ import abc
 
 from utils.prints import logMsg
 
+import time
+
+import numpy as np
+
 class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def decideMove(self, gameState, policyDistribution, extraStats):
@@ -25,21 +29,44 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         assert not initialState.hasEnded()
         self.tracking = [None] * gameCount;
         self.moveDecider = moveDecider
+        self.microsPerMovePlayedHistory = []
+        self.lastSpeedStatsPrint = time.monotonic()
+
+    def handleSpeedStats(self):
+        if time.monotonic() - self.lastSpeedStatsPrint > 300:
+            self.lastSpeedStatsPrint = time.monotonic()
+            count = len(self.microsPerMovePlayedHistory)
+            mean = np.mean(self.microsPerMovePlayedHistory)
+            median = np.median(self.microsPerMovePlayedHistory)
+            std = int(np.std(self.microsPerMovePlayedHistory))
+
+            logMsg("Last %i loops move times: %i us median, %i us mean,  +/- %i us" % (count, median, mean, std))
+
+            self.microsPerMovePlayedHistory = []
+
 
     def selfplay(self, gameReporter, policyUpdater):
         self.policy = policyUpdater.update(self.policy)
         while True:
+            moveTimeNanos = 0
+
+            iteratationStart = time.monotonic_ns()
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
+            moveTimeNanos += time.monotonic_ns() - iteratationStart
 
             self.addTrackingData(gameReporter, iteratedPolicy)
             self.policy = policyUpdater.update(self.policy)
             assert not (self.policy is None), "the policy updater returned a None policy!"
 
+            playStart = time.monotonic_ns()
             movesToPlay = list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
             self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
+            moveTimeNanos += time.monotonic_ns() - playStart
+
+            self.microsPerMovePlayedHistory.append(int((moveTimeNanos / float(len(self.open))) / 1000))
+            self.handleSpeedStats()
 
             self.finalizeGames(gameReporter)
-            
 
     def addTrackingData(self, gameReporter, iteratedPolicy):
         for idx, game in enumerate(self.open):

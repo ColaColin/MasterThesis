@@ -11,18 +11,20 @@ import abc
 
 import numpy as np
 
-cdef struct MNK_c:
+# this is a copy of the MNK code, modified to play as connectk (with k = 4 you get the standard game...)
+
+cdef struct Connect4_c:
     unsigned char m
     unsigned char n
-    unsigned char k
+    unsigned char k # = 4 by default
     unsigned char winningPlayer
     int turn
     # empty field is 0
     # filled fields contain the player number
     signed char* board
 
-cdef MNK_c* initMNK(unsigned char m, unsigned char n, unsigned char k):
-    cdef MNK_c* result = <MNK_c*> malloc(sizeof(MNK_c))
+cdef Connect4_c* initConnect4(unsigned char m, unsigned char n, unsigned char k):
+    cdef Connect4_c* result = <Connect4_c*> malloc(sizeof(Connect4_c))
     
     result.m = m
     result.n = n
@@ -33,7 +35,7 @@ cdef MNK_c* initMNK(unsigned char m, unsigned char n, unsigned char k):
 
     return result;
 
-cdef void copyMNK(MNK_c* target, MNK_c* source):
+cdef void copyConnect4(Connect4_c* target, Connect4_c* source):
     
     cdef int bsize = source.m * source.n * sizeof(signed char)
 
@@ -50,20 +52,14 @@ cdef void copyMNK(MNK_c* target, MNK_c* source):
     target.turn = source.turn
     target.winningPlayer = source.winningPlayer
 
-cdef inline void freeMNK(MNK_c* mnk):
+cdef inline void freeConnect4(Connect4_c* mnk):
     free(mnk.board)
     free(mnk)
 
-cdef inline int getMoveX(unsigned char m, int key):
-    return key % m
-
-cdef inline int getMoveY(unsigned char m, int key):
-    return key / m
-
-cdef inline int getPlayerOnTurnNumberMNK(MNK_c* mnk):
+cdef inline int getPlayerOnTurnNumberMNK(Connect4_c* mnk):
     return (mnk.turn % 2) + 1
 
-cdef void searchWinner(MNK_c* mnk, int lx, int ly):
+cdef void searchWinner(Connect4_c* mnk, int lx, int ly):
     if mnk.winningPlayer != 255:
         return
 
@@ -96,7 +92,7 @@ cdef void searchWinner(MNK_c* mnk, int lx, int ly):
         mnk.winningPlayer = 0
         return
 
-cdef void placeStone(MNK_c* mnk, int x, int y):
+cdef void placeStone(Connect4_c* mnk, int x, int y):
     writeField(mnk.board, mnk.m, x, y, getPlayerOnTurnNumberMNK(mnk))
     mnk.turn += 1
     searchWinner(mnk, x, y)
@@ -115,7 +111,7 @@ cdef inline unsigned int updateMNKHash(unsigned int old, int x, int y, int playe
 
     return ((sumPart + acc) << 6) | ((turnCnt + 1) & 63)
 
-cdef inline int mapPlayerNumberTurnRel(MNK_c* mnk, int playerNumber):
+cdef inline int mapPlayerNumberTurnRel(Connect4_c* mnk, int playerNumber):
     cdef int tidx
     tidx = getPlayerOnTurnNumberMNK(mnk)
 
@@ -124,9 +120,9 @@ cdef inline int mapPlayerNumberTurnRel(MNK_c* mnk, int playerNumber):
     else:
         return 1
 
-cdef void fillNetworkInput0(MNKGameData state, float[:, :, :, :] tensor, int batchIndex):
+cdef void fillNetworkInput0(Connect4GameData state, float[:, :, :, :] tensor, int batchIndex):
     cdef int x, y, b
-    cdef MNK_c* mnk = state._mnk
+    cdef Connect4_c* mnk = state._mnk
 
     for x in range(mnk.m):
         for y in range(mnk.n):
@@ -142,20 +138,20 @@ cdef void fillNetworkInput0(MNKGameData state, float[:, :, :, :] tensor, int bat
             # 3 -> empty field
             tensor[batchIndex, 0, y, x] = b + 1
 
-cdef class MNKGameData():
-    cdef MNK_c* _mnk
+cdef class Connect4GameData():
+    cdef Connect4_c* _mnk
     cdef unsigned int _hashVal
     cdef object _legalMovesList
     cdef int lastMove
 
     def __init__(self, m, n, k):
-        self._mnk = initMNK(m, n, k)
+        self._mnk = initConnect4(m, n, k)
         # the hash value of the empty game state is 0
         self._hashVal = 0
-        self._legalMovesList = list(range(m * n))
+        self._legalMovesList = list(range(m))
         self.lastMove = -1
 
-    def isEqual(self, MNKGameData other):
+    def isEqual(self, Connect4GameData other):
         if self._mnk.turn != other._mnk.turn or self._mnk.m != other._mnk.m or self._mnk.n != other._mnk.n \
             or self._mnk.k != other._mnk.k or self._mnk.winningPlayer != other._mnk.winningPlayer:
             return False
@@ -168,8 +164,10 @@ cdef class MNKGameData():
         mm = ['.', '░', '█']
         
         if self.lastMove != -1:
-            lastMoveX = getMoveX(self._mnk.m, self.lastMove)
-            lastMoveY = getMoveY(self._mnk.m, self.lastMove)
+            lastMoveX = self.lastMove
+            lastMoveY = 0
+            while lastMoveY < self._mnk.n and readField(self._mnk.board, self._mnk.m, lastMoveX, lastMoveY) == 0:
+                lastMoveY += 1
         else:
             lastMoveX = -500
             lastMoveY = -500
@@ -178,7 +176,7 @@ cdef class MNKGameData():
         n = self._mnk.n
         k = self._mnk.k
         mnk = self._mnk
-        s = "MNK(%i,%i,%i), " %  (m, n, k)
+        s = "Connect4(%i,%i,%i), " %  (m, n, k)
 
         if not self.hasEnded():
             s += "Turn %i: %s\n" % (mnk.turn+1, mm[getPlayerOnTurnNumberMNK(mnk)])
@@ -194,7 +192,7 @@ cdef class MNKGameData():
             else:
                 return " " + mm[stone] + "  "
         
-        s += "   |"
+        s += "|"
         for x in range(m):
             if x < 9:
                 s += " %i |" % (x+1)
@@ -203,20 +201,15 @@ cdef class MNKGameData():
         
         s += "\n";
         
-        chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        
-        assert n <= len(chars)
-        
         for y in range(n):
             for x in range(m+1):
-                if x-1 == lastMoveX and y == lastMoveY:
+                if x == lastMoveX and y == lastMoveY:
                     s += "┌─┐ "
-                elif x-1 == lastMoveX and y == lastMoveY+1:
+                elif x == lastMoveX and y == lastMoveY+1:
                     s += "└─┘ "
                 else:
                     s += "    "
             s += "\n";
-            s += " " + chars[y] + "  ";
             for x in range(m):
                 s += getPDisplay(x, y);
             s += "\n";
@@ -232,12 +225,10 @@ cdef class MNKGameData():
         cdef int x, y, idx
         cdef signed char p
 
-        for idx in range(self._mnk.m * self._mnk.n):
-            x = getMoveX(self._mnk.m, idx)
-            y = getMoveY(self._mnk.m, idx)
-            p = readField(self._mnk.board, self._mnk.m, x, y)
+        for x in range(self._mnk.m):
+            p = readField(self._mnk.board, self._mnk.m, x, 0)
             if p == 0:
-                self._legalMovesList.append(idx)
+                self._legalMovesList.append(x)
 
     def getM(self):
         return self._mnk.m
@@ -285,18 +276,26 @@ cdef class MNKGameData():
         #assert legalMoveIndex in self._legalMovesList, "illegal move played"
 
         cdef int x, y
-        x = getMoveX(self._mnk.m, legalMoveIndex)
-        y = getMoveY(self._mnk.m, legalMoveIndex)
 
-        result = MNKGameData(self._mnk.m, self._mnk.n, self._mnk.k)
-        copyMNK(result._mnk, self._mnk)
+        x = legalMoveIndex
+        y = 0
+        while y < self._mnk.n and readField(self._mnk.board, self._mnk.m, x, y) == 0:
+            y += 1
+        y -= 1
+
+        result = Connect4GameData(self._mnk.m, self._mnk.n, self._mnk.k)
+        copyConnect4(result._mnk, self._mnk)
         result._hashVal = updateMNKHash(self._hashVal, x, y, self.getPlayerOnTurnNumber())
-        result._legalMovesList = list(filter(lambda x: x != legalMoveIndex, self._legalMovesList))
 
         placeStone(result._mnk, x, y)
 
         result.lastMove = legalMoveIndex
 
+        if y == 0:
+            result._legalMovesList = list(filter(lambda x: x != legalMoveIndex, self._legalMovesList))
+        else:
+            result._legalMovesList = self._legalMovesList.copy()
+        
         return result
 
     def _getBoardByte(self, int idx):
@@ -306,16 +305,16 @@ cdef class MNKGameData():
         self._mnk.board[idx] = b
 
     def __dealloc__(self):
-        freeMNK(self._mnk)
+        freeConnect4(self._mnk)
 
-class MNKGameState(GameState, metaclass=abc.ABCMeta):
+class Connect4GameState(GameState, metaclass=abc.ABCMeta):
     """
-    The game of MNK. m=3, n=3, k=3 is known as tic tac toe
+    The game of Connect4. Typical size to play is m = 7 and n = 6
     """
 
-    def __init__(self, m, n, k, prepData = None):
+    def __init__(self, m = 7, n = 6, k = 4, prepData = None):
         if prepData is None:
-            self._data = MNKGameData(m, n, k)
+            self._data = Connect4GameData(m, n, k)
         else:
             self._data = prepData
 
@@ -330,7 +329,7 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
 
     def getGameName(self):
         assert(sizeof(unsigned int) == 4)
-        return "MNK(" + str(self._data.getM()) + "," + str(self._data.getN()) + "," + str(self._data.getK()) + ")"
+        return "Connect4(" + str(self._data.getM()) + "," + str(self._data.getN()) + "," + str(self._data.getK()) + ")"
     
     def getPlayerOnTurnNumber(self):
         return self._data.getPlayerOnTurnNumber()
@@ -348,10 +347,10 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         return 2
 
     def getMoveCount(self):
-        return self._data.getM() * self._data.getN()
+        return self._data.getM()
 
     def playMove(self, int legalMoveIndex):
-        return MNKGameState(self._data.getM(), self._data.getN(), self._data.getK(), self._data.playMove(legalMoveIndex))
+        return Connect4GameState(self._data.getM(), self._data.getN(), self._data.getK(), self._data.playMove(legalMoveIndex))
 
     def getTurn(self):
         return self._data.getTurn()
@@ -426,7 +425,7 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         cdef int t = (turn24 << 24) | (turn16 << 16) | (turn8 << 8) | turn0
         cdef int lastMove = (lastMove24 << 24) | (lastMove16 << 16) | (lastMove8 << 8) | (lastMove0 << 0)
 
-        result = MNKGameState(m, n, k)
+        result = Connect4GameState(m, n, k)
         result._data._setWinnerNumber(winner)
         result._data._setHash(hv)
         result._data._setTurn(t)
@@ -444,7 +443,7 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         k = self._data.getK()
 
         def loader(encoded):
-            return MNKGameState(m, n, k).load(encoded)
+            return Connect4GameState(m, n, k).load(encoded)
 
         return loader
 

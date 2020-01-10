@@ -1,6 +1,6 @@
 playvs:
   name: PlayVs
-  externalPlayerNumber: 1
+  externalPlayerNumber: 2
   policy: $resnet
   policyIterator: $mcts
   policyUpdater: $loader
@@ -18,20 +18,20 @@ bestMoves:
 loader:
   name: SingleProcessUpdater
   trainEpochs: 3
-  state: /ImbaKeks/runs/mnk333_0
+  state: /ImbaKeks/runs/mnk764
 
 mnk:
   name: MNKGameState
-  m: 3
-  n: 3
-  k: 3
+  m: 7
+  n: 6
+  k: 4
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 15
+  expansions: 125
   cpuct: 1
   rootNoise: 0
-  drawValue: 0.5
+  drawValue: 0.4
 
 optimizerArgs:
   name: dict
@@ -41,7 +41,7 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 1
+  blocks: 3
   filters: 64
   headKernel: 3
   headFilters: 64

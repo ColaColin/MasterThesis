@@ -1,19 +1,19 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 10000
-  reportsPerIteration: 3000
-  state: /ImbaKeks/runs/mnk333_0
+  windowSize: 500000
+  reportsPerIteration: 40000
+  state: /ImbaKeks/runs/mnk764
 
 updater:
   name: SingleProcessUpdater
   trainEpochs: 2
-  state: /ImbaKeks/runs/mnk333_0
+  state: /ImbaKeks/runs/mnk764
 
 mnk:
   name: MNKGameState
-  m: 3
-  n: 3
-  k: 3
+  m: 7
+  n: 6
+  k: 4
 
 optimizerArgs:
   name: dict
@@ -23,7 +23,7 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 1
+  blocks: 3
   filters: 64
   headKernel: 3
   headFilters: 64
@@ -34,14 +34,14 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 30
+  expansions: 250
   cpuct: 1.5
-  rootNoise: 0.5
+  rootNoise: 0.2
   drawValue: 0.5
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 9
+  explorationPlyCount: 30
 
 selfplayer:
   name: LinearSelfPlayWorker

@@ -60,9 +60,10 @@ class ResBlock(nn.Module):
 class ResCNN(nn.Module):
     def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize):
         super(ResCNN, self).__init__()
-        assert (inWidth % 2) == (inHeight % 2), "One would need to check how this network behaves in this situation before using it"
-        
-        self.baseConv = nn.Conv2d(inDepth, baseFeatures, baseKernelSize)
+
+        paddingSize = 1 if baseKernelSize > 2 else 0
+
+        self.baseConv = nn.Conv2d(inDepth, baseFeatures, baseKernelSize, padding=paddingSize)
         self.baseBn = nn.BatchNorm2d(baseFeatures)
         self.act = nn.ReLU(inplace=True)
         
@@ -76,7 +77,7 @@ class ResCNN(nn.Module):
             blockList.append(ResBlock(features))
         self.resBlocks = nn.Sequential(*blockList)
 
-        hiddens = features * (inWidth - (baseKernelSize - 1)) * (inHeight - (baseKernelSize - 1))
+        hiddens = features * (inWidth - (baseKernelSize - (1 + paddingSize * 2))) * (inHeight - (baseKernelSize - (1 + paddingSize * 2)))
         self.moveHead = nn.Linear(hiddens, moveSize)
         
         if winSize > 0:
@@ -97,7 +98,7 @@ class ResCNN(nn.Module):
         x = x.view(x.size(0), -1)
 
         moveP = self.lsoftmax(self.moveHead(x))
-        
+
         if self.winHead != None:
             winP = self.lsoftmax(self.winHead(x))
             return moveP, winP
