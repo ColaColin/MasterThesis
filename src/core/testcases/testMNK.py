@@ -1,6 +1,6 @@
 import unittest
 import abc
-from core.testcase.abstract.gamestate import TestGameStateSanity
+from core.testcases.abstract.gamestate import TestGameStateSanity
 
 from impls.games.mnk.mnk import MNKGameState
 

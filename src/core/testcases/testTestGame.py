@@ -1,8 +1,8 @@
 import unittest
 import abc
-from core.testcase.abstract.gamestate import TestGameStateSanity
+from core.testcases.abstract.gamestate import TestGameStateSanity
 
-from core.testcase.abstract.policyiterator import TestCountGame
+from core.testcases.abstract.policyiterator import TestCountGame
 
 class TestGameTest(unittest.TestCase, TestGameStateSanity, metaclass=abc.ABCMeta):
     """

@@ -1,6 +1,6 @@
 import unittest
 import abc
-from core.testcase.abstract.policyiterator import TestPolicyIterationSanity
+from core.testcases.abstract.policyiterator import TestPolicyIterationSanity
 
 from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 

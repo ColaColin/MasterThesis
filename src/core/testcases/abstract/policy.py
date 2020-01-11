@@ -3,7 +3,7 @@ import numpy as np
 import uuid
 import sys
 
-from core.testcase.abstract.gamestate import playRandomMove
+from core.testcases.abstract.gamestate import playRandomMove
 
 from utils.prints import logMsg, setLoggingEnabled
 

@@ -1,6 +1,6 @@
 import unittest
 import abc
-from core.testcase.abstract.policy import TestPolicySanity
+from core.testcases.abstract.policy import TestPolicySanity
 
 from impls.polices.pytorch.policy import PytorchPolicy
 from impls.games.mnk.mnk import MNKGameState
