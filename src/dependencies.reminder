@@ -1,0 +1,11 @@
+for the workers:
+    python 3.7
+    pytorch 1.1 with cuda 10.1
+    cython
+    mlconf
+    bson
+
+the webserver additionally requires:
+    gunicorn wsgi server runs it
+    falcon
+

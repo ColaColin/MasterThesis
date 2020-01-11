@@ -305,7 +305,7 @@ class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
         in face of random winner predicition
         """
         testResult = self.getTestResult(2, 2, 12, True, 5, predictMoves=True, errorFrom=9)
-        self.verifyTestResult(testResult, 0.85, 0)
+        self.verifyTestResult(testResult, 0.75, 0)
 
     def test_usesWinnerOraclePolicyCorrectly(self):
         """
@@ -313,7 +313,7 @@ class TestPolicyIterationSanity(metaclass=abc.ABCMeta):
         in face of random move predicition
         """
         testResult = self.getTestResult(2, 2, 12, True, 5, predictWins=True, errorFrom=10)
-        self.verifyTestResult(testResult, 0.85, 1)
+        self.verifyTestResult(testResult, 0.75, 1)
 
 
 

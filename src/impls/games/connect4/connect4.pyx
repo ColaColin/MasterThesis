@@ -2,7 +2,7 @@
 
 from core.base.GameState import GameState
 
-from utils.fields.fields cimport initField, writeField, printField, readField, areFieldsEqual
+from utils.fields.fields cimport initField, writeField, printField, readField, areFieldsEqual, mallocWithZero
 
 from libc.stdlib cimport malloc, free
 from libc.string cimport memcpy
@@ -124,32 +124,35 @@ cdef void fillNetworkInput0(Connect4GameData state, float[:, :, :, :] tensor, in
     cdef int x, y, b
     cdef Connect4_c* mnk = state._mnk
 
-    for x in range(mnk.m):
-        for y in range(mnk.n):
+    # do not use the zero, as pytorch uses zero padding at the end of the input (=board) and
+    # thus 0 is an input that encodes "end of the board"
+    # 1 -> current player
+    # 2 -> next player
+    # 3 -> empty field
+    cdef int[3] playerMappings = [3, mapPlayerNumberTurnRel(mnk, 1) + 1, mapPlayerNumberTurnRel(mnk, 2) + 1]
+    
+    for y in range(mnk.n):
+        for x in range(mnk.m):
             b = readField(mnk.board, mnk.m, x, y)
-            if b != 0:
-                b = mapPlayerNumberTurnRel(mnk, b)
-            else:
-                b = 2
-            # do not use the zero, as pytorch uses zero padding at the end of the input (=board) and
-            # thus 0 is an input that encodes "end of the board"
-            # 1 -> current player
-            # 2 -> next player
-            # 3 -> empty field
-            tensor[batchIndex, 0, y, x] = b + 1
+            b = playerMappings[b]
+            tensor[batchIndex, 0, y, x] = b
 
 cdef class Connect4GameData():
     cdef Connect4_c* _mnk
     cdef unsigned int _hashVal
-    cdef object _legalMovesList
+    cdef list _legalMovesList
     cdef int lastMove
+    cdef char* placeHeights
 
-    def __init__(self, m, n, k):
-        self._mnk = initConnect4(m, n, k)
+    def __init__(self, unsigned char m, unsigned char n, unsigned char k, char doInit = 1):
         # the hash value of the empty game state is 0
         self._hashVal = 0
-        self._legalMovesList = list(range(m))
         self.lastMove = -1
+        self._mnk = initConnect4(m, n, k)
+        self.placeHeights = <char*> mallocWithZero(m * sizeof(char))
+
+        if doInit:
+            self._legalMovesList = list(range(m))
 
     def isEqual(self, Connect4GameData other):
         if self._mnk.turn != other._mnk.turn or self._mnk.m != other._mnk.m or self._mnk.n != other._mnk.n \
@@ -192,12 +195,13 @@ cdef class Connect4GameData():
             else:
                 return " " + mm[stone] + "  "
         
-        s += "|"
         for x in range(m):
             if x < 9:
-                s += " %i |" % (x+1)
+                s += " %i" % (x+1)
             else:
-                s += "%i |" % (x+1)
+                s += "%i" % (x+1)
+            if x != m -1:
+                s += " |"
         
         s += "\n";
         
@@ -218,17 +222,6 @@ cdef class Connect4GameData():
         s += "\n";
         
         return s;
-
-    def _resetLegalMoves(self):
-        self._legalMovesList = []
-
-        cdef int x, y, idx
-        cdef signed char p
-
-        for x in range(self._mnk.m):
-            p = readField(self._mnk.board, self._mnk.m, x, 0)
-            if p == 0:
-                self._legalMovesList.append(x)
 
     def getM(self):
         return self._mnk.m
@@ -273,28 +266,28 @@ cdef class Connect4GameData():
         return self._hashVal
 
     def playMove(self, int legalMoveIndex):
-        #assert legalMoveIndex in self._legalMovesList, "illegal move played"
-
         cdef int x, y
 
         x = legalMoveIndex
-        y = 0
-        while y < self._mnk.n and readField(self._mnk.board, self._mnk.m, x, y) == 0:
-            y += 1
-        y -= 1
 
-        result = Connect4GameData(self._mnk.m, self._mnk.n, self._mnk.k)
+        assert self.placeHeights[x] < self._mnk.n
+
+        y = self._mnk.n - self.placeHeights[x] - 1
+
+        cdef Connect4GameData result = Connect4GameData(self._mnk.m, self._mnk.n, self._mnk.k, 0)
         copyConnect4(result._mnk, self._mnk)
-        result._hashVal = updateMNKHash(self._hashVal, x, y, self.getPlayerOnTurnNumber())
+        memcpy(result.placeHeights, self.placeHeights, self._mnk.m * sizeof(char))
+        result._hashVal = updateMNKHash(self._hashVal, x, y, getPlayerOnTurnNumberMNK(self._mnk))
 
         placeStone(result._mnk, x, y)
+        result.placeHeights[x] += 1
 
         result.lastMove = legalMoveIndex
 
         if y == 0:
-            result._legalMovesList = list(filter(lambda x: x != legalMoveIndex, self._legalMovesList))
+            result._legalMovesList = list(filter(lambda cm: cm != legalMoveIndex, self._legalMovesList))
         else:
-            result._legalMovesList = self._legalMovesList.copy()
+            result._legalMovesList = self._legalMovesList
         
         return result
 
@@ -306,6 +299,7 @@ cdef class Connect4GameData():
 
     def __dealloc__(self):
         freeConnect4(self._mnk)
+        free(self.placeHeights)
 
 class Connect4GameState(GameState, metaclass=abc.ABCMeta):
     """
@@ -436,16 +430,6 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
             result._data._setBoardByte(idx, encoded[16 + idx])
         
         return result
-
-    def getLoader(self):
-        m = self._data.getM()
-        n = self._data.getN()
-        k = self._data.getK()
-
-        def loader(encoded):
-            return Connect4GameState(m, n, k).load(encoded)
-
-        return loader
 
     def __eq__(self, other):
         return self._data.isEqual(other._data)

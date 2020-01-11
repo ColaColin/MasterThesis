@@ -24,3 +24,4 @@ cdef void rotateField(signed char* f, int m, int n)
 
 cdef void printFloatField(int m, int n, float* field)
 
+cdef unsigned char* mallocWithZero(int byteCount)

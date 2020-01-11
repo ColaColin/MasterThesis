@@ -11,11 +11,13 @@ from libc.stdlib cimport rand, RAND_MAX
 
 from utils.prints import logMsg
 
+from libc.stdlib cimport free
+
+from utils.fields.fields cimport mallocWithZero
+
 import random
 
-cdef int bestLegalValue(float [:] ar):
-    cdef int n = ar.shape[0]
-    
+cdef int bestLegalValue(float* ar, int n):
     if n == 0:
         return -1
     
@@ -51,6 +53,12 @@ cdef class MCTSNode():
     # a GameState object
     cdef readonly object state
 
+    # cached playerOnTurnNumber for the state state. This is used a lot and thus it would be expensive to call the abstract state object for it a lot
+    cdef int playerOnTurnNumber
+
+    # cached hasEnded for the state
+    cdef int hasEnded
+
     # a dict: move -> MCTSNode
     cdef object children
 
@@ -60,23 +68,29 @@ cdef class MCTSNode():
     # does this node have a network evaluation already?
     cdef int isExpanded
 
-    # a tuple (MCTSnode, compressed move idx)
-    cdef object parentNode
+    # the parent node from which this node was reached. Is None for a root node
+    cdef MCTSNode parentNode
+    # the move key that was played in the parent to reach this node
+    cdef int parentMove
 
-    # maps move indices to indices in the edge-arrays. This means those arrays can only track legal moves and
-    # thus be smaller than the maximum number of moves possible, which is helpful in games with many illegal moves.
-    cdef unsigned short [:] compressedMoveToMove
-
-    # number moves possible in this state. Pick a number m between 0 and numMoves - 1 to represent a compressedMove
-    # use compressedMoveToMove[m] to get the index as used by the game state
+    # number moves possible in this state. Pick a number m between 0 and numMoves - 1 to represent a legal move
+    # use legalMoveKeys[m] to get the index as used by the game state
     cdef int numMoves
 
+    # data of edgePriors, edgeVisits, edgeTotalValues. Not noisecache, as for most nodes it is null anyway.
+    # All allocated in a single call for more speed.
+    # the pointers below just point at this data at different offsets.
+    cdef float* edgeData
+
     # network output for the legal move edges
-    cdef float [:] edgePriors
+    cdef float* edgePriors
     # visits of legal moves
-    cdef float [:] edgeVisits
+    cdef float* edgeVisits
     # sum of all values collected below a certain edge
-    cdef float [:] edgeTotalValues
+    cdef float* edgeTotalValues
+
+    # keys of legal moves that the edges above refer to
+    cdef int* legalMoveKeys
 
     # cache of the noise used if this is a root node
     cdef float[:] noiseCache
@@ -93,14 +107,19 @@ cdef class MCTSNode():
     # the raw network output for the state value
     cdef object netValueEvaluation
 
-    def __init__(self, state, parentNode = None, noiseMix = 0.25):
+    def __init__(self, state, MCTSNode parentNode = None, int parentMove = -1, float noiseMix = 0.25):
         self.state = state
+
+        self.playerOnTurnNumber = self.state.getPlayerOnTurnNumber()
+
+        self.hasEnded = self.state.hasEnded()
 
         self.noiseMix = noiseMix
 
         self.isExpanded = 0
 
         self.parentNode = parentNode
+        self.parentMove = parentMove
 
         self.children = {}
 
@@ -112,30 +131,19 @@ cdef class MCTSNode():
 
         self.allVisits = 0
 
-        self.edgePriors = None
-
-        # these are all only required once the first select move is to be called,
-        # which on some (many?) leafs is never done, so they are initialized in a lazy fashion once needed
         self.numMoves = -1
-        self.compressedMoveToMove = None
-        self.edgeVisits = None
-        self.edgeTotalValues = None
+
+    def __dealloc__(self):
+        if self.numMoves != -1:
+            free(self.edgeData)
+            free(self.legalMoveKeys)
 
     def getState(self):
         return self.state
 
-    cdef void _lazyInitEdgeData(self):
-        if self.numMoves == -1:
-            legalMoves = self.state.getLegalMoves()
-            self.numMoves = len(legalMoves)
-            assert self.state.getMoveCount() < 65536, "If you need more than 65k possible moves use uint32 below!"
-            self.compressedMoveToMove = np.array(legalMoves, dtype=np.uint16)
-            self.edgeVisits = np.zeros(self.numMoves, dtype=np.float32)
-            self.edgeTotalValues = np.zeros(self.numMoves, dtype=np.float32)
-
     cdef int _pickMove(self, float cpuct):
 
-        cdef int useNoise = self.parentNode == None and self.noiseMix > 0
+        cdef int useNoise = self.parentNode is None and self.noiseMix > 0
 
         if useNoise and self.noiseCache is None:
             self.noiseCache = np.random.dirichlet(getDconst(self.numMoves)).astype(np.float32)
@@ -149,9 +157,8 @@ cdef class MCTSNode():
         # but there is little effect in other cases
         cdef float visitsRoot = self.allVisits ** 0.5 + 0.00001
 
-        cdef float [:] valueTmp = np.zeros(self.numMoves, dtype=np.float32)
-
-        cdef int decompressedMove
+        # this will still contain old numbers, but those are overwritten anyway below!
+        cdef float* valueTmp = &self.edgeData[self.numMoves * 3]
 
         # first play urgency. Value of moves that have not been considered yet. Setting it to 0 (=losing move)
         # is what the original AlphaZero implementation did. There are better ways to handle this value, tbd
@@ -162,13 +169,10 @@ cdef class MCTSNode():
         cdef float fpu = 0.45
 
         for i in range(self.numMoves):
-            # TODO consider reducing the size of edgePriors to only contain legal moves
-            decompressedMove = self.compressedMoveToMove[i]
-
             if useNoise:
-                valueTmp[i] = (1 - self.noiseMix) * self.edgePriors[decompressedMove] + self.noiseMix * self.noiseCache[i]
+                valueTmp[i] = (1 - self.noiseMix) * self.edgePriors[i] + self.noiseMix * self.noiseCache[i]
             else:
-                valueTmp[i] = self.edgePriors[decompressedMove]
+                valueTmp[i] = self.edgePriors[i]
 
             if self.edgeVisits[i] == 0:
                 nodeQ = fpu
@@ -179,74 +183,77 @@ cdef class MCTSNode():
 
             valueTmp[i] = nodeQ + cpuct * nodeU
 
-        cdef int result = bestLegalValue(valueTmp)
+        return bestLegalValue(valueTmp, self.numMoves)
 
-        return self.compressedMoveToMove[result]
-
-    cdef MCTSNode _executeMove(self, int move):
-        cdef object newState = self.state.playMove(move)
+    cdef MCTSNode _executeMove(self, int moveIndex):
+        cdef object newState = self.state.playMove(self.legalMoveKeys[moveIndex])
 
         cdef MCTSNode knownNode
 
-        cdef int ix
-        cdef int compressedNodeIdx = -1
-
-        for ix in range(self.numMoves):
-            if self.compressedMoveToMove[ix] == move:
-                compressedNodeIdx = ix
-                break
-
-        cdef MCTSNode newNode = MCTSNode(newState, (self, compressedNodeIdx), self.noiseMix)
+        cdef MCTSNode newNode = MCTSNode(newState, self, moveIndex, self.noiseMix)
 
         return newNode
 
     cdef MCTSNode _selectMove(self, float cpuct):
-        self._lazyInitEdgeData()
+        cdef int moveIndex = self._pickMove(cpuct)
 
-        cdef int move = self._pickMove(cpuct)
-
-        if not move in self.children:
-            self.children[move] = self._executeMove(move)
+        if not moveIndex in self.children:
+            self.children[moveIndex] = self._executeMove(moveIndex)
         
-        return self.children[move]
+        return self.children[moveIndex]
 
-    cdef void backup(self, object vs, float drawValue):
+    cdef void backup(self, float[:] vs, float drawValue):
         """
         backup results found in a leaf up the tree
         @param vs: win chances by the network, indexed by player numbers, 0 stands for draw chance.
         """
 
-        if self.parentNode == None:
+        cdef MCTSNode parentNode = self.parentNode
+
+        if parentNode is None:
             return
 
-        cdef MCTSNode pNode = self.parentNode[0]
-        cdef int pMove = self.parentNode[1]
-        
-        pNode.edgeVisits[pMove] += 1
-        pNode.allVisits += 1
-        pNode.edgeTotalValues[pMove] += vs[pNode.state.getPlayerOnTurnNumber()] + vs[0] * drawValue
-        pNode.backup(vs, drawValue)
+        parentNode.edgeVisits[self.parentMove] += 1
+        parentNode.allVisits += 1
+        parentNode.edgeTotalValues[self.parentMove] += vs[parentNode.playerOnTurnNumber] + vs[0] * drawValue
+        parentNode.backup(vs, drawValue)
 
     
-    cdef void expand(self, object movePMap, object vs, float drawValue):
+    cdef void expand(self, float[:] movePMap, float[:] vs, float drawValue):
         """
         Fill in missing network evaluations, allowing to select a move on this node
         @param movePMap: move policy of the network
         @param vs: win chances by the network, indexed by player numbers, 0 stands for draw chance.
         """
-        self.edgePriors = np.zeros(self.state.getMoveCount(), dtype=np.float32)
-        np.copyto(np.asarray(self.edgePriors), movePMap, casting="no")
+
+        legalMoves = self.state.getLegalMoves()
+        self.numMoves = len(legalMoves)
+
+        # the 4th entry is used as temporary storage when running _pickMove
+        self.edgeData = <float*> mallocWithZero(4 * self.numMoves * sizeof(float))
+
+        self.edgePriors = self.edgeData
+        self.edgeVisits = &self.edgeData[self.numMoves]
+        self.edgeTotalValues = &self.edgeData[self.numMoves*2]
+
+        self.legalMoveKeys = <int*> mallocWithZero(self.numMoves * sizeof(int))
+
+        cdef int i, mv
+        for i in range(self.numMoves):
+            mv = legalMoves[i]
+            self.legalMoveKeys[i] = mv
+            self.edgePriors[i] = movePMap[mv]
 
         self.isExpanded = 1
         self.netValueEvaluation = vs
-        self.stateValue = vs[self.state.getPlayerOnTurnNumber()] + vs[0] * drawValue
+        self.stateValue = vs[self.playerOnTurnNumber] + vs[0] * drawValue
 
     cdef MCTSNode selectDown(self, float cpuct):
         """
         return a leaf that was chosen by selecting good moves going down the tree
         """
         cdef MCTSNode node = self
-        while node.isExpanded and not node.state.hasEnded():
+        while node.isExpanded and not node.hasEnded:
             node = node._selectMove(cpuct)
         return node
 
@@ -256,7 +263,7 @@ cdef class MCTSNode():
         Do not call unless state.hasEnded() is true!
         """
         if self.terminalResult is None:
-            assert self.state.hasEnded()
+            assert self.hasEnded
             numOutputs = self.state.getPlayerCount() + 1
             r = [0] * numOutputs
             winner = self.state.getWinnerNumber()
@@ -270,7 +277,9 @@ cdef class MCTSNode():
         The distribution over all moves that represents a policy likely better than the one provided by the network alone.
         """
         result = np.zeros(self.state.getMoveCount(), dtype=np.float32)
-        result[self.compressedMoveToMove] = self.edgeVisits
+        cdef int i
+        for i in range(self.numMoves):
+            result[self.legalMoveKeys[i]] = self.edgeVisits[i]
         result /= float(self.allVisits)
 
         return result
@@ -288,22 +297,22 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         self.rootNoise = rootNoise
         self.drawValue = drawValue
   
-    def backupWork(self, backupSet, evalout):
+    def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node
         cdef int idx
 
         for idx, ev in enumerate(evalout):
             node = backupSet[idx]
             w = ev[1]
-            if node.state.hasEnded():
+            if node.hasEnded:
                 w = node.getTerminalResult()
             else:
                 node.expand(ev[0], ev[1], self.drawValue)
             
             node.backup(w, self.drawValue)
 
-    def cpuWork(self, prepareSet, backupSet, evalout):
-        prepareResult = []
+    def cpuWork(self, list prepareSet, list backupSet, list evalout):
+        cdef list prepareResult = []
         
         cdef MCTSNode tnode
         
@@ -317,12 +326,12 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         return prepareResult
 
     def iteratePolicy(self, policy, gamesBatch):
-        nodes = [MCTSNode(g, noiseMix = self.rootNoise) for g in gamesBatch]
+        cdef list nodes = [MCTSNode(g, noiseMix = self.rootNoise) for g in gamesBatch]
 
-        halfw = len(nodes) // 2
+        cdef int halfw = len(nodes) // 2
 
-        nodesA = nodes[:halfw]
-        nodesB = nodes[halfw:]
+        cdef list nodesA = nodes[:halfw]
+        cdef list nodesB = nodes[halfw:]
 
         # the pipeline goes:
 
@@ -341,11 +350,11 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         asyncA = True
 
-        preparedDataA = self.cpuWork(nodesA, None, None)
-        evaloutA = policy.forward([p.getState() for p in preparedDataA])
+        cdef list preparedDataA = self.cpuWork(nodesA, None, None)
+        cdef list evaloutA = policy.forward([p.getState() for p in preparedDataA])
 
-        preparedDataB = self.cpuWork(nodesB, None, None)
-        evaloutB = None
+        cdef list preparedDataB = self.cpuWork(nodesB, None, None)
+        cdef list evaloutB = None
 
         me = self
 
@@ -376,7 +385,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         self.backupWork(preparedDataA, evaloutA)
 
-        result = []
+        cdef list result = []
 
         cdef MCTSNode node
 

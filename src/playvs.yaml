@@ -1,6 +1,6 @@
 playvs:
   name: PlayVs
-  externalPlayerNumber: 1
+  externalPlayerNumber: -1
   policy: $resnet
   policyIterator: $mcts
   policyUpdater: $loader
@@ -40,12 +40,12 @@ optimizerArgs:
 
 resnet:
   name: PytorchPolicy
-  batchSize: 128
+  batchSize: 1
   blocks: 3
   filters: 64
   headKernel: 3
   headFilters: 64
   protoState: $mnk
-  device: cuda:0
+  device: cuda
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs

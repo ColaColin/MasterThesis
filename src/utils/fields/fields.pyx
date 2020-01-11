@@ -1,8 +1,14 @@
+# cython: profile=False
 
 from utils.prints import logMsg
 
 from libc.stdlib cimport malloc, free
-from libc.string cimport memcpy
+from libc.string cimport memcpy, memset
+
+cdef unsigned char* mallocWithZero(int byteCount):
+    cdef unsigned char* tmp = <unsigned char*> malloc(byteCount)
+    memset(tmp, 0, byteCount)
+    return tmp
 
 cdef inline float readFloatField(float* f, int m, int x, int y):
     return f[y * m + x];

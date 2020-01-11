@@ -183,16 +183,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.optimizer = octor(self.net.parameters(), **self.optimizerArgs)
         self.net.train(False)
 
-    def innerForward(self, batch, asyncCall):
-        cdef int thisBatchSize = len(batch)
-        
-        if thisBatchSize == 0:
-            if asyncCall is not None:
-                asyncCall()
-            return []
-
-        assert self.batchSize >= len(batch), "PytorchPolicy has a max batchSize below " + str(len(batch))
-
+    def prepareForwardData(self, batch, int thisBatchSize):
         if not self.tensorCacheExists:
             self.tensorCacheCPU = torch.zeros((self.batchSize, ) + self.gameDims).pin_memory()
             self.forwardInputGPU = Variable(torch.zeros((self.batchSize, ) + self.gameDims), requires_grad=False).to(self.device)
@@ -208,27 +199,27 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         # copy the data to the GPU in one go
         self.forwardInputGPU[:thisBatchSize] = self.tensorCacheCPU[:thisBatchSize]
 
+    def runNetwork(self, int thisBatchSize, asyncCall):
         with torch.no_grad():
             moveP, winP = self.net(self.forwardInputGPU[:thisBatchSize])
         
         if asyncCall is not None:
             asyncCall()
-        
-        winP = torch.exp(winP)
-        moveP = torch.exp(moveP)
 
-        cdef float [:,:] moveTensor = moveP.cpu().numpy()
-        cdef float [:,:] winTensor = winP.cpu().numpy()
+        return torch.exp(winP), torch.exp(moveP)
 
-        results = []
+    def packageResults(self, list batch, int thisBatchSize, float[:,:] winTensor, object moveTensor):
+        cdef list results = []
 
         cdef int pcount = self.protoState.getPlayerCount()
-        cdef int pid, mappedIndex
+        cdef int pid, mappedIndex, idx
+
+        allResultsData = np.zeros((thisBatchSize, pcount+1), dtype=np.float32)
 
         for idx in range(thisBatchSize):
             state = batch[idx]
-            movesResult = np.asarray(moveTensor[idx], dtype=np.float32)
-            winsResult = np.zeros(pcount+1, dtype=np.float32)
+            movesResult = moveTensor[idx]
+            winsResult = allResultsData[idx]
             winsResult[0] = winTensor[idx, 0]
             for pid in range(1, pcount+1):
                 mappedIndex = state.mapPlayerNumberToTurnRelative(pid) + 1
@@ -238,15 +229,34 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         return results
 
+    def innerForward(self, list batch, asyncCall):
+        cdef int thisBatchSize = len(batch)
+        
+        if thisBatchSize == 0:
+            if asyncCall is not None:
+                asyncCall()
+            return []
+
+        self.prepareForwardData(batch, thisBatchSize)
+
+        winP, moveP = self.runNetwork(thisBatchSize, asyncCall)
+
+        moveTensor = moveP.cpu().numpy()
+        cdef float[:,:] winTensor = winP.cpu().numpy()
+
+        return self.packageResults(batch, thisBatchSize, winTensor, moveTensor)
+
     def forward(self, batch, asyncCall = None):
-        nbatch = len(batch)
-        batchNum = math.ceil(nbatch / self.batchSize)
+        cdef int nbatch = len(batch)
+        cdef int batchNum = math.ceil(nbatch / self.batchSize)
         
         if batchNum == 0 and (asyncCall is not None):
             asyncCall()
             return []
 
-        results = []
+        cdef list results = []
+        cdef int bi, batchStart, batchEnd
+        cdef list fresult
         for bi in range(batchNum):
             batchStart = bi * self.batchSize
             batchEnd = min((bi+1) * self.batchSize, nbatch)
