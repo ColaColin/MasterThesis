@@ -10,34 +10,37 @@ def encodeToBson(npDict):
     def pack(d):
         cdef int i
 
+        if isinstance(d, np.ndarray):
+            if d.dtype == np.uint8:
+                return bytes(d)
+            else:
+                tmp = dict()
+                tmp["_x_encType"] = "numpy"
+                tmp["type"] = str(d.dtype)
+                tmp["data"] = d.tolist()
+                return tmp
         if isinstance(d, dict):
+            newDict = dict()
             for k in d:
-                if isinstance(d[k], np.ndarray):
-                    if d[k].dtype == np.uint8:
-                        d[k] = bytes(d[k])
-                    else:
-                        tmp = dict()
-                        tmp["___encType"] = "numpy"
-                        tmp["type"] = str(d[k].dtype)
-                        tmp["data"] = d[k].tolist()
-                        d[k] = tmp
-                elif isinstance(d[k], dict) or isinstance(d[k], list):
-                    d[k] = pack(d[k])
+                newDict[k] = pack(d[k])
+            return newDict
         elif isinstance(d, list):
+            newList = list()
             for i in range(len(d)):
-                d[i] = pack(d[i])
+                newList.append(pack(d[i]))
+            return newList
+
         return d
 
     npDict = pack(npDict)
 
     cdef int i
 
-    if isinstance(npDict, list):
+    # the bson lib does not like packing anything but a dict at the root node?!
+    if not isinstance(npDict, dict):
         wrapDict = dict()
-        wrapDict["___encType"] = "list"
-        for i in range(len(npDict)):
-            wrapDict[i] = npDict[i]
-        
+        wrapDict["_x_encType"] = "dict"
+        wrapDict["data"] = npDict
         npDict = wrapDict
 
     binary = bson.dumps(npDict)
@@ -48,19 +51,16 @@ def decodeFromBson(encBytes):
         cdef int i
 
         if isinstance(d, dict):
-            for k in d:
-                if isinstance(d[k], dict):
-                    if "___encType" in d[k]:
-                        if d[k]["___encType"] == "numpy":
-                            d[k] = np.array(d[k]["data"], dtype=d[k]["type"])
-                        else:
-                            assert False, "Unknown enctype: " + d[k]["___encType"]
-                    else:
-                        d[k] = unpack(d[k])
-                elif isinstance(d[k], dict) or isinstance(d[k], list):
+            if "_x_encType" in d:
+                if d["_x_encType"] == "numpy":
+                    return np.array(d["data"], dtype=d["type"])
+                else:
+                    assert False, "Unknown enctype: " + d["_x_encType"]
+            else:
+                for k in d:
                     d[k] = unpack(d[k])
-                elif isinstance(d[k], bytes):
-                    d[k] = np.frombuffer(d[k], dtype=np.uint8)
+        elif isinstance(d, bytes):
+            return np.frombuffer(d, dtype=np.uint8)
         elif isinstance(d, list):
             for i in range(len(d)):
                 d[i] = unpack(d[i])
@@ -71,10 +71,7 @@ def decodeFromBson(encBytes):
     loaded = bson.loads(encDict)
     
     cdef int i
-    if "___encType" in loaded and loaded["___encType"] == "list":
-        tmp = [None] * (len(loaded) - 1)
-        for k in range(len(tmp)):
-            tmp[k] = loaded[str(k)]
-        loaded = tmp
+    if "_x_encType" in loaded and loaded["_x_encType"] == "dict":
+        loaded = loaded["data"]
 
     return unpack(loaded)
