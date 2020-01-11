@@ -47,8 +47,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
     def selfplay(self, gameReporter, policyUpdater):
         self.policy = policyUpdater.update(self.policy)
-        foo = time.time()
-        while time.time() - foo < 600:
+        while True:
             moveTimeNanos = 0
 
             iteratationStart = time.monotonic_ns()
