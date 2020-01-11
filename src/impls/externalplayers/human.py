@@ -1,7 +1,7 @@
 import abc
 from utils.prints import logMsg
 
-from core.playvs.playvs import ExternalPlayerInterface
+from core.playing.playvs import ExternalPlayerInterface
 
 class ConsolePlayer(ExternalPlayerInterface, metaclass=abc.ABCMeta):
 

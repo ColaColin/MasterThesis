@@ -1,7 +1,5 @@
 import mlconfig
 
-from impls.mlconf.mlconf import TypeA, TypeB, TypeX
-
 import mlconfig
 
 from utils.prints import logMsg, setLoggingEnabled
@@ -11,15 +9,10 @@ from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
-from impls.mlconf.mlconf import TypeA, TypeB, TypeX
 from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater
 from impls.polices.pytorch.policy import PytorchPolicy
 
 from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
-
-mlconfig.register(TypeA)
-mlconfig.register(TypeB)
-mlconfig.register(TypeX)
 
 import bson
 import uuid

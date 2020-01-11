@@ -1,6 +1,6 @@
 # cython: profile=False
 
-from core.policy.PolicyIterator import PolicyIterator
+from core.base.PolicyIterator import PolicyIterator
 
 import abc
 

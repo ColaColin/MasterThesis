@@ -13,7 +13,7 @@ from torch.autograd import Variable
 
 import uuid
 
-from core.policy.Policy import Policy
+from core.base.Policy import Policy
 
 from utils.encoding import stringToBytes, bytesToString
 

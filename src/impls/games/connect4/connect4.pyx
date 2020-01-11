@@ -1,6 +1,6 @@
 # cython: profile=False
 
-from core.game.GameState import GameState
+from core.base.GameState import GameState
 
 from utils.fields.fields cimport initField, writeField, printField, readField, areFieldsEqual
 

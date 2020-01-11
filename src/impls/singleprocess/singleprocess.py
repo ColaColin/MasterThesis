@@ -1,6 +1,6 @@
 import abc
 
-from core.selfplay.SelfPlayWorker import GameReporter, PolicyUpdater
+from core.playing.SelfPlayWorker import GameReporter, PolicyUpdater
 from utils.prints import logMsg
 
 import numpy as np

@@ -3,8 +3,8 @@ import sys
 import numpy as np
 import uuid
 
-from core.game.GameState import GameState
-from core.policy.Policy import Policy
+from core.base.GameState import GameState
+from core.base.Policy import Policy
 
 class TestCountGame(GameState, metaclass=abc.ABCMeta):
     """

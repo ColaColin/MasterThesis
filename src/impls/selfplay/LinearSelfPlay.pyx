@@ -1,6 +1,6 @@
 # cython: profile=False
 
-from core.selfplay.SelfPlayWorker import SelfPlayWorker
+from core.playing.SelfPlayWorker import SelfPlayWorker
 
 import uuid
 

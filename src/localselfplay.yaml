@@ -22,7 +22,7 @@ optimizerArgs:
 
 resnet:
   name: PytorchPolicy
-  batchSize: 128
+  batchSize: 64
   blocks: 3
   filters: 64
   headKernel: 3
@@ -48,5 +48,5 @@ selfplayer:
   initialState: $mnk
   policy: $resnet
   policyIterator: $mcts
-  gameCount: 128
+  gameCount: 64
   moveDecider: $tempDecider
