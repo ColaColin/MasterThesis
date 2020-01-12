@@ -21,6 +21,8 @@ import numpy as np
 
 import time
 
+import requests
+
 # random testing code
 
 if __name__ == "__main__":
@@ -48,7 +50,9 @@ if __name__ == "__main__":
     # print("\nEncoded into %i bytes: " % len(enc), enc)
     # print("\nDecoded:\n", decodeFromBson(enc))
 
-    reps = [makeReport() for _ in range(500000)]
+    reps = [makeReport() for _ in range(10000)]
+
+    print(reps[0])
 
     encStart = time.time()
     repEnc = encodeToBson(reps)
@@ -56,8 +60,22 @@ if __name__ == "__main__":
 
     print("Encoded %i reports into %i kbyte" % (len(reps), 1+(len(repEnc) / 1000)))
 
+    reportId = requests.post(url="http://127.0.0.1:8000/reports/", data=repEnc).json()
+
+    print("Posted report of %i bytes and got response: %s" % (len(repEnc), reportId))
+
+    response = requests.get(url="http://127.0.0.1:8000/reports/" + reportId, stream=True)
+
+    if response.status_code != 200:
+        print("Got HTTP error on GET: ", response.status_code, response.content)
+        exit(-1)
+
+    redownloaded = response.raw.data
+
+    print("Get report gave us %i bytes" % len(redownloaded))
+
     decStart = time.time()
-    repDec = decodeFromBson(repEnc)
+    repDec = decodeFromBson(redownloaded)
     print("Decode time taken:", time.time() - decStart)
 
     print("Decoded %i" % len(repDec))

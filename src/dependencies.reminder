@@ -6,6 +6,7 @@ for the workers:
     bson
 
 the webserver additionally requires:
-    gunicorn wsgi server runs it
+    gunicorn
     falcon
+    requests
 
