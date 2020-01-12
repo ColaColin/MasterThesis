@@ -4,6 +4,7 @@ for the workers:
     cython
     narumiruna/mlconf
     bson
+    pytorch_model_summary
 
 the webserver additionally requires:
     gunicorn
