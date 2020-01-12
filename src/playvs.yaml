@@ -1,6 +1,6 @@
 playvs:
   name: PlayVs
-  externalPlayerNumber: -1
+  externalPlayerNumber: 1
   policy: $resnet
   policyIterator: $mcts
   policyUpdater: $loader

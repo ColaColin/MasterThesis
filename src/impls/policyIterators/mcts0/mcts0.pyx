@@ -272,6 +272,18 @@ cdef class MCTSNode():
 
         return self.terminalResult
 
+    cdef object getNetworkPriors(self):
+        """
+        Get the network prior edge outputs for legal moves. Likely do not sum to 1.
+        Meant mainly for better understanding of the learning, not required by the algorithm.
+        """
+        result = np.zeros(self.state.getMoveCount(), dtype=np.float32)
+        cdef int i
+        for i in range(self.numMoves):
+            result[self.legalMoveKeys[i]] = self.edgePriors[i]
+
+        return result
+
     cdef object getMoveDistribution(self):
         """
         The distribution over all moves that represents a policy likely better than the one provided by the network alone.
@@ -392,6 +404,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         for node in nodes:
             generics = dict()
             generics["net_values"] = [x for x in node.netValueEvaluation]
+            generics["net_priors"] = node.getNetworkPriors()
             result.append((node.getMoveDistribution(), generics))
 
         return result
