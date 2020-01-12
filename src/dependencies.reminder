@@ -10,4 +10,4 @@ the webserver additionally requires:
     gunicorn
     falcon
     requests
-
+    psycopg2
