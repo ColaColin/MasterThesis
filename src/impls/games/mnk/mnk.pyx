@@ -319,6 +319,12 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         else:
             self._data = prepData
 
+    def getGameConstructorName(self):
+        return "impls.games.mnk.mnk.MNKGameState"
+
+    def getGameConstructorParams(self):
+        return {"m": self._data.getM(), "n": self._data.getN(), "k": self._data.getK()}
+
     def getM(self):
         return self._data.getM()
     

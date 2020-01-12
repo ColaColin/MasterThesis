@@ -89,6 +89,8 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             # do not learn from terminal states, there is no move that can be made on them
             assert not state.hasEnded()
             record = dict()
+            record["gameCtor"] = state.getGameConstructorName()
+            record["gameParams"] = state.getGameConstructorParams()
             record["knownResults"] = [result]
             record["generics"] = dict(iPolicy[1])
             record["policyIterated"] = iPolicy[0]

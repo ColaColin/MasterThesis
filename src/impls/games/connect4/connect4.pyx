@@ -312,6 +312,12 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
         else:
             self._data = prepData
 
+    def getGameConstructorName(self):
+        return "impls.games.connect4.connect4.Connect4GameState"
+
+    def getGameConstructorParams(self):
+        return {"m": self._data.getM(), "n": self._data.getN(), "k": self._data.getK()}
+
     def getM(self):
         return self._data.getM()
     

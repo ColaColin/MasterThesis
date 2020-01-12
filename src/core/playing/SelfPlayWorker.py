@@ -6,6 +6,8 @@ class GameReporter(metaclass=abc.ABCMeta):
         """
         @param reports: A list of game state recordings. A game state recording is a dict with the following properties (there is no actual GameState object here!):
 
+        gameCtor: name of the constructor of the played game
+        gameParams: params to the constructor of the played game
         knownResults: list of player number of the winner that were reached from this state.
             For a simple self playing implementation there will be exactly one entry here.
         generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy arrays. 

@@ -13,12 +13,9 @@ print("Development mode:", development)
 
 api = application = falcon.API()
 
-staticPath = os.path.join(os.getcwd(), "core/command/frontend/")
-if not development:
-    staticPath = "/home/x0/static"
-
-api.add_static_route("/", staticPath)
-
+if development:
+    staticPath = os.path.join(os.getcwd(), "core/command/frontend/")
+    api.add_static_route("/", staticPath)
 
 runs = RunsResource()
 api.add_route("/runs/{run_id}", runs)

@@ -7,6 +7,18 @@ class GameState(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
+    def getGameConstructorName(self):
+        """
+        @return the name of the constructor so that it can be retrieved via importlib
+        """
+    
+    @abc.abstractmethod
+    def getGameConstructorParams(self):
+        """
+        @return the parameters to pass to the constructor (see getGameConstructurName) to recreate a GameState with the same rules as this one.
+        """
+
+    @abc.abstractmethod
     def getGameName(self):
         """
         @return: The name of the game

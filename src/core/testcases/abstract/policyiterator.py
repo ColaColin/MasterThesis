@@ -37,6 +37,12 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
 
         self.winner = -1
 
+    def getGameConstructorName(self):
+        return "core.testcases.abstract.policyiterator.TestCountGame"
+
+    def getGameConstructorParams(self):
+        return {"playersCount": self.playersCount, "pathLength": self.pathLength, "movesCount": self.movesCount, "resetOnError": self.resetOnError}
+
     def getGameName(self):
         return "TestGame"
 

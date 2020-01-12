@@ -4,6 +4,8 @@ import numpy as np
 
 from utils.prints import logMsg, setLoggingEnabled
 
+from utils.misc import constructor_for_class_name
+
 def playRandomMove(game, idx, offset):
     if not game.hasEnded():
         moves = game.getLegalMoves()
@@ -39,6 +41,14 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         gs = str(game)
         ts = str(tensor)
         logMsg(gs, ts)        
+
+    def test_GameCtor(self):
+        ctorName = self.subject.getGameConstructorName()
+        ctorArgs = self.subject.getGameConstructorParams()
+        ctor = constructor_for_class_name(ctorName)
+        newState = ctor(**ctorArgs)
+        self.assertEqual(ctorName, newState.getGameConstructorName())
+        self.assertEqual(ctorArgs, newState.getGameConstructorParams())
 
     def test_ExampleGames(self):
         """
