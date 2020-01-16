@@ -9,6 +9,9 @@ from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProce
 from impls.polices.pytorch.policy import PytorchPolicy
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
+from impls.solved.players import RandomPlayPolicy
+from impls.solved.PonsSolver import PonsSolver
+from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -26,6 +29,9 @@ def registerClasses():
     mlconfig.register(HumanMNKInterface)
     mlconfig.register(Connect4GameState)
     mlconfig.register(HumanConnect4Interface)
+    mlconfig.register(RandomPlayPolicy)
+    mlconfig.register(PonsSolver)
+    mlconfig.register(TestDatabaseGenerator)
 
 
 def mlConfigBasedMain():
