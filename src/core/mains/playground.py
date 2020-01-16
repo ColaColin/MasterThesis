@@ -23,11 +23,11 @@ import time
 
 import requests
 
+import psycopg2
+
 # random testing code
 
-if __name__ == "__main__":
-    setLoggingEnabled(True)
-
+def reportsApiTest():
     def makeReport():
         game = Connect4GameState(7,6,4)
         game = game.playMove(np.random.randint(7))
@@ -65,10 +65,7 @@ if __name__ == "__main__":
     print("Posted report of %i bytes and got response: %s" % (len(repEnc), reportId))
 
     response = requests.get(url="http://127.0.0.1:8000/reports/" + reportId, stream=True)
-
-    if response.status_code != 200:
-        print("Got HTTP error on GET: ", response.status_code, response.content)
-        exit(-1)
+    reponse.raise_for_status()
 
     redownloaded = response.raw.data
 
@@ -81,23 +78,31 @@ if __name__ == "__main__":
     print("Decoded %i" % len(repDec))
 
     print(repDec[0])
+
+def postgresTest():
+    try:
+        connect_str = "dbname='x0' user='x0' host='127.0.0.1' password='x0'"
+        # use our connection values to establish a connection
+        conn = psycopg2.connect(connect_str)
+        # create a psycopg2 cursor that can execute queries
+        cursor = conn.cursor()
+        # create a new table with a single column called "name"
+        cursor.execute("""CREATE TABLE tutorials (name char(40));""")
+        # run a SELECT statement - no data in there, but we can try it
+        cursor.execute("""SELECT * from tutorials""")
+        conn.commit() # <--- makes sure the change is shown in the database
+        rows = cursor.fetchall()
+        print(rows)
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print("Uh oh, can't connect. Invalid dbname, user or password?")
+        print(e)
+
+
+if __name__ == "__main__":
+    setLoggingEnabled(True)
+
+    postgresTest()
+
     
-
-    # turns out typos in the yaml definition cause confusing errors...
-
-    # mnk = MNKGameState(3, 3, 3)
-    # optimizerArgs = dict([("lr", 0.001), ("weight_decay", 0.001)])
-    # resnet = PytorchPolicy(128, 1, 16, 1, 1, mnk, "cuda:0", "torch.optim.adamw.AdamW", optimizerArgs)
-    # wtfMap0 = dict([("expansions", 15), ("cpuct", 1.5), ("rootNoise", 0.2), ("drawValue", 0.5)])
-    # mcts = MctsPolicyIterator(**wtfMap0)
-    # tempDecider = TemperatureMoveDecider(12)
-
-    # wtfMap1 = dict([("initalState", mnk), ("policy", resnet), ("policyIterator", mcts), ("gameCount", 128), ("moveDecider", tempDecider)])
-
-    # selfplayer = LinearSelfPlayWorker(**wtfMap1)
-    # print(selfplayer)
-
-    # config = mlconfig.load("test.yaml")
-
-    # b = config.instanceB(recursive=True)
-    # b.wtf()
