@@ -9,14 +9,19 @@ from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProce
 from impls.polices.pytorch.policy import PytorchPolicy
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
-from impls.solved.players import RandomPlayPolicy
+from impls.solved.players import RandomPlayPolicy, BestPlayPolicy
 from impls.solved.PonsSolver import PonsSolver
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
+from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
 
 def registerClasses():
+    mlconfig.register(DatasetPolicyTester)
+    mlconfig.register(ShuffleBatchedPolicyPlayer)
+    mlconfig.register(SolverBatchedPolicyPlayer)
+    mlconfig.register(PolicyIteratorPlayer)
     mlconfig.register(LinearSelfPlayWorker)
     mlconfig.register(MctsPolicyIterator)
     mlconfig.register(TemperatureMoveDecider)
@@ -32,6 +37,7 @@ def registerClasses():
     mlconfig.register(RandomPlayPolicy)
     mlconfig.register(PonsSolver)
     mlconfig.register(TestDatabaseGenerator)
+    mlconfig.register(BestPlayPolicy)
 
 
 def mlConfigBasedMain():

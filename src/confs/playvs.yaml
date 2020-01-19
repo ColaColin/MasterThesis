@@ -1,6 +1,6 @@
 playvs:
   name: PlayVs
-  externalPlayerNumber: 1
+  externalPlayerNumber: 11
   policy: $resnet
   policyIterator: $mcts
   policyUpdater: $loader
@@ -13,7 +13,7 @@ human:
 
 bestMoves:
   name: TemperatureMoveDecider
-  explorationPlyCount: 4
+  explorationPlyCount: 0
 
 loader:
   name: SingleProcessUpdater
@@ -30,7 +30,7 @@ mcts:
   name: MctsPolicyIterator
   expansions: 100
   cpuct: 1
-  rootNoise: 0.03
+  rootNoise: 0.5
   drawValue: 0.5
 
 optimizerArgs:

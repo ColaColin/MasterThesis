@@ -1,0 +1,22 @@
+c4:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+pons:
+  name: PonsSolver
+  executable: /ImbaKeks/git/connect4/c4solver
+  book: /ImbaKeks/git/connect4/7x6.book
+
+genPlayer:
+  name: BestPlayPolicy
+
+main:
+  name: TestDatabaseGenerator
+  initialState: $c4
+  solver: $pons
+  databaseSize: 50000
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/best.dataset
+  policy: $genPlayer
+  generation: beam

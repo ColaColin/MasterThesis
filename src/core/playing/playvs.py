@@ -20,7 +20,7 @@ class ExternalPlayerInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def showFinalResult(self, externalId, gameState):
         """
-        Called at the end of the game with the resulting game state
+        Called at the end of the game with the resulting game state. Not important for an AI implementation
         """
 
 class PlayVs():

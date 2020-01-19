@@ -6,6 +6,13 @@ from utils.prints import logMsg
 
 import time
 
+def isInt(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
     """
     Uses the connect4 solver made by Pascal Pons.
@@ -14,68 +21,50 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
     def __init__(self, executable, book):
         """
         using threads above 1 does not help at all, probably because of
-        the solver using some sort of position caching?!
+        the solver using some sort of position caching?! Or maybe
+        the inter process communication is the bottleneck
         """
         self.executable = executable
         self.book = book
-        threads = 1
-        self.processes = [None] * threads
-        self.threads = threads
+        self.process = None
         self.calls = 0
         self.restart()
-
-    def restartIndex(self, pidx):
-        process = self.processes[pidx]
-        if process is not None:
-            process.kill()
-        self.processes[pidx] = subprocess.Popen([self.executable, "-b", self.book], 
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        startupline = self.processes[pidx].stderr.readline()
-
+ 
     def restart(self):
-        for pidx in range(len(self.processes)):
-            self.restartIndex(pidx)
-            # just ignore the startup line...
+        if not (self.process is None):
+            self.process.kill()
+        self.process = subprocess.Popen([self.executable, "-b", self.book], 
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            universal_newlines=True, bufsize=1)
+        self.process.stdout.readline()
 
     def getMoveScores(self, state, movesReplay):
+        assert not state.hasEnded()
+
+        lMoves = state.getLegalMoves()
         result = dict()
 
-        self.calls += 1
-        if self.calls > 3000:
-            self.calls = 0
-            self.restart()
+        for move in lMoves:
+            movePlayed = state.playMove(move)
+            if movePlayed.hasEnded():
+                if movePlayed.getWinnerNumber() == state.getPlayerOnTurnNumber():
+                    result[move] = 99
+                else:
+                    result[move] = 0
+            else:
+                path = movesReplay + [move]
+                path = "".join([str(p + 1) for p in path]) + "\n"
 
-        moves = []
-        for move in state.getLegalMoves():
-            path = movesReplay + [move]
-            path = "".join([str(p + 1) for p in path]) + "\n"
-            path = bytes(path, encoding="utf8")
-            moves.append((move, path))
+                self.process.stdin.write(path)
+                ponsOut = self.process.stdout.readline().strip()
 
-        while len(moves) > 0:
-            pendings = []
-            for idx in range(self.threads):
-                if len(moves) > 0:
-                    next = moves.pop(0)
-                    _, path = next
-                    doWork = True
-                    while doWork:
-                        try:
-                            self.processes[idx].stdin.write(path)
-                            self.processes[idx].stdin.flush(timeout=1)
-                            doWork = False
-                        except:
-                            logMsg("Had to fix an issue with solver", idx)
-                            # what is going on
-                            self.restartIndex(idx)
-                            doWork = True
-                    pendings.append(next)
-            for idx in range(len(pendings)):
-                move, path = pendings[idx]
-                ponsOut = self.processes[idx].stdout.readline().decode("utf8").strip()
+                #print(ponsOut)
+
                 if ponsOut.find("Line") != 0:
                     score = ponsOut.split(" ")
-                    if len(score) == 4:
-                        result[move] = int(score[1])
+                    if len(score) == 4 and isInt(score[1]):
+                        result[move] = -int(score[1])
+
+        #print("".join([str(m + 1) for m in movesReplay]), result)
 
         return result
