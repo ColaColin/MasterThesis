@@ -1,4 +1,4 @@
-playvs:
+main:
   name: PlayVs
   externalPlayerNumber: 11
   policy: $resnet

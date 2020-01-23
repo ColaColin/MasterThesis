@@ -37,7 +37,7 @@ class PlayVs():
         self.moveDecider = moveDecider
         self.external = external
 
-    def playVs(self):
+    def main(self):
         while not self.currentState.hasEnded():
             if self.currentState.getPlayerOnTurnNumber() == self.externalNumber:
                 self.external.showGame(self.currentState)

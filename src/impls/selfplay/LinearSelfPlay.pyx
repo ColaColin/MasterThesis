@@ -20,7 +20,7 @@ class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
         """
 
 class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
-    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider):
+    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider, gameReporter, policyUpdater):
         logMsg("Creating LinearSelfPlayWorker gameCount=%i" % gameCount)
         self.initialState = initialState
         self.policy = policy
@@ -30,6 +30,8 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.tracking = [None] * gameCount;
         self.moveDecider = moveDecider
         self.microsPerMovePlayedHistory = []
+        self.gameReporter = gameReporter
+        self.policyUpdater = policyUpdater
         self.lastSpeedStatsPrint = time.monotonic()
 
     def handleSpeedStats(self):
@@ -44,9 +46,11 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
             self.microsPerMovePlayedHistory = []
 
+    def main(self):
+        self.selfplay()
 
-    def selfplay(self, gameReporter, policyUpdater):
-        self.policy = policyUpdater.update(self.policy)
+    def selfplay(self):
+        self.policy = self.policyUpdater.update(self.policy)
         while True:
             moveTimeNanos = 0
 
@@ -54,8 +58,8 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
             moveTimeNanos += time.monotonic_ns() - iteratationStart
 
-            self.addTrackingData(gameReporter, iteratedPolicy)
-            self.policy = policyUpdater.update(self.policy)
+            self.addTrackingData(iteratedPolicy)
+            self.policy = self.policyUpdater.update(self.policy)
             assert not (self.policy is None), "the policy updater returned a None policy!"
 
             playStart = time.monotonic_ns()
@@ -66,9 +70,9 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             self.microsPerMovePlayedHistory.append(int((moveTimeNanos / float(len(self.open))) / 1000))
             self.handleSpeedStats()
 
-            self.finalizeGames(gameReporter)
+            self.finalizeGames()
 
-    def addTrackingData(self, gameReporter, iteratedPolicy):
+    def addTrackingData(self, iteratedPolicy):
         for idx, game in enumerate(self.open):
             if self.tracking[idx] == None:
                 self.tracking[idx] = []
@@ -76,7 +80,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             self.tracking[idx].append([game, iteratedPolicy[idx]])
 
 
-    def handleReportsFor(self, idx, gameReporter):
+    def handleReportsFor(self, idx):
         reports = []
 
         trackList = self.tracking[idx]
@@ -105,9 +109,9 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.tracking[idx] = None
 
         if len(reports) > 0:
-            gameReporter.reportGame(reports)
+            self.gameReporter.reportGame(reports)
 
-    def finalizeGames(self, gameReporter):
+    def finalizeGames(self):
         """
         replace games that have been completed with new games, if desired by the impl.
         After this call all games in self.open should not be in a terminal state.
@@ -118,7 +122,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         newList = []
         for idx, o in enumerate(self.open):
             if o.hasEnded():
-                self.handleReportsFor(idx, gameReporter)
+                self.handleReportsFor(idx)
                 newList.append(self.initialState)
             else:
                 newList.append(o)

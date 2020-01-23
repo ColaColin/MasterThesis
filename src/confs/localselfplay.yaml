@@ -1,7 +1,7 @@
 reporter:
   name: SingleProcessReporter
-  windowSize: 500000
-  reportsPerIteration: 40000
+  windowSize: 300000
+  reportsPerIteration: 25000
   state: /ImbaKeks/runs/connect4
 
 updater:
@@ -34,7 +34,7 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 250
+  expansions: 200
   cpuct: 1.5
   rootNoise: 0.2
   drawValue: 0.4
@@ -43,10 +43,12 @@ tempDecider:
   name: TemperatureMoveDecider
   explorationPlyCount: 20
 
-selfplayer:
+main:
   name: LinearSelfPlayWorker
   initialState: $mnk
   policy: $resnet
   policyIterator: $mcts
   gameCount: 128
   moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
