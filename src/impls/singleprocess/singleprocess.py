@@ -2,6 +2,7 @@ import abc
 
 from core.playing.SelfPlayWorker import GameReporter, PolicyUpdater
 from utils.prints import logMsg
+from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester
 
 import numpy as np
 
@@ -93,16 +94,24 @@ class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
             iterationCounter += 1
             needsFitting = True
             self.storeState()
-           
+
+class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
+    def update(self, policy):
+        return policy           
 
 class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
-    def __init__(self, trainEpochs, state):
+    def __init__(self, trainEpochs, state, policyIterator, moveDecider, batchSize, datasetFile, initialGameState):
         logMsg("Initialized SingleProcessUpdater trainEpochs=%i, state=%s" % (trainEpochs, state))
         self.trainEpochs = trainEpochs
         self.state = state
         self.statePath = os.path.join(self.state, "policy.npy")
         self.loadedPolicyBytes = None
+        self.policyIterator = policyIterator
+        self.moveDecider = moveDecider
+        self.batchSize = batchSize
+        self.initialGameState = initialGameState
+        self.datasetFile = datasetFile
         self.loadState()
 
     def storeState(self, policy):
@@ -119,11 +128,15 @@ class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
         if not (self.loadedPolicyBytes is None):
             policy.load(self.loadedPolicyBytes)
             self.loadedPolicyBytes = None
-            print("Loaded stored policy with UUID %s!" % policy.getUUID())
+            logMsg("Loaded stored policy with UUID %s!" % policy.getUUID())
 
         if needsFitting:
             policy.fit(reportedData, self.trainEpochs)
             needsFitting = False
             self.storeState(policy)
+
+            testPlayer = PolicyIteratorPlayer(policy, self.policyIterator, NoopPolicyUpdater(), self.moveDecider, self.batchSize);
+            policyTester = DatasetPolicyTester(testPlayer, self.datasetFile, self.initialGameState, "shell", self.batchSize)
+            policyTester.main()
 
         return policy

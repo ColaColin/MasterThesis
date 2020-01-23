@@ -1,13 +1,18 @@
 reporter:
   name: SingleProcessReporter
   windowSize: 300000
-  reportsPerIteration: 25000
+  reportsPerIteration: 45000
   state: /ImbaKeks/runs/connect4
 
 updater:
   name: SingleProcessUpdater
   trainEpochs: 2
   state: /ImbaKeks/runs/connect4
+  policyIterator: $bestMcts
+  moveDecider: $bestMoves
+  batchSize: 128
+  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/rnd.dataset
+  initialGameState: $mnk
 
 mnk:
   name: Connect4GameState
@@ -32,12 +37,23 @@ resnet:
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
+bestMcts:
+  name: MctsPolicyIterator
+  expansions: 40
+  cpuct: 1.5
+  rootNoise: 0.001
+  drawValue: 0.4
+
 mcts:
   name: MctsPolicyIterator
   expansions: 200
   cpuct: 1.5
   rootNoise: 0.2
   drawValue: 0.4
+
+bestMoves:
+  name: TemperatureMoveDecider
+  explorationPlyCount: -1
 
 tempDecider:
   name: TemperatureMoveDecider
