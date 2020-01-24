@@ -101,7 +101,7 @@ class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
 class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
-    def __init__(self, trainEpochs, state, policyIterator, moveDecider, batchSize, datasetFile, initialGameState):
+    def __init__(self, trainEpochs, state, policyIterator = None, moveDecider = None, batchSize = None, datasetFile = None, initialGameState = None):
         logMsg("Initialized SingleProcessUpdater trainEpochs=%i, state=%s" % (trainEpochs, state))
         self.trainEpochs = trainEpochs
         self.state = state
@@ -135,8 +135,11 @@ class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
             needsFitting = False
             self.storeState(policy)
 
-            testPlayer = PolicyIteratorPlayer(policy, self.policyIterator, NoopPolicyUpdater(), self.moveDecider, self.batchSize);
-            policyTester = DatasetPolicyTester(testPlayer, self.datasetFile, self.initialGameState, "shell", self.batchSize)
-            policyTester.main()
+            if self.policyIterator is not None and self.moveDecider is not None and self.batchSize is not None and self.datasetFile is not None and self.initialGameState is not None:
+                testPlayer = PolicyIteratorPlayer(policy, self.policyIterator, NoopPolicyUpdater(), self.moveDecider, self.batchSize);
+                policyTester = DatasetPolicyTester(testPlayer, self.datasetFile, self.initialGameState, "shell", self.batchSize)
+                policyTester.main()
+            else:
+                logMsg("Single Process Policy Updater is not configured to evaluate!")
 
         return policy
