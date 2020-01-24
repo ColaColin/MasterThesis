@@ -1,0 +1,46 @@
+Target      What
+14.2.2020   Implement distributed training server and worker, so be ready to train at full "scale"
+
+21.2.2020   Run first verification that training at full scale works up to a 99%+ perfect play on the testset.
+
+28.2.2020   Time buffer to fix bugs and verify things really work.
+
+20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
+
+03.4.2020   Have a look at possible metrics to determine if the training suffers from any form of forgetting-and-relearning, as per chapter 4.2 of the proposal
+
+            Implement known improvements that were stated as obligatory in the proposal:
+10.4.2020       - squeeze-and-excitation networks
+10.4.2020       - more filters in the network heads
+10.4.2020       - use a cyclic learning rate
+17.4.2020       - use playout caps
+17.4.2020       - predict the opponens move
+17.4.2020       - predict a drawing probability directly
+17.4.2020       - handle duplicate training positions
+17.4.2020       - improve training window size handling
+
+24.4.2020    Do a new training run to 99%+ and measure improvements made by these changes.
+
+24.4.2020    The simple parts of the writing are completed: introduction, describe the known improvements, describe the algorithm, etc.
+
+            Implement suggested new improvements, first the network architecture changes:
+01.5.2020       - gather-excity blocks
+01.5.2020       - mobilenetv3 network blocks
+
+08.5.2020   Do a training run to 99%+ and measure improvements of the network architecture changes.
+
+08.5.2020   Writing about proposed ideas is completed.
+
+            Implement more conceptual changes to the algorithm:
+22.5.2020       - Play games as trees and evaluate with a training run
+05.6.2020       - Use internal network features of previous iterations as automatic auxilary targets and evaluate it with a training run
+19.6.2020       - Adapt the self-playing phase to search for hyperpameters and evaluate it with a training run
+
+23.6.2020   Write about measured results
+
+            Implement optional known improvements:
+26.6.2020        - Combine two networks in the search process and evaluate with a training run
+03.7.2020        - Use the kullback-leibler distance to determine how certain the tree search is on a position and evaluate with a training run
+                 - more optional stuff if time allows...
+
+15.7.2020   Finalize writing            
