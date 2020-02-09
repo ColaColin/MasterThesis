@@ -10,8 +10,7 @@ class GameReporter(metaclass=abc.ABCMeta):
         gameParams: params to the constructor of the played game
         knownResults: list of player number of the winner that were reached from this state.
             For a simple self playing implementation there will be exactly one entry here.
-        generics: a dict() of extra data, allowed are only string keys with numeric, string or numpy arrays. 
-            No other numpy array types are supported!
+        generics: a dict() of extra data that may be useful to some specialized analysis tools
         policyIterated: The move probabilities, improved by MCTS
         uuid: A UUID identifying the state
         parent: UUID of the parent state (None if this is a root)

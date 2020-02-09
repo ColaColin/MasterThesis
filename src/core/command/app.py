@@ -1,24 +1,39 @@
-import os
 import falcon
-import json
-
-import sys
 
 from core.command.runs import RunsResource
 from core.command.reports import ReportsResource
+from core.command.login import LoginResource
 
-development = "--reload" in sys.argv
+class AuthMiddleware(object):
+    def __init__(self, password):
+        self.password = password
 
-print("Development mode:", development)
+    def process_request(self, req, resp):
+        if "api/" in req.path:
+            secret = req.get_header("secret")
+            if secret != self.password:
+                raise falcon.HTTPUnauthorized("You are not supposed to be here")
 
-api = application = falcon.API()
+def defineApp(config):
+    """
+    Config has keys:
+    - staticPath: if not none serve static files from here
+    - ... more to come?
+    """
 
-if development:
-    staticPath = os.path.join(os.getcwd(), "core/command/frontend/")
-    api.add_static_route("/", staticPath)
+    app = falcon.API(middleware=[AuthMiddleware(config["secret"])])
 
-runs = RunsResource()
-api.add_route("/runs/{run_id}", runs)
+    if config["staticPath"] is not None:
+        app.add_static_route("/", config["staticPath"])
+        print("Will serve static files from " + config["staticPath"])
 
-reports = ReportsResource()
-api.add_route("/reports/{report_id}", reports)
+    runs = RunsResource()
+    app.add_route("/api/runs", runs)
+    app.add_route("/api/runs/{run_id}", runs)
+
+    reports = ReportsResource()
+    app.add_route("/api/reports/{report_id}", reports)
+
+    app.add_route("/password", LoginResource(config["secret"]))
+
+    return app

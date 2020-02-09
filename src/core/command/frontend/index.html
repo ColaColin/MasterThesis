@@ -7,12 +7,110 @@
        
     </head>
     <body>
-        <div class="red">fill in stuff here</div>
 
-
+        <!-- ko if: onLoginPage -->
+        <div class="lockpage">
+            <input type="password" data-bind="textInput: password" />
+            <button data-bind="click: login">Login</button>
+        </div>
+        <!-- /ko -->
         
+        <div bp="container" class="mainpage" data-bind="visible: loggedIn" style="display: none">
 
+            <div bp="grid 4" class="navbar">
+                <div data-bind="css: { 'active-tab': showRuns() }, click: navRuns">
+                    Runs
+                </div>
+                <div data-bind="css: { 'active-tab': showStates() }, click: navStates">
+                    States
+                </div>
+                <div data-bind="css: { 'active-tab': showNetworks() }, click: navNetworks">
+                    Networks
+                </div>
+            </div>
 
+            <div class="runs" data-bind="if: currentHash() === '#runs/new'">
+                <div bp="grid">
+                    <div bp="2">
+                        Name
+                    </div>
+                    <div bp="10">
+                        <input data-bind="textInput: newRunName" />
+                    </div>
+                    <div bp="2">
+                        YAML
+                    </div>
+                    <div bp="10">
+                        <textarea data-bind="textInput: newRunYaml" class="yamlTxt"></textarea>
+                    </div>
+                </div>
+                
+                <!-- ko if: newRunName().length > 0 && newRunYaml().length > 0-->
+                    <button data-bind="click: createNewRun">Create new run</button>
+                <!-- /ko -->
+            </div>
+
+            <div class="runs" data-bind="if: currentHash().startsWith('#runs/list')">
+                
+                <button class="runbtt" data-bind="click: navRunsNew">New</button>
+
+                <table class="runstable" data-bind="if: selectedRunObject() == null">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Creation time</th>
+                            <th>ID</th>
+                            
+                        </tr>
+                    </thead>
+    
+                    <tbody data-bind="foreach: runList">
+                        <tr class="runline">
+                            <td>
+                                <a data-bind="text: name, attr: {href: '#runs/list/' + $data.id}"></a>
+                            </td>
+                            <td data-bind="text: new Date(timestamp).toISOString()"></td>
+                            <td data-bind="text: id"></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div data-bind="if: selectedRunObject() != null">
+
+                    <div bp="grid">
+
+                        <div bp="2">ID</div><div bp="10" data-bind="text: selectedRunObject().id"></div>
+                        <div bp="2">Creation</div><div bp="10" data-bind="text: (new Date(selectedRunObject().timestamp)).toISOString()"></div>
+                        <div bp="2">
+                            Name
+                        </div>
+                        <div bp="10" data-bind="text: selectedRunObject().name"></div>
+                        <div bp="2">
+                            YAML
+                        </div>
+                        <div bp="10">
+                            <textarea readonly="readonly" data-bind="textInput: selectedRunObject().config" class="yamlTxt"></textarea>
+                        </div>
+
+                    </div>
+
+                    <button data-bind="click: deleteRun">Delete</button>
+
+                </div>
+                
+            </div>
+
+            <div bp="grid" class="states" data-bind="if: showStates">
+                States
+            </div>
+
+            <div bp="grid" class="networks" data-bind="if: showNetworks">
+                Networks
+            </div>
+        </div>
+
+        <script src="/jquery-1.4.2.js" type="text/javascript"></script>
+        <script src="/sammy-0.6.2.js" type="text/javascript"></script>
         <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.0/knockout-min.js'></script>
         <script type="text/javascript" src="/index.js"></script>
     </body>

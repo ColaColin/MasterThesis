@@ -8,16 +8,19 @@ class RunsResource():
         self.activeRuns = [{
             "id": str(uuid.uuid4()),
             "name": "Some test run",
-            "config": "yaml file content..."
+            "config": "yaml file content...",
+            "timestamp": 0
         }, {
             "id": str(uuid.uuid4()),
             "name": "Some test run 2",
-            "config": "yaml file content..."
+            "config": "yaml file content...",
+            "timestamp": 1
         }]
 
     def parseRun(self, message):
         isRunMsg = "name" in message and "config" in message \
-            and isinstance(message["name"], str) and isinstance(message["config"], str)
+            and isinstance(message["name"], str) and isinstance(message["config"], str) \
+            and "timestamp" in message and isinstance(message["timestamp"], int)
 
         if not isRunMsg:
             raise falcon.HTTPError(falcon.HTTP_400, "Malformed run configuration")
@@ -28,10 +31,17 @@ class RunsResource():
         newRuns["id"] = newId
         newRuns["name"] = message["name"]
         newRuns["config"] = message["config"]
+        newRuns["timestamp"] = message["timestamp"]
 
         return newRuns
 
-    def on_get(self, req, resp, run_id):
+    def on_delete(self, req, resp, run_id = None):
+        if run_id is not None:
+            self.activeRuns = list(filter(lambda r: r["id"] != run_id, self.activeRuns))
+            
+        resp.status = falcon.HTTP_200;
+
+    def on_get(self, req, resp, run_id = None):
         if run_id is not None:
             selectedRunLst = list(filter(lambda x: x["id"] == run_id, self.activeRuns))
             if len(selectedRunLst) == 0:
@@ -43,7 +53,7 @@ class RunsResource():
 
         resp.status = falcon.HTTP_200
 
-    def on_post(self, req, resp, run_id):
+    def on_post(self, req, resp, run_id = None):
         """
         Add a run
         """
@@ -57,7 +67,7 @@ class RunsResource():
         resp.status = falcon.HTTP_200
 
 
-    def on_put(self, req, resp, run_id):
+    def on_put(self, req, resp, run_id = None):
         """
         Update a run
         """

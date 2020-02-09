@@ -1,3 +1,45 @@
-.red {
-    color: red;
+.lockpage {
+    text-align: center;
+}
+
+.navbar {
+    background-color: lightgray;
+}
+
+.navbar div {
+    text-align: center;
+    line-height: 40px;
+    cursor: pointer;
+    background-color: lightgreen;
+}
+
+.navbar div:hover {
+    background-color: green;
+}
+
+.active-tab {
+    cursor: default !important;
+    background-color: lime !important;
+}
+
+.runs {
+    margin-top: 5px;
+}
+
+.runbtt {
+    width: 100%;
+    height: 30px;
+}
+
+.yamlTxt {
+    width: 100%;
+    height: 500px;
+}
+
+.runline:nth-child(odd){
+    background-color: lightgrey;
+}
+
+.runstable {
+    width: 100%;
 }

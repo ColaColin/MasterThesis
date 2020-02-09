@@ -7,7 +7,6 @@ for the workers:
     pytorch_model_summary
 
 the webserver additionally requires:
-    gunicorn
     falcon
     requests
     psycopg2
