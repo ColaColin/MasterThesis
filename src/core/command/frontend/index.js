@@ -127,7 +127,6 @@ function CommandPageModel() {
             },
             body: JSON.stringify({
                 name: self.newRunName(),
-                timestamp: Date.now(),
                 config: self.newRunYaml()
             })
         });

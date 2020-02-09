@@ -7,7 +7,10 @@ import json
 
 cfg = {
     "staticPath": os.path.join(os.getcwd(), "core/command/frontend/"),
-    "secret": "42"
+    "secret": "42",
+    "dbuser": "x0",
+    "dbpassword": "x0",
+    "dbname": "x0"
 }
 
 if "--config" in sys.argv:
