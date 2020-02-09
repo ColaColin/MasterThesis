@@ -141,7 +141,7 @@ cdef class MCTSNode():
     def getState(self):
         return self.state
 
-    cdef int _pickMove(self, float cpuct):
+    cdef int _pickMove(self, float cpuct, float fpu):
 
         cdef int useNoise = self.parentNode is None and self.noiseMix > 0
 
@@ -159,14 +159,6 @@ cdef class MCTSNode():
 
         # this will still contain old numbers, but those are overwritten anyway below!
         cdef float* valueTmp = &self.edgeData[self.numMoves * 3]
-
-        # first play urgency. Value of moves that have not been considered yet. Setting it to 0 (=losing move)
-        # is what the original AlphaZero implementation did. There are better ways to handle this value, tbd
-        # Using 0 is pretty bad however, as it makes it hard to learn from a policy that knows
-        # the correct winners, as they're never even looked at if there was a bad move probability estimation
-        # That's why this uses 0.45 instead, so assume an unplay move is likely slightly worse than a draw
-        # further improvements are probably possible here
-        cdef float fpu = 0.45
 
         for i in range(self.numMoves):
             if useNoise:
@@ -194,8 +186,8 @@ cdef class MCTSNode():
 
         return newNode
 
-    cdef MCTSNode _selectMove(self, float cpuct):
-        cdef int moveIndex = self._pickMove(cpuct)
+    cdef MCTSNode _selectMove(self, float cpuct, float fpu):
+        cdef int moveIndex = self._pickMove(cpuct, fpu)
 
         if not moveIndex in self.children:
             self.children[moveIndex] = self._executeMove(moveIndex)
@@ -248,13 +240,13 @@ cdef class MCTSNode():
         self.netValueEvaluation = vs
         self.stateValue = vs[self.playerOnTurnNumber] + vs[0] * drawValue
 
-    cdef MCTSNode selectDown(self, float cpuct):
+    cdef MCTSNode selectDown(self, float cpuct, float fpu):
         """
         return a leaf that was chosen by selecting good moves going down the tree
         """
         cdef MCTSNode node = self
         while node.isExpanded and not node.hasEnded:
-            node = node._selectMove(cpuct)
+            node = node._selectMove(cpuct, fpu)
         return node
 
     cdef object getTerminalResult(self):
@@ -299,15 +291,16 @@ cdef class MCTSNode():
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """
     AlphaZero-style MCTS implementation extended with explicit handling of draws.
-    FPU for now is just 0, following AlphaZero basics
+    FPU can be configured, AlphaZero standard is 0. There must be better ways to handle it, however.
     """
 
-    def __init__(self, expansions, cpuct, rootNoise, drawValue):
-        logMsg("Creating MctsPolicyIterator(expansions=%i, cpuct=%f,rootNoise=%f, drawValue=%f)" % (expansions, cpuct, rootNoise, drawValue))
+    def __init__(self, expansions, cpuct, rootNoise, drawValue, fpu = 0.45):
+        logMsg("Creating MctsPolicyIterator(expansions=%i, cpuct=%f,rootNoise=%f, drawValue=%f,fpu=%f)" % (expansions, cpuct, rootNoise, drawValue, fpu))
         self.expansions = expansions
         self.cpuct = cpuct
         self.rootNoise = rootNoise
         self.drawValue = drawValue
+        self.fpu = fpu
   
     def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node
@@ -333,7 +326,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         
         for i in range(len(prepareSet)):
             tnode = prepareSet[i]
-            prepareResult.append(tnode.selectDown(self.cpuct))
+            prepareResult.append(tnode.selectDown(self.cpuct, self.fpu))
 
         return prepareResult
 
