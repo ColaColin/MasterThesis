@@ -6,7 +6,7 @@ import gzip
 
 # I don't see much chance to improve this, it's just slow.
 # maybe use cpickle after all?! though it seems this can encode ~10k connect4 states per second,
-# so compared to generating 10k states it is negligible
+# so compared to generating 10k states it is negligible, as states in connect4 are generated at maybe a 100 a second
 
 def encodeToBson(npDict):
     def pack(d):

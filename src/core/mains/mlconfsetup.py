@@ -13,6 +13,7 @@ from impls.solved.players import RandomPlayPolicy, BestPlayPolicy
 from impls.solved.PonsSolver import PonsSolver
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
 from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
+from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -38,12 +39,13 @@ def registerClasses():
     mlconfig.register(PonsSolver)
     mlconfig.register(TestDatabaseGenerator)
     mlconfig.register(BestPlayPolicy)
+    mlconfig.register(DistributedNetworkUpdater)
+    mlconfig.register(DistributedReporter)
 
 
-def mlConfigBasedMain():
+def mlConfigBasedMain(configPath):
     setLoggingEnabled(True)
     registerClasses()
-    configPath = sys.argv[1]
     logMsg("Running  ", str(sys.argv))
 
     config = mlconfig.load(configPath)

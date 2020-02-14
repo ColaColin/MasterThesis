@@ -1,0 +1,51 @@
+reporter:
+  name: DistributedReporter
+  packageSize: 3000
+
+updater:
+  name: DistributedNetworkUpdater
+  checkInterval: 20
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  lr: 0.001
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 3
+  filters: 64
+  headKernel: 3
+  headFilters: 64
+  protoState: $mnk
+  device: cuda:0
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 200
+  cpuct: 1.5
+  rootNoise: 0.2
+  drawValue: 0.4
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 20
+
+main:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater

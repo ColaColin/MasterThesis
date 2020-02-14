@@ -152,6 +152,14 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(runsList[0]["name"], rundata["name"])
         self.assertEqual(runsList[0]["config"], rundata["config"])
 
+        response = requests.get(url=urlBase + "/api/runs/" + rundata["id"], headers={"secret": config["secret"]})
+        response.raise_for_status()
+
+        post = response.json()
+        self.assertEqual(rundata["id"], post["id"])
+        self.assertEqual(rundata["name"], post["name"])
+        self.assertEqual(rundata["config"], post["config"])
+
     def test_state_posting(self):
         run1 = self.postARun()
         run2 = self.postARun()
