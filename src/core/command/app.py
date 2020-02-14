@@ -4,6 +4,7 @@ from core.command.runs import RunsResource
 from core.command.reports import ReportsResource
 from core.command.login import LoginResource
 from core.command.state import StateResource
+from core.command.networks import NetworksResource
 
 import psycopg2
 from psycopg2 import pool
@@ -48,6 +49,9 @@ def defineApp(config):
 
         state = StateResource(pool, config)
         app.add_route("/api/state/{key}/{entity_id}", state)
+
+        networks = NetworksResource(pool, config)
+        app.add_route("/api/networks/{param1}/{param2}", networks)
 
         app.add_route("/password", LoginResource(config["secret"]))
 

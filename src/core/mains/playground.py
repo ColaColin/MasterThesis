@@ -58,8 +58,34 @@ def reportsApiTest2():
 
     print(reportId)
     
+def reportsApiTest3():
 
+    policy = PytorchPolicy(32, 1, 32, 3, 64, Connect4GameState(7,6,4), "cuda:0", "torch.optim.adamw.AdamW", {
+        "lr": 0.001,
+        "weight_decay": 0.0001
+    })
 
+    encoded = encodeToBson(policy.store())
+
+    print("Encoded network into " + str(len(encoded)))
+
+    response = requests.post(url="http://127.0.0.1:8042/api/networks/c48b01d7-18e8-4df0-9c8a-d9886473bb49/" + policy.getUUID(),
+        data=encoded)
+
+    response.raise_for_status()
+    
+    response = requests.get(url="http://127.0.0.1:8042/api/networks/download/" + policy.getUUID(), stream=True)
+    response.raise_for_status()
+
+    redownloaded = decodeFromBson(response.raw.data)
+
+    prevId = policy.getUUID()
+
+    policy.reset()
+
+    policy.load(redownloaded)
+
+    print(policy.getUUID(), prevId)
 
 def reportsApiTest():
 
@@ -123,6 +149,6 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    reportsApiTest2()
+    reportsApiTest3()
 
     

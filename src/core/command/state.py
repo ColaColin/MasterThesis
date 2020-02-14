@@ -95,7 +95,7 @@ class StateResource():
 
                 resp.media = result
 
-                resp.statue = falcon.HTTP_200
+                resp.status = falcon.HTTP_200
 
             finally:
                 if cursor:
@@ -148,8 +148,6 @@ class StateResource():
         try:
             con = self.pool.getconn()
             cursor = con.cursor()
-            
-            storeFileUnderPath(os.path.join(self.config["dataPath"], getUUIDPath(newId)), binary)
 
             packageSize = len(decoded)
 
@@ -176,10 +174,13 @@ class StateResource():
             cursor.execute("insert into states (id, package_size, worker, iteration, network, run) VALUES (%s, %s, %s, %s, %s, %s)",
                 (newId, packageSize, worker_name, iteration, networkUUID, entity_id));
 
+            storeFileUnderPath(os.path.join(self.config["dataPath"], getUUIDPath(newId)), binary)
+
             con.commit()
         finally:
             if cursor:
                 cursor.close()
+            con.rollback()
             self.pool.putconn(con)
 
 

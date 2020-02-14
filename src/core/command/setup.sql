@@ -14,16 +14,12 @@ create table runs (
 
 create table networks (
     id uuid primary key,
-    fpath varchar not null,
     creation timestamptz default NOW() not null,
-    iteration integer not null,
     run uuid references runs (id) not null
 );
 
 create table states (
     id uuid primary key,
-    -- can be calculated from the id as binary/id[0]/id[1]/id[2]/id
-    -- fpath varchar not null,
     package_size integer not null,
     worker varchar not null,
     creation timestamptz default NOW() not null,
