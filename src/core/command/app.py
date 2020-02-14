@@ -3,6 +3,7 @@ import falcon
 from core.command.runs import RunsResource
 from core.command.reports import ReportsResource
 from core.command.login import LoginResource
+from core.command.state import StateResource
 
 import psycopg2
 from psycopg2 import pool
@@ -24,7 +25,8 @@ def defineApp(config):
     - ... more to come?
     """
 
-    app = falcon.API(middleware=[AuthMiddleware(config["secret"])])
+    #app = falcon.API(middleware=[AuthMiddleware(config["secret"])])
+    app = falcon.API()
 
     if config["staticPath"] is not None:
         app.add_static_route("/", config["staticPath"])
@@ -44,11 +46,14 @@ def defineApp(config):
         reports = ReportsResource()
         app.add_route("/api/reports/{report_id}", reports)
 
+        state = StateResource(pool, config)
+        app.add_route("/api/state/{key}/{entity_id}", state)
+
         app.add_route("/password", LoginResource(config["secret"]))
 
         return app
 
     except (Exception, psycopg2.DatabaseError) as error :
-        print ("Error while connecting to PostgreSQL", error)
+        print ("Error while setting up app", error)
         raise error
 

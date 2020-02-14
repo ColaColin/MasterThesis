@@ -5,6 +5,7 @@ import numpy as np
 import gzip
 
 # I don't see much chance to improve this, it's just slow.
+# maybe use cpickle after all?!
 
 def encodeToBson(npDict):
     def pack(d):

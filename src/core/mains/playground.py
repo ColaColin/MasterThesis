@@ -27,21 +27,41 @@ import psycopg2
 
 # random testing code
 
+def makeReport():
+    game = Connect4GameState(7,6,4)
+    game = game.playMove(np.random.randint(7))
+    game = game.playMove(np.random.randint(7))
+
+    report = dict()
+    report["knownResults"] = [1]
+    report["generics"] = dict()
+    report["policyUUID"] = "ab98246f-4b80-48e8-97fc-d365d4a3aa3d"
+    report["policyIterated"] = np.random.rand(7).astype(np.float32)
+    report["generics"]["wtf"] = np.random.rand(7).astype(np.float32)
+    report["uuid"] = str(uuid.uuid4())
+    report["state"] = game.store()
+
+    return report
+
+
+def reportsApiTest2():
+    reps = [makeReport() for _ in range(1000)]
+
+    encStart = time.time()
+    repEnc = encodeToBson(reps)
+    print("Encoding time taken per state:", int(((time.time() - encStart) / len(reps)) * 1000000), "us")
+
+    print("===")
+
+    reportId = requests.post(url="http://127.0.0.1:8042/api/state/test/4492b3fc-0989-497d-b78c-5d97f148bfd4",
+        data=repEnc).json()
+
+    print(reportId)
+    
+
+
+
 def reportsApiTest():
-    def makeReport():
-        game = Connect4GameState(7,6,4)
-        game = game.playMove(np.random.randint(7))
-        game = game.playMove(np.random.randint(7))
-
-        report = dict()
-        report["knownResults"] = [1]
-        report["generics"] = dict()
-        report["policyIterated"] = np.random.rand(7).astype(np.float32)
-        report["generics"]["wtf"] = np.random.rand(7).astype(np.float32)
-        report["uuid"] = str(uuid.uuid4())
-        report["state"] = game.store()
-
-        return report
 
     report = makeReport()
 
@@ -50,7 +70,7 @@ def reportsApiTest():
     # print("\nEncoded into %i bytes: " % len(enc), enc)
     # print("\nDecoded:\n", decodeFromBson(enc))
 
-    reps = [makeReport() for _ in range(10000)]
+    reps = [makeReport() for _ in range(1000)]
 
     print(reps[0])
 
@@ -60,11 +80,11 @@ def reportsApiTest():
 
     print("Encoded %i reports into %i kbyte" % (len(reps), 1+(len(repEnc) / 1000)))
 
-    reportId = requests.post(url="http://127.0.0.1:8000/reports/", data=repEnc).json()
+    reportId = requests.post(url="http://127.0.0.1:8042/api/reports/", data=repEnc).json()
 
     print("Posted report of %i bytes and got response: %s" % (len(repEnc), reportId))
 
-    response = requests.get(url="http://127.0.0.1:8000/reports/" + reportId, stream=True)
+    response = requests.get(url="http://127.0.0.1:8042/api/reports/" + reportId, stream=True)
     reponse.raise_for_status()
 
     redownloaded = response.raw.data
@@ -103,6 +123,6 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    postgresTest()
+    reportsApiTest2()
 
     

@@ -7,6 +7,7 @@ import json
 
 cfg = {
     "staticPath": os.path.join(os.getcwd(), "core/command/frontend/"),
+    "dataPath": "/ImbaKeks/x0/",
     "secret": "42",
     "dbuser": "x0",
     "dbpassword": "x0",

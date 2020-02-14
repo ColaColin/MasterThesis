@@ -28,7 +28,8 @@ class ReportsResource():
     def on_post(self, req, resp, report_id):
         newId = str(uuid.uuid4())
 
-        decoded = decodeFromBson(req.stream.read())
+        binary = req.stream.read()
+        decoded = decodeFromBson(binary)
 
         self.knownReports[newId] = decoded
 
