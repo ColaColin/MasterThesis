@@ -2,3 +2,4 @@
 *.c
 *.html
 *fuse_hidden*
+test_data

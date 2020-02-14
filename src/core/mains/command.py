@@ -11,7 +11,9 @@ cfg = {
     "secret": "42",
     "dbuser": "x0",
     "dbpassword": "x0",
-    "dbname": "x0"
+    "dbname": "x0",
+    "host": "127.0.0.1",
+    "port": 8042
 }
 
 if "--config" in sys.argv:
@@ -24,9 +26,6 @@ if "--config" in sys.argv:
         print("Configuration loaded successfully!")
         print(cfgTxt)
 
-ip = "127.0.0.1"
-port = 8042
-
-with make_server(ip, port, defineApp(cfg)) as httpd:
-    print("Running command server on port " + str(port))
+with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
+    print("Running command server on port " + str(cfg["port"]))
     httpd.serve_forever()

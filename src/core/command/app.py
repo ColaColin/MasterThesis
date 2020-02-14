@@ -26,10 +26,10 @@ def defineApp(config):
     - ... more to come?
     """
 
-    #app = falcon.API(middleware=[AuthMiddleware(config["secret"])])
-    app = falcon.API()
+    app = falcon.API(middleware=[AuthMiddleware(config["secret"])])
+    #app = falcon.API()
 
-    if config["staticPath"] is not None:
+    if "staticPath" in config:
         app.add_static_route("/", config["staticPath"])
         print("Will serve static files from " + config["staticPath"])
 
@@ -39,6 +39,8 @@ def defineApp(config):
                                               host = "127.0.0.1",
                                               port = "5432",
                                               database = config["dbname"]);
+
+        
 
         runs = RunsResource(pool)
         app.add_route("/api/runs", runs)
