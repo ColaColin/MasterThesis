@@ -14,6 +14,7 @@ from impls.solved.PonsSolver import PonsSolver
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
 from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
 from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
+from core.training.TrainingWorker import TrainingWorker
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -41,6 +42,7 @@ def registerClasses():
     mlconfig.register(BestPlayPolicy)
     mlconfig.register(DistributedNetworkUpdater)
     mlconfig.register(DistributedReporter)
+    mlconfig.register(TrainingWorker)
 
 
 def mlConfigBasedMain(configPath):

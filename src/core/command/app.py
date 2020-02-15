@@ -1,7 +1,6 @@
 import falcon
 
 from core.command.runs import RunsResource
-from core.command.reports import ReportsResource
 from core.command.login import LoginResource
 from core.command.state import StateResource
 from core.command.networks import NetworksResource
@@ -45,9 +44,6 @@ def defineApp(config):
         runs = RunsResource(pool)
         app.add_route("/api/runs", runs)
         app.add_route("/api/runs/{run_id}", runs)
-
-        reports = ReportsResource()
-        app.add_route("/api/reports/{report_id}", reports)
 
         state = StateResource(pool, config)
         app.add_route("/api/state/{key}/{entity_id}", state)

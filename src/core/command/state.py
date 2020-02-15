@@ -50,25 +50,6 @@ class StateResource():
     def getRelativePath(self, reportUUID, depth = 3):
         return getUUIDPath(reportUUID, depth)
 
-    def getMajorityPolicyUUID(self, decoded):
-        """
-        in case of a reports package contains states from different networks, just use the most common one.
-        slightly inaccurate, but not too important
-        """
-        results = {}
-        for d in decoded:
-            if not d["policyUUID"] in results:
-                results[d["policyUUID"]] = 1
-            else:
-                results[d["policyUUID"]] += 1
-        biggestPolicy = decoded[0]["policyUUID"]
-        biggestPolicyCnt = results[biggestPolicy]
-        for k in results:
-            if results[k] > biggestPolicyCnt:
-                biggestPolicyCnt = results[k]
-                biggestPolicy = k
-        return biggestPolicy
-
     def on_get(self, req, resp, key, entity_id):
         mode = key
 
@@ -161,13 +142,18 @@ class StateResource():
 
             iteration = int(rows[0][0])
 
-            networkUUID = self.getMajorityPolicyUUID(decoded)
+            networkUUID = decoded[-1]["policyUUID"]
+            
+            cursor = con.cursor()
+            cursor.execute("select id from networks where id = %s", (networkUUID, ))
+            rows = cursor.fetchall()
+            if cursor:
+                cursor.close()
 
-            if iteration == 0:
-                # the random network of iteration 0 is not stored in the database,
-                # so don't try to set a foreign key.
-                # all other networks should come from the database, so they must exist there
+            if len(rows) == 0:
                 networkUUID = None
+                if iteration > 0:
+                    print("Warning: Got a package with unknown network UUID and iteration above 0. If this happens a lot something might be wrong!")
 
             cursor = con.cursor()
 

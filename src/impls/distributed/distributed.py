@@ -99,7 +99,7 @@ class DistributedNetworkUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
                 if len(list) > 0:
                     bestNetwork = list[-1]
                     if bestNetwork["id"] != policy.getUUID():
-                        logMsg("New network found created at ", datetime.utcfromtimestamp(bestNetwork["creation"] / 1000).strftime('%Y-%m-%d %H:%M:%S'), "\nDownloading...")
+                        logMsg("New network found created at UTC", datetime.utcfromtimestamp(bestNetwork["creation"] / 1000).strftime('%Y-%m-%d %H:%M:%S'), "\nDownloading...")
 
                         response = requests.get(url=self.commandHost + "/api/networks/download/" + bestNetwork["id"],
                             headers={"secret": self.secret}, stream=True)

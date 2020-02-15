@@ -40,7 +40,7 @@ tempDecider:
   name: TemperatureMoveDecider
   explorationPlyCount: 20
 
-main:
+worker:
   name: LinearSelfPlayWorker
   initialState: $mnk
   policy: $resnet
@@ -49,3 +49,10 @@ main:
   moveDecider: $tempDecider
   gameReporter: $reporter
   policyUpdater: $updater
+
+trainer:
+  name: TrainingWorker
+  epochs: 10
+  windowSize: 300000
+  dataDir: traininerData/testRun1
+  policy: $resnet

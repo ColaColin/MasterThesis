@@ -17,6 +17,10 @@ from utils.prints import logMsg, setLoggingEnabled
 # --run <run-uuid>
 # Not needed by this script directly, but in a distributed setting you likely use the DistributedReporter, which additionally needs:
 # --worker <worker-name>
+# --training spawns the trainer instead of the playing-worker
+
+# example call
+# python -m core.mains.distributed --command 'http://127.0.0.1:8042' --secret 42 --run 'c8e187a0-de60-4251-b985-9b3464b831dd' --worker test1
 
 if __name__ == "__main__":
     setLoggingEnabled(True)
@@ -43,6 +47,10 @@ if __name__ == "__main__":
     logMsg("Downloaded configuration to", cfgPath)
     logMsg("Running configuration")
 
-    mlConfigBasedMain(cfgPath).main(recursive=True).main()
+    core = mlConfigBasedMain(cfgPath)
+    if "--training" in sys.argv:
+        core.trainer(recursive=True).main()
+    else:
+        core.worker(recursive=True).main()
 
 

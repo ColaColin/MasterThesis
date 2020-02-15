@@ -91,7 +91,7 @@ class ApiTest(unittest.TestCase):
         logMsg("Cleanup for ApiTest completed")
 
     def setUp(self):
-        resetSql = os.path.join(os.getcwd(), "core", "command", "setup.sql")
+        resetSql = os.path.join(os.getcwd(), "setup.sql")
 
         self.pool = psycopg2.pool.SimpleConnectionPool(1, 3,user = config["dbuser"],
                                               password = config["dbpassword"],
@@ -247,11 +247,14 @@ class ApiTest(unittest.TestCase):
         game = game.playMove(np.random.randint(7))
         game = game.playMove(np.random.randint(7))
 
+        policy.isRandom = False
         forwardResultPre = policy.forward([game])[0]
         preUUID = policy.getUUID()
         policy.reset()
+        policy.isRandom = False
         forwardResultReset = policy.forward([game])[0]
         policy.load(redownloaded)
+        policy.isRandom = False
         forwardResultPost = policy.forward([game])[0]
 
         self.assertEqual(preUUID, policy.getUUID())

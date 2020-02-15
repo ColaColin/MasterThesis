@@ -9,7 +9,7 @@ import torch.cuda
 
 class PytorchPolicyTest(unittest.TestCase, TestPolicySanity, metaclass=abc.ABCMeta):
     def setUp(self):
-                self.subject = PytorchPolicy(7, 1, 16, 1, 1, self.getExampleGameState(),\
+        self.subject = PytorchPolicy(7, 1, 16, 1, 1, self.getExampleGameState(),\
             "cuda:0" if torch.cuda.is_available else "cpu", "torch.optim.adamw.AdamW", dict())
         
     def getExampleGameState(self):
