@@ -15,7 +15,9 @@ create table runs (
 create table networks (
     id uuid primary key,
     creation timestamptz default NOW() not null,
-    run uuid references runs (id) not null
+    run uuid references runs (id) not null,
+    acc_rnd float,
+    acc_best float
 );
 
 create table states (

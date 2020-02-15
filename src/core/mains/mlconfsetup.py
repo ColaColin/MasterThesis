@@ -19,36 +19,40 @@ from core.training.TrainingWorker import TrainingWorker
 import sys
 from utils.prints import logMsg, setLoggingEnabled
 
+registered = False
+
 def registerClasses():
-    mlconfig.register(DatasetPolicyTester)
-    mlconfig.register(ShuffleBatchedPolicyPlayer)
-    mlconfig.register(SolverBatchedPolicyPlayer)
-    mlconfig.register(PolicyIteratorPlayer)
-    mlconfig.register(LinearSelfPlayWorker)
-    mlconfig.register(MctsPolicyIterator)
-    mlconfig.register(TemperatureMoveDecider)
-    mlconfig.register(MNKGameState)
-    mlconfig.register(SingleProcessReporter)
-    mlconfig.register(SingleProcessUpdater)
-    mlconfig.register(PytorchPolicy)
-    mlconfig.register(dict)
-    mlconfig.register(PlayVs)
-    mlconfig.register(HumanMNKInterface)
-    mlconfig.register(Connect4GameState)
-    mlconfig.register(HumanConnect4Interface)
-    mlconfig.register(RandomPlayPolicy)
-    mlconfig.register(PonsSolver)
-    mlconfig.register(TestDatabaseGenerator)
-    mlconfig.register(BestPlayPolicy)
-    mlconfig.register(DistributedNetworkUpdater)
-    mlconfig.register(DistributedReporter)
-    mlconfig.register(TrainingWorker)
+    if not registered:
+        mlconfig.register(DatasetPolicyTester)
+        mlconfig.register(ShuffleBatchedPolicyPlayer)
+        mlconfig.register(SolverBatchedPolicyPlayer)
+        mlconfig.register(PolicyIteratorPlayer)
+        mlconfig.register(LinearSelfPlayWorker)
+        mlconfig.register(MctsPolicyIterator)
+        mlconfig.register(TemperatureMoveDecider)
+        mlconfig.register(MNKGameState)
+        mlconfig.register(SingleProcessReporter)
+        mlconfig.register(SingleProcessUpdater)
+        mlconfig.register(PytorchPolicy)
+        mlconfig.register(dict)
+        mlconfig.register(PlayVs)
+        mlconfig.register(HumanMNKInterface)
+        mlconfig.register(Connect4GameState)
+        mlconfig.register(HumanConnect4Interface)
+        mlconfig.register(RandomPlayPolicy)
+        mlconfig.register(PonsSolver)
+        mlconfig.register(TestDatabaseGenerator)
+        mlconfig.register(BestPlayPolicy)
+        mlconfig.register(DistributedNetworkUpdater)
+        mlconfig.register(DistributedReporter)
+        mlconfig.register(TrainingWorker)
+        registered = True
 
 
 def mlConfigBasedMain(configPath):
     setLoggingEnabled(True)
     registerClasses()
-    logMsg("Running  ", str(sys.argv))
+    logMsg("Running", str(sys.argv))
 
     config = mlconfig.load(configPath)
 

@@ -152,7 +152,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs):
         self.batchSize = batchSize
-        self.device = torch.device(device)
+        if torch.cuda.is_available():
+            self.device = torch.device(device)
+        else:
+            logMsg("No GPU is available, falling back to cpu!")
+            self.device = torch.device("cpu")
         
         self.uuid = str(uuid.uuid4())
         self.gameDims = protoState.getDataShape()
