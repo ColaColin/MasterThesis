@@ -13,6 +13,8 @@ class AuthMiddleware(object):
         self.password = password
 
     def process_request(self, req, resp):
+        if req.path.startswith("/api/networks/download/"):
+            return
         if "api/" in req.path:
             secret = req.get_header("secret")
             if secret != self.password:

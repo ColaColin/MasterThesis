@@ -21,12 +21,6 @@
                 <div data-bind="css: { 'active-tab': showRuns() }, click: navRuns">
                     Runs
                 </div>
-                <div data-bind="css: { 'active-tab': showStates() }, click: navStates">
-                    States
-                </div>
-                <div data-bind="css: { 'active-tab': showNetworks() }, click: navNetworks">
-                    Networks
-                </div>
             </div>
 
             <div class="runs" data-bind="if: currentHash() === '#runs/new'">
@@ -81,10 +75,56 @@
 
                         <div bp="2">ID</div><div bp="10" data-bind="text: selectedRunObject().id"></div>
                         <div bp="2">Creation</div><div bp="10" data-bind="text: (new Date(selectedRunObject().timestamp)).toISOString()"></div>
+                        <div bp="2">Last states reported</div> <div bp="10" data-bind="text: lastReport"></div>
                         <div bp="2">
                             Name
                         </div>
                         <div bp="10" data-bind="text: selectedRunObject().name"></div>
+                        <div bp="2">States</div> <div bp="10" data-bind="text: statesCount"></div>
+                        <div bp="2">
+                            Workers
+                        </div>
+                        <div bp="10">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>States generated</th>
+                                        <th>Last report</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: statesByWorker">
+                                    <tr >
+                                        <td data-bind="text: $data.name"></td>
+                                        <td data-bind="text: $data.count"></td>
+                                        <td data-bind="text: $data.lastActive"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div bp="2">
+                            Networks
+                        </div>
+                        <div bp="10">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Iteration</th>
+                                        <th>Timestamp</th>
+                                        <th>States</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: networkList">
+                                    <tr >
+                                        <td>
+                                            <a data-bind="attr: { href: $data.download }, text: ('#' + $data.iteration)"></a>
+                                        </td>
+                                        <td data-bind="text: $data.timestamp"></td>
+                                        <td data-bind="text: $root.statesCountByNetwork()[$data.id]"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                         <div bp="2">
                             YAML
                         </div>

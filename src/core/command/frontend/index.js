@@ -108,6 +108,67 @@ function CommandPageModel() {
 
     self.selectedRun = ko.observable(null);
     self.runList = ko.observable([]);
+    self.networkList = ko.observable([]);
+    self.statesList = ko.observable([]);
+
+    self.lastReport = ko.computed(() => {
+        let sl = self.statesList();
+        if (sl.length > 0) {
+            return sl[sl.length - 1].timestamp;
+        } else {
+            return "";
+        }
+    });
+
+    self.statesCount = ko.computed(() => {
+        let sl = self.statesList();
+        let cnt = 0;
+        for (let s of sl) {
+            cnt += s.packageSize;
+        }
+        return cnt;
+    });
+
+    self.statesByWorker = ko.computed(() => {
+        let sl = self.statesList();
+        let wmap = {};
+        for (let s of sl) {
+            if (!wmap[s.worker]) {
+                wmap[s.worker] = {
+                    cnt: 0,
+                    lastActive: 0
+                };
+            }
+            wmap[s.worker].cnt += s.packageSize;
+            if (wmap[s.worker].lastActive < s.creation) {
+                wmap[s.worker].lastActive = s.creation
+            }
+        }
+        let results = [];
+        for (let k of Object.keys(wmap)) {
+            results.push({
+                name: k,
+                count: wmap[k].cnt,
+                lastActive: new Date(wmap[k].lastActive).toISOString()
+            });
+        }
+        results.sort((a, b) => {
+            return b.count - a.count;
+        });
+        return results;
+    });
+
+    self.statesCountByNetwork = ko.computed(() => {
+        let sl = self.statesList();
+        let nmap = {};
+        for (let s of sl) {
+            if (!nmap[s.network]) {
+                nmap[s.network] = 0;
+            }
+            nmap[s.network] += s.packageSize;
+        }
+        return nmap;
+    });
 
     self.selectedRunObject = ko.computed(() => {
         let rlst = self.runList();
@@ -154,6 +215,41 @@ function CommandPageModel() {
         }
     };
 
+    self.pullNetworks = async (forRunId) => {
+        let networks = await self.authFetch("/api/networks/list/" + forRunId, {
+            method: "GET"
+        });
+        if (networks.ok) {
+            let pulled = await networks.json();
+            pulled.sort((a, b) => {
+                return a.creation - b.creation;
+            });
+            for (let i = 0; i < pulled.length; i++) {
+                pulled[i].iteration = i + 1;
+                pulled[i].timestamp = new Date(pulled[i].creation).toISOString();
+                pulled[i].download = "/api/networks/download/" + pulled[i].id;
+            }
+            self.networkList(pulled);
+        }
+    };
+
+    self.pullStates = async (forRunId) => {
+        let states = await self.authFetch("/api/state/list/" + forRunId, {
+            method: "GET"
+        });
+        if (states.ok) {
+            let pulled = await states.json();
+            pulled.sort((a, b) => {
+                return a.creation - b.creation;
+            });
+            for (let i = 0; i < pulled.length; i++) {
+                pulled[i].timestamp = new Date(pulled[i].creation).toISOString();
+                pulled[i].download = "/api/state/download/" + pulled[i].id;
+            }
+            self.statesList(pulled);
+        }
+    }
+
     self.openRun = (run) => {
         self.currentHash("#runs/list/" + run.id);
     }
@@ -190,7 +286,9 @@ function CommandPageModel() {
         this.get("#runs/list/:id", function() {
             console.log("Show run", this.params.id);
             self.currentHash(location.hash);
-            self.pullRuns().then(() => {
+            self.pullRuns().then(async () => {
+                await self.pullNetworks(this.params.id);
+                await self.pullStates(this.params.id);
                 self.selectedRun(this.params.id);
             });
         });
