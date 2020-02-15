@@ -4,6 +4,7 @@ from core.command.app import defineApp
 import os
 import sys
 import json
+import setproctitle
 
 cfg = {
     "staticPath": os.path.join(os.getcwd(), "core/command/frontend/"),
@@ -28,4 +29,5 @@ if "--config" in sys.argv:
 
 with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
     print("Running command server on port " + str(cfg["port"]))
+    setproctitle.setproctitle("x0_command")
     httpd.serve_forever()

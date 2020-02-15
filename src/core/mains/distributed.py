@@ -4,6 +4,7 @@ import requests
 import json
 import os
 from utils.prints import logMsg, setLoggingEnabled
+import setproctitle
 
 # loader for distributed workers
 # given some command line parameters
@@ -24,6 +25,8 @@ from utils.prints import logMsg, setLoggingEnabled
 
 if __name__ == "__main__":
     setLoggingEnabled(True)
+
+    setproctitle.setproctitle("x0_distributed_setup")
 
     hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
 
@@ -49,8 +52,11 @@ if __name__ == "__main__":
 
     core = mlConfigBasedMain(cfgPath)
     if "--training" in sys.argv:
+        setproctitle.setproctitle("x0_trainer_" + runConfig["name"])
         core.trainer(recursive=True).main()
     else:
+        if "--worker" in sys.argv:
+            setproctitle.setproctitle("x0_worker_" + sys.argv[sys.argv.index("--worker")+1] + "_" + runConfig["name"])
         core.worker(recursive=True).main()
 
 
