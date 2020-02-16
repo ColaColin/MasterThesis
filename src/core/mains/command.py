@@ -18,7 +18,8 @@ def getCommandConfiguration():
         "host": "127.0.0.1",
         "port": 8042,
         "testBestMovesDataset": "datasets/connect4/best_small.dataset",
-        "testRndMovesDataset": "datasets/connect4/rnd_small.dataset"
+        "testRndMovesDataset": "datasets/connect4/rnd_small.dataset",
+        "evaluatorQuickFactor": 10
     }
 
     if "--config" in sys.argv:
@@ -38,7 +39,7 @@ if __name__ == "__main__":
     cfg = getCommandConfiguration()
     evaluator = None
     try:
-        if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg:
+        if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg and "evaluatorQuickFactor" in cfg:
             params = ["python", "-m", "core.mains.evaluator"]
             if "--config" in sys.argv:
                 params.append("--config")

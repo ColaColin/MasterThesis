@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
         initialState = core.worker.initialState(recursive=True)
 
-        policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=10)
+        policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=config["evaluatorQuickFactor"])
 
         rndTester = DatasetPolicyTester(policyPlayer, config["testRndMovesDataset"], initialState, "shell", 128)
         rndResult = rndTester.main()
