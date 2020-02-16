@@ -229,6 +229,9 @@ function CommandPageModel() {
                 pulled[i].timestamp = new Date(pulled[i].creation).toISOString();
                 pulled[i].download = "/api/networks/download/" + pulled[i].id;
             }
+            pulled.sort((a, b) => {
+                return b.creation - a.creation;
+            });
             self.networkList(pulled);
         }
     };

@@ -15,4 +15,12 @@ elif [ $1 == "test" ]; then
     python -m unittest
 elif [ $1 == "testverbose" ]; then
     python -m unittest -v
+elif [ $1 == "testworker" ]; then
+    python -m unittest core.testcases.testBson
+    python -m unittest core.testcases.testConnect4
+    python -m unittest core.testcases.testMCTS0
+    python -m unittest core.testcases.testMNK
+    python -m unittest core.testcases.testPytorchPolicy
+    python -m unittest core.testcases.testTempMoves
+    python -m unittest core.testcases.testTestGame
 fi

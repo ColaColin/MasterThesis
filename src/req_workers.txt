@@ -1,0 +1,7 @@
+bson==0.5.8
+Cython==0.29.14
+mlconfig==0.0.7
+numpy==1.17.4
+pytorch-model-summary==0.1.1
+requests==2.22.0
+setproctitle==1.1.10
