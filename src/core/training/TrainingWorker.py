@@ -9,7 +9,7 @@ import requests
 
 class TrainingWorker():
 
-    def __init__(self, epochs, windowSize, dataDir, policy):
+    def __init__(self, epochs, windowSize, dataDir, policy, minWindowsSize = None):
         """
         Requires some configuration parameters to be present in the arguments to python
         --command <command server host>
@@ -21,11 +21,15 @@ class TrainingWorker():
         Unlike playing workers there is only supposed to be one of these, running on a reliable and preferably very fast machine.
         Downloads states from the command server for the active run and decides on what kind of window of data to train
         @param epochs: Number of epochs to use to train a new network
+        @param minWindowsSize: Wait for this many states to be available, before the first network is trained. If None given, use windowSize
         @param windowSize: Number of recent game states to be included in training the next network
         @param dataDir: Directory to use 
         @param policy: The policy to use, should implement core.base.Policy
         """
         self.epochs = epochs
+        self.minWindowsSize = minWindowsSize
+        if self.minWindowsSize is None:
+            self.minWindowsSize = windowSize
         self.windowSize = windowSize
         self.dataDir = dataDir
         self.downloader = StatesDownloader(self.dataDir)
@@ -44,7 +48,7 @@ class TrainingWorker():
 
 
     def waitForData(self):
-        while self.downloader.numStatesAvailable < self.windowSize:
+        while self.downloader.numStatesAvailable < self.minWindowsSize:
             logMsg("Waiting for initial training window, have %i states available, need %i" % (self.downloader.numStatesAvailable, self.windowSize))
             time.sleep(20)
 

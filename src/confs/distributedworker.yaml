@@ -53,6 +53,7 @@ worker:
 trainer:
   name: TrainingWorker
   epochs: 10
-  windowSize: 300000
+  minWindowsSize: 100000
+  windowSize: 1000000
   dataDir: traininerData/testRun1
   policy: $resnet
