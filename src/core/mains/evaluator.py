@@ -21,7 +21,8 @@ from impls.selfplay.movedeciders import TemperatureMoveDecider
 from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester
 
 import os
-from core.command.state import getUUIDPath, readFileUnderPath
+from core.command.state import getUUIDPath
+from utils.misc import readFileUnderPath
 
 if __name__ == "__main__":
     setproctitle.setproctitle("evaluator")

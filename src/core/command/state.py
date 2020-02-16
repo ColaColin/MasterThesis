@@ -3,6 +3,7 @@ import falcon
 import uuid
 
 from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
+from utils.misc import storeFileUnderPath, readFileUnderPath
 
 import os
 from pathlib import Path
@@ -24,19 +25,6 @@ def getUUIDPath(uuid, depth = 3):
         path.append(uuid)
 
         return os.path.join(*path)
-
-def storeFileUnderPath(path, binaryContent):
-    """
-    store binary data under path
-    """
-    dirName = os.path.dirname(path)
-    Path(dirName).mkdir(parents=True, exist_ok=True)
-    with open(path, "w+b") as f:
-        f.write(binaryContent)
-
-def readFileUnderPath(path):
-    with open(path, "rb") as f:
-        return f.read()
 
 class StateResource():
     def __init__(self, pool, config):
