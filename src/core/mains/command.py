@@ -39,13 +39,12 @@ if __name__ == "__main__":
     cfg = getCommandConfiguration()
     evaluator = None
     try:
-        # better to just start it as another process independently
-        # if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg and "evaluatorQuickFactor" in cfg:
-        #     params = ["python", "-m", "core.mains.evaluator"]
-        #     if "--config" in sys.argv:
-        #         params.append("--config")
-        #         params.append(sys.argv[sys.argv.index("--config") + 1])
-        #     evaluator = subprocess.Popen(params)
+        if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg and "evaluatorQuickFactor" in cfg:
+            params = ["python", "-m", "core.mains.evaluator"]
+            if "--config" in sys.argv:
+                params.append("--config")
+                params.append(sys.argv[sys.argv.index("--config") + 1])
+            evaluator = subprocess.Popen(params)
 
         with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
             print("Running command server on port " + str(cfg["port"]))
