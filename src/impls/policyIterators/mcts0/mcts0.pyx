@@ -330,8 +330,9 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         return prepareResult
 
-    def iteratePolicy(self, policy, gamesBatch):
-        cdef list nodes = [MCTSNode(g, noiseMix = self.rootNoise) for g in gamesBatch]
+    def iteratePolicy(self, policy, gamesBatch, noExploration = False, quickFactor = 1):
+        noise = 0 if noExploration else self.rootNoise
+        cdef list nodes = [MCTSNode(g, noiseMix = noise) for g in gamesBatch]
 
         cdef int halfw = len(nodes) // 2
 
@@ -378,8 +379,13 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             else:
                 preparedDataB = me.cpuWork(nodesB, preparedDataB, evaloutB)
         
+        cdef int nodeExpansions
+        nodeExpansions = self.expansions // quickFactor
+        if nodeExpansions < 1:
+            nodeExpansions = 1
+
         cdef int e, ex
-        for e in range(self.expansions):
+        for e in range(nodeExpansions):
             for ex in range(2):
                 if asyncA:
                     evaloutB = policy.forward([p.getState() for p in preparedDataB], asyncCall = asyncWork)

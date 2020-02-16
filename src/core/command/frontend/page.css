@@ -54,3 +54,11 @@ tfoot {
     background-color: #333;
     color: #fff;
 }
+
+tr:nth-child(even) {
+    background-color: lightgrey;
+}
+
+.fullwidth {
+    width: 100%;
+}

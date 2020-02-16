@@ -270,37 +270,52 @@ function CommandPageModel() {
         }
     };
 
+    self.updateForActiveRun = async () => {
+        let runId = self.selectedRun();
+        if (runId != null) {
+            await self.pullNetworks(runId);
+            await self.pullStates(runId);
+            setTimeout(() => {
+                if (self.selectedRun() != null) {
+                    console.log("update");
+                    self.updateForActiveRun();
+                }
+            }, 8000);
+        }
+    };
+
     Sammy(function() {
 
         this.get("#runs/new", function() {
-
+            self.selectedRun(null);
         });
 
         this.get("#runs/list", function() {
             console.log("List runs!");
             self.currentHash(location.hash);
             self.pullRuns();
-            self.selectedRun(this.params.id);
+            self.selectedRun(null);
         });
 
         this.get("#runs/list/:id", function() {
             console.log("Show run", this.params.id);
             self.currentHash(location.hash);
             self.pullRuns().then(async () => {
-                await self.pullNetworks(this.params.id);
-                await self.pullStates(this.params.id);
                 self.selectedRun(this.params.id);
+                self.updateForActiveRun();
             });
         });
 
         this.get("#states", function() {
             console.log("Entered states view");
             self.currentHash(location.hash);
+            self.selectedRun(null);
         });
 
         this.get("#networks", function() {
             console.log("Entered networks view");
             self.currentHash(location.hash);
+            self.selectedRun(null);
         });
 
         this.get('', function() { 

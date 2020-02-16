@@ -43,27 +43,61 @@ class SolverBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
         return result
 
 class PolicyIteratorPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
-    def __init__(self, policy, policyIterator, policyUpdater, moveDecider, batchSize):
+    def __init__(self, policy, policyIterator, policyUpdater, moveDecider, batchSize, quickFactor = 1):
         self.policy = policy
         self.policyIterator = policyIterator
         self.policyUpdater = policyUpdater
         self.moveDecider = moveDecider
         self.batchSize = batchSize
+        self.quickFactor = quickFactor
 
     def getMoves(self, batch):
-        self.policy = self.policyUpdater.update(self.policy)
+        if not self.policyUpdater is None:
+            self.policy = self.policyUpdater.update(self.policy)
 
         result = []
 
         while len(batch) > 0:
             miniBatch = [state for (state, _) in batch[:self.batchSize]]
-            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, miniBatch)
+            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, miniBatch, noExploration=True, quickFactor=self.quickFactor)
             result += list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(miniBatch, iteratedPolicy)))
 
             batch = batch[self.batchSize:]
 
         return result
 
+def loadTestDataset(fpath, initialState):
+    states = []
+    solutions = []
+
+    with open(fpath, "br") as f:
+        exampleBytes = f.read()
+    unzipped = gzip.decompress(exampleBytes)
+
+    readingMoves = True
+    state = initialState
+    history = []
+    solution = []
+    for b in unzipped:
+        wasReadingMoves = readingMoves
+        readingMoves = b < initialState.getMoveCount()
+
+        if readingMoves and wasReadingMoves:
+            state = state.playMove(b)
+            history.append(b)
+        elif readingMoves and not wasReadingMoves:
+            states.append((state, history))
+            solutions.append(solution)
+            state = initialState.playMove(b)
+            history = [b]
+            solution = []
+        else: # notReadingMoves, do not care what we read before
+            solution.append(b - initialState.getMoveCount())
+
+    states.append((state, history))
+    solutions.append(solution)
+
+    return states, solutions
 
 class DatasetPolicyTester():
     """
@@ -85,38 +119,12 @@ class DatasetPolicyTester():
         self.loadExamples()
 
     def loadExamples(self):
-        with open(self.datasetFile, "br") as f:
-            exampleBytes = f.read()
-        unzipped = gzip.decompress(exampleBytes)
+        st, sol = loadTestDataset(self.datasetFile, self.initialGameState)
+        self.states = st
+        self.solutions = sol
 
-        readingMoves = True
-        state = self.initialGameState
-        history = []
-        solution = []
-        for b in unzipped:
-            wasReadingMoves = readingMoves
-            readingMoves = b < self.initialGameState.getMoveCount()
-
-            if readingMoves and wasReadingMoves:
-                state = state.playMove(b)
-                history.append(b)
-            elif readingMoves and not wasReadingMoves:
-                self.states.append((state, history))
-                self.solutions.append(solution)
-                state = self.initialGameState.playMove(b)
-                history = [b]
-                solution = []
-            else: # notReadingMoves, do not care what we read before
-                solution.append(b - self.initialGameState.getMoveCount())
-
-        self.states.append((state, history))
-        self.solutions.append(solution)
-
-    def main(self):
+    def runTest(self):
         startEval = time.monotonic()
-
-        setLoggingEnabled(self.mode == "shell")
-
         logMsg("Testing on %i examples!" % len(self.states))
 
         examples = list(zip(self.states, self.solutions))
@@ -143,9 +151,13 @@ class DatasetPolicyTester():
             
         accuracy = 100.0 * (hits / len(self.states))
 
-        if self.mode == "shell":
-            logMsg("Test on %i examples completed in %.2f seconds, result: %.2f%%" % (len(self.states), time.monotonic() - startEval, accuracy))
+        logMsg("Test on %i examples completed in %.2f seconds, result: %.2f%%" % (len(self.states), time.monotonic() - startEval, accuracy))
 
         return accuracy
 
+    def main(self):
+        setLoggingEnabled(self.mode == "shell")
+        return self.runTest()
+        
+        
 

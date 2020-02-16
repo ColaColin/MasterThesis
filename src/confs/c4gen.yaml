@@ -10,13 +10,13 @@ pons:
   book: /ImbaKeks/git/connect4/7x6.book
 
 genPlayer:
-  name: BestPlayPolicy
+  name: RandomPlayPolicy
 
 main:
   name: TestDatabaseGenerator
   initialState: $c4
   solver: $pons
-  databaseSize: 50000
-  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/best.dataset
+  databaseSize: 4000
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/rnd_small.dataset
   policy: $genPlayer
   generation: beam

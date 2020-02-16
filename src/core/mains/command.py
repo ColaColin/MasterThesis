@@ -5,6 +5,7 @@ import os
 import sys
 import json
 import setproctitle
+import subprocess
 
 def getCommandConfiguration():
     cfg = {
@@ -15,7 +16,9 @@ def getCommandConfiguration():
         "dbpassword": "x0",
         "dbname": "x0",
         "host": "127.0.0.1",
-        "port": 8042
+        "port": 8042,
+        "testBestMovesDataset": "datasets/connect4/best_small.dataset",
+        "testRndMovesDataset": "datasets/connect4/rnd_small.dataset"
     }
 
     if "--config" in sys.argv:
@@ -31,8 +34,24 @@ def getCommandConfiguration():
     return cfg
 
 if __name__ == "__main__":
+    setproctitle.setproctitle("x0_command")
     cfg = getCommandConfiguration()
-    with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
-        print("Running command server on port " + str(cfg["port"]))
-        setproctitle.setproctitle("x0_command")
-        httpd.serve_forever()
+    evaluator = None
+    try:
+        if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg:
+            params = ["python", "-m", "core.mains.evaluator"]
+            if "--config" in sys.argv:
+                params.append("--config")
+                params.append(sys.argv[sys.argv.index("--config") + 1])
+            evaluator = subprocess.Popen(params)
+
+        with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
+            print("Running command server on port " + str(cfg["port"]))
+            httpd.serve_forever()
+
+    finally:
+        if not evaluator is None:
+            try:
+                evaluator.kill()
+            except Exception as error:
+                pass

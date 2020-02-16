@@ -85,7 +85,7 @@
                             Workers
                         </div>
                         <div bp="10">
-                            <table>
+                            <table class="fullwidth">
                                 <thead>
                                     <tr>
                                         <th>Name</th>
@@ -106,12 +106,14 @@
                             Networks
                         </div>
                         <div bp="10">
-                            <table>
+                            <table class="fullwidth">
                                 <thead>
                                     <tr>
                                         <th>Iteration</th>
                                         <th>Timestamp</th>
                                         <th>States</th>
+                                        <th>% RND</th>
+                                        <th>% BEST</th>
                                     </tr>
                                 </thead>
                                 <tbody data-bind="foreach: networkList">
@@ -121,6 +123,8 @@
                                         </td>
                                         <td data-bind="text: $data.timestamp"></td>
                                         <td data-bind="text: $root.statesCountByNetwork()[$data.id]"></td>
+                                        <td data-bind="text: $data.accRnd"></td>
+                                        <td data-bind="text: $data.accBest"></td>
                                     </tr>
                                 </tbody>
                             </table>

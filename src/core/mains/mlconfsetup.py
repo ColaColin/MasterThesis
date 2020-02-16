@@ -22,6 +22,7 @@ from utils.prints import logMsg, setLoggingEnabled
 registered = False
 
 def registerClasses():
+    global registered
     if not registered:
         mlconfig.register(DatasetPolicyTester)
         mlconfig.register(ShuffleBatchedPolicyPlayer)
@@ -52,7 +53,7 @@ def registerClasses():
 def mlConfigBasedMain(configPath):
     setLoggingEnabled(True)
     registerClasses()
-    logMsg("Running", str(sys.argv))
+    logMsg("Running", *sys.argv)
 
     config = mlconfig.load(configPath)
 
