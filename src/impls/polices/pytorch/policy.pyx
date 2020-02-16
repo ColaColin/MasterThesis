@@ -189,7 +189,10 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
     def prepareForwardData(self, batch, int thisBatchSize):
         if not self.tensorCacheExists:
-            self.tensorCacheCPU = torch.zeros((self.batchSize, ) + self.gameDims).pin_memory()
+            prep = torch.zeros((self.batchSize, ) + self.gameDims)
+            if torch.cuda.is_available():
+                prep = prep.pin_memory()
+            self.tensorCacheCPU = prep
             self.forwardInputGPU = Variable(torch.zeros((self.batchSize, ) + self.gameDims), requires_grad=False).to(self.device)
             self.tensorCacheExists = True
 
