@@ -1,11 +1,11 @@
 #! /bin/bash
 
-# meant to work in nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04 docker container
+# meant to work as root in nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04 docker container
 # download the script, run it with a few parameters and the worker should startup automatically after installing dependencies
 # Start it in two steps like this:
 
-# 1.) apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/start_worker.sh; chmod +x start_worker.sh
-# 2.) ./start_worker.sh <number of workers> <command server> <secret> <runid> <workername>
+# 1.) apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker.sh ; chmod +x run_worker.sh
+# 2.) ./run_worker.sh <number of workers> <command server> <secret> <runid> <workername>
 
 
 apt update
