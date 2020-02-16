@@ -363,7 +363,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         if torch.cuda.is_available():
             self.net.load_state_dict(torch.load(modelBuffer))
         else:
-            self.net.load_state_dict(torch.load(modelBuffer), map_location=torch.device('cpu'))
+            self.net.load_state_dict(torch.load(modelBuffer, map_location=torch.device('cpu')))
 
         self.net.train(False)
 
