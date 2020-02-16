@@ -153,7 +153,7 @@ function CommandPageModel() {
             });
         }
         results.sort((a, b) => {
-            return b.count - a.count;
+            return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
         });
         return results;
     });
