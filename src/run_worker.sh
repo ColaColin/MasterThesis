@@ -39,6 +39,6 @@ chmod +x build.sh
 
 for ((i=1; i <= $1; i++))
 do
-    python -m core.mains.distributed --command $2 --secret $3 --run $4 --worker $5 &
+    python -m core.mains.distributed --command $2 --secret $3 --run $4 --worker $5 --windex $i &
 done
 

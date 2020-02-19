@@ -26,16 +26,17 @@ resnet:
   headFilters: 64
   extraHeadFilters: 32
   protoState: $mnk
-  device: cuda:0
+  device: cuda
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
 mcts:
   name: MctsPolicyIterator
   expansions: 800
-  cpuct: 3
+  cpuct: 3.5
   rootNoise: 0.2
-  drawValue: 0.4
+  drawValue: 0.5
+  fpu: 0
 
 tempDecider:
   name: TemperatureMoveDecider

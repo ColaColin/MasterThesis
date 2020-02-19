@@ -31,6 +31,7 @@ from utils.misc import constructor_for_class_name
 
 from utils.prints import logMsg
 
+import sys
 
 class ResBlock(nn.Module):
     def __init__(self, features):
@@ -175,6 +176,14 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs, extraHeadFilters = None):
         self.batchSize = batchSize
         if torch.cuda.is_available():
+            gpuCount = torch.cuda.device_count()
+
+            if "--windex" in sys.argv and gpuCount > 1 and device == "cuda":
+                windex = int(sys.argv[sys.argv.index("--windex") + 1])
+                gpuIndex = windex % gpuCount
+                device = "cuda:" + str(gpuIndex)
+                logMsg("Found multiple gpus with set windex, extended cuda device to %s" % device)
+
             self.device = torch.device(device)
         else:
             logMsg("No GPU is available, falling back to cpu!")
