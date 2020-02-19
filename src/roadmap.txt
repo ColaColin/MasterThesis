@@ -4,6 +4,8 @@ Target      What
 21.2.2020   Run first verification that training at full scale works up to a 99%+ perfect play on the testset.
 
 28.2.2020   Time buffer to fix bugs and verify things really work.
+            - make the workers be capable of using multiple gpus, for this the yaml file cannot be used to configure the gpu number.
+            - fix difference in network architecture, especially the last layer, i.e. add convolutional filters to the output heads.
 
 20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
 

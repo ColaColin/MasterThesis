@@ -1,10 +1,10 @@
 reporter:
   name: DistributedReporter
-  packageSize: 3000
+  packageSize: 500
 
 updater:
   name: DistributedNetworkUpdater
-  checkInterval: 20
+  checkInterval: 1
 
 mnk:
   name: Connect4GameState
@@ -20,8 +20,8 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 3
-  filters: 64
+  blocks: 5
+  filters: 128
   headKernel: 3
   headFilters: 64
   protoState: $mnk
@@ -31,14 +31,14 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 200
-  cpuct: 1.5
+  expansions: 800
+  cpuct: 3
   rootNoise: 0.2
   drawValue: 0.4
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 20
+  explorationPlyCount: 30
 
 worker:
   name: LinearSelfPlayWorker
@@ -50,10 +50,14 @@ worker:
   gameReporter: $reporter
   policyUpdater: $updater
 
+trainerWindow:
+  name: ConstantTrainingWindowManager
+  maxSize: 3000000
+  nextIterationStatesCount: 150000
+
 trainer:
   name: TrainingWorker
-  epochs: 10
-  minWindowsSize: 100000
-  windowSize: 1000000
+  epochs: 1
+  windowManager: $trainerWindow
   dataDir: traininerData/testRun1
   policy: $resnet

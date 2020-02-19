@@ -35,6 +35,8 @@ class StatesDownloader():
         self.downloadedStatesObject = {}
         # objects descending sorted by creation time
         self.downloadedStatesHistory = []
+        # copy for thread-safe access from the outside
+        self.history = []
         self.numStatesAvailable = 0
         self.running = True
 
@@ -58,6 +60,7 @@ class StatesDownloader():
         if os.path.exists(path):
             with open(path, "r") as f:
                 self.downloadedStatesHistory = json.load(f)
+                self.history = self.downloadedStatesHistory.copy()
                 logMsg("Found %i state files in the local storage!" % len(self.downloadedStatesHistory))
                 self.downloadedStatesObject = {}
                 for history in self.downloadedStatesHistory:
@@ -103,6 +106,7 @@ class StatesDownloader():
                         self.downloadedStatesObject[newEntry["id"]] = newEntry
                         self.downloadedStatesHistory.append(newEntry)
                         self.downloadedStatesHistory.sort(key = lambda x: x["creation"], reverse=True)
+                        self.history = self.downloadedStatesHistory.copy()
                         self.numStatesAvailable += newEntry["packageSize"]
                         self.store()
 

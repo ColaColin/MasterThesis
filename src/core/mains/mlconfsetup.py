@@ -15,6 +15,7 @@ from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
 from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
 from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
 from core.training.TrainingWorker import TrainingWorker
+from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -47,8 +48,8 @@ def registerClasses():
         mlconfig.register(DistributedNetworkUpdater)
         mlconfig.register(DistributedReporter)
         mlconfig.register(TrainingWorker)
+        mlconfig.register(ConstantTrainingWindowManager)
         registered = True
-
 
 def mlConfigBasedMain(configPath):
     setLoggingEnabled(True)

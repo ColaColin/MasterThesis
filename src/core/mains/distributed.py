@@ -22,7 +22,7 @@ import setproctitle
 
 # example calls
 # python -m core.mains.distributed --command 'http://127.0.0.1:8042' --secret 42 --run 'c8e187a0-de60-4251-b985-9b3464b831dd' --worker test1
-# python -m core.mains.distributed --command 'http://94.23.19.179' --secret 42 --run '4cdf1719-ed90-455b-b9a0-ac3a5c7fbab5' --worker test1
+# python -m core.mains.distributed --command https://x0.cclausen.eu --secret 42 --run '4cdf1719-ed90-455b-b9a0-ac3a5c7fbab5' --worker test1
 
 if __name__ == "__main__":
     setLoggingEnabled(True)
