@@ -58,7 +58,7 @@ class ResBlock(nn.Module):
         return out
     
 class ResCNN(nn.Module):
-    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize):
+    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize, extraHeadFilters):
         super(ResCNN, self).__init__()
 
         paddingSize = 1 if baseKernelSize > 2 else 0
@@ -77,7 +77,14 @@ class ResCNN(nn.Module):
             blockList.append(ResBlock(features))
         self.resBlocks = nn.Sequential(*blockList)
 
-        hiddens = features * (inWidth - (baseKernelSize - (1 + paddingSize * 2))) * (inHeight - (baseKernelSize - (1 + paddingSize * 2)))
+        self.extraHeadFilters = extraHeadFilters;
+        if self.extraHeadFilters is not None:
+            self.moveHeadConv = nn.Conv2d(features, self.extraHeadFilters, 3, padding=1)
+            self.valueHeadConv = nn.Conv2d(features, self.extraHeadFilters, 3, padding=1)
+            hiddens = self.extraHeadFilters * (inWidth - (baseKernelSize - (1 + paddingSize * 2))) * (inHeight - (baseKernelSize - (1 + paddingSize * 2)))
+        else:
+            hiddens = features * (inWidth - (baseKernelSize - (1 + paddingSize * 2))) * (inHeight - (baseKernelSize - (1 + paddingSize * 2)))
+
         self.moveHead = nn.Linear(hiddens, moveSize)
         
         if winSize > 0:
@@ -95,15 +102,30 @@ class ResCNN(nn.Module):
         
         x = self.resBlocks(x)
         
-        x = x.view(x.size(0), -1)
+        if self.extraHeadFilters is None:
+            x = x.view(x.size(0), -1)
 
-        moveP = self.lsoftmax(self.moveHead(x))
+            moveP = self.lsoftmax(self.moveHead(x))
 
-        if self.winHead != None:
-            winP = self.lsoftmax(self.winHead(x))
-            return moveP, winP
+            if self.winHead != None:
+                winP = self.lsoftmax(self.winHead(x))
+                return moveP, winP
+            else:
+                return moveP
         else:
-            return moveP
+            moveX = self.moveHeadConv(x)
+            winX = self.valueHeadConv(x)
+
+            moveX = moveX.view(moveX.size(0), -1)
+            winX = winX.view(winX.size(0), -1)
+
+            moveP = self.lsoftmax(self.moveHead(moveX))
+
+            if self.winHead != None:
+                winP = self.lsoftmax(self.winHead(winX))
+                return moveP, winP
+            else:
+                return moveP
         
 def gameResultsToAbsoluteWinTensor(wins, playerCount):
     result = np.zeros(playerCount, dtype=np.float32)
@@ -150,7 +172,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs, extraHeadFilters = None):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             self.device = torch.device(device)
@@ -158,6 +180,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             logMsg("No GPU is available, falling back to cpu!")
             self.device = torch.device("cpu")
         
+        self.extraHeadFilters = extraHeadFilters
         self.uuid = str(uuid.uuid4())
         self.gameDims = protoState.getDataShape()
         self.protoState = protoState
@@ -179,7 +202,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def initNetwork(self):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
             self.headKernel, self.headFilters, self.filters, self.blocks,\
-            self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1)
+            self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1, self.extraHeadFilters)
         self.net = self.net.to(self.device)
 
         # can't use mlconfig, as mlconfig has no access to self.net.parameters :(

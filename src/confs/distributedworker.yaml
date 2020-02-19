@@ -24,6 +24,7 @@ resnet:
   filters: 128
   headKernel: 3
   headFilters: 64
+  extraHeadFilters: 32
   protoState: $mnk
   device: cuda:0
   optimizerName: torch.optim.adamw.AdamW

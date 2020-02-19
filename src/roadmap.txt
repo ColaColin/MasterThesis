@@ -6,6 +6,10 @@ Target      What
 28.2.2020   Time buffer to fix bugs and verify things really work.
             - make the workers be capable of using multiple gpus, for this the yaml file cannot be used to configure the gpu number.
             - fix difference in network architecture, especially the last layer, i.e. add convolutional filters to the output heads.
+            - trainer: automatic datadir, just use the run id?!
+            - default fpu of 0.45 is actually used in the distributed config right now!
+            - the evaluator should not just die if a connection error occurs. (wtf postgres?!)
+            - also consider the command server api handlers again in the context of the possibility of unexpected postgres restarts
 
 20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
 
