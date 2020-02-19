@@ -392,10 +392,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         self.uuid = bytesToString(uuidBytes)
 
-        if torch.cuda.is_available():
-            self.net.load_state_dict(torch.load(modelBuffer))
-        else:
-            self.net.load_state_dict(torch.load(modelBuffer, map_location=torch.device('cpu')))
+        self.net.load_state_dict(torch.load(modelBuffer, map_location=torch.device('cpu')))
+        self.net = self.net.to(self.device)
 
         self.net.train(False)
 
