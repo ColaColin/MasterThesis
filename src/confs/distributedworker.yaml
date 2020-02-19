@@ -61,5 +61,4 @@ trainer:
   name: TrainingWorker
   epochs: 1
   windowManager: $trainerWindow
-  dataDir: traininerData/testRun1
   policy: $resnet

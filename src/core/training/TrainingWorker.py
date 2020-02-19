@@ -33,7 +33,7 @@ class TrainingWindowManager(metaclass=abc.ABCMeta):
 
 class TrainingWorker():
 
-    def __init__(self, epochs, dataDir, policy, windowManager):
+    def __init__(self, epochs, policy, windowManager):
         """
         Requires some configuration parameters to be present in the arguments to python
         --command <command server host>
@@ -47,13 +47,10 @@ class TrainingWorker():
         @param epochs: Number of epochs to use to train a new network
         @param minWindowsSize: Wait for this many states to be available, before the first network is trained. If None given, use windowSize
         @param windowSize: Number of recent game states to be included in training the next network
-        @param dataDir: Directory to use 
         @param policy: The policy to use, should implement core.base.Policy
         """
         self.epochs = epochs
         self.windowManager = windowManager
-        self.dataDir = dataDir
-        self.downloader = StatesDownloader(self.dataDir)
         self.policy = policy
 
         hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
@@ -64,6 +61,9 @@ class TrainingWorker():
         self.secret = sys.argv[sys.argv.index("--secret")+1]
         self.runId = sys.argv[sys.argv.index("--run")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
+
+        self.dataDir = "trainerData/" + self.runId
+        self.downloader = StatesDownloader(self.dataDir)
 
     def getNetworkList(self):
         while True:
