@@ -7,3 +7,5 @@ psycopg2==2.8.4
 pytorch-model-summary==0.1.1
 requests==2.22.0
 setproctitle==1.1.10
+ruamel.yaml==0.16.10                                                                                                                      │                                                                               
+bayesian-optimization==1.1.0

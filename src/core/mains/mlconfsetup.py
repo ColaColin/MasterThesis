@@ -59,3 +59,7 @@ def mlConfigBasedMain(configPath):
     config = mlconfig.load(configPath)
 
     return config
+
+def loadMlConfig(path):
+    registerClasses()
+    return mlconfig.load(path)

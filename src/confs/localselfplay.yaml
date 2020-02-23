@@ -32,6 +32,7 @@ resnet:
   filters: 64
   headKernel: 3
   headFilters: 64
+  extraHeadFilters: 32
   protoState: $mnk
   device: cuda:0
   optimizerName: torch.optim.adamw.AdamW
@@ -50,6 +51,8 @@ mcts:
   cpuct: 1.5
   rootNoise: 0.2
   drawValue: 0.4
+  alphaBase: 10.0
+  fpu: 0
 
 bestMoves:
   name: TemperatureMoveDecider

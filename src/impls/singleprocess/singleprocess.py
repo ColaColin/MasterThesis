@@ -99,6 +99,8 @@ class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
     def update(self, policy):
         return policy           
 
+current_milli_time = lambda: int(round(time.time() * 1000))
+
 class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
     def __init__(self, trainEpochs, state, policyIterator = None, moveDecider = None, batchSize = None, datasetFile = None, initialGameState = None):
@@ -115,7 +117,9 @@ class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
         self.loadState()
 
     def storeState(self, policy):
-        np.save(self.statePath, policy.store(), allow_pickle=False)
+        stored = policy.store()
+        np.save(self.statePath, stored, allow_pickle=False)
+        np.save(os.path.join(self.state, str(current_milli_time()) + ".hyperopt"), stored, allow_pickle=False)
 
     def loadState(self):
         if os.path.exists(self.statePath):

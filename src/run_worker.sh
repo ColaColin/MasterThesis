@@ -7,6 +7,8 @@
 # 1.) apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker.sh ; chmod +x run_worker.sh
 # 2.) ./run_worker.sh <number of workers> <command server> <secret> <runid> <workername>
 
+# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker.sh ; chmod +x run_worker.sh; ./run_worker.sh <number of workers> https://x0.cclausen.eu <secret> <runid> <workername>
+
 #e.g. ./run_worker.sh 5 https://x0.cclausen.eu <secret> <runid> <workername>
 
 apt update

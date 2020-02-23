@@ -43,10 +43,10 @@ cdef int bestLegalValue(float* ar, int n):
 
 cdef object dconsts = {}
 
-cdef object getDconst(int n):
+cdef object getDconst(int n, float alphaBase):
     global dconsts
     if not n in dconsts:
-        dconsts[n] = np.asarray([10.0 / n] * n, dtype=np.float32)
+        dconsts[n] = np.asarray([alphaBase / n] * n, dtype=np.float32)
     return dconsts[n]
 
 cdef class MCTSNode():
@@ -141,12 +141,12 @@ cdef class MCTSNode():
     def getState(self):
         return self.state
 
-    cdef int _pickMove(self, float cpuct, float fpu):
+    cdef int _pickMove(self, float cpuct, float fpu, float alphaBase):
 
         cdef int useNoise = self.parentNode is None and self.noiseMix > 0
 
         if useNoise and self.noiseCache is None:
-            self.noiseCache = np.random.dirichlet(getDconst(self.numMoves)).astype(np.float32)
+            self.noiseCache = np.random.dirichlet(getDconst(self.numMoves, alphaBase)).astype(np.float32)
 
         cdef int i
 
@@ -167,6 +167,10 @@ cdef class MCTSNode():
                 valueTmp[i] = self.edgePriors[i]
 
             if self.edgeVisits[i] == 0:
+                # idea: if the current position is expected to be really good: Follow the network
+                #       otherwise explore as hard as you can
+                # self.stateValue * self.edgePriors[i] + (1 - self.stateValue) * DESPERATION_FACTOR
+                # try this later
                 nodeQ = fpu
             else:
                 nodeQ = self.edgeTotalValues[i] / self.edgeVisits[i]
@@ -186,8 +190,8 @@ cdef class MCTSNode():
 
         return newNode
 
-    cdef MCTSNode _selectMove(self, float cpuct, float fpu):
-        cdef int moveIndex = self._pickMove(cpuct, fpu)
+    cdef MCTSNode _selectMove(self, float cpuct, float fpu, float alphaBase):
+        cdef int moveIndex = self._pickMove(cpuct, fpu, alphaBase)
 
         if not moveIndex in self.children:
             self.children[moveIndex] = self._executeMove(moveIndex)
@@ -240,13 +244,13 @@ cdef class MCTSNode():
         self.netValueEvaluation = vs
         self.stateValue = vs[self.playerOnTurnNumber] + vs[0] * drawValue
 
-    cdef MCTSNode selectDown(self, float cpuct, float fpu):
+    cdef MCTSNode selectDown(self, float cpuct, float fpu, float alphaBase):
         """
         return a leaf that was chosen by selecting good moves going down the tree
         """
         cdef MCTSNode node = self
         while node.isExpanded and not node.hasEnded:
-            node = node._selectMove(cpuct, fpu)
+            node = node._selectMove(cpuct, fpu, alphaBase)
         return node
 
     cdef object getTerminalResult(self):
@@ -294,13 +298,14 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     FPU can be configured, AlphaZero standard is 0. There must be better ways to handle it, however.
     """
 
-    def __init__(self, expansions, cpuct, rootNoise, drawValue, fpu = 0.45):
+    def __init__(self, expansions, cpuct, rootNoise, drawValue, fpu = 0.45, alphaBase = 10):
         logMsg("Creating MctsPolicyIterator(expansions=%i, cpuct=%f,rootNoise=%f, drawValue=%f,fpu=%f)" % (expansions, cpuct, rootNoise, drawValue, fpu))
         self.expansions = expansions
         self.cpuct = cpuct
         self.rootNoise = rootNoise
         self.drawValue = drawValue
         self.fpu = fpu
+        self.alphaBase = alphaBase
   
     def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node
@@ -326,7 +331,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         
         for i in range(len(prepareSet)):
             tnode = prepareSet[i]
-            prepareResult.append(tnode.selectDown(self.cpuct, self.fpu))
+            prepareResult.append(tnode.selectDown(self.cpuct, self.fpu, self.alphaBase))
 
         return prepareResult
 

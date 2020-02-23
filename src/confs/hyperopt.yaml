@@ -1,10 +1,13 @@
 reporter:
-  name: DistributedReporter
-  packageSize: 500
+  name: SingleProcessReporter
+  windowSize: 300000
+  reportsPerIteration: 45000
+  state: /ImbaKeks/runs/connect4
 
 updater:
-  name: DistributedNetworkUpdater
-  checkInterval: 1
+  name: SingleProcessUpdater
+  trainEpochs: 2
+  state: /ImbaKeks/runs/connect4
 
 mnk:
   name: Connect4GameState
@@ -20,30 +23,43 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 5
-  filters: 128
+  blocks: 3
+  filters: 64
   headKernel: 3
   headFilters: 64
   extraHeadFilters: 32
   protoState: $mnk
-  device: cuda
+  device: cuda:0
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
-mcts:
+bestMcts:
   name: MctsPolicyIterator
-  expansions: 800
-  cpuct: 3.5
-  rootNoise: 0.2
-  drawValue: 0.5
+  expansions: 40
+  cpuct: 1.5
+  rootNoise: 0.001
+  drawValue: 0.4
   alphaBase: 10.0
   fpu: 0
 
+mcts:
+  name: MctsPolicyIterator
+  expansions: 200
+  cpuct: 1.5
+  rootNoise: 0.2
+  drawValue: 0.4
+  alphaBase: 10.0
+  fpu: 0
+
+bestMoves:
+  name: TemperatureMoveDecider
+  explorationPlyCount: -1
+
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 30
+  explorationPlyCount: 20
 
-worker:
+main:
   name: LinearSelfPlayWorker
   initialState: $mnk
   policy: $resnet
@@ -52,14 +68,3 @@ worker:
   moveDecider: $tempDecider
   gameReporter: $reporter
   policyUpdater: $updater
-
-trainerWindow:
-  name: ConstantTrainingWindowManager
-  maxSize: 3000000
-  nextIterationStatesCount: 150000
-
-trainer:
-  name: TrainingWorker
-  epochs: 1
-  windowManager: $trainerWindow
-  policy: $resnet
