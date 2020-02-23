@@ -30,7 +30,7 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 
 zeroTime = current_milli_time()
 
-sPerIteration = 0.1 * 60 * 60
+sPerIteration = 0.2 * 60 * 60
 baseWorkDir = "/ImbaKeks/runs/hyperopt/A/"
 
 def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
@@ -116,7 +116,7 @@ def getScore(blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, 
         core = loadMlConfig(configPath)
         policy = core.main.policy(recursive=True)
         policy.load(np.load(network))
-        policyIterator = core.main.policyIterator(recursive=True)
+        policyIterator = core.bestMcts(recursive=True)
         moveDecider = TemperatureMoveDecider(-1)
         initialState = core.main.initialState(recursive=True)
         policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128)
@@ -141,10 +141,10 @@ if __name__ == "__main__":
     setLoggingEnabled(True)
 
     pbounds = {
-        'blocks': (1, 3),
-        'filters': (10, 20),
+        'blocks': (2, 4),
+        'filters': (32, 64),
         'extraFilters': (4, 16),
-        'nodes': (20, 60),
+        'nodes': (20, 40),
         'cpuct': (0.5, 6),
         'rootNoise': (0.01, 0.5),
         'drawValue': (0, 1),
@@ -152,10 +152,10 @@ if __name__ == "__main__":
         'fpu': (0, 1),
         'lr': (0.0005, 0.005),
         'wd': (0.00005, 0.001),
-        'windowSize': (100000, 400000),
+        'windowSize': (100000, 250000),
         'reportsPerIteration': (10000, 42000),
         'alphaBase': (3, 30),
-        'epochs': (1, 2)
+        'epochs': (1, 3)
     }
 
     optimizer = BayesianOptimization(
