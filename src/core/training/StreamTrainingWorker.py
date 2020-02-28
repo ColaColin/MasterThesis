@@ -172,7 +172,7 @@ class StreamTrainingWorker():
                 procCur = int((newFramesCount / iterationSize) * 100.0) // 10
                 if procCur > proc:
                     proc = procCur
-                    logMsg("Iteration %i%% completed: learnt from %i frames" %(proc, newFramesCount))
+                    logMsg("Iteration %i%% completed: learnt from %i frames. Window buffer currently contains %i frames" %(proc, newFramesCount, len(self.windowBuffer)))
 
 
             logMsg("Iteration completed, new frames processed: %i. Remaining in the current window: %i" % (newFramesCount, len(self.windowBuffer)))
