@@ -3,10 +3,7 @@ import time
 from utils.prints import logMsg
 import abc
 
-import sys
-from utils.bsonHelp.bsonHelp import decodeFromBson, encodeToBson
-
-import requests
+from core.training.NetworkApi import NetworkApi
 
 class TrainingWindowManager(metaclass=abc.ABCMeta):
     """
@@ -40,69 +37,29 @@ class TrainingWorker():
         --secret <server api password>
         --run <run-uuid>
 
-        Provides a main for the training worker. Currently not used with the core.mains.distributed main, but instead started
-        with a local config using the normal core.mains.main.
+        Provides a main for the training worker. Old version, that waits until enough data for a training window is available
+        and only then starts processing it. Probably no reason to use it anymore, use the StreamtrainingWorker instead,
+        it speeds up network iteration times a lot and makes them more consistent in face of variation of the number
+        of playing workers.
         Unlike playing workers there is only supposed to be one of these, running on a reliable and preferably very fast machine.
         Downloads states from the command server for the active run and decides on what kind of window of data to train
         @param epochs: Number of epochs to use to train a new network
-        @param minWindowsSize: Wait for this many states to be available, before the first network is trained. If None given, use windowSize
-        @param windowSize: Number of recent game states to be included in training the next network
         @param policy: The policy to use, should implement core.base.Policy
+        @param windowManager: A TrainingWindowManager implementation.
         """
         self.epochs = epochs
         self.windowManager = windowManager
         self.policy = policy
 
-        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
+        self.networks = NetworkApi()
 
-        if not hasArgs:
-            raise Exception("You need to provide arguments for the trainer: --secret <server password>, --run <uuid> and --command <command server host>!")
-
-        self.secret = sys.argv[sys.argv.index("--secret")+1]
-        self.runId = sys.argv[sys.argv.index("--run")+1]
-        self.commandHost = sys.argv[sys.argv.index("--command")+1]
-
-        self.dataDir = "trainerData/" + self.runId
+        self.dataDir = "trainerData/" + self.networks.runId
         self.downloader = StatesDownloader(self.dataDir)
-
-    def getNetworkList(self):
-        while True:
-            try:
-                networkList = requests.get(url=self.commandHost + "/api/networks/list/" + self.runId, headers={"secret": self.secret}).json()
-                return networkList
-            except Exception as error:
-                logMsg("Could not get network list, hoping this is a temporary failure, will try again soon!")
-                time.sleep(10)
-
-    def uploadNetwork(self, newPolicyEncoded):
-        while True:
-            try:
-                response = requests.post(url=self.commandHost + "/api/networks/" + self.runId + "/" + self.policy.getUUID(), data=newPolicyEncoded,
-                    headers={"secret": self.secret})
-                response.raise_for_status()
-                logMsg("Network uploaded successfully!")
-                break
-            except Exception as error:
-                logMsg("Could not upload network, hoping this is a temporary failure, will try again soon!")
-                time.sleep(60)
 
     def main(self):
         self.downloader.start()
 
-        networkList = self.getNetworkList()
-        if len(networkList) > 0:
-            networkList.sort(lambda x: x["creation"], reversed=True)
-            logMsg("Continue training of an existing network with id", networkList[0])
-            networkId = networkList[0]["id"]
-
-            response = requests.get(url=self.commandHost + "/api/networks/download/" + networkId, stream=True, headers={"secret": self.secret})
-            response.raise_for_status()
-
-            networkData = decodeFromBson(response.raw.data)
-
-            self.policy.load(networkData)
-
-            logMsg("Network %s loaded" % self.policy.getUUID())
+        self.networks.loadNewestNetwork(self.policy)
 
         while True:
             window = self.windowManager.prepareWindow(self.downloader, len(networkList))
@@ -113,11 +70,9 @@ class TrainingWorker():
 
             logMsg("One iteration of training took %is" % int(endFitting - startFitting))
 
-            newPolicyEncoded = encodeToBson(self.policy.store())
+            self.networks.uploadNetwork(self.policy.store())
 
-            self.uploadNetwork(newPolicyEncoded)
-
-            networkList = self.getNetworkList()
+            networkList = self.networks.getNetworkList()
 
 
             

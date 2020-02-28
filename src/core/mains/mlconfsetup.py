@@ -16,6 +16,8 @@ from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPo
 from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
 from core.training.TrainingWorker import TrainingWorker
 from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
+from core.training.StreamTrainingWorker import StreamTrainingWorker
+from core.training.StreamTrainingWorker import ConstantWindowSizeManager
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -49,6 +51,8 @@ def registerClasses():
         mlconfig.register(DistributedReporter)
         mlconfig.register(TrainingWorker)
         mlconfig.register(ConstantTrainingWindowManager)
+        mlconfig.register(StreamTrainingWorker)
+        mlconfig.register(ConstantWindowSizeManager)
         registered = True
 
 def mlConfigBasedMain(configPath):

@@ -11,6 +11,7 @@ from utils.prints import logMsg
 import time
 
 import numpy as np
+import datetime
 
 class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
@@ -104,6 +105,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             record["policyUUID"] = policyUUID
             record["state"] = state.store()
             record["gamename"] = state.getGameName()
+            record["creation"] = datetime.datetime.utcnow().timestamp()
             reports.append(record)
             
         self.tracking[idx] = None

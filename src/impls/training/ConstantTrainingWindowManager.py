@@ -4,7 +4,7 @@ from core.training.TrainingWorker import TrainingWindowManager
 from utils.prints import logMsg
 import time
 
-class ConstantTrainingWindowManager(metaclass=abc.ABCMeta):
+class ConstantTrainingWindowManager(TrainingWindowManager, metaclass=abc.ABCMeta):
     """
     Configure a Training Window with a maximum size and a constant number of new states per network iteration.
     Will block until the right number of new states in the newest iteration is available before training the next network.

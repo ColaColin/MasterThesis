@@ -1,6 +1,6 @@
 reporter:
   name: DistributedReporter
-  packageSize: 500
+  packageSize: 512
 
 updater:
   name: DistributedNetworkUpdater
@@ -14,8 +14,8 @@ mnk:
 
 optimizerArgs:
   name: dict
-  lr: 0.001
-  weight_decay: 0.0001
+  lr: 0.0028
+  weight_decay: 0.000249
 
 resnet:
   name: PytorchPolicy
@@ -32,16 +32,16 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 800
-  cpuct: 3.5
-  rootNoise: 0.2
+  expansions: 327
+  cpuct: 0.78
+  rootNoise: 0.39
   drawValue: 0.5
-  alphaBase: 10.0
-  fpu: 0
+  alphaBase: 9.0
+  fpu: 0.73
 
 tempDecider:
   name: TemperatureMoveDecider
-  explorationPlyCount: 30
+  explorationPlyCount: 27
 
 worker:
   name: LinearSelfPlayWorker
@@ -54,12 +54,13 @@ worker:
   policyUpdater: $updater
 
 trainerWindow:
-  name: ConstantTrainingWindowManager
-  maxSize: 3000000
-  nextIterationStatesCount: 150000
+  name: ConstantWindowSizeManager
+  size: 256000
+  minimumSize: 1024
+  iterationSize: 32000
 
 trainer:
-  name: TrainingWorker
-  epochs: 1
+  name: StreamTrainingWorker
   windowManager: $trainerWindow
   policy: $resnet
+  batchSize: 128

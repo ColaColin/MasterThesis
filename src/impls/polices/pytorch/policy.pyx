@@ -322,7 +322,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.trainingOutputsWins = torch.zeros((recordsCount, (self.protoState.getPlayerCount() + 1)))
         self.net.train(True)
 
-        logMsg("Preparing epoch of data")
+        #logMsg("Preparing epoch of data")
         pStart = time.time()
         random.shuffle(data)
         fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
@@ -333,7 +333,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         batchNum = math.ceil(len(data) / self.batchSize)
 
         for e in range(epochs):
-            logMsg("Starting epoch " + str(e + 1))
+            #logMsg("Starting epoch " + str(e + 1))
 
             epochStart = time.time()
             nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
