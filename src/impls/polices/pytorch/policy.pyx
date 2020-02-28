@@ -173,7 +173,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs, extraHeadFilters = None):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs, extraHeadFilters = None, silent = True):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -203,6 +203,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.headFilters = headFilters
         assert len(self.gameDims) == 3, "ResNet requires a 3D data shape!"
         self.tensorCacheExists = False
+
+        self.silent = silent
 
         self.initNetwork()
 
@@ -328,9 +330,13 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
         pEnd = time.time()
-        logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
+        if not self.silent:
+            logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
 
         batchNum = math.ceil(len(data) / self.batchSize)
+
+        mls = []
+        wls = []
 
         for e in range(epochs):
             #logMsg("Starting epoch " + str(e + 1))
@@ -340,8 +346,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             mT = Variable(self.trainingOutputsMoves.clone().detach()).to(self.device)
             wT = Variable(self.trainingOutputsWins.clone().detach()).to(self.device)
 
-            mls = []
-            wls = []
+            if not self.silent:
+                mls = []
+                wls = []
 
             random.shuffle(data)
 
@@ -375,7 +382,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
                 mls.append(mLoss.data.item())
                 wls.append(wLoss.data.item())
             
-            logMsg("Completed Epoch %i with loss (Moves) %f + (Winner) %f in %f seconds" % (e+1, np.mean(mls), np.mean(wls), time.time() - epochStart))
+            if not self.silent:
+                logMsg("Completed Epoch %i with loss (Moves) %f + (Winner) %f in %f seconds" % (e+1, np.mean(mls), np.mean(wls), time.time() - epochStart))
        
         self.net.train(False)
 
@@ -383,6 +391,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         del self.trainingOutputsMoves
         del self.trainingOutputsWins
         torch.cuda.empty_cache()
+
+        return mls, wls
        
 
     def load(self, packed):

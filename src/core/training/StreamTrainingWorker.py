@@ -11,6 +11,8 @@ import abc
 
 import random
 
+import numpy as np
+
 class WindowSizeManager(metaclass=abc.ABCMeta):
     """
     Responsible for deciding the size of the training window for the current iteration
@@ -143,6 +145,9 @@ class StreamTrainingWorker():
 
             newFramesCount = 0
 
+            gmls = []
+            gwls = []
+
             while newFramesCount < iterationSize:
                 addedFrames = self.addNewFrames(self.waitForNewStates(self.batchSize))
 
@@ -153,11 +158,17 @@ class StreamTrainingWorker():
 
                 trainingFrames = self.pickFramesForTraining(trainFrameCount)
 
-                self.policy.fit(trainingFrames, 1)
+                fitResult = self.policy.fit(trainingFrames, 1)
+
+                if fitResult is not None:
+                    mls, wls = fitResult
+                    gmls += mls
+                    gwls += wls
 
                 newFramesCount += addedFrames
 
             logMsg("Iteration completed, new frames processed: %i. Remaining in the current window: %i" % (newFramesCount, len(self.windowBuffer)))
+            logMsg("Iteration network loss: %.2f on moves, %.2f on outcome" % (np.mean(gmls), np.mean(gwls)))
             self.networks.uploadNetwork(self.policy.store())
 
             nextWindowSize = self.windowManager.getWindowSize(iterationNumber)
