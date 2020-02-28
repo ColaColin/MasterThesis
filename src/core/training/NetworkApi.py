@@ -20,7 +20,7 @@ class NetworkApi():
     def loadNewestNetwork(self, policy):
         networkList = self.getNetworkList()
         if len(networkList) > 0:
-            networkList.sort(key=lambda x: x["creation"], reversed=True)
+            networkList.sort(key=lambda x: x["creation"], reverse=True)
             logMsg("Continue training of an existing network", networkList[0])
             networkId = networkList[0]["id"]
 

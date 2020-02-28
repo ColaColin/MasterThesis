@@ -175,14 +175,14 @@ class StreamTrainingWorker():
                     logMsg("Iteration %i%% completed: learnt from %i frames. Window buffer currently contains %i frames" %(proc * 10, newFramesCount, len(self.windowBuffer)))
 
 
-            logMsg("Iteration completed, new frames processed: %i. Remaining in the current window: %i" % (newFramesCount, len(self.windowBuffer)))
+            logMsg("Iteration completed, new frames processed: %i." % newFramesCount)
             logMsg("Iteration network loss: %.2f on moves, %.2f on outcome" % (np.mean(gmls), np.mean(gwls)))
             self.networks.uploadNetwork(self.policy)
 
             nextWindowSize = self.windowManager.getWindowSize(iterationNumber)
 
             cpyc = 0
-            self.waitBuffer.sort(key = lambda x: x["creation"], reversed=True)
+            self.waitBuffer.sort(key = lambda x: x["creation"], reverse=True)
             for frame in self.waitBuffer:
                 if len(self.windowBuffer) < nextWindowSize:
                     cpyc += 1
