@@ -114,4 +114,4 @@ class StatesDownloader():
                 logMsg("Could not download states, will try again soon", error)
                 time.sleep(60)
             
-            time.sleep(15)
+            time.sleep(5)
