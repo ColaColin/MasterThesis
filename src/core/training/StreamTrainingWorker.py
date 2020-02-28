@@ -149,7 +149,6 @@ class StreamTrainingWorker():
                 pendingTrainingCount += addedFrames * framesPerNewFrame
                 batches = pendingTrainingCount // self.batchSize
                 trainFrameCount = int(batches * self.batchSize)
-                print(trainFrameCount)
                 pendingTrainingCount -= trainFrameCount
 
                 trainingFrames = self.pickFramesForTraining(trainFrameCount)
