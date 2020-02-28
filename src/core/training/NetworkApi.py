@@ -40,11 +40,11 @@ class NetworkApi():
                 logMsg("Could not get network list, hoping this is a temporary failure, will try again soon!", error)
                 time.sleep(10)
 
-    def uploadNetwork(self, newPolicyStore):
+    def uploadNetwork(self, policy):
         while True:
             try:
-                newPolicyEncoded = encodeToBson(newPolicyStore)
-                response = requests.post(url=self.commandHost + "/api/networks/" + self.runId + "/" + self.policy.getUUID(), data=newPolicyEncoded,
+                newPolicyEncoded = encodeToBson(policy.store())
+                response = requests.post(url=self.commandHost + "/api/networks/" + self.runId + "/" + policy.getUUID(), data=newPolicyEncoded,
                     headers={"secret": self.secret})
                 response.raise_for_status()
                 logMsg("Network uploaded successfully!")

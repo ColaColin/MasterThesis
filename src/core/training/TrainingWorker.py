@@ -70,7 +70,7 @@ class TrainingWorker():
 
             logMsg("One iteration of training took %is" % int(endFitting - startFitting))
 
-            self.networks.uploadNetwork(self.policy.store())
+            self.networks.uploadNetwork(self.policy)
 
             networkList = self.networks.getNetworkList()
 

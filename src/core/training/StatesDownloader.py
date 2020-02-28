@@ -96,7 +96,7 @@ class StatesDownloader():
                 newEntries.sort(key = lambda x: x["creation"], reverse=True)
 
                 if len(newEntries) > 0:
-                    logMsg("Found %i new state packages with %i states on the server!" % (len(newEntries), sumNewStates))
+                    #logMsg("Found %i new state packages with %i states on the server!" % (len(newEntries), sumNewStates))
 
                     for newEntry in newEntries:
                         response = requests.get(url=self.commandHost + "/api/state/download/" + newEntry["id"], stream=True, headers={"secret": self.secret})
@@ -112,6 +112,6 @@ class StatesDownloader():
 
             except Exception as error:
                 logMsg("Could not download states, will try again soon", error)
-                time.sleep(60)
+                time.sleep(10)
             
             time.sleep(5)
