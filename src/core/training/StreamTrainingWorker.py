@@ -179,7 +179,7 @@ class StreamTrainingWorker():
 
 
             logMsg("Iteration completed, new frames processed: %i. Overall frames processed: %i" % (newFramesCount, trainedCount))
-            logMsg("Iteration network loss: %.2f on moves, %.2f on outcome" % (np.mean(gmls), np.mean(gwls)))
+            logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(gmls), np.mean(gwls)))
             self.networks.uploadNetwork(self.policy)
 
             nextWindowSize = self.windowManager.getWindowSize(iterationNumber)
