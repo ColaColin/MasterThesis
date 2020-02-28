@@ -150,6 +150,8 @@ class StreamTrainingWorker():
 
             proc = 0
 
+            trainedCount = 0
+
             while newFramesCount < iterationSize:
                 addedFrames = self.addNewFrames(self.waitForNewStates(self.batchSize))
 
@@ -160,6 +162,7 @@ class StreamTrainingWorker():
 
                 trainingFrames = self.pickFramesForTraining(trainFrameCount)
 
+                trainedCount += len(trainingFrames)
                 fitResult = self.policy.fit(trainingFrames, 1)
 
                 if fitResult is not None:
@@ -172,10 +175,10 @@ class StreamTrainingWorker():
                 procCur = int((newFramesCount / iterationSize) * 100.0) // 10
                 if procCur > proc:
                     proc = procCur
-                    logMsg("Iteration %i%% completed: learnt from %i frames. Window buffer currently contains %i frames" %(proc * 10, newFramesCount, len(self.windowBuffer)))
+                    logMsg("Iteration %i%% completed: learnt from %i new frames. Window buffer currently contains %i frames" %(proc * 10, newFramesCount, len(self.windowBuffer)))
 
 
-            logMsg("Iteration completed, new frames processed: %i." % newFramesCount)
+            logMsg("Iteration completed, new frames processed: %i. Overall frames processed: %i" % (newFramesCount, trainedCount))
             logMsg("Iteration network loss: %.2f on moves, %.2f on outcome" % (np.mean(gmls), np.mean(gwls)))
             self.networks.uploadNetwork(self.policy)
 
