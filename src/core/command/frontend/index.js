@@ -1,3 +1,20 @@
+function formatTimeSince(unixTime, maxMinutes) {
+    let ms = Date.now() - unixTime;
+    ms /= 1000;
+    let minutes = Math.floor(ms / 60);
+
+    if (minutes > maxMinutes) {
+        return new Date(unixTime).toISOString();
+    }
+
+    let seconds = Math.floor(ms % 60);
+    if (minutes > 0) {
+        return minutes + "m " + seconds + "s ago";
+    } else {
+        return seconds + "s ago";
+    }
+}
+
 function CommandPageModel() {
     let self = this;
 
@@ -114,7 +131,8 @@ function CommandPageModel() {
     self.lastReport = ko.computed(() => {
         let sl = self.statesList();
         if (sl.length > 0) {
-            return sl[sl.length - 1].timestamp;
+            let ts = sl[sl.length - 1].timestamp;
+            return formatTimeSince(new Date(ts).getTime(), 60);
         } else {
             return "";
         }
@@ -154,6 +172,10 @@ function CommandPageModel() {
         }
         results.sort((a, b) => {
             return new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime();
+        });
+        results = results.map(x => {
+            x.lastActive = formatTimeSince(new Date(x.lastActive).getTime(), 60);
+            return x;
         });
         return results;
     });
@@ -226,7 +248,6 @@ function CommandPageModel() {
             });
             for (let i = 0; i < pulled.length; i++) {
                 pulled[i].iteration = i + 1;
-                pulled[i].timestamp = new Date(pulled[i].creation).toISOString();
                 pulled[i].download = "/api/networks/download/" + pulled[i].id;
             }
             pulled.sort((a, b) => {
@@ -235,6 +256,14 @@ function CommandPageModel() {
             self.networkList(pulled);
         }
     };
+
+    self.fancyNetworkList = ko.computed(() => {
+        let nets = self.networkList();
+        return nets.map(x => {
+            x.timestamp = formatTimeSince(x.creation, 60);
+            return x;
+        });
+    });
 
     self.pullStates = async (forRunId) => {
         let states = await self.authFetch("/api/state/list/" + forRunId, {
@@ -273,17 +302,27 @@ function CommandPageModel() {
         }
     };
 
+    self.upCounter = 0;
+
     self.updateForActiveRun = async () => {
+        self.upCounter++;
         let runId = self.selectedRun();
         if (runId != null) {
-            await self.pullNetworks(runId);
-            await self.pullStates(runId);
+            if (self.upCounter % 20 === 1) {
+                console.log("update");
+                await self.pullNetworks(runId);
+                await self.pullStates(runId);
+            } else {
+                self.statesList.notifySubscribers();
+                let preNets = self.networkList();
+                self.networkList([]);
+                self.networkList(preNets);
+            }
             setTimeout(() => {
                 if (self.selectedRun() != null) {
-                    console.log("update");
                     self.updateForActiveRun();
                 }
-            }, 8000);
+            }, 500);
         }
     };
 
