@@ -111,13 +111,13 @@ if __name__ == "__main__":
         fullRndResult = DatasetPolicyTester(fullPlayer, rndDataset, initialState, "shell", 128).main()
 
         limitedBestResult = DatasetPolicyTester(limitedPlayer, bestDataset, initialState, "shell", 128).main()
-        fullBestResult = DatasetPolicyTester(limitedPlayer, bestDataset, initialState, "shell", 128).main()
+        fullBestResult = DatasetPolicyTester(fullPlayer, bestDataset, initialState, "shell", 128).main()
 
         submitResult({
             "acc_rnd_limited": limitedRndResult,
             "acc_best_limited": limitedBestResult,
             "acc_rnd_full": fullRndResult,
-            "best_full": fullBestResult
+            "acc_best_full": fullBestResult
         }, network)
 
 

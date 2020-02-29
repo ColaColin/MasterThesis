@@ -43,7 +43,7 @@ class NetworkStatsResource():
             con = self.pool.getconn()
             cursor = con.cursor()
             cursor.execute("update networks set acc_rnd_limited = %s, acc_best_limited = %s, acc_rnd_full = %s, acc_best_full = %s where id = %s", (rnd_limited, best_limited, rnd_full, best_full, network_id));
-            cursor.commit()
+            con.commit()
             resp.status = falcon.HTTP_200
         finally:
             if cursor:

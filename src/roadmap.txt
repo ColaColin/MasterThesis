@@ -4,11 +4,8 @@ Target      What
 21.2.2020   Run first verification that training at full scale works up to a 99%+ perfect play on the testset.
 
 28.2.2020   Time buffer to fix bugs and verify things really work.
-            - the evaluator should not just die if a connection error occurs. (wtf postgres?!)
-            - also consider the command server api handlers again in the context of the possibility of unexpected postgres restarts
             - version experiments by the git sha that the experiment was run on?
             - have a look at apex to use fp16 where possible
-            - streamed training: Keep a pool of the training window at all times, do batches as new data comes in
 
 20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
 
