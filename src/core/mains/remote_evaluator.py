@@ -21,8 +21,8 @@ if __name__ == "__main__":
     setproctitle.setproctitle("x0_remote_evaluator")
     setLoggingEnabled(True)
 
-    bestDataset = "datasets/connect4/best.dataset"
-    rndDataset = "datasets/connect4/rnd.dataset"
+    bestDataset = "datasets/connect4/best_small.dataset"
+    rndDataset = "datasets/connect4/rnd_small.dataset"
 
     hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
