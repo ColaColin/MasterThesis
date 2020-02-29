@@ -1,9 +1,11 @@
 -- run this to setup or reset the database to have all the tables needed
 
+drop table if exists run_iteration_stats;
 drop view if exists runs_info;
 drop table if exists states;
 drop table if exists networks;
 drop table if exists runs;
+
 
 create table runs (
     id uuid primary key,
@@ -29,6 +31,22 @@ create table states (
     -- will be null in iteration 0, as there is no trained network for iteration 0. The random network is not submitted
     network uuid references networks(id),
     run uuid references runs (id) not null
+);
+
+create table run_iteration_stats (
+    run uuid references runs (id) not null,
+    iteration integer,
+
+    played_states integer not null,
+    new_states integer not null,
+    
+    first_player_wins float not null,
+    draws float not null,
+
+    game_length_avg float not null,
+    game_length_std float not null,
+
+    primary key (run, iteration)
 );
 
 create view runs_info as

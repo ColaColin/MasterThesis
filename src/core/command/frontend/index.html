@@ -80,7 +80,8 @@
                             Name
                         </div>
                         <div bp="10" data-bind="text: selectedRunObject().name"></div>
-                        <div bp="2">States</div> <div bp="10" data-bind="text: statesCount"></div>
+                        <div bp="2">States generated</div> <div bp="10" data-bind="text: statesCount"></div>
+                        <div bp="2">Distinct states</div> <div bp="10" data-bind="text: (numDistinct() + ' (' + ((numDistinct() / numInStats()) * 100).toFixed(2) + '%)')"></div>
                         <div bp="2">
                             Workers
                         </div>
@@ -125,6 +126,33 @@
                                         <td data-bind="text: $root.statesCountByNetwork()[$data.id]"></td>
                                         <td data-bind="text: $data.accRnd"></td>
                                         <td data-bind="text: $data.accBest"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div bp="2">
+                            Statistics
+                        </div>
+                        <div bp="10">
+                            <table class="fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>Iteration</th>
+                                        <th>Played States</th>
+                                        <th>New States</th>
+                                        <th>First player wins</th>
+                                        <th>Draws</th>
+                                        <th>Game length</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: statsList">
+                                    <tr>
+                                        <td data-bind="text: $data.iteration"></td>
+                                        <td data-bind="text: $data.played_states"></td>
+                                        <td data-bind="text: $data.new_states"></td>
+                                        <td data-bind="text: (($data.first_player_wins || -1).toFixed(2) + '%')"></td>
+                                        <td data-bind="text: (($data.draws || -1).toFixed(2) + '%')"></td>
+                                        <td data-bind="text: ($data.game_length_avg || 0).toFixed(2) + ' +/- ' + ($data.game_length_std || 0).toFixed(2)"></td>
                                     </tr>
                                 </tbody>
                             </table>

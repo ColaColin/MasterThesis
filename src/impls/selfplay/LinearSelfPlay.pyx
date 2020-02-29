@@ -106,7 +106,10 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             record["state"] = state.store()
             record["gamename"] = state.getGameName()
             record["creation"] = datetime.datetime.utcnow().timestamp()
+            record["final"] = False
             reports.append(record)
+            
+        reports[-1]["final"] = True
             
         self.tracking[idx] = None
 

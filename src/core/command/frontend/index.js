@@ -127,6 +127,7 @@ function CommandPageModel() {
     self.runList = ko.observable([]);
     self.networkList = ko.observable([]);
     self.statesList = ko.observable([]);
+    self.statsList = ko.observable([]);
 
     self.lastReport = ko.computed(() => {
         let sl = self.statesList();
@@ -282,6 +283,38 @@ function CommandPageModel() {
         }
     }
 
+    self.pullStats = async (forRunId) => {
+        let stats = await self.authFetch("/api/stats/" + forRunId, {
+            method: "GET"
+        });
+
+        if (stats.ok) {
+            let pulled = await stats.json();
+            pulled.sort((a, b) => {
+                return b.iteration - a.iteration;
+            });
+            self.statsList(pulled);
+        }
+    };
+
+    self.numInStats = ko.computed(() => {
+        let cnt = 0;
+        let lst = self.statsList();
+        for (let i = 0; i < lst.length; i++) {
+            cnt += lst[i].played_states;
+        }
+        return cnt;
+    });
+
+    self.numDistinct = ko.computed(() => {
+        let cnt = 0;
+        let lst = self.statsList();
+        for (let i = 0; i < lst.length; i++) {
+            cnt += lst[i].new_states;
+        }
+        return cnt;
+    });
+
     self.openRun = (run) => {
         self.currentHash("#runs/list/" + run.id);
     }
@@ -312,11 +345,17 @@ function CommandPageModel() {
                 console.log("update");
                 await self.pullNetworks(runId);
                 await self.pullStates(runId);
+                await self.pullStats(runId);
             } else {
                 self.statesList.notifySubscribers();
+                
                 let preNets = self.networkList();
                 self.networkList([]);
                 self.networkList(preNets);
+
+                let preStats = self.statsList();
+                self.statsList([])
+                self.statsList(preStats)
             }
             setTimeout(() => {
                 if (self.selectedRun() != null) {
@@ -342,6 +381,7 @@ function CommandPageModel() {
         this.get("#runs/list/:id", function() {
             console.log("Show run", this.params.id);
             self.currentHash(location.hash);
+            self.upCounter = 0;
             self.pullRuns().then(async () => {
                 self.selectedRun(this.params.id);
                 self.updateForActiveRun();

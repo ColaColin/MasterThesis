@@ -25,14 +25,14 @@ from core.command.state import getUUIDPath
 from utils.misc import readFileUnderPath
 
 if __name__ == "__main__":
-    setproctitle.setproctitle("evaluator")
+    setproctitle.setproctitle("x0_evaluator")
     setLoggingEnabled(True)
 
-    logMsg("Started evaluator!")
+    logMsg("Started local server evaluator!")
 
     config = getCommandConfiguration()
 
-    pool = psycopg2.pool.SimpleConnectionPool(1, 20,user = config["dbuser"],
+    pool = psycopg2.pool.SimpleConnectionPool(1, 3,user = config["dbuser"],
                                             password = config["dbpassword"],
                                             host = "127.0.0.1",
                                             port = "5432",

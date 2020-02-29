@@ -34,10 +34,19 @@ def getCommandConfiguration():
             
     return cfg
 
+def spawnStatsGenerator():
+    params = ["python", "-m", "core.mains.stats_generator"]
+    if "--config" in sys.argv:
+        params.append("--config")
+        params.append(sys.argv[sys.argv.index("--config") + 1])
+        
+    return subprocess.Popen(params)
+
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_command")
     cfg = getCommandConfiguration()
     evaluator = None
+    statsGen = None
     try:
         if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg and "evaluatorQuickFactor" in cfg:
             params = ["python", "-m", "core.mains.evaluator"]
@@ -46,11 +55,18 @@ if __name__ == "__main__":
                 params.append(sys.argv[sys.argv.index("--config") + 1])
             evaluator = subprocess.Popen(params)
 
+        statsGen = spawnStatsGenerator()
+
         with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
             print("Running command server on port " + str(cfg["port"]))
             httpd.serve_forever()
 
     finally:
+        if not statsGen is None:
+            try:
+                statsGen.kill()
+            except Exception as error:
+                pass
         if not evaluator is None:
             try:
                 evaluator.kill()
