@@ -25,6 +25,8 @@ from core.command.state import getUUIDPath
 from utils.misc import readFileUnderPath
 
 if __name__ == "__main__":
+    raise Exception("This is old, do not use this anymore, use remote_evaluator instead!")
+
     setproctitle.setproctitle("x0_evaluator")
     setLoggingEnabled(True)
 

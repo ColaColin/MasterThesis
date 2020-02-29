@@ -5,6 +5,7 @@ from core.command.login import LoginResource
 from core.command.state import StateResource
 from core.command.networks import NetworksResource
 from core.command.stats import StatsResource
+from core.command.networkStats import NetworkStatsResource
 
 import psycopg2
 from psycopg2 import pool
@@ -56,6 +57,9 @@ def defineApp(config):
 
         stats = StatsResource(pool)
         app.add_route("/api/stats/{run_id}", stats)
+
+        networkStats = NetworkStatsResource(pool)
+        app.add_route("/api/evaluations/{network_id}", networkStats)
 
         app.add_route("/password", LoginResource(config["secret"]))
 

@@ -386,8 +386,8 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         
         cdef int nodeExpansions
         nodeExpansions = self.expansions // quickFactor
-        if nodeExpansions < 1:
-            nodeExpansions = 1
+        if nodeExpansions < 8:
+            nodeExpansions = 8
 
         cdef int e, ex
         for e in range(nodeExpansions):

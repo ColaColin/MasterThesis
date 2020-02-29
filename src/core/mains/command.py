@@ -16,10 +16,7 @@ def getCommandConfiguration():
         "dbpassword": "x0",
         "dbname": "x0",
         "host": "127.0.0.1",
-        "port": 8042,
-        "testBestMovesDataset": "datasets/connect4/best_small.dataset",
-        "testRndMovesDataset": "datasets/connect4/rnd_small.dataset",
-        "evaluatorQuickFactor": 1
+        "port": 8042
     }
 
     if "--config" in sys.argv:
@@ -45,16 +42,8 @@ def spawnStatsGenerator():
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_command")
     cfg = getCommandConfiguration()
-    evaluator = None
     statsGen = None
     try:
-        if "testBestMovesDataset" in cfg and "testRndMovesDataset" in cfg and "evaluatorQuickFactor" in cfg:
-            params = ["python", "-m", "core.mains.evaluator"]
-            if "--config" in sys.argv:
-                params.append("--config")
-                params.append(sys.argv[sys.argv.index("--config") + 1])
-            evaluator = subprocess.Popen(params)
-
         statsGen = spawnStatsGenerator()
 
         with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
@@ -65,10 +54,5 @@ if __name__ == "__main__":
         if not statsGen is None:
             try:
                 statsGen.kill()
-            except Exception as error:
-                pass
-        if not evaluator is None:
-            try:
-                evaluator.kill()
             except Exception as error:
                 pass

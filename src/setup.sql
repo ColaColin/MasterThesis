@@ -18,9 +18,18 @@ create table networks (
     id uuid primary key,
     creation timestamptz default NOW() not null,
     run uuid references runs (id) not null,
-    acc_rnd float,
-    acc_best float
+    acc_rnd_limited float,
+    acc_best_limited float,
+    acc_rnd_full float,
+    acc_best_full float
 );
+
+--alter table networks drop column acc_rnd;
+--alter table networks drop column acc_best;
+--alter table networks add column acc_rnd_limited float;
+--alter table networks add column acc_best_limited float;
+--alter table networks add column acc_rnd_full float;
+--alter table networks add column acc_best_full float;
 
 create table states (
     id uuid primary key,

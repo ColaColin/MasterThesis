@@ -1,6 +1,5 @@
 import falcon
 import json
-import uuid
 
 class StatsResource():
 

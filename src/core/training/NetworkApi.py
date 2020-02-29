@@ -7,14 +7,15 @@ from utils.prints import logMsg
 import requests
 
 class NetworkApi():
-    def __init__(self):
-        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
+    def __init__(self, noRun=False):
+        hasArgs = ("--secret" in sys.argv) and (("--run" in sys.argv) or noRun) and ("--command" in sys.argv)
 
         if not hasArgs:
             raise Exception("You need to provide arguments for the trainer: --secret <server password>, --run <uuid> and --command <command server host>!")
 
         self.secret = sys.argv[sys.argv.index("--secret")+1]
-        self.runId = sys.argv[sys.argv.index("--run")+1]
+        if not noRun:
+            self.runId = sys.argv[sys.argv.index("--run")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
 
     def loadNewestNetwork(self, policy):
