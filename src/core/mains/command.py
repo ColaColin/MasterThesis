@@ -19,7 +19,7 @@ def getCommandConfiguration():
         "port": 8042,
         "testBestMovesDataset": "datasets/connect4/best_small.dataset",
         "testRndMovesDataset": "datasets/connect4/rnd_small.dataset",
-        "evaluatorQuickFactor": 10
+        "evaluatorQuickFactor": 1
     }
 
     if "--config" in sys.argv:

@@ -324,22 +324,22 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.trainingOutputsWins = torch.zeros((recordsCount, (self.protoState.getPlayerCount() + 1)))
         self.net.train(True)
 
-        #logMsg("Preparing epoch of data")
-        pStart = time.time()
-        random.shuffle(data)
-        fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
-
-        pEnd = time.time()
-        if not self.silent:
-            logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
-
         batchNum = math.ceil(len(data) / self.batchSize)
 
         mls = []
         wls = []
 
         for e in range(epochs):
-            #logMsg("Starting epoch " + str(e + 1))
+            if not self.silent:
+                logMsg("Starting epoch " + str(e + 1))
+
+            pStart = time.time()
+            random.shuffle(data)
+            fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
+
+            pEnd = time.time()
+            if not self.silent:
+                logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
 
             epochStart = time.time()
             nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
@@ -349,8 +349,6 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             if not self.silent:
                 mls = []
                 wls = []
-
-            random.shuffle(data)
 
             for bi in range(batchNum):
                 batchStart = bi*self.batchSize
@@ -365,17 +363,12 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
                 self.optimizer.zero_grad()
 
                 mO, wO = self.net(x)
-                # cpu work performed behind calls to pytorch like this can be hidden behind the gpu work
-                fillTrainingSet(self.protoState, data[batchStart:batchMiddle], batchStart, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
                 mLoss = -torch.sum(mO * yM) / batchSize
                 wLoss = -torch.sum(wO * yW) / batchSize
 
                 loss = mLoss + wLoss
                 loss.backward()
-
-                # cpu work performed behind calls to pytorch like this can be hidden behind the gpu work
-                fillTrainingSet(self.protoState, data[batchMiddle:batchEnd], batchMiddle, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
                 self.optimizer.step()
 

@@ -102,7 +102,8 @@ class StreamTrainingWorker():
                 self.openPacks.add(unknown["id"])
                 for state in self.downloader.openPackage(unknown["id"]):
                     newStatesLst.append(state)
-            time.sleep(0.2)
+            if len(newStatesLst) < atLeastN:
+                time.sleep(0.1)
 
         return newStatesLst
 
@@ -152,30 +153,43 @@ class StreamTrainingWorker():
 
             trainedCount = 0
 
+            waitNs = 0
+            fitNs = 0
+
             while newFramesCount < iterationSize:
-                addedFrames = self.addNewFrames(self.waitForNewStates(self.batchSize))
+                startPoll = time.monotonic_ns()
+                polledFrames = self.waitForNewStates(self.batchSize)
+                waitNs += time.monotonic_ns() - startPoll
 
-                pendingTrainingCount += addedFrames * framesPerNewFrame
-                batches = pendingTrainingCount // self.batchSize
-                trainFrameCount = int(batches * self.batchSize)
-                pendingTrainingCount -= trainFrameCount
+                startFit = time.monotonic_ns()
+                addedFrames = self.addNewFrames(polledFrames)
+                if addedFrames > 0:
+                    pendingTrainingCount += addedFrames * framesPerNewFrame
+                    batches = pendingTrainingCount // self.batchSize
+                    trainFrameCount = int(batches * self.batchSize)
+                    pendingTrainingCount -= trainFrameCount
 
-                trainingFrames = self.pickFramesForTraining(trainFrameCount)
+                    trainingFrames = self.pickFramesForTraining(trainFrameCount)
 
-                trainedCount += len(trainingFrames)
-                fitResult = self.policy.fit(trainingFrames, 1)
+                    trainedCount += len(trainingFrames)
+                    fitResult = self.policy.fit(trainingFrames, 1)
 
-                if fitResult is not None:
-                    mls, wls = fitResult
-                    gmls += mls
-                    gwls += wls
+                    if fitResult is not None:
+                        mls, wls = fitResult
+                        gmls += mls
+                        gwls += wls
 
-                newFramesCount += addedFrames
+                    newFramesCount += addedFrames
+
+                fitNs += time.monotonic_ns() - startFit
 
                 procCur = int((newFramesCount / iterationSize) * 100.0) // 10
                 if procCur > proc:
                     proc = procCur
-                    logMsg("Iteration %i%% completed: learnt from %i new frames. Window buffer currently contains %i frames" %(proc * 10, newFramesCount, len(self.windowBuffer)))
+                    sumTimeMeasured = waitNs + fitNs
+                    waitPart = (waitNs / sumTimeMeasured) * 100.0
+                    fitPart = (fitNs / sumTimeMeasured) * 100.0
+                    logMsg("Iteration %i%% completed: %i new frames. In buffer: %i frames. %.2f%% waits, %.2f%% fits." % (proc * 10, newFramesCount, len(self.windowBuffer), waitPart, fitPart))
 
 
             logMsg("Iteration completed, new frames processed: %i. Overall frames processed: %i" % (newFramesCount, trainedCount))
