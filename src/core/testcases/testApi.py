@@ -128,7 +128,8 @@ class ApiTest(unittest.TestCase):
     def postARun(self):
         rundata = {
             "name": "testRun",
-            "config": "This is a Config\nIt has multiple lines of text"
+            "config": "This is a Config\nIt has multiple lines of text",
+            "sha": "285f492ace6dcebb69880263f9113320d3ab69e1"
         }
         runjs = json.dumps(rundata)
 
@@ -152,6 +153,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(runsList[0]["id"], rundata["id"])
         self.assertEqual(runsList[0]["name"], rundata["name"])
         self.assertEqual(runsList[0]["config"], rundata["config"])
+        self.assertEqual(runsList[0]["sha"], rundata["sha"])
 
         response = requests.get(url=urlBase + "/api/runs/" + rundata["id"], headers={"secret": config["secret"]})
         response.raise_for_status()
@@ -160,6 +162,7 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(rundata["id"], post["id"])
         self.assertEqual(rundata["name"], post["name"])
         self.assertEqual(rundata["config"], post["config"])
+        self.assertEqual(rundata["sha"], post["sha"])
 
     def test_state_posting(self):
         run1 = self.postARun()

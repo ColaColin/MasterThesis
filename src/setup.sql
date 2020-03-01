@@ -11,8 +11,11 @@ create table runs (
     id uuid primary key,
     name varchar not null,
     config varchar not null,
+    sha varchar not null default 'unknown',
     creation timestamptz default NOW() not null
 );
+
+--alter table runs add column sha varchar not null default 'unknown';
 
 create table networks (
     id uuid primary key,

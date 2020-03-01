@@ -31,6 +31,7 @@
                     <div bp="10">
                         <input data-bind="textInput: newRunName" />
                     </div>
+                    <div bp="2">SHA</div> <div bp="10"> <input data-bind="textInput: newRunSha" /> </div>
                     <div bp="2">
                         YAML
                     </div>
@@ -39,7 +40,7 @@
                     </div>
                 </div>
                 
-                <!-- ko if: newRunName().length > 0 && newRunYaml().length > 0-->
+                <!-- ko if: newRunName().length > 0 && newRunYaml().length > 0 && newRunSha().length > 0-->
                     <button data-bind="click: createNewRun">Create new run</button>
                 <!-- /ko -->
             </div>
@@ -54,7 +55,6 @@
                             <th>Name</th>
                             <th>Creation time</th>
                             <th>ID</th>
-                            
                         </tr>
                     </thead>
     
@@ -74,6 +74,7 @@
                     <div bp="grid">
 
                         <div bp="2">ID</div><div bp="10" data-bind="text: selectedRunObject().id"></div>
+                        <div bp="2">SHA</div><div bp="10" data-bind="text: selectedRunObject().sha"></div>
                         <div bp="2">Creation</div><div bp="10" data-bind="text: (new Date(selectedRunObject().timestamp)).toISOString()"></div>
                         <div bp="2">Last states reported</div> <div bp="10" data-bind="text: lastReport"></div>
                         <div bp="2">

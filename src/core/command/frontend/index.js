@@ -201,6 +201,7 @@ function CommandPageModel() {
     });
 
     self.newRunYaml = ko.observable("");
+    self.newRunSha = ko.observable("");
     self.newRunName = ko.observable("");
 
     self.createNewRun = async () => {
@@ -211,7 +212,8 @@ function CommandPageModel() {
             },
             body: JSON.stringify({
                 name: self.newRunName(),
-                config: self.newRunYaml()
+                config: self.newRunYaml(),
+                sha: self.newRunSha()
             })
         });
 

@@ -12,9 +12,9 @@ class RunsResource():
             con = self.pool.getconn()
             cursor = con.cursor()
             if id is not None:
-                cursor.execute("SELECT id, name, config, creation from runs where id = %s", (id, ));
+                cursor.execute("SELECT id, name, config, creation, sha from runs where id = %s", (id, ));
             else:
-                cursor.execute("SELECT id, name, config, creation from runs");
+                cursor.execute("SELECT id, name, config, creation, sha from runs");
             rows = cursor.fetchall();
             
             result = [];
@@ -23,7 +23,8 @@ class RunsResource():
                     "id": row[0],
                     "name": row[1],
                     "config": row[2],
-                    "timestamp": int(row[3].timestamp() * 1000)
+                    "timestamp": int(row[3].timestamp() * 1000),
+                    "sha": row[4]
                 })
 
             return result
@@ -47,7 +48,7 @@ class RunsResource():
         try:
             con = self.pool.getconn()
             cursor = con.cursor()
-            cursor.execute("insert into runs (id, name, config) VALUES (%s, %s, %s)", (run["id"], run["name"], run["config"]))
+            cursor.execute("insert into runs (id, name, config, sha) VALUES (%s, %s, %s, %s)", (run["id"], run["name"], run["config"], run["sha"]))
             con.commit()
         finally:
             if cursor:
@@ -55,8 +56,8 @@ class RunsResource():
             self.pool.putconn(con)
 
     def parseRun(self, message):
-        isRunMsg = "name" in message and "config" in message \
-            and isinstance(message["name"], str) and isinstance(message["config"], str)
+        isRunMsg = "name" in message and "config" in message and "sha" in message \
+            and isinstance(message["name"], str) and isinstance(message["config"], str) and isinstance(message["sha"], str)
 
         if not isRunMsg:
             raise falcon.HTTPError(falcon.HTTP_400, "Malformed run configuration")
@@ -67,6 +68,7 @@ class RunsResource():
         newRuns["id"] = newId
         newRuns["name"] = message["name"]
         newRuns["config"] = message["config"]
+        newRuns["sha"] = message["sha"]
   
         return newRuns
 
