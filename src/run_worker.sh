@@ -30,7 +30,6 @@ conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
 
 git clone https://github.com/ColaColin/MasterThesis.git
 cd MasterThesis
-wget $2/sha/$4
 SHA=$(wget -qO- $2/sha/$4)
 git checkout $SHA
 cd src
