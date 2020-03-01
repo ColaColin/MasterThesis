@@ -23,12 +23,15 @@ class Policy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def fit(self, data, epochs):
+    def fit(self, data, iteration = None, iterationProgress = None):
         """
         Fits the policy to the data given. Changes the policy UUID. Does not require the policy
-        to randomize parameters before fitting, so e.g. a network can learn based on previous parameters.
+        to randomize parameters before fitting, so e.g. a network can learn based on previous parameters,
+        in fact this is not just used to learn on whole epochs of data, but is also called with single minibatches 
+        in some scenarios.
         @param data: a list of dict() objects with data as defined by the GameReporter interface
-        @param epochs: How many epochs to train
+        @param iteration: If given the network iteration this fit is called for. Can be None. Meant to vary e.g. the learning rate.
+        @param iterationProgress: How far the current iteration has progressed. Can be None. Meant to vary e.g. the learning rate.
         @return: Nothing, the Policy is modified instead.
         """
 

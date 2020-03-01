@@ -65,7 +65,8 @@ class TrainingWorker():
             window = self.windowManager.prepareWindow(self.downloader, len(networkList))
 
             startFitting = time.monotonic()
-            self.policy.fit(window, self.epochs)
+            for _ in range(self.epochs):
+                self.policy.fit(window)
             endFitting = time.monotonic()
 
             logMsg("One iteration of training took %is" % int(endFitting - startFitting))

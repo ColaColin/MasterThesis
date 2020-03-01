@@ -6,7 +6,7 @@ from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
 from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater
-from impls.polices.pytorch.policy import PytorchPolicy
+from impls.polices.pytorch.policy import PytorchPolicy, LrStepSchedule
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
 from impls.solved.players import RandomPlayPolicy, BestPlayPolicy
@@ -53,6 +53,7 @@ def registerClasses():
         mlconfig.register(ConstantTrainingWindowManager)
         mlconfig.register(StreamTrainingWorker)
         mlconfig.register(ConstantWindowSizeManager)
+        mlconfig.register(LrStepSchedule)
         registered = True
 
 def mlConfigBasedMain(configPath):

@@ -59,7 +59,9 @@ class TestPolicySanity(metaclass=abc.ABCMeta):
             reports.append(r)
         
         prevUUID = self.subject.getUUID()
-        self.subject.fit(reports, 250)
+        for e in range(250):
+            self.subject.fit(reports, e, 1)
+
         self.assertNotEqual(prevUUID, self.subject.getUUID())
 
         forwards = self.forwardToLists(games)

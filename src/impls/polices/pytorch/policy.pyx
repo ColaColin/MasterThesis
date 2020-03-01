@@ -27,7 +27,7 @@ import math
 
 import time
 
-from utils.misc import constructor_for_class_name
+from utils.misc import constructor_for_class_name, IterationCalculatedValue
 
 from utils.prints import logMsg
 
@@ -166,14 +166,36 @@ def fillTrainingSet(protoState, data, int startIndex, moveOutput, winOutput, net
             mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
             winTensor[startIndex + fidx, mappedIndex] = absoluteWinners[pid]
 
+class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
+    def __init__(self, startValue, stepEvery, stepMultiplier, minValue):
+        self.startValue = startValue
+        self.stepEvery = stepEvery
+        self.stepMultiplier = stepMultiplier
+        self.minValue = minValue
+        self.lastLr = 0
+    
+    def getValue(self, iteration, iterationProgress):
+        steps = iteration // self.stepEvery
+        val = self.startValue
 
+        for _ in range(steps):
+            val *= self.stepMultiplier
+        
+        if val < self.minValue:
+            val = self.minValue
+
+        if self.lastLr == 0 or abs(val - self.lastLr) / self.lastLr > 0.1:
+            logMsg("Setting new LR", val)
+            self.lastLr = val
+
+        return val
 
 class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     """
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs, extraHeadFilters = None, silent = True):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -197,6 +219,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.optimizerName = optimizerName
         self.optimizerArgs = optimizerArgs
 
+        if self.optimizerArgs is None:
+            self.optimizerArgs = dict()
+
         self.blocks = blocks
         self.filters = filters
         self.headKernel = headKernel
@@ -207,6 +232,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.silent = silent
 
         self.initNetwork()
+
+        self.lrDecider = lrDecider
 
         logMsg("\nCreated a PytorchPolicy using device " + str(self.device) + "\n", pms.summary(self.net, torch.zeros((1, ) + self.gameDims, device = self.device)))
 
@@ -314,8 +341,25 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.uuid = str(uuid.uuid4())
         self.initNetwork()
 
-    def fit(self, data, epochs):
+    def getLr(self):
+        result = 0.0001
+        for param_group in self.optimizer.param_groups:
+            if "lr" in param_group:
+                result = param_group["lr"]
+        return result
+
+    def setLr(self, lr):
+        for param_group in self.optimizer.param_groups:
+            param_group["lr"] = lr
+
+    def fit(self, data, iteration = None, iterationProgress = None):
         self.uuid = str(uuid.uuid4())
+
+        prevLr = self.getLr()
+
+        if iteration is not None and self.lrDecider is not None and iterationProgress is not None:
+            lrv = self.lrDecider.getValue(iteration, iterationProgress)
+            self.setLr(lrv)
 
         data = data.copy()
         recordsCount = len(data)
@@ -329,54 +373,46 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         mls = []
         wls = []
 
-        for e in range(epochs):
-            if not self.silent:
-                logMsg("Starting epoch " + str(e + 1))
+        pStart = time.time()
+        random.shuffle(data)
+        fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
 
-            pStart = time.time()
-            random.shuffle(data)
-            fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
+        pEnd = time.time()
+        if not self.silent:
+            logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
 
-            pEnd = time.time()
-            if not self.silent:
-                logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
+        epochStart = time.time()
+        nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
+        mT = Variable(self.trainingOutputsMoves.clone().detach()).to(self.device)
+        wT = Variable(self.trainingOutputsWins.clone().detach()).to(self.device)
 
-            epochStart = time.time()
-            nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
-            mT = Variable(self.trainingOutputsMoves.clone().detach()).to(self.device)
-            wT = Variable(self.trainingOutputsWins.clone().detach()).to(self.device)
+        for bi in range(batchNum):
+            batchStart = bi*self.batchSize
+            batchEnd = min((bi+1) * self.batchSize, recordsCount)
+            batchSize = batchEnd - batchStart
+            batchMiddle = batchStart + (batchSize // 2)
 
-            if not self.silent:
-                mls = []
-                wls = []
+            x = nIn[batchStart:batchEnd]
+            yM = mT[batchStart:batchEnd]
+            yW = wT[batchStart:batchEnd]
 
-            for bi in range(batchNum):
-                batchStart = bi*self.batchSize
-                batchEnd = min((bi+1) * self.batchSize, recordsCount)
-                batchSize = batchEnd - batchStart
-                batchMiddle = batchStart + (batchSize // 2)
+            self.optimizer.zero_grad()
 
-                x = nIn[batchStart:batchEnd]
-                yM = mT[batchStart:batchEnd]
-                yW = wT[batchStart:batchEnd]
+            mO, wO = self.net(x)
 
-                self.optimizer.zero_grad()
+            mLoss = -torch.sum(mO * yM) / batchSize
+            wLoss = -torch.sum(wO * yW) / batchSize
 
-                mO, wO = self.net(x)
+            loss = mLoss + wLoss
+            loss.backward()
 
-                mLoss = -torch.sum(mO * yM) / batchSize
-                wLoss = -torch.sum(wO * yW) / batchSize
+            self.optimizer.step()
 
-                loss = mLoss + wLoss
-                loss.backward()
-
-                self.optimizer.step()
-
-                mls.append(mLoss.data.item())
-                wls.append(wLoss.data.item())
-            
-            if not self.silent:
-                logMsg("Completed Epoch %i with loss (Moves) %f + (Winner) %f in %f seconds" % (e+1, np.mean(mls), np.mean(wls), time.time() - epochStart))
+            mls.append(mLoss.data.item())
+            wls.append(wLoss.data.item())
+        
+        if not self.silent:
+            logMsg("Completed fit with loss (Moves) %f + (Winner) %f in %f seconds" % (np.mean(mls), np.mean(wls), time.time() - epochStart))
        
         self.net.train(False)
 
@@ -384,6 +420,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         del self.trainingOutputsMoves
         del self.trainingOutputsWins
         torch.cuda.empty_cache()
+
+        self.setLr(prevLr)
 
         return mls, wls
        

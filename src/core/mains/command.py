@@ -44,7 +44,8 @@ if __name__ == "__main__":
     cfg = getCommandConfiguration()
     statsGen = None
     try:
-        statsGen = spawnStatsGenerator()
+        if not ("nostats" in cfg) or not cfg["nostats"]:
+            statsGen = spawnStatsGenerator()
 
         with make_server(cfg["host"], cfg["port"], defineApp(cfg)) as httpd:
             print("Running command server on port " + str(cfg["port"]))

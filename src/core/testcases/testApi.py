@@ -32,7 +32,8 @@ config = {
     "dbpassword": "x0_test",
     "dbname": "x0_test",
     "host": "127.0.0.1",
-    "port": 7877
+    "port": 7877,
+    "nostats": True
 }
 
 urlBase = "http://" + config["host"] + ":" + str(config["port"])+ "/"

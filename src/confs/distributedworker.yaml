@@ -14,8 +14,14 @@ mnk:
 
 optimizerArgs:
   name: dict
-  lr: 0.0028
   weight_decay: 0.000249
+
+lrschedule:
+  name: LrStepSchedule
+  startValue: 0.005
+  stepEvery: 20
+  stepMultiplier: 0.1
+  minValue: 0.0001
 
 resnet:
   name: PytorchPolicy
@@ -28,6 +34,7 @@ resnet:
   protoState: $mnk
   silent: true
   device: cuda
+  lrDecider: $lrschedule
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
