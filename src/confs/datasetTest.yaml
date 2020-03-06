@@ -1,22 +1,14 @@
 main:
   name: DatasetPolicyTester
   batchedPolicyPlayer: $x0
-  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/rnd.dataset
+  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/p6_weak_big.dataset
   initialGameState: $mnk
   mode: shell
   batchSize: 128
 
-solver:
-  name: SolverBatchedPolicyPlayer
-  solver: $pons
-
-guesser:
-  name: ShuffleBatchedPolicyPlayer
-
 updater:
-  name: SingleProcessUpdater
-  trainEpochs: 2
-  state: /ImbaKeks/runs/connect4
+  name: FilePolicyUpdater
+  path: /ImbaKeks/x0/best.network
 
 x0:
   name: PolicyIteratorPlayer
@@ -34,31 +26,26 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 3
-  filters: 64
+  blocks: 5
+  filters: 128
   headKernel: 3
   headFilters: 64
+  extraHeadFilters: 32
   protoState: $mnk
-  device: cuda:0
+  device: cuda
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 5000
-  cpuct: 1.5
+  expansions: 8
+  cpuct: 3
   rootNoise: 0.001
   drawValue: 0.4
 
 bestMoves:
   name: TemperatureMoveDecider
   explorationPlyCount: -1
-
-
-pons:
-  name: PonsSolver
-  executable: /ImbaKeks/git/connect4/c4solver
-  book: /ImbaKeks/git/connect4/7x6.book
 
 mnk:
   name: Connect4GameState

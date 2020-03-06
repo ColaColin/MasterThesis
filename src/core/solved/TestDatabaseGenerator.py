@@ -4,6 +4,16 @@ import abc
 import io
 import gzip
 
+from multiprocessing import Process, Queue
+
+from utils.misc import constructor_for_class_name
+
+import os
+
+import random
+
+import numpy as np
+
 class TestPlayGeneratorPolicy(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def decideMoves(self, state, solverMoveScores, bestMoveKeys):
@@ -27,11 +37,7 @@ def getBestScoreKeys(scoreDict):
 class TestDatabaseGenerator():
 
     """
-    Play out a tree of game states according to some policy, which also has access
-    to the solvers solution.
-    Use a solver to store which moves do not make the situation worse.
-    Finding shortest wins is not required, but winning when winning is possible
-    and drawing when drawing is possible is.
+    Old class, use v2 further below this
     The database is stored as a byte array:
     a list of values from 0-(n-1), representing the moves played to reach the position
     correct moves (e.g. achieve optimal result eventually) listed as values from n-(2n-1)
@@ -155,4 +161,132 @@ class TestDatabaseGenerator():
         self.package()
 
 
+def getGameResult(solution):
+    bestResult = -1
+    for score in dict.values(solution):
+        if bestResult < score:
+            bestResult = score
+    if bestResult > 1:
+        bestResult = 1
+    return bestResult
+
+def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, filterTrivial):
+    initialState = constructor_for_class_name(gameCtor)(**gameCtorParams)
+
+    solveCache = dict()
+
+    results = []
+
+    while True:
+        state = initialState
+        path = []
+
+        while not state.hasEnded():
+            wasMiss = False
+            if not state in solveCache:
+                solution = solver.getMoveScores(state, path)
+                solveCache[state] = solution
+                wasMiss = True
+            else:
+                solution = solveCache[state]
+
+            optimals = getBestScoreKeys(solution)
+            isSimple = len(state.getLegalMoves()) == len(optimals)
+
+            if not isSimple or not filterTrivial:
+                if not dedupe or wasMiss:
+                    results.append((state.store(), path.copy(), optimals, getGameResult(solution), ))
+
+                if len(results) > 100:
+                    outputQueue.put(results)
+                    results = []
+
+            moves = policy.decideMoves(state, solution, optimals)
+            move = random.choice(moves)
+            
+            state = state.playMove(move)
+            path.append(move)
+
+class TestDatabaseGenerator2():
+
+    def __init__(self, initialState, solver, databaseSize, outputFile, policy, dedupe, workers, filterTrivial):
+        self.initialState = initialState
+        self.solver = solver
+        self.databaseSize = databaseSize
+        self.outputFile = outputFile
+        self.policy = policy
+        self.dedupe = dedupe
+        self.filterTrivial = filterTrivial
+        self.workers = workers
+
+    def main(self):
+        statesQueue = Queue(maxsize=50)
+
+        for _ in range(self.workers):
+            proc = Process(target=playGames, args=(statesQueue, self.initialState.getGameConstructorName(), self.initialState.getGameConstructorParams(), self.solver, self.policy, self.dedupe, self.filterTrivial))
+            proc.daemon = True
+            proc.start()
+
+        results = []
+        resultsSet = set()
+        simpleCount = 0
+
+        waitTimes = []
+
+        startFrame = time.monotonic_ns()
+        while len(results) < self.databaseSize:
+            
+            resultList = statesQueue.get()
+
+            for stateStore, path, optimals, gameResult in resultList:
+                state = self.initialState.load(stateStore)
+
+                if not self.dedupe or (not state in resultsSet):
+                    if len(results) < self.databaseSize:
+                        results.append((path, optimals, gameResult))
+
+                    frameTime = time.monotonic_ns() - startFrame
+                    startFrame = time.monotonic_ns()
+                    waitTimes.append(frameTime)
+
+                    if len(waitTimes) > 3000:
+                        del waitTimes[0]
+
+                    if len(results) % 1000 == 0:
+                        meanWait = np.mean(waitTimes)
+                        logMsg("Generated %i examples, current speed %.2f per second." % (len(results), 1000000000 / meanWait))
+
+                if self.dedupe:
+                    resultsSet.add(state)
+
+        depthCounts = dict()
+        optMoveCounts = 0
+        for p, optimals, _ in results:
+            k = len(p)
+            if not k in depthCounts:
+                depthCounts[k] = 0
+            depthCounts[k] += 1
+            optMoveCounts += len(optimals)
+        
+        logMsg("Depth distribution is:")
+        dk = sorted(dict.keys(depthCounts))
+        for d in dk:
+            logMsg(str(d) + ": " + str(depthCounts[d]))
+        logMsg("Average number of correct moves is:", optMoveCounts / len(results))
+
+        self.results = results
+
+        self.package()
+
+    def package(self):
+        buffer = io.BytesIO()
+        for path, optimals, _ in self.results:
+            buffer.write(bytes([p for p in path]))
+            buffer.write(bytes([o + self.initialState.getMoveCount() for o in optimals]))
+
+        bys = buffer.getvalue()
+        zipped = gzip.compress(bys)
+        logMsg("Package size is %i kb, compressed to %i kb" % ((len(bys) // 1024), (len(zipped) // 1024)))
+        with open(self.outputFile, "wb") as f:
+            f.write(zipped)
 

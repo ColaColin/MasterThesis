@@ -6,16 +6,21 @@ import random
 
 class RandomPlayPolicy(TestPlayGeneratorPolicy, metaclass=abc.ABCMeta):
     def decideMoves(self, state, solverMoveScores, bestMoveKeys):
-        if state.getTurn() < 1:
-            splits = 7
-        else:
-            splits = 3
         moves = state.getLegalMoves()
-        random.shuffle(moves)
-        return moves[:splits]
+        return moves
+
+class SemiPerfectPolicy(TestPlayGeneratorPolicy, metaclass=abc.ABCMeta):
+    def __init__(self, p):
+        self.p = p
+
+    def decideMoves(self, state, solverMoveScores, bestMoveKeys):
+        if random.random() > self.p:
+            moves = state.getLegalMoves()
+        else:
+            moves = bestMoveKeys.copy()
+        return moves
 
 class BestPlayPolicy(TestPlayGeneratorPolicy, metaclass=abc.ABCMeta):
     def decideMoves(self, state, solverMoveScores, bestMoveKeys):
         m = bestMoveKeys.copy()
-        random.shuffle(m)
         return m

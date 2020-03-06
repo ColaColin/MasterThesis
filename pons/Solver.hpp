@@ -49,7 +49,7 @@ class Solver {
 
  public:
 
-  int solve(const Position &P, bool weak = false);
+  int solve(const std::string&, bool weak = false);
 
   unsigned long long getNodeCount() const {
     return nodeCount;

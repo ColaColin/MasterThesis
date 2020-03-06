@@ -6,20 +6,21 @@ c4:
 
 pons:
   name: PonsSolver
-  executable: /ImbaKeks/git/connect4/c4solver
-  book: /ImbaKeks/git/connect4/7x6.book
+  executable: ../pons/c4solver
+  book: ../pons/7x6.book
+  mode: weak
 
 genPlayer:
-  name: RandomPlayPolicy
+  name: SemiPerfectPolicy
+  p: 0.6
 
 main:
-  name: TestDatabaseGenerator
+  name: TestDatabaseGenerator2
   initialState: $c4
   solver: $pons
-  mode: weak
-  dedupe: false
-  filterSimple: false
-  databaseSize: 25000
-  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/new/w_rnd_nf_nd.dataset
+  dedupe: true
+  filterTrivial: true
+  databaseSize: 1000000
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/p6_weak_big.dataset
   policy: $genPlayer
-  generation: beam
+  workers: 4

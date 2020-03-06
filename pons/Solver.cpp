@@ -104,7 +104,14 @@ int Solver::negamax(const Position &P, int alpha, int beta) {
   return alpha;
 }
 
-int Solver::solve(const Position &P, bool weak) {
+int Solver::solve(const std::string& pStr, bool weak) {
+  Position P;
+  unsigned int playedCount = P.play(pStr);
+  if (playedCount != pStr.size()) {
+    // magic number encodes "invalid input". Hacky, but keeps the C++ interface I need to get into python easier.
+    return -4242;
+  }
+
   if(P.canWinNext()) // check if win in one move as the Negamax function does not support this case.
     return (Position::WIDTH * Position::HEIGHT + 1 - P.nbMoves()) / 2;
   int min = -(Position::WIDTH * Position::HEIGHT - P.nbMoves()) / 2;

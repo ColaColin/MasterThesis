@@ -4,6 +4,9 @@ from core.playing.SelfPlayWorker import GameReporter, PolicyUpdater
 from utils.prints import logMsg
 from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester
 
+
+from utils.bsonHelp.bsonHelp import decodeFromBson
+
 import numpy as np
 
 import time
@@ -98,6 +101,20 @@ class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
 class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
     def update(self, policy):
         return policy           
+
+class FilePolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
+    def __init__(self, path):
+        self.loadedUUID = None
+        with open(path, "rb") as f:
+            self.policyBytes = decodeFromBson(f.read())
+
+    def update(self, policy):
+        if self.loadedUUID is None or policy.getUUID() != self.loadedUUID:
+            policy.load(self.policyBytes)
+            self.loadedUUID = policy.getUUID()
+            logMsg("Loaded stored policy with UUID %s!" % (policy.getUUID()))
+
+        return policy        
 
 current_milli_time = lambda: int(round(time.time() * 1000))
 

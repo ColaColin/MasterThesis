@@ -6,6 +6,10 @@ from utils.prints import logMsg
 
 import time
 
+import os
+
+from impls.solved.pons.pons import PascalPonsSolver
+
 def isInt(s):
     try: 
         int(s)
@@ -16,19 +20,16 @@ def isInt(s):
 class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
     """
     Uses the connect4 solver made by Pascal Pons.
+    Direct calls into a cython interface which skips the expensive reset() call that the command line version does.
     """
 
-    def __init__(self, executable, book):
-        """
-        using threads above 1 does not help at all, probably because of
-        the solver using some sort of position caching?! Or maybe
-        the inter process communication is the bottleneck
-        """
+    def __init__(self, executable, book, mode = "strong"):
         self.executable = executable
         self.book = book
         self.process = None
         self.calls = 0
-        self.restart()
+        self.mode = mode
+        self.csolver = None
  
     def restart(self):
         if not (self.process is None):
@@ -37,6 +38,35 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             universal_newlines=True, bufsize=1)
         self.process.stdout.readline()
+
+    def weakenSolution(self, solution):
+        result = dict()
+        for m in solution:
+            s = solution[m]
+            if s > 0:
+                result[m] = 1
+            else:
+                result[m] = s 
+        return result
+
+    def getDirectCallResult(self, path):
+        if self.csolver is None:
+            self.csolver = PascalPonsSolver()
+            self.csolver.loadBook(self.book)
+        return -self.csolver.solve(path)
+
+    def getPonsResultSubprocess(self, path):
+        if self.process is None:
+            self.restart()
+
+        self.process.stdin.write(path + "\n")
+        ponsOut = self.process.stdout.readline().strip()
+        if ponsOut.find("Line") != 0:
+            score = ponsOut.split(" ")
+            if len(score) == 4 and isInt(score[1]):
+                return -int(score[1])
+        
+        raise Exception("invalid input")
 
     def getMoveScores(self, state, movesReplay):
         assert not state.hasEnded()
@@ -53,18 +83,18 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
                     result[move] = 0
             else:
                 path = movesReplay + [move]
-                path = "".join([str(p + 1) for p in path]) + "\n"
+                path = "".join([str(p + 1) for p in path])
 
-                self.process.stdin.write(path)
-                ponsOut = self.process.stdout.readline().strip()
+                #subprocResult = self.getPonsResultSubprocess(path)
 
-                #print(ponsOut)
+                directCallResult = self.getDirectCallResult(path)
 
-                if ponsOut.find("Line") != 0:
-                    score = ponsOut.split(" ")
-                    if len(score) == 4 and isInt(score[1]):
-                        result[move] = -int(score[1])
+                result[move] = directCallResult
 
         #print("".join([str(m + 1) for m in movesReplay]), result)
 
-        return result
+        if self.mode == "weak":
+            return self.weakenSolution(result)
+        else:
+            return result
+        

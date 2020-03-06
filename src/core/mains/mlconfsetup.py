@@ -5,13 +5,13 @@ from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
-from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater
+from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater, FilePolicyUpdater
 from impls.polices.pytorch.policy import PytorchPolicy, LrStepSchedule
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
-from impls.solved.players import RandomPlayPolicy, BestPlayPolicy
+from impls.solved.players import RandomPlayPolicy, BestPlayPolicy, SemiPerfectPolicy
 from impls.solved.PonsSolver import PonsSolver
-from core.solved.TestDatabaseGenerator import TestDatabaseGenerator
+from core.solved.TestDatabaseGenerator import TestDatabaseGenerator, TestDatabaseGenerator2
 from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
 from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
 from core.training.TrainingWorker import TrainingWorker
@@ -54,6 +54,9 @@ def registerClasses():
         mlconfig.register(StreamTrainingWorker)
         mlconfig.register(ConstantWindowSizeManager)
         mlconfig.register(LrStepSchedule)
+        mlconfig.register(SemiPerfectPolicy)
+        mlconfig.register(TestDatabaseGenerator2)
+        mlconfig.register(FilePolicyUpdater)
         registered = True
 
 def mlConfigBasedMain(configPath):
