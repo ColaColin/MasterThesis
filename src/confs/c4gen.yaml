@@ -16,7 +16,10 @@ main:
   name: TestDatabaseGenerator
   initialState: $c4
   solver: $pons
-  databaseSize: 4000
-  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/rnd_small.dataset
+  mode: weak
+  dedupe: false
+  filterSimple: false
+  databaseSize: 25000
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/new/w_rnd_nf_nd.dataset
   policy: $genPlayer
   generation: beam

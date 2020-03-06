@@ -27,112 +27,112 @@ from utils.misc import readFileUnderPath
 if __name__ == "__main__":
     raise Exception("This is old, do not use this anymore, use remote_evaluator instead!")
 
-    setproctitle.setproctitle("x0_evaluator")
-    setLoggingEnabled(True)
+    # setproctitle.setproctitle("x0_evaluator")
+    # setLoggingEnabled(True)
 
-    logMsg("Started local server evaluator!")
+    # logMsg("Started local server evaluator!")
 
-    config = getCommandConfiguration()
+    # config = getCommandConfiguration()
 
-    pool = psycopg2.pool.SimpleConnectionPool(1, 3,user = config["dbuser"],
-                                            password = config["dbpassword"],
-                                            host = "127.0.0.1",
-                                            port = "5432",
-                                            database = config["dbname"]);
+    # pool = psycopg2.pool.SimpleConnectionPool(1, 3,user = config["dbuser"],
+    #                                         password = config["dbpassword"],
+    #                                         host = "127.0.0.1",
+    #                                         port = "5432",
+    #                                         database = config["dbname"]);
 
-    def getNewestNetwork():
-        """
-        return (run-id, network-id) of the next network to work on, if none, sleep until there is one
-        """
-        while True:
-            try:
-                con = pool.getconn()
-                cursor = con.cursor()
+    # def getNewestNetwork():
+    #     """
+    #     return (run-id, network-id) of the next network to work on, if none, sleep until there is one
+    #     """
+    #     while True:
+    #         try:
+    #             con = pool.getconn()
+    #             cursor = con.cursor()
 
-                cursor.execute("select run, id from networks where acc_rnd is null order by creation desc")
-                rows = cursor.fetchall()
+    #             cursor.execute("select run, id from networks where acc_rnd is null order by creation desc")
+    #             rows = cursor.fetchall()
 
-                if len(rows) == 0:
-                    logMsg("Waiting for new networks to evaluate!")
-                    time.sleep(10)
-                else:
-                    todo = rows[0]
-                    logMsg("Found new network to evaluate!", todo)
-                    return todo[0], todo[1]
-            finally:
-                if cursor:
-                    cursor.close()
-                pool.putconn(con)
+    #             if len(rows) == 0:
+    #                 logMsg("Waiting for new networks to evaluate!")
+    #                 time.sleep(10)
+    #             else:
+    #                 todo = rows[0]
+    #                 logMsg("Found new network to evaluate!", todo)
+    #                 return todo[0], todo[1]
+    #         finally:
+    #             if cursor:
+    #                 cursor.close()
+    #             pool.putconn(con)
 
-    def getRunConfig(runId):
-        """
-        returns a path to a temporary file, which contains the run config.
-        Use "with getRunConfig as configFile":
-        """
-        ff = tempfile.NamedTemporaryFile(suffix=".yaml", mode="w+")
-        try:
-            con = pool.getconn()
-            cursor = con.cursor()
+    # def getRunConfig(runId):
+    #     """
+    #     returns a path to a temporary file, which contains the run config.
+    #     Use "with getRunConfig as configFile":
+    #     """
+    #     ff = tempfile.NamedTemporaryFile(suffix=".yaml", mode="w+")
+    #     try:
+    #         con = pool.getconn()
+    #         cursor = con.cursor()
 
-            cursor.execute("select config from runs where id = %s", (runId, ))
-            rows = cursor.fetchall()
+    #         cursor.execute("select config from runs where id = %s", (runId, ))
+    #         rows = cursor.fetchall()
 
-            cfg = rows[0][0]
+    #         cfg = rows[0][0]
             
-            ff.write(cfg)
-            ff.flush()
+    #         ff.write(cfg)
+    #         ff.flush()
 
-            logMsg("Using tempfile for configuration:", ff.name)
+    #         logMsg("Using tempfile for configuration:", ff.name)
 
-            return ff
-        finally:
-            if cursor:
-                cursor.close()
-            pool.putconn(con)
+    #         return ff
+    #     finally:
+    #         if cursor:
+    #             cursor.close()
+    #         pool.putconn(con)
 
-    while True:
-        run, network = getNewestNetwork()
+    # while True:
+    #     run, network = getNewestNetwork()
 
-        with getRunConfig(run) as temp:
-            cfgPath = temp.name
-            core = mlConfigBasedMain(cfgPath)
+    #     with getRunConfig(run) as temp:
+    #         cfgPath = temp.name
+    #         core = mlConfigBasedMain(cfgPath)
 
-        policy = core.worker.policy(recursive=True)
-        networkPath = os.path.join(config["dataPath"], getUUIDPath(network))
-        networkData = readFileUnderPath(networkPath)
-        unpackedNetwork = decodeFromBson(networkData)
-        policy.load(unpackedNetwork)
+    #     policy = core.worker.policy(recursive=True)
+    #     networkPath = os.path.join(config["dataPath"], getUUIDPath(network))
+    #     networkData = readFileUnderPath(networkPath)
+    #     unpackedNetwork = decodeFromBson(networkData)
+    #     policy.load(unpackedNetwork)
 
-        logMsg("Evaluation: Loaded policy with id", policy.getUUID())
+    #     logMsg("Evaluation: Loaded policy with id", policy.getUUID())
 
-        policyIterator = core.worker.policyIterator(recursive=True)
+    #     policyIterator = core.worker.policyIterator(recursive=True)
 
-        # pick the best moves moveDecider
-        moveDecider = TemperatureMoveDecider(-1)
+    #     # pick the best moves moveDecider
+    #     moveDecider = TemperatureMoveDecider(-1)
 
-        initialState = core.worker.initialState(recursive=True)
+    #     initialState = core.worker.initialState(recursive=True)
 
-        policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=config["evaluatorQuickFactor"])
+    #     policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=config["evaluatorQuickFactor"])
 
-        rndTester = DatasetPolicyTester(policyPlayer, config["testRndMovesDataset"], initialState, "shell", 128)
-        rndResult = rndTester.main()
+    #     rndTester = DatasetPolicyTester(policyPlayer, config["testRndMovesDataset"], initialState, "shell", 128)
+    #     rndResult = rndTester.main()
 
-        bestTester = DatasetPolicyTester(policyPlayer, config["testBestMovesDataset"], initialState, "shell", 128)
-        bestResult = bestTester.main()
+    #     bestTester = DatasetPolicyTester(policyPlayer, config["testBestMovesDataset"], initialState, "shell", 128)
+    #     bestResult = bestTester.main()
 
-        logMsg("Policy %s tested: %.2f%% on best play, %.2f%% on random play." % (policy.getUUID(), bestResult, rndResult))
+    #     logMsg("Policy %s tested: %.2f%% on best play, %.2f%% on random play." % (policy.getUUID(), bestResult, rndResult))
 
-        try:
-            con = pool.getconn()
-            cursor = con.cursor()
+    #     try:
+    #         con = pool.getconn()
+    #         cursor = con.cursor()
 
-            cursor.execute("update networks set acc_rnd = %s, acc_best = %s where id = %s", (rndResult, bestResult, network))
-            con.commit()
+    #         cursor.execute("update networks set acc_rnd = %s, acc_best = %s where id = %s", (rndResult, bestResult, network))
+    #         con.commit()
 
-        finally:
-            if cursor:
-                cursor.close()
-            pool.putconn(con)
+    #     finally:
+    #         if cursor:
+    #             cursor.close()
+    #         pool.putconn(con)
 
 
 

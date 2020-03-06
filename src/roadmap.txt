@@ -4,7 +4,22 @@ Target      What
 21.2.2020   Run first verification that training at full scale works up to a 99%+ perfect play on the testset.
 
 28.2.2020   Time buffer to fix bugs and verify things really work.
-            -do this later, perf is ok for now: have a look at apex to use fp16 where possible
+            - supervised training of a network on the test dataset. How good does it get there? Am I network-limited or alpha zero limited?!
+            - double check the dataset generated is in fact a weak dataset and not a strong one
+                -> it's a strong one... 
+            - use the same optimizer as everyone else did:
+                - SGD with momentum of 0.9
+                - l2 weight regularition: 0.0001
+                - LR: 0.2, 0.02, 0.002, 0.0002, drop every 20 epochs?
+            - implement position deduplication in the stream trainer
+            - a report on the quality of played moves in training games:
+                - How many % of moves were correct according to the solver?
+                - insight into played games: Make them visible
+            - Allow to play vs any network on the web?
+            - optimization: Insta-play forced moves without "thinking" at all? Do not produce frames for them?
+                - what happens with such games currently anyway? What gets passed into the gpu for evaluation if there are no more nodes to expand?!
+            - do this later, perf is ok for now: have a look at apex to use fp16 where possible
+            - maybe have a relative playing strength comparision of the iterations?
 
 20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
 
@@ -12,11 +27,11 @@ Target      What
 
             Implement known improvements that were stated as obligatory in the proposal:
 10.4.2020       - squeeze-and-excitation networks
-10.4.2020       - more filters in the network heads
+10.4.2020       X more filters in the network heads
 10.4.2020       - use a cyclic learning rate
 17.4.2020       - use playout caps
 17.4.2020       - predict the opponens move
-17.4.2020       - predict a drawing probability directly
+17.4.2020       X predict a drawing probability directly
 17.4.2020       - handle duplicate training positions
 17.4.2020       - improve training window size handling
 
