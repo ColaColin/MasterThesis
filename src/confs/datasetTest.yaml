@@ -1,14 +1,21 @@
 main:
-  name: DatasetPolicyTester
-  batchedPolicyPlayer: $x0
-  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/p6_weak_big.dataset
+  name: DatasetPolicyTester2
+  playerUnderTest: $networkPlay
+  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/test.txt.zip
   initialGameState: $mnk
-  mode: shell
-  batchSize: 128
 
 updater:
   name: FilePolicyUpdater
   path: /ImbaKeks/x0/best.network
+
+randomPlay:
+  name: ShuffleBatchedPolicyPlayer
+
+networkPlay:
+  name: PolicyPlayer
+  policy: $resnet
+  policyUpdater: $updater
+  moveDecider: $bestMoves
 
 x0:
   name: PolicyIteratorPlayer
@@ -38,7 +45,7 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 8
+  expansions: 800
   cpuct: 3
   rootNoise: 0.001
   drawValue: 0.4

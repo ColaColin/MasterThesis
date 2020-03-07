@@ -4,7 +4,7 @@ class Policy(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def forward(self, batch, asyncCall = None):
         """
-        @param batch: a batch of encoded game states, encoding happens by the GameState implenentation, typically this should be tensors of some kind
+        @param batch: a batch of objects that implement GameState
         @param asyncCall: if set this is called in a moment where the cpu would otherwise by idle, waiting for gpu work. 
             If the Policy does no gpu work this shall just be called at the end of this method.
         @return: list of tuples (move distribution, win probabilities)

@@ -218,14 +218,19 @@ class TestDatabaseGenerator2():
         self.dedupe = dedupe
         self.filterTrivial = filterTrivial
         self.workers = workers
+        self.workerprocs = []
 
-    def main(self):
+    def main(self, timeout = None):
         statesQueue = Queue(maxsize=50)
+        if timeout is None:
+            timeout = 9999999999999
+        deadline = time.monotonic() + timeout
 
         for _ in range(self.workers):
             proc = Process(target=playGames, args=(statesQueue, self.initialState.getGameConstructorName(), self.initialState.getGameConstructorParams(), self.solver, self.policy, self.dedupe, self.filterTrivial))
             proc.daemon = True
             proc.start()
+            self.workerprocs.append(proc)
 
         results = []
         resultsSet = set()
@@ -235,8 +240,14 @@ class TestDatabaseGenerator2():
 
         startFrame = time.monotonic_ns()
         while len(results) < self.databaseSize:
-            
-            resultList = statesQueue.get()
+
+            if time.monotonic() > deadline:
+                raise Exception("Timeout generating dataset!")
+
+            try:
+                resultList = statesQueue.get(timeout=8)
+            except:
+                continue
 
             for stateStore, path, optimals, gameResult in resultList:
                 state = self.initialState.load(stateStore)
@@ -244,6 +255,8 @@ class TestDatabaseGenerator2():
                 if not self.dedupe or (not state in resultsSet):
                     if len(results) < self.databaseSize:
                         results.append((path, optimals, gameResult))
+                    else:
+                        break
 
                     frameTime = time.monotonic_ns() - startFrame
                     startFrame = time.monotonic_ns()
@@ -261,28 +274,48 @@ class TestDatabaseGenerator2():
 
         depthCounts = dict()
         optMoveCounts = 0
-        for p, optimals, _ in results:
+        winMoves = 0
+        lossMoves = 0
+        drawMoves = 0
+        for p, optimals, gresult in results:
             k = len(p)
             if not k in depthCounts:
                 depthCounts[k] = 0
             depthCounts[k] += 1
             optMoveCounts += len(optimals)
+            if gresult > 0:
+                winMoves += 1
+            elif gresult == 0:
+                drawMoves += 1
+            else:
+                lossMoves += 1
         
         logMsg("Depth distribution is:")
         dk = sorted(dict.keys(depthCounts))
         for d in dk:
             logMsg(str(d) + ": " + str(depthCounts[d]))
         logMsg("Average number of correct moves is:", optMoveCounts / len(results))
+        winMoves = 100.0 * (float(winMoves) / len(results))
+        lossMoves = 100.0 * (float(lossMoves) / len(results))
+        drawMoves = 100.0 * (float(drawMoves) / len(results))
+        logMsg("Wins %.2f%%, Losses %.2f%%, Draws %.2f%%" % (winMoves, lossMoves, drawMoves))
 
         self.results = results
 
         self.package()
 
+        for wproc in self.workerprocs:
+            wproc.kill()
+
     def package(self):
         buffer = io.BytesIO()
-        for path, optimals, _ in self.results:
-            buffer.write(bytes([p for p in path]))
-            buffer.write(bytes([o + self.initialState.getMoveCount() for o in optimals]))
+        for path, optimals, gresult in self.results:
+            buffer.write(bytes([49 + p for p in path]))
+            buffer.write(bytes([32]))
+            buffer.write(bytes([49 + o for o in optimals]))
+            buffer.write(bytes([32]))
+            buffer.write(bytes([49 + gresult]))
+            buffer.write(bytes([10]))
 
         bys = buffer.getvalue()
         zipped = gzip.compress(bys)

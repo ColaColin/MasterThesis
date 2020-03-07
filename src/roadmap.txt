@@ -4,9 +4,13 @@ Target      What
 21.2.2020   Run first verification that training at full scale works up to a 99%+ perfect play on the testset.
 
 28.2.2020   Time buffer to fix bugs and verify things really work.
-            - supervised training of a network on the test dataset. How good does it get there? Am I network-limited or alpha zero limited?!
-            - double check the dataset generated is in fact a weak dataset and not a strong one
-                -> it's a strong one... 
+            [X] try out weak2, does it reach the 4 correct answers per position?! Yes, it reaches 4.02, just shy of the 4.07 oracle devs stated.
+            [X] change format of position database to human readable text, include game result
+            [X] update the dataset tester for that
+            [X] write unit tests for the above
+            [ ] supervised training scripts & direct network test script.
+            [ ] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
+
             - use the same optimizer as everyone else did:
                 - SGD with momentum of 0.9
                 - l2 weight regularition: 0.0001

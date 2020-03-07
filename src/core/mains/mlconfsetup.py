@@ -12,7 +12,7 @@ from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interfac
 from impls.solved.players import RandomPlayPolicy, BestPlayPolicy, SemiPerfectPolicy
 from impls.solved.PonsSolver import PonsSolver
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator, TestDatabaseGenerator2
-from core.solved.PolicyTester import ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester
+from core.solved.PolicyTester import PolicyPlayer, ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester, DatasetPolicyTester2
 from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
 from core.training.TrainingWorker import TrainingWorker
 from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
@@ -30,6 +30,7 @@ def registerClasses():
         mlconfig.register(DatasetPolicyTester)
         mlconfig.register(ShuffleBatchedPolicyPlayer)
         mlconfig.register(SolverBatchedPolicyPlayer)
+        mlconfig.register(PolicyPlayer)
         mlconfig.register(PolicyIteratorPlayer)
         mlconfig.register(LinearSelfPlayWorker)
         mlconfig.register(MctsPolicyIterator)
@@ -56,6 +57,7 @@ def registerClasses():
         mlconfig.register(LrStepSchedule)
         mlconfig.register(SemiPerfectPolicy)
         mlconfig.register(TestDatabaseGenerator2)
+        mlconfig.register(DatasetPolicyTester2)
         mlconfig.register(FilePolicyUpdater)
         registered = True
 

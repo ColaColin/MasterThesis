@@ -93,7 +93,7 @@ class OpeningBook {
     if(ifs.fail()) {
       std::cerr << "Unable to load opening book: " << filename << std::endl;
       return;
-    } else std::cerr << "Loading opening book from file: " << filename << ". ";
+    }
 
     char _width, _height, _depth, value_bytes, partial_key_bytes, log_size;
 
@@ -141,7 +141,6 @@ class OpeningBook {
         return;
       }
       depth = _depth; // set it in case of success only, keep -1 in case of failure
-      std::cerr << "done" << std::endl;
     }
     else std::cerr << "Unable to initialize opening book" << std::endl;
     ifs.close();

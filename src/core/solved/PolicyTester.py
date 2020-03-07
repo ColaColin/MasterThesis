@@ -4,12 +4,14 @@ from utils.prints import logMsg, setLoggingEnabled
 import time
 from core.solved.TestDatabaseGenerator import getBestScoreKeys
 import random
+import numpy as np
 
 class BatchedPolicyPlayer(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def getMoves(self, batch):
         """
-        Given a batch of [(state, history)], find the best move to play in all of those states. Should be able to handle any batchsize!
+        Given a batch of [(state, history)], find the best move to play and the expected result in all of those states. Should be able to handle any batchsize!
+        @return (move, gameResult)[]. move is the index of the move, game result is -1 for "player on turn will lose", 0 for draw, 1 for "player on turn will win"
         """
 
 class ShuffleBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
@@ -19,8 +21,16 @@ class ShuffleBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
             legals = state.getLegalMoves()
             assert len(legals) > 0
             random.shuffle(legals)
-            result.append(legals[0])
+            result.append((legals[0], random.choice([-1, 0, 1])))
         return result
+
+def sign(x):
+    if x > 0:
+        return 1
+    if x < 0:
+        return -1
+    return 0
+
 
 class SolverBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
 
@@ -37,9 +47,9 @@ class SolverBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
             scores = self.solver.getMoveScores(state, history)
             keys = getBestScoreKeys(scores)
             if len(keys) > 0:
-                result.append(keys[0])
+                result.append((random.choice(keys), sign(scores[keys[0]])))
             else:
-                result.append(state.getLegalMoves()[0])
+                result.append((state.getLegalMoves()[0], 0))
         return result
 
 class PolicyIteratorPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
@@ -60,11 +70,33 @@ class PolicyIteratorPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
         while len(batch) > 0:
             miniBatch = [state for (state, _) in batch[:self.batchSize]]
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, miniBatch, noExploration=True, quickFactor=self.quickFactor)
-            result += list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(miniBatch, iteratedPolicy)))
+            result += list(map(lambda x: (self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), 0), zip(miniBatch, iteratedPolicy)))
 
             batch = batch[self.batchSize:]
 
         return result
+
+class PolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
+
+    def __init__(self, policy, policyUpdater, moveDecider):
+        self.policy = policy
+        self.policyUpdater = policyUpdater
+        self.moveDecider = moveDecider
+    
+    def getMoves(self, batch):
+        if not self.policyUpdater is None:
+            self.policy = self.policyUpdater.update(self.policy)
+        
+        def mapResult(x):
+            amax = np.argmax(x)
+            if amax == 0:
+                return 0
+            if amax == 1:
+                return 1
+            else:
+                return -1
+
+        return list(map(lambda x: (np.argmax(x[0]), mapResult(x[1])), self.policy.forward(list(map(lambda b: b[0], batch)))))
 
 def loadTestDataset(fpath, initialState):
     states = []
@@ -101,6 +133,8 @@ def loadTestDataset(fpath, initialState):
 
 class DatasetPolicyTester():
     """
+    Old, use version 2 below instead.
+
     Given a dataset and a PlayPolicy evaluate how well the policy predicts the best moves to play.
     A score of 100% is perfect, implying the policy always picked a move that eventually achieves the best gameplay result.
     With the TestDatabaseGenerator achieving the result in the fewest moves possible is not required.
@@ -160,4 +194,86 @@ class DatasetPolicyTester():
         return self.runTest()
         
         
+class DatasetPolicyTester2():
+    def __init__(self, playerUnderTest, datasetFile, initialGameState):
+        self.playerUnderTest = playerUnderTest
+        self.initialGameState = initialGameState
+
+        self.states = []
+        self.histories = []
+        self.solutions = []
+        self.gresults = []
+
+        self.loadExamples(datasetFile)
+
+    def loadExamples(self, datasetFile):
+        startLoad = time.monotonic()
+        with open(datasetFile, "br") as f:
+            exampleBytes = f.read()
+        unzipped = gzip.decompress(exampleBytes)
+        bcount = len(unzipped)
+
+        def readNextLine(offset):
+            ix = 0
+            while bcount > offset + ix and unzipped[offset + ix] != 10:
+                ix += 1
+            line = unzipped[offset : offset + ix]
+            return line
+        
+        offset = 0
+        while True:
+            nline = readNextLine(offset)
+            lnline = len(nline)
+            if lnline == 0:
+                break
+            else:
+                offset += lnline
+                offset += 1 # skips the linebreak in the file
+                
+                [pos, optimals, result] = nline.split(b' ')
+
+                state = self.initialGameState
+                history = []
+                for move in pos:
+                    # the file uses ascii 1 (code 49) for move index 0
+                    m = move - 49
+                    state = state.playMove(m)
+                    history.append(m)
+                
+                solution = []
+                for optimal in optimals:
+                    # the file starts counting moves at ascii 1 (code 49), but playMove starts at 0
+                    solution.append(optimal - 49)
+
+                self.states.append(state)
+                self.histories.append(history)
+                self.solutions.append(solution)
+                # the file uses ascii 1 (code 49) for a draw
+                # one less is a loss, one more is a win
+                self.gresults.append(result[0] - 49)
+        endLoad = time.monotonic()
+
+        logMsg("Finished loading %i examples in %.2f seconds." % (len(self.states), endLoad - startLoad))
+
+
+
+    def main(self):
+        startEval = time.monotonic()
+        logMsg("Begin test")
+
+        testInput = list(zip(self.states, self.histories))
+        movePredictions, resultPredictions = list(zip(*self.playerUnderTest.getMoves(testInput)))
+
+        correctMoves = sum(map(lambda x: 1 if x[0] in x[1] else 0, zip(movePredictions, self.solutions)))
+        correctGameResults = sum(map(lambda x: 1 if x[0] == x[1] else 0, zip(resultPredictions, self.gresults)))
+
+        moveAccuracy = 100.0 * (correctMoves / len(self.states))
+        resultAccuracy = 100.0 * (correctGameResults / len(self.states))
+
+        evalTime = time.monotonic() - startEval
+
+        logMsg("Test on %i examples took %.2f seconds, perfect play accuracies: for moves %.2f%% , for result: %.2f%%" 
+            % (len(self.states), evalTime, moveAccuracy, resultAccuracy))
+
+        return moveAccuracy, resultAccuracy
 

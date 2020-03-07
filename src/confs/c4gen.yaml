@@ -8,11 +8,11 @@ pons:
   name: PonsSolver
   executable: ../pons/c4solver
   book: ../pons/7x6.book
-  mode: weak
+  mode: strong
 
 genPlayer:
   name: SemiPerfectPolicy
-  p: 0.6
+  p: 0.5
 
 main:
   name: TestDatabaseGenerator2
@@ -21,6 +21,6 @@ main:
   dedupe: true
   filterTrivial: true
   databaseSize: 1000000
-  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/p6_weak_big.dataset
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/1M.txt.zip
   policy: $genPlayer
   workers: 4

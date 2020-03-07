@@ -23,7 +23,7 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
     Direct calls into a cython interface which skips the expensive reset() call that the command line version does.
     """
 
-    def __init__(self, executable, book, mode = "strong"):
+    def __init__(self, book, executable = None, mode = "strong"):
         self.executable = executable
         self.book = book
         self.process = None
@@ -39,7 +39,7 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
             universal_newlines=True, bufsize=1)
         self.process.stdout.readline()
 
-    def weakenSolution(self, solution):
+    def weakenSolution1(self, solution):
         result = dict()
         for m in solution:
             s = solution[m]
@@ -47,6 +47,18 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
                 result[m] = 1
             else:
                 result[m] = s 
+        return result
+
+    def weakenSolution2(self, solution):
+        result = dict()
+        for m in solution:
+            s = solution[m]
+            if s > 0:
+                result[m] = 1
+            elif s < 0:
+                result[m] = -1
+            else:
+                result[m] = 0
         return result
 
     def getDirectCallResult(self, path):
@@ -93,8 +105,10 @@ class PonsSolver(GameSolver, metaclass=abc.ABCMeta):
 
         #print("".join([str(m + 1) for m in movesReplay]), result)
 
-        if self.mode == "weak":
-            return self.weakenSolution(result)
+        if self.mode == "weak1":
+            return self.weakenSolution1(result)
+        elif self.mode == "weak2":
+            return self.weakenSolution2(result)
         else:
             return result
         
