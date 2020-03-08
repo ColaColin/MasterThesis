@@ -1,7 +1,7 @@
 main:
   name: DatasetPolicyTester2
-  playerUnderTest: $networkPlay
-  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/test.txt.zip
+  playerUnderTest: $randomPlay
+  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/1M.txt.zip
   initialGameState: $mnk
 
 updater:
