@@ -18,6 +18,7 @@ from core.training.TrainingWorker import TrainingWorker
 from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
 from core.training.StreamTrainingWorker import StreamTrainingWorker
 from core.training.StreamTrainingWorker import ConstantWindowSizeManager
+from core.solved.supervised import SupervisedNetworkTrainer
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -59,6 +60,7 @@ def registerClasses():
         mlconfig.register(TestDatabaseGenerator2)
         mlconfig.register(DatasetPolicyTester2)
         mlconfig.register(FilePolicyUpdater)
+        mlconfig.register(SupervisedNetworkTrainer)
         registered = True
 
 def mlConfigBasedMain(configPath):

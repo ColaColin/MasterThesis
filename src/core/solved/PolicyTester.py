@@ -193,69 +193,76 @@ class DatasetPolicyTester():
         setLoggingEnabled(self.mode == "shell")
         return self.runTest()
         
+def loadExamples2(protoGame, datasetFile):
+    """
+    Loads a list of examples. An example is a tuple of 4 elements:
+    - GameState object
+    - History of moves that were played to get to the state, i.e. a list of move indices.
+    - List of move indices considered to be correct in the position
+    - Final result of the game under perfect play: -1 loss for current player, 0 draw, 1 win for current player.
+    """
+    startLoad = time.monotonic()
+    with open(datasetFile, "br") as f:
+        exampleBytes = f.read()
+    unzipped = gzip.decompress(exampleBytes)
+    bcount = len(unzipped)
+
+    resultList = []
+
+    def readNextLine(offset):
+        ix = 0
+        while bcount > offset + ix and unzipped[offset + ix] != 10:
+            ix += 1
+        line = unzipped[offset : offset + ix]
+        return line
+    
+    offset = 0
+    while True:
+        nline = readNextLine(offset)
+        lnline = len(nline)
+        if lnline == 0:
+            break
+        else:
+            offset += lnline
+            offset += 1 # skips the linebreak in the file
+            
+            [pos, optimals, result] = nline.split(b' ')
+
+            state = protoGame
+            history = []
+            for move in pos:
+                # the file uses ascii 1 (code 49) for move index 0
+                m = move - 49
+                state = state.playMove(m)
+                history.append(m)
+            
+            solution = []
+            for optimal in optimals:
+                # the file starts counting moves at ascii 1 (code 49), but playMove starts at 0
+                solution.append(optimal - 49)
+
+            # the file uses ascii 1 (code 49) for a draw
+            # one less is a loss, one more is a win
+            lineResult = (state, history, solution, result[0] - 49)
+
+            resultList.append(lineResult)
+
+    endLoad = time.monotonic()
+
+    logMsg("Finished loading %i examples in %.2f seconds." % (len(resultList), endLoad - startLoad))
+
+    return resultList
         
 class DatasetPolicyTester2():
-    def __init__(self, playerUnderTest, datasetFile, initialGameState):
+    def __init__(self, playerUnderTest, datasetFile, initialGameState, preloaded = None):
         self.playerUnderTest = playerUnderTest
         self.initialGameState = initialGameState
 
-        self.states = []
-        self.histories = []
-        self.solutions = []
-        self.gresults = []
-
-        self.loadExamples(datasetFile)
-
-    def loadExamples(self, datasetFile):
-        startLoad = time.monotonic()
-        with open(datasetFile, "br") as f:
-            exampleBytes = f.read()
-        unzipped = gzip.decompress(exampleBytes)
-        bcount = len(unzipped)
-
-        def readNextLine(offset):
-            ix = 0
-            while bcount > offset + ix and unzipped[offset + ix] != 10:
-                ix += 1
-            line = unzipped[offset : offset + ix]
-            return line
-        
-        offset = 0
-        while True:
-            nline = readNextLine(offset)
-            lnline = len(nline)
-            if lnline == 0:
-                break
-            else:
-                offset += lnline
-                offset += 1 # skips the linebreak in the file
-                
-                [pos, optimals, result] = nline.split(b' ')
-
-                state = self.initialGameState
-                history = []
-                for move in pos:
-                    # the file uses ascii 1 (code 49) for move index 0
-                    m = move - 49
-                    state = state.playMove(m)
-                    history.append(m)
-                
-                solution = []
-                for optimal in optimals:
-                    # the file starts counting moves at ascii 1 (code 49), but playMove starts at 0
-                    solution.append(optimal - 49)
-
-                self.states.append(state)
-                self.histories.append(history)
-                self.solutions.append(solution)
-                # the file uses ascii 1 (code 49) for a draw
-                # one less is a loss, one more is a win
-                self.gresults.append(result[0] - 49)
-        endLoad = time.monotonic()
-
-        logMsg("Finished loading %i examples in %.2f seconds." % (len(self.states), endLoad - startLoad))
-
-
+        if preloaded is None:
+            [self.states, self.histories, self.solutions, self.gresults] =\
+                list(zip(*loadExamples2(self.initialGameState, datasetFile)))
+        else:
+            [self.states, self.histories, self.solutions, self.gresults] = list(zip(*preloaded))
 
     def main(self):
         startEval = time.monotonic()

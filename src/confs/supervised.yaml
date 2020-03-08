@@ -1,0 +1,39 @@
+main:
+  name: SupervisedNetworkTrainer
+  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/100k.txt.zip
+  initialGame: $c4
+  policy: $resnet
+  windowSizeSplits: 4
+  trainingRuns: 2
+  workingDirectory: /ImbaKeks/x0/supervised/test
+  testSamples: 50000
+  validationSamples: 10000
+  batchSize: 128
+  lrStart: 0.2
+  lrPatience: 8
+
+c4:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  lr: 0.2
+  momentum: 0.9
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $c4
+  device: cuda
+  optimizerName: torch.optim.SGD
+  optimizerArgs: $optimizerArgs
+  gradClipValue: 1

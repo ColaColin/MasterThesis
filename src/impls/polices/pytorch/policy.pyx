@@ -33,6 +33,8 @@ from utils.prints import logMsg
 
 import sys
 
+from torch.nn.utils.clip_grad import clip_grad_norm_
+
 class ResBlock(nn.Module):
     def __init__(self, features):
         super(ResBlock, self).__init__()
@@ -195,7 +197,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -230,6 +232,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.tensorCacheExists = False
 
         self.silent = silent
+
+        self.gradClipValue = gradClipValue
 
         self.initNetwork()
 
@@ -352,12 +356,14 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         for param_group in self.optimizer.param_groups:
             param_group["lr"] = lr
 
-    def fit(self, data, iteration = None, iterationProgress = None):
+    def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         self.uuid = str(uuid.uuid4())
 
         prevLr = self.getLr()
 
-        if iteration is not None and self.lrDecider is not None and iterationProgress is not None:
+        if forceLr is not None:
+            self.setLr(forceLr)
+        elif iteration is not None and self.lrDecider is not None and iterationProgress is not None:
             lrv = self.lrDecider.getValue(iteration, iterationProgress)
             self.setLr(lrv)
 
@@ -405,6 +411,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
             loss = mLoss + wLoss
             loss.backward()
+
+            if self.gradClipValue is not None:
+                clip_grad_norm_(self.net.parameters(), self.gradClipValue)
 
             self.optimizer.step()
 

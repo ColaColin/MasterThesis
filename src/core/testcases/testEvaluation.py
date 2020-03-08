@@ -6,7 +6,6 @@ from impls.solved.PonsSolver import PonsSolver
 import tempfile
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator2 
 from impls.solved.players import SemiPerfectPolicy
-from impls.selfplay.movedeciders import TemperatureMoveDecider
 from core.solved.PolicyTester import DatasetPolicyTester2, SolverBatchedPolicyPlayer, BatchedPolicyPlayer
 from core.solved.TestDatabaseGenerator import getBestScoreKeys
 import random
