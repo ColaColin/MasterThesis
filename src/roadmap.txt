@@ -9,6 +9,18 @@ Target      What
             [X] update the dataset tester for that
             [X] write unit tests for the above
             [X] supervised training scripts & direct network test script.
+
+// the moves peaked at 92% in most runs, wins stayed close to random
+Training set size | moves % | wins %           
+------------------+---------+---------         
+           100000 |  83.02  |  38.71           
+           200000 |  87.16  |  37.68           
+           300000 |  87.81  |  37.91           
+           400000 |  90.20  |  35.84           
+           500000 |  90.71  |  36.28           
+           600000 |  87.02  |  40.38           
+           700000 |  86.56  |  41.17           
+           800000 |  90.10  |  37.75   <<< best
             [ ] generate dataset that only takes 2% of the positions reached to provide more data to the win-prediction.
             [ ] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
 

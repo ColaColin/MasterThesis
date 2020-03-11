@@ -1,13 +1,13 @@
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/100k.txt.zip
+  datasetFile: /PwnKeks/gits/MasterThesis/src/datasets/connect4/1M.txt.zip
   initialGame: $c4
   policy: $resnet
-  windowSizeSplits: 4
-  trainingRuns: 2
-  workingDirectory: /ImbaKeks/x0/supervised/test
-  testSamples: 50000
-  validationSamples: 10000
+  windowSizeSplits: 8
+  trainingRuns: 5
+  workingDirectory: /PwnKeks/x0/supervised/1M
+  testSamples: 100000
+  validationSamples: 100000
   batchSize: 128
   lrStart: 0.2
   lrPatience: 8
@@ -27,7 +27,7 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 5
+  blocks: 20
   filters: 128
   headKernel: 3
   headFilters: 64
