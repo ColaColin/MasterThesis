@@ -8,7 +8,8 @@ Target      What
             [X] change format of position database to human readable text, include game result
             [X] update the dataset tester for that
             [X] write unit tests for the above
-            [ ] supervised training scripts & direct network test script.
+            [X] supervised training scripts & direct network test script.
+            [ ] generate dataset that only takes 2% of the positions reached to provide more data to the win-prediction.
             [ ] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
 
             - use the same optimizer as everyone else did:

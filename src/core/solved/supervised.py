@@ -11,6 +11,13 @@ import random
 import numpy as np
 import math
 
+# Training set size | moves % | wins % 
+# ------------------+---------+---------
+#             10000 |  65.28  |  37.04  
+#             20000 |  71.84  |  38.08  
+#             30000 |  74.02  |  40.99  
+#             40000 |  76.50  |  39.39   <<< best
+
 class SupervisedNetworkTrainer():
     def __init__(self, datasetFile, initialGame, policy, windowSizeSplits, trainingRuns, workingDirectory, testSamples, validationSamples, batchSize, lrStart, lrPatience):
         logMsg("Starting to initialize supervised training")
