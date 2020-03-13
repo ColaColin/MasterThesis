@@ -20,7 +20,8 @@ main:
   solver: $pons
   dedupe: true
   filterTrivial: true
-  databaseSize: 100000
-  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/100k.txt.zip
+  databaseSize: 1000
+  framesPerGame: 1
+  outputFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/1k_test.txt.zip
   policy: $genPlayer
   workers: 4
