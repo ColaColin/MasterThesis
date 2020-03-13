@@ -45,4 +45,6 @@ Wins 58.75%, Losses 34.47%, Draws 6.78%
 Package size is 21617 kb, compressed to 4088 kb
 
 Random play strength on the entire dataset:
-perfect play accuracies: for moves 28.76% , for result: 33.37%
+for moves 28.76% , for result: 33.37%
+
+config: everything maximal hard, expect framesPerGame not set

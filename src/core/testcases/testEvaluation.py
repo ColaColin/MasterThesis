@@ -87,9 +87,9 @@ class TestEvaluation(unittest.TestCase):
     def test_halfperfect_limit_frames(self):
         game = Connect4GameState()
         solver = PonsSolver("../pons/7x6.book", mode="strong")
-        generator = TestDatabaseGenerator2(game, solver, 300, self.tempFile.name, SemiPerfectPolicy(0.5), True, 4, True, 1)
-        generator.main(timeout=8)
-        self.assertEqual(len(generator.results), 300)
+        generator = TestDatabaseGenerator2(game, solver, 150, self.tempFile.name, SemiPerfectPolicy(0.5), True, 4, True, 1)
+        generator.main(timeout=16)
+        self.assertEqual(len(generator.results), 150)
 
         tester = DatasetPolicyTester2(ControlledPlayer(solver, 2), self.tempFile.name, game)
         moveAccuracy, resultAccuracy = tester.main()

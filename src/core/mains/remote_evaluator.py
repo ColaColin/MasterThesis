@@ -11,7 +11,7 @@ from core.mains.mlconfsetup import loadMlConfig
 from core.training.NetworkApi import NetworkApi
 
 from impls.selfplay.movedeciders import TemperatureMoveDecider
-from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester
+from core.solved.PolicyTester import PolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester2
 
 import sys
 
@@ -21,8 +21,7 @@ if __name__ == "__main__":
     setproctitle.setproctitle("x0_remote_evaluator")
     setLoggingEnabled(True)
 
-    bestDataset = "datasets/connect4/best_small.dataset"
-    rndDataset = "datasets/connect4/rnd_small.dataset"
+    datasetPath = "datasets/connect4/testset.txt.zip"
 
     hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
@@ -104,20 +103,16 @@ if __name__ == "__main__":
 
         initialState = core.worker.initialState(recursive=True)
 
-        limitedPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=1000000) #rely on the build on limit of the policy to decide what the minimal player looks like
-        fullPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, quickFactor=1)
+        networkPlayer = PolicyPlayer(policy, None, moveDecider)
+        fullPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128)
 
-        limitedRndResult = DatasetPolicyTester(limitedPlayer, rndDataset, initialState, "shell", 128).main()
-        fullRndResult = DatasetPolicyTester(fullPlayer, rndDataset, initialState, "shell", 128).main()
-
-        limitedBestResult = DatasetPolicyTester(limitedPlayer, bestDataset, initialState, "shell", 128).main()
-        fullBestResult = DatasetPolicyTester(fullPlayer, bestDataset, initialState, "shell", 128).main()
+        networkMoveAcc, networkWinAcc = DatasetPolicyTester2(networkPlayer, datasetPath, initialState).main()
+        mctsMoveAcc, _ = DatasetPolicyTester2(fullPlayer, datasetPath, initialState).main()
 
         submitResult({
-            "acc_rnd_limited": limitedRndResult,
-            "acc_best_limited": limitedBestResult,
-            "acc_rnd_full": fullRndResult,
-            "acc_best_full": fullBestResult
+            "acc_network_moves": networkMoveAcc,
+            "acc_network_wins": networkWinAcc,
+            "acc_mcts_moves": mctsMoveAcc
         }, network)
 
 

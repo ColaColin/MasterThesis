@@ -1,0 +1,58 @@
+Depth distribution is:
+0: 1
+1: 2
+2: 9
+3: 56
+4: 217
+5: 345
+6: 769
+7: 674
+8: 992
+9: 788
+10: 833
+11: 663
+12: 620
+13: 585
+14: 478
+15: 426
+16: 403
+17: 351
+18: 268
+19: 229
+20: 200
+21: 179
+22: 157
+23: 147
+24: 108
+25: 95
+26: 69
+27: 72
+28: 50
+29: 40
+30: 46
+31: 34
+32: 25
+33: 16
+34: 15
+35: 15
+36: 14
+37: 4
+39: 5
+Average number of correct moves is: 1.6895
+Wins 61.36%, Losses 31.52%, Draws 7.12%
+Package size is 176 kb, compressed to 67 kb
+
+Random play strength on the entire dataset:
+for moves 25.81% , for result: 33.50%
+
+main:
+  name: TestDatabaseGenerator2
+  initialState: $c4
+  solver: $pons
+  dedupe: true
+  filterTrivial: true
+  databaseSize: 10000
+  framesPerGame: 1
+  outputFile: datasets/connect4/testset.txt.zip
+  policy: $genPlayer
+  workers: 4

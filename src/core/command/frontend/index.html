@@ -115,11 +115,10 @@
                                         <th>Timestamp</th>
                                         <th>States</th>
                                         
-                                        <th>rnd limit</th>
-                                        <th>rnd full</th>
+                                        <th>network moves</th>
+                                        <th>network wins</th>
 
-                                        <th>best limit</th>
-                                        <th>best full</th>
+                                        <th>mcts moves</th>
                                     </tr>
                                 </thead>
                                 <tbody data-bind="foreach: fancyNetworkList">
@@ -130,11 +129,10 @@
                                         <td data-bind="text: $data.timestamp"></td>
                                         <td data-bind="text: $root.statesCountByNetwork()[$data.id]"></td>
                                         
-                                        <td data-bind="text: ($data.accRndLimited || 0).toFixed(3) + '%'"></td>
-                                        <td data-bind="text: ($data.accRndFull || 0).toFixed(3) + '%'"></td>
+                                        <td data-bind="text: ($data.acc_network_moves || 0).toFixed(3) + '%'"></td>
+                                        <td data-bind="text: ($data.acc_network_wins || 0).toFixed(3) + '%'"></td>
 
-                                        <td data-bind="text: ($data.accBestLimited || 0).toFixed(3) + '%'"></td>
-                                        <td data-bind="text: ($data.accBestFull || 0).toFixed(3) + '%'"></td>
+                                        <td data-bind="text: ($data.acc_mcts_moves || 0).toFixed(3) + '%'"></td>
                                     </tr>
                                 </tbody>
                             </table>

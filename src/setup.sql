@@ -27,12 +27,14 @@ create table networks (
     acc_best_full float
 );
 
---alter table networks drop column acc_rnd;
---alter table networks drop column acc_best;
---alter table networks add column acc_rnd_limited float;
---alter table networks add column acc_best_limited float;
---alter table networks add column acc_rnd_full float;
---alter table networks add column acc_best_full float;
+--alter table networks drop column acc_rnd_limited;
+--alter table networks drop column acc_best_limited;
+--alter table networks drop column acc_rnd_full;
+--alter table networks drop column acc_best_full;
+--alter table networks add column acc_network_moves float;
+--alter table networks add column acc_network_wins float;
+--alter table networks add column acc_mcts_moves float;
+
 
 create table states (
     id uuid primary key,

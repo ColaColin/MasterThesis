@@ -20,8 +20,8 @@ main:
   solver: $pons
   dedupe: true
   filterTrivial: true
-  databaseSize: 1000000
+  databaseSize: 10000
   framesPerGame: 1
-  outputFile: datasets/connect4/1Mv2.txt.zip
+  outputFile: datasets/connect4/testset.txt.zip
   policy: $genPlayer
-  workers: 16
+  workers: 4

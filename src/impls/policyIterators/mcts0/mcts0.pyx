@@ -335,7 +335,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         return prepareResult
 
-    def iteratePolicy(self, policy, gamesBatch, noExploration = False, quickFactor = 1):
+    def iteratePolicy(self, policy, gamesBatch, noExploration = False):
         noise = 0 if noExploration else self.rootNoise
         cdef list nodes = [MCTSNode(g, noiseMix = noise) for g in gamesBatch]
 
@@ -385,9 +385,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
                 preparedDataB = me.cpuWork(nodesB, preparedDataB, evaloutB)
         
         cdef int nodeExpansions
-        nodeExpansions = self.expansions // quickFactor
-        if nodeExpansions < 8:
-            nodeExpansions = 8
+        nodeExpansions = self.expansions
 
         cdef int e, ex
         for e in range(nodeExpansions):
