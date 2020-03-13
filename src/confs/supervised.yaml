@@ -1,11 +1,11 @@
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: /PwnKeks/gits/MasterThesis/src/datasets/connect4/1M.txt.zip
+  datasetFile: /PwnKeks/gits/MasterThesis/src/datasets/connect4/1Mv2.txt.zip
   initialGame: $c4
   policy: $resnet
-  windowSizeSplits: 8
+  windowSizeSplits: 4
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/1M
+  workingDirectory: /PwnKeks/x0/supervised/1Mv2
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
