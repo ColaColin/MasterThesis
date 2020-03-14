@@ -5,6 +5,7 @@
 
 apt update
 apt install gcc
+apt install g++
 apt install libpq-dev
 
 wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
