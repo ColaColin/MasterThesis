@@ -460,5 +460,8 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
     def __hash__(self):
         return self._data.getHash()
 
+    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
+        return str(self)
+
     def __str__(self):
         return self._data.toString()

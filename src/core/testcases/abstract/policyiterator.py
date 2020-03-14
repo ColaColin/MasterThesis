@@ -179,6 +179,9 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
             mul *= 10
         return result
     
+    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
+        return str(self)
+
     def __str__(self):
         result = "TestGame with %i players, %i moves, %i pathLength, resetOnError: %i\n" % (self.playersCount, self.movesCount, self.pathLength, self.resetOnError)
         result += "Winning path is: " + str(self.winningPath) + "\n"

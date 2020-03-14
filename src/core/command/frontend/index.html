@@ -164,6 +164,20 @@
                                 </tbody>
                             </table>
                         </div>
+
+                        <div bp="2">Reports</div>
+                        <div bp="10">
+                            <span class="monospace btt-txt" data-bind="click: prevReportFrame"> <<< </span>
+                            <span class="monospace" data-bind="text: shownReportFrame"></span>: <span class="monospace" data-bind="text: shownReportId">ID</span>
+                            <span class="monospace btt-txt" data-bind="click: nextReportFrame"> >>> </span>
+                            <div class="fullwidth scroll-box">
+                            <!-- ko foreach: reportsAscii -->
+                            <pre class="fullwidth monospace" data-bind="text: $data"></pre>
+                            <hr/>
+                            <!-- /ko -->
+                            </div>
+                        </div>
+
                         <div bp="2">
                             YAML
                         </div>

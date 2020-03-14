@@ -163,7 +163,7 @@ cdef class Connect4GameData():
     def mapPlayerNumberToTurnRelative(self, int number):
         return mapPlayerNumberTurnRel(self._mnk, number)
 
-    def toString(self):
+    def toString(self, networkMoves = None, networkWins = None, iteratedMoves = None, observedWins = None):
         mm = ['.', '░', '█']
         
         if self.lastMove != -1:
@@ -219,8 +219,47 @@ cdef class Connect4GameData():
             s += "\n";
         for _ in range(m+1):
             s += "    ";
-        s += "\n";
-        
+
+        if networkMoves is not None or iteratedMoves is not None:
+            s = "\n".join(map(lambda x: "        |" + x, s.split("\n")))
+
+        s += "\n"
+
+        def pFmt(p):
+            mp = str(int(round(p * 100.0)))
+            if len(mp) < 2:
+                mp = " " + mp
+            mp += "%"
+            return mp
+
+        if networkMoves is not None:
+            nline = "Network |"
+            for mi, m in enumerate(networkMoves):
+                nline += pFmt(m)
+                if len(networkMoves) - 1 > mi:
+                    nline += "|"
+            s += nline + "\n"
+
+        if iteratedMoves is not None:
+            iline = "Iterated|"
+            for mi, m in enumerate(iteratedMoves):
+                iline += pFmt(m)
+                if len(iteratedMoves) - 1 > mi:
+                    iline += "|"
+            s += iline + "\n"
+
+        if networkWins is not None:
+            s += "Network win predictions: "
+            for pi in range(3):
+                s += mm[pi] + ":" + pFmt(networkWins[pi]) + "   "
+            s += "\n"
+
+        if observedWins is not None:
+            s += "Observed results: "
+            for o in observedWins:
+                s += mm[o]
+            s += "\n"
+
         return s;
 
     def getM(self):
@@ -442,6 +481,9 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
 
     def __hash__(self):
         return self._data.getHash()
+
+    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
+        return self._data.toString(networkMoves=networkMoves, networkWins=networkWins, iteratedMoves=iteratedMoves, observedWins=observedWins)
 
     def __str__(self):
         return self._data.toString()

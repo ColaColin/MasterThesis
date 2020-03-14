@@ -129,6 +129,51 @@ function CommandPageModel() {
     self.statesList = ko.observable([]);
     self.statsList = ko.observable([]);
 
+    self.loadReportsAscii = async function() {
+        let runs = await self.authFetch("/api/insight/" + self.shownReportId(), {
+            method: "GET",
+        });
+        if (runs.ok) {
+            let insightList = await runs.json();
+            self.reportsAscii(insightList);
+        } else {
+            console.log(runs);
+            self.reportsAscii(["Error loading!"]);
+        }
+    };
+
+    self.reportsAscii = ko.observable(["A", "B", "CC"]);
+
+    self.shownReportFrame = ko.observable(0);
+
+    self.shownReportFrame.subscribe(() => {
+        setTimeout(() => {
+            self.loadReportsAscii()
+        }, 1);
+    });
+
+    self.shownReportId = ko.computed(() => {
+        let state = self.statesList()[self.shownReportFrame()];
+        if (state) {
+            return state.id;
+        } else {
+            return "unknown";
+        }
+    });
+
+    self.nextReportFrame = function() {
+        let n = (self.shownReportFrame() + 1) % self.statesList().length;
+        self.shownReportFrame(n);
+    };
+
+    self.prevReportFrame = function() {
+        let n = self.shownReportFrame() - 1;
+        if (n < 0) {
+            n = self.statesList().length - 1;
+        }
+        self.shownReportFrame(n);
+    };
+
     self.lastReport = ko.computed(() => {
         let sl = self.statesList();
         if (sl.length > 0) {
@@ -371,10 +416,12 @@ function CommandPageModel() {
 
         this.get("#runs/new", function() {
             self.selectedRun(null);
+            self.shownReportFrame(0);
         });
 
         this.get("#runs/list", function() {
             console.log("List runs!");
+            self.shownReportFrame(0);
             self.currentHash(location.hash);
             self.pullRuns();
             self.selectedRun(null);
@@ -382,11 +429,13 @@ function CommandPageModel() {
 
         this.get("#runs/list/:id", function() {
             console.log("Show run", this.params.id);
+            self.shownReportFrame(0);
             self.currentHash(location.hash);
             self.upCounter = 0;
             self.pullRuns().then(async () => {
                 self.selectedRun(this.params.id);
-                self.updateForActiveRun();
+                await self.updateForActiveRun();
+                self.loadReportsAscii();
             });
         });
 

@@ -130,6 +130,12 @@ class GameState(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
+        """
+        Produce a human readable string that includes the network output and iterated move output in some way that makes sense for the game.
+        """
+
+    @abc.abstractmethod
     def __str__(self):
         """
         Produce a human readable string for debugging purposes

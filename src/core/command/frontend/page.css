@@ -62,3 +62,20 @@ tr:nth-child(even) {
 .fullwidth {
     width: 100%;
 }
+
+.btt-txt {
+    cursor: pointer;
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */    
+}
+
+.scroll-box {
+    overflow-y: scroll;
+    max-height: 1000px;
+}
+
+.monospace {
+    font-family: monospace, monospace;
+}

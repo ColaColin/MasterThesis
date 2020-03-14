@@ -25,10 +25,8 @@ Training set size | moves % | wins %
             [X] generate dataset that only takes one of the positions reached  per game to provide more data to the win-prediction.
             [~] supervised training on that new dataset
             [X] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
-            [ ] supervised training on 1M and 1Mv2 with 10 blocks instead of 20 and only 2 train window steps. Wins actually profits from that?! Less overfitting I guess?
-            [ ] a report on the quality of played moves in training games:
-                [ ] How many % of moves were correct according to the solver?
-                [ ] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
+            [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
+            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Try to search only 3 parameters.
             [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
 

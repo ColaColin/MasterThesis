@@ -7,6 +7,7 @@ from core.command.networks import NetworksResource
 from core.command.stats import StatsResource
 from core.command.networkStats import NetworkStatsResource
 from core.command.runsha import RunShaResource
+from core.command.insight import InsightResource
 
 import psycopg2
 from psycopg2 import pool
@@ -64,6 +65,9 @@ def defineApp(config):
 
         runsha = RunShaResource(pool)
         app.add_route("/sha/{run_id}", runsha)
+
+        insight = InsightResource(config)
+        app.add_route("/api/insight/{report_id}", insight)
 
         app.add_route("/password", LoginResource(config["secret"]))
 

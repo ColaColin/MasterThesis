@@ -21,10 +21,9 @@ create table networks (
     id uuid primary key,
     creation timestamptz default NOW() not null,
     run uuid references runs (id) not null,
-    acc_rnd_limited float,
-    acc_best_limited float,
-    acc_rnd_full float,
-    acc_best_full float
+    acc_network_moves float,
+    acc_network_wins float,
+    acc_mcts_moves float
 );
 
 --alter table networks drop column acc_rnd_limited;
