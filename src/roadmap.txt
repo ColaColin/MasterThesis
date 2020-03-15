@@ -23,7 +23,14 @@ Training set size | moves % | wins %
            700000 |  86.56  |  41.17           
            800000 |  90.10  |  37.75   <<< best
             [X] generate dataset that only takes one of the positions reached  per game to provide more data to the win-prediction.
-            [~] supervised training on that new dataset
+            [X] supervised training on that new dataset
+Training set size | moves % | wins %
+------------------+---------+---------
+           200000 |  88.88  |  38.01
+           400000 |  86.95  |  43.00
+           600000 |  91.13  |  39.41
+           800000 |  90.95  |  40.15   <<< best
+           
             [X] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
             [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
             [ ] supervised run of 10 & 5 block networks
