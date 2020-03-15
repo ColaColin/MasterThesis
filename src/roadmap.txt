@@ -34,7 +34,7 @@ Training set size | moves % | wins %
             [X] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
             [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
             [ ] supervised run of 10 & 5 block networks
-            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 100 expansions: drawValue, cpuct, fpu, alphaBase. 2x 3h runs, 20 iterations.
+            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 100 expansions: drawValue, cpuct, fpu, alphaBase. 2x 3h runs, 25 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
 
