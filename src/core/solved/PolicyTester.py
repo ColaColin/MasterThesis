@@ -86,16 +86,23 @@ class PolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
         if not self.policyUpdater is None:
             self.policy = self.policyUpdater.update(self.policy)
         
-        def mapResult(x):
-            amax = np.argmax(x)
+        def mapResult(game, absoluteWinPredictions):
+            amax = np.argmax(absoluteWinPredictions)
             if amax == 0:
                 return 0
-            if amax == 1:
+
+            relativeWinner = game.mapPlayerNumberToTurnRelative(amax)
+            if relativeWinner == 0:
                 return 1
             else:
                 return -1
 
-        return list(map(lambda x: (np.argmax(x[0]), mapResult(x[1])), self.policy.forward(list(map(lambda b: b[0], batch)))))
+        gbatch = list(map(lambda b: b[0], batch))
+        movePredictions, winPredictions = list(zip(*self.policy.forward(gbatch)))
+        movesResult = list(map(lambda x: np.argmax(x), movePredictions))
+        winsResult = list(map(lambda x: mapResult(x[0], x[1]), zip(gbatch, winPredictions)))
+
+        return list(zip(movesResult, winsResult))
 
 def loadTestDataset(fpath, initialState):
     states = []

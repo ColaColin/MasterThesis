@@ -8,29 +8,13 @@ Target      What
             [X] change format of position database to human readable text, include game result
             [X] update the dataset tester for that
             [X] write unit tests for the above
-            [X] supervised training scripts & direct network test script.
+            [ ] supervised training scripts & direct network test script.
 
-// the moves peaked at 92% in most runs, wins stayed close to random. Maybe the better dataset can change that?
-// 1M dataset, dedupe, p=0.5, filterTrivial, strong
-Training set size | moves % | wins %           
-------------------+---------+---------         
-           100000 |  83.02  |  38.71           
-           200000 |  87.16  |  37.68           
-           300000 |  87.81  |  37.91           
-           400000 |  90.20  |  35.84           
-           500000 |  90.71  |  36.28           
-           600000 |  87.02  |  40.38           
-           700000 |  86.56  |  41.17           
-           800000 |  90.10  |  37.75   <<< best
+
             [X] generate dataset that only takes one of the positions reached  per game to provide more data to the win-prediction.
-            [X] supervised training on that new dataset
-Training set size | moves % | wins %
-------------------+---------+---------
-           200000 |  88.88  |  38.01
-           400000 |  86.95  |  43.00
-           600000 |  91.13  |  39.41
-           800000 |  90.95  |  40.15   <<< best
-           
+            [ ] supervised training on that new dataset
+
+
             [X] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
             [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
             [ ] supervised run of 10 & 5 block networks

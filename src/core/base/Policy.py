@@ -7,7 +7,7 @@ class Policy(metaclass=abc.ABCMeta):
         @param batch: a batch of objects that implement GameState
         @param asyncCall: if set this is called in a moment where the cpu would otherwise by idle, waiting for gpu work. 
             If the Policy does no gpu work this shall just be called at the end of this method.
-        @return: list of tuples (move distribution, win probabilities)
+        @return: list of tuples (move distribution, win probabilities). Both are absolute: index 0 in the move distribution is the move with index 0. Index 0 in the win distribution is a draw, index 1 is player number 1, index 2 is player number 2. Again: Win probabilities are not relative to the current turn!!!
         """
 
     @abc.abstractmethod

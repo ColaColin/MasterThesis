@@ -1,12 +1,12 @@
 main:
   name: DatasetPolicyTester2
-  playerUnderTest: $randomPlay
+  playerUnderTest: $networkPlay
   datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/testset.txt.zip
   initialGameState: $mnk
 
 updater:
   name: FilePolicyUpdater
-  path: /ImbaKeks/x0/best.network
+  path: /ImbaKeks/x0/some.network
 
 randomPlay:
   name: ShuffleBatchedPolicyPlayer
