@@ -3,9 +3,9 @@ main:
   datasetFile: /PwnKeks/gits/MasterThesis/src/datasets/connect4/1Mv2.txt.zip
   initialGame: $c4
   policy: $resnet
-  windowSizeSplits: 4
+  windowSizeSplits: 2
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/1Mv2
+  workingDirectory: /PwnKeks/x0/supervised/fixed/5blocks/1Mv2
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
@@ -27,7 +27,7 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 20
+  blocks: 5
   filters: 128
   headKernel: 3
   headFilters: 64
