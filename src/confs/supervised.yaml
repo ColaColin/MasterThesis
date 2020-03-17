@@ -5,7 +5,7 @@ main:
   policy: $resnet
   windowSizeSplits: 2
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/fixed/5blocks/1Mv2
+  workingDirectory: /PwnKeks/x0/supervised/fixed/10blocks/1Mv2
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
@@ -27,7 +27,7 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 5
+  blocks: 10
   filters: 128
   headKernel: 3
   headFilters: 64
