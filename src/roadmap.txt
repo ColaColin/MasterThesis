@@ -32,8 +32,18 @@ Training set size | moves % | wins %
            400000 |  90.80  |  76.63  
            800000 |  92.37  |  77.87   <<< best
 
-                [ ] 10 block 1Mv2
-                [ ] 20 block 1M
+                [X] 10 block 1Mv2
+Training set size | moves % | wins %
+------------------+---------+---------
+           400000 |  91.82  |  78.66
+           800000 |  93.00  |  79.67   <<< best
+
+                [X] 20 block 1M
+Training set size | moves % | wins % 
+------------------+---------+---------
+           400000 |  91.35  |  77.08  
+           800000 |  92.98  |  78.23   <<< best
+
                 [ ] 20 block 1Mv2
 
             [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 100 expansions: drawValue, cpuct, fpu, alphaBase. 2x 3h runs, 25 iterations.
