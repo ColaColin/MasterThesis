@@ -44,7 +44,13 @@ Training set size | moves % | wins %
            400000 |  91.35  |  77.08  
            800000 |  92.98  |  78.23   <<< best
 
-                [ ] 20 block 1Mv2
+                [X] 20 block 1Mv2
+Training set size | moves % | wins % 
+------------------+---------+---------
+           400000 |  92.12  |  78.90  
+           800000 |  93.49  |  79.93   <<< best
+
+                [ ] 40 blocks 256 filters 1Mv2
 
             [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 100 expansions: drawValue, cpuct, fpu, alphaBase. 2x 3h runs, 25 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
