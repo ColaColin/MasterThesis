@@ -12,7 +12,9 @@ Target      What
             [X] generate dataset that only takes one of the positions reached  per game to provide more data to the win-prediction.
             [X] update command/remote eval: Track only one dataset: Raw network moves, Raw network wins, Fully iterated policy moves. Rerun evaluation for old runs again...
             [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
-            [ ] the broken win accuracy test code requires new supervised runs. Do 2 train window sizes only.
+            [X] the broken win accuracy test code requires new supervised runs. Do 2 train window sizes only.
+
+                [ ] 2 block 1M
 
                 [X] 5 block 1M
 Training set size | moves % | wins %
@@ -50,8 +52,6 @@ Training set size | moves % | wins %
            400000 |  92.12  |  78.90  
            800000 |  93.49  |  79.93   <<< best
 
-                [ ] 40 blocks 256 filters 1Mv2
-
             [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [ ] Decide on the network size to use based on supervised results, do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
@@ -68,34 +68,34 @@ Training set size | moves % | wins %
             - do this later, perf is ok for now: have a look at apex to use fp16 where possible
             - maybe have a relative playing strength comparision of the iterations?
 
-20.3.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
+20.4.2020   Figure out the best way to measure learning efficiency, as per chapter 4.1 of the proposal.
 
-03.4.2020   Have a look at possible metrics to determine if the training suffers from any form of forgetting-and-relearning, as per chapter 4.2 of the proposal
+1.5.2020    The simple parts of the writing are completed: introduction, describe the known improvements, describe the algorithm, etc.
+
+08.5.2020   Have a look at possible metrics to determine if the training suffers from any form of forgetting-and-relearning, as per chapter 4.2 of the proposal
 
             Implement known improvements that were stated as obligatory in the proposal:
-10.4.2020       - squeeze-and-excitation networks
-10.4.2020       X more filters in the network heads
-10.4.2020       - use a cyclic learning rate
-17.4.2020       - use playout caps
-17.4.2020       - predict the opponens move
-17.4.2020       X predict a drawing probability directly
-17.4.2020       - handle duplicate training positions
-17.4.2020       - improve training window size handling
+15.5.2020       - squeeze-and-excitation networks
+15.5.2020       X more filters in the network heads
+15.5.2020       - use a cyclic learning rate
+15.5.2020       - use playout caps
+15.5.2020       - predict the opponens move
+15.5.2020       X predict a drawing probability directly
+15.5.2020       - handle duplicate training positions
+15.5.2020       - improve training window size handling
 
-24.4.2020    Do a new training run to 99%+ and measure improvements made by these changes.
-
-24.4.2020    The simple parts of the writing are completed: introduction, describe the known improvements, describe the algorithm, etc.
+22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.
 
             Implement suggested new improvements, first the network architecture changes:
-01.5.2020       - gather-excity blocks
-01.5.2020       - mobilenetv3 network blocks
+22.5.2020       - gather-excity blocks
+22.5.2020       - mobilenetv3 network blocks
 
-08.5.2020   Do a training run to 99%+ and measure improvements of the network architecture changes.
+1.6.2020   Do a training run to 99%+ and measure improvements of the network architecture changes.
 
-08.5.2020   Writing about proposed ideas is completed.
+01.6.2020   Writing about proposed ideas is completed.
 
             Implement more conceptual changes to the algorithm:
-22.5.2020       - Play games as trees and evaluate with a training run
+01.6.2020       - Play games as trees and evaluate with a training run
 05.6.2020       - Use internal network features of previous iterations as automatic auxilary targets and evaluate it with a training run
 19.6.2020       - Adapt the self-playing phase to search for hyperpameters and evaluate it with a training run
 
