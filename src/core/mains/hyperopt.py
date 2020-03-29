@@ -22,7 +22,7 @@ import json
 from core.mains.mlconfsetup import loadMlConfig
 
 import numpy as np
-from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester
+from core.solved.PolicyTester import PolicyIteratorPlayer, DatasetPolicyTester2
 
 from impls.selfplay.movedeciders import TemperatureMoveDecider
 
@@ -30,8 +30,8 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 
 zeroTime = current_milli_time()
 
-sPerIteration = 0.2 * 60 * 60
-baseWorkDir = "/ImbaKeks/runs/hyperopt/A/"
+sPerIteration = 0.1 * 60 * 60
+baseWorkDir = "/ImbaKeks/runs/hyperopt2/fast/"
 
 def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
     template = "confs/hyperopt.yaml"
@@ -80,7 +80,31 @@ def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, 
 
     return path
 
-def getScore(blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
+def wdef(m, k, default):
+    if k in m:
+        return m[k]
+    else:
+        return default
+
+def getScore(**kwargs):
+    logMsg("Configuration under test:", kwargs)
+
+    blocks = wdef(kwargs, "blocks", 5)
+    filters = wdef(kwargs, "filters", 128)
+    extraFilters = wdef(kwargs, "extraFilters", 32)
+    nodes = wdef(kwargs, "nodes", 40)
+    cpuct = wdef(kwargs, "cpuct", 4)
+    rootNoise = wdef(kwargs, "rootNoise", 0.25)
+    drawValue = wdef(kwargs, "drawValue", 0.5)
+    explorationPlyCount = wdef(kwargs, "explorationPlyCount", 30)
+    fpu = wdef(kwargs, "fpu", 0)
+    lr = wdef(kwargs, "lr", 0.2)
+    wd = wdef(kwargs, "wd", 0.0001)
+    windowSize = wdef(kwargs, "windowSize", 100000)
+    reportsPerIteration = wdef(kwargs, "reportsPerIteration", 10000)
+    alphaBase = wdef(kwargs, "alphaBase", 10)
+    epochs = wdef(kwargs, "epochs", 1)
+
     # the experiment will work in <baseWorkDir>/<ms>/
     workDir = os.path.join(baseWorkDir, str(current_milli_time() - zeroTime))
     os.mkdir(workDir)
@@ -120,8 +144,8 @@ def getScore(blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, 
         moveDecider = TemperatureMoveDecider(-1)
         initialState = core.main.initialState(recursive=True)
         policyPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128)
-        bestTester = DatasetPolicyTester(policyPlayer, "datasets/connect4/best_small.dataset", initialState, "shell", 128)
-        bestResult = bestTester.main()
+        bestTester = DatasetPolicyTester2(policyPlayer, "datasets/connect4/testset.txt.zip", initialState)
+        bestResult, _ = bestTester.main()
         if bestResult > bestAccuracy:
             bestAccuracy = bestResult
 
@@ -141,21 +165,21 @@ if __name__ == "__main__":
     setLoggingEnabled(True)
 
     pbounds = {
-        'blocks': (2, 4),
-        'filters': (32, 64),
-        'extraFilters': (4, 16),
-        'nodes': (20, 40),
-        'cpuct': (0.5, 6),
-        'rootNoise': (0.01, 0.5),
+        #'blocks': (2, 4),
+        #'filters': (32, 64),
+        #'extraFilters': (4, 16),
+        #'nodes': (20, 40),
+        'cpuct': (0.25, 6),
+        #'rootNoise': (0.01, 0.5),
         'drawValue': (0, 1),
-        'explorationPlyCount': (10, 40),
+        #'explorationPlyCount': (10, 40),
         'fpu': (0, 1),
-        'lr': (0.0005, 0.005),
-        'wd': (0.00005, 0.001),
-        'windowSize': (100000, 250000),
-        'reportsPerIteration': (10000, 42000),
+        #'lr': (0.0005, 0.005),
+        #'wd': (0.00005, 0.001),
+        #'windowSize': (100000, 250000),
+        #'reportsPerIteration': (10000, 42000),
         'alphaBase': (3, 30),
-        'epochs': (1, 3)
+        #'epochs': (1, 3)
     }
 
     optimizer = BayesianOptimization(
@@ -169,7 +193,7 @@ if __name__ == "__main__":
 
     optimizer.maximize(
         init_points=5,
-        n_iter=25
+        n_iter=50
     )
 
     print(optimizer.max)

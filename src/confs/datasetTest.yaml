@@ -1,6 +1,6 @@
 main:
   name: DatasetPolicyTester2
-  playerUnderTest: $networkPlay
+  playerUnderTest: $x0
   datasetFile: /ImbaKeks/git/MasterThesis/src/datasets/connect4/testset.txt.zip
   initialGameState: $mnk
 
@@ -45,7 +45,7 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 800
+  expansions: 400
   cpuct: 3
   rootNoise: 0.001
   drawValue: 0.4

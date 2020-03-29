@@ -20,9 +20,9 @@ Target      What
                 [ ] 20 block 1M
                 [ ] 20 block 1Mv2
 
-            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 100 expansions: drawValue, cpuct, fpu, alphaBase. 2x 3h runs, 25 iterations.
+            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
-            [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
+            [ ] Decide on the network size to use based on supervised results, do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
 
             - use the same optimizer as everyone else did:
                 - SGD with momentum of 0.9

@@ -17,8 +17,16 @@ mnk:
 
 optimizerArgs:
   name: dict
-  lr: 0.001
+  lr: 0.2
+  momentum: 0.9
   weight_decay: 0.0001
+
+lrschedule:
+  name: LrStepSchedule
+  startValue: 0.2
+  stepEvery: 10
+  stepMultiplier: 0.1
+  minValue: 0.01
 
 resnet:
   name: PytorchPolicy
@@ -30,8 +38,10 @@ resnet:
   extraHeadFilters: 32
   protoState: $mnk
   device: cuda:0
-  optimizerName: torch.optim.adamw.AdamW
+  optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  lrDecider: $lrschedule
 
 bestMcts:
   name: MctsPolicyIterator
