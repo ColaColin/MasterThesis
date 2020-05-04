@@ -14,7 +14,11 @@ Target      What
             [X] insight into played games: Make them visible, including an insight into the network output and mcts results on them.
             [X] the broken win accuracy test code requires new supervised runs. Do 2 train window sizes only.
 
-                [ ] 2 block 1M
+                [X] 2 block 1M
+Training set size | moves % | wins % 
+------------------+---------+---------
+           400000 |  87.41  |  74.64  
+           800000 |  89.02  |  75.98   <<< best
 
                 [X] 5 block 1M
 Training set size | moves % | wins %
@@ -52,7 +56,7 @@ Training set size | moves % | wins %
            400000 |  92.12  |  78.90  
            800000 |  93.49  |  79.93   <<< best
 
-            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 5 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
+            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 2 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [ ] Decide on the network size to use based on supervised results, do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
 
