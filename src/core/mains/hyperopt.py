@@ -31,7 +31,7 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 zeroTime = current_milli_time()
 
 sPerIteration = 0.1 * 60 * 60
-baseWorkDir = "/ImbaKeks/runs/hyperopt2/fast/"
+baseWorkDir = "/ImbaKeks/runs/hyperopt2/test/"
 
 def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
     template = "confs/hyperopt.yaml"
@@ -162,7 +162,7 @@ class CombinedLogger():
 
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_hyperopt")
-    setLoggingEnabled(True)
+    setLoggingEnabled(False)
 
     pbounds = {
         #'blocks': (2, 4),
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 
     optimizer.maximize(
         init_points=5,
-        n_iter=50
+        n_iter=10
     )
 
     print(optimizer.max)

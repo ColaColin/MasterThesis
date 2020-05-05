@@ -15,6 +15,14 @@ function formatTimeSince(unixTime, maxMinutes) {
     }
 }
 
+function formatTimeCost(cost) {
+    if (typeof cost === "number") {
+        return Math.floor(cost / 1000) + "s";
+    } else {
+        return cost;
+    }
+}
+
 function CommandPageModel() {
     let self = this;
 
@@ -230,10 +238,11 @@ function CommandPageModel() {
         let sl = self.statesList();
         let nmap = {};
         for (let s of sl) {
-            if (!nmap[s.network]) {
-                nmap[s.network] = 0;
+            const networkKey = s.network || "initial";
+            if (!nmap[networkKey]) {
+                nmap[networkKey] = 0;
             }
-            nmap[s.network] += s.packageSize;
+            nmap[networkKey] += s.packageSize;
         }
         return nmap;
     });
@@ -304,6 +313,32 @@ function CommandPageModel() {
             self.networkList(pulled);
         }
     };
+
+    self.runCost = ko.computed(() => {
+        const nets = self.networkList().slice();
+        const states = self.statesCountByNetwork();
+
+        if (nets.length === 0) {
+            return "No networks reported";
+        }
+
+        nets.sort((a, b) => {
+            return a.iteration - b.iteration;
+        });
+
+        let cost = nets[0].frametime * states["initial"];
+
+        for (let i = 0; i < nets.length - 1; i++) {
+            const net = nets[i];
+            if (net.frametime == null) {
+                return "Missing frametime for network " + net.id;
+            } else {
+                cost += net.frametime * states[net.id];
+            }
+        }
+
+        return formatTimeCost(cost);
+    });
 
     self.fancyNetworkList = ko.computed(() => {
         let nets = self.networkList();

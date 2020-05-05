@@ -83,6 +83,7 @@
                         <div bp="10" data-bind="text: selectedRunObject().name"></div>
                         <div bp="2">States generated</div> <div bp="10" data-bind="text: statesCount"></div>
                         <div bp="2">Distinct states</div> <div bp="10" data-bind="text: (numDistinct() + ' (' + ((numDistinct() / numInStats()) * 100).toFixed(2) + '%)')"></div>
+                        <div bp="2">Training cost</div> <div bp="10" data-bind="text: runCost"></div>
                         <div bp="2">
                             Workers
                         </div>
@@ -119,6 +120,8 @@
                                         <th>network wins</th>
 
                                         <th>mcts moves</th>
+
+                                        <th>frametime</th>
                                     </tr>
                                 </thead>
                                 <tbody data-bind="foreach: fancyNetworkList">
@@ -133,6 +136,8 @@
                                         <td data-bind="text: ($data.acc_network_wins || 0).toFixed(3) + '%'"></td>
 
                                         <td data-bind="text: ($data.acc_mcts_moves || 0).toFixed(3) + '%'"></td>
+
+                                        <td data-bind="text: ($data.frametime || 0).toFixed(2) + 'ms'"></td>
                                     </tr>
                                 </tbody>
                             </table>

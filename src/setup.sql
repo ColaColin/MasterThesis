@@ -23,7 +23,8 @@ create table networks (
     run uuid references runs (id) not null,
     acc_network_moves float,
     acc_network_wins float,
-    acc_mcts_moves float
+    acc_mcts_moves float,
+    frametime float
 );
 
 --alter table networks drop column acc_rnd_limited;
@@ -34,6 +35,7 @@ create table networks (
 --alter table networks add column acc_network_wins float;
 --alter table networks add column acc_mcts_moves float;
 
+--alter table networks add column frametime float;
 
 create table states (
     id uuid primary key,

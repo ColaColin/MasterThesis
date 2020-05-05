@@ -47,7 +47,7 @@ class NetworksResource():
                 con = self.pool.getconn()
                 cursor = con.cursor()
                 
-                cursor.execute("select id, creation, run, acc_network_moves, acc_network_wins, acc_mcts_moves from networks where run = %s", (run_id, ))
+                cursor.execute("select id, creation, run, acc_network_moves, acc_network_wins, acc_mcts_moves, frametime from networks where run = %s", (run_id, ))
                 rows = cursor.fetchall()
 
                 result = []
@@ -58,7 +58,8 @@ class NetworksResource():
                         "run": row[2],
                         "acc_network_moves": row[3],
                         "acc_network_wins": row[4],
-                        "acc_mcts_moves": row[5]
+                        "acc_mcts_moves": row[5],
+                        "frametime": row[6]
                     })
 
                 resp.media = result

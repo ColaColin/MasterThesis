@@ -56,7 +56,7 @@ Training set size | moves % | wins %
            400000 |  92.12  |  78.90  
            800000 |  93.49  |  79.93   <<< best
 
-            [ ] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 2 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
+            [~] do a hyperparameter search with a fixed network, fixed lr, etc. Search only 4 parameters with a 2 block network and 400 expansions: drawValue, cpuct, fpu, alphaBase. 3h runs, 50 iterations.
             [ ] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [ ] Decide on the network size to use based on supervised results, do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
 
