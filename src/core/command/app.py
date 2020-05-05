@@ -8,6 +8,7 @@ from core.command.stats import StatsResource
 from core.command.networkStats import NetworkStatsResource
 from core.command.runsha import RunShaResource
 from core.command.insight import InsightResource
+from core.command.frametime import FrametimeResource
 
 import psycopg2
 from psycopg2 import pool
@@ -62,6 +63,9 @@ def defineApp(config):
 
         networkStats = NetworkStatsResource(pool)
         app.add_route("/api/evaluations/{network_id}", networkStats)
+
+        frametimes = FrametimeResource(pool)
+        app.add_route("/api/frametimes/{network_id}", frametimes)
 
         runsha = RunShaResource(pool)
         app.add_route("/sha/{run_id}", runsha)

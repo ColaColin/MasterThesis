@@ -48,30 +48,37 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             self.microsPerMovePlayedHistory = []
 
     def main(self):
-        self.selfplay()
+        self.initSelfplay()
 
-    def selfplay(self):
-        self.policy = self.policyUpdater.update(self.policy)
         while True:
-            moveTimeNanos = 0
+            self.playBatch()
 
-            iteratationStart = time.monotonic_ns()
-            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
-            moveTimeNanos += time.monotonic_ns() - iteratationStart
+    def initSelfplay(self):
+        self.policy = self.policyUpdater.update(self.policy)
 
-            self.addTrackingData(iteratedPolicy)
-            self.policy = self.policyUpdater.update(self.policy)
-            assert not (self.policy is None), "the policy updater returned a None policy!"
+    def playBatch(self):
+        moveTimeNanos = 0
 
-            playStart = time.monotonic_ns()
-            movesToPlay = list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
-            self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
-            moveTimeNanos += time.monotonic_ns() - playStart
+        iteratationStart = time.monotonic_ns()
+        iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
+        moveTimeNanos += time.monotonic_ns() - iteratationStart
 
-            self.microsPerMovePlayedHistory.append(int((moveTimeNanos / float(len(self.open))) / 1000))
-            self.handleSpeedStats()
+        self.addTrackingData(iteratedPolicy)
+        self.policy = self.policyUpdater.update(self.policy)
+        assert not (self.policy is None), "the policy updater returned a None policy!"
 
-            self.finalizeGames()
+        playStart = time.monotonic_ns()
+        movesToPlay = list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
+        self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
+        moveTimeNanos += time.monotonic_ns() - playStart
+
+        usTime = int((moveTimeNanos / float(len(self.open))) / 1000)
+        self.microsPerMovePlayedHistory.append(usTime)
+        self.handleSpeedStats()
+
+        self.finalizeGames()
+
+        return usTime / 1000.0
 
     def addTrackingData(self, iteratedPolicy):
         for idx, game in enumerate(self.open):
@@ -79,7 +86,6 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 self.tracking[idx] = []
             
             self.tracking[idx].append([game, iteratedPolicy[idx]])
-
 
     def handleReportsFor(self, idx):
         reports = []

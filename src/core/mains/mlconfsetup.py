@@ -5,7 +5,7 @@ from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
-from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater, FilePolicyUpdater
+from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater, FilePolicyUpdater, NoopPolicyUpdater, NoopGameReporter
 from impls.polices.pytorch.policy import PytorchPolicy, LrStepSchedule
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
@@ -28,6 +28,8 @@ registered = False
 def registerClasses():
     global registered
     if not registered:
+        mlconfig.register(NoopPolicyUpdater)
+        mlconfig.register(NoopGameReporter)
         mlconfig.register(DatasetPolicyTester)
         mlconfig.register(ShuffleBatchedPolicyPlayer)
         mlconfig.register(SolverBatchedPolicyPlayer)

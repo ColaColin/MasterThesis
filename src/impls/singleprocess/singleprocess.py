@@ -98,6 +98,13 @@ class SingleProcessReporter(GameReporter, metaclass=abc.ABCMeta):
             needsFitting = True
             self.storeState()
 
+class NoopGameReporter(GameReporter, metaclass=abc.ABCMeta):
+    def __init__(self):
+        pass
+
+    def reportGame(self, reports):
+        pass
+
 class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
     def update(self, policy):
         return policy           

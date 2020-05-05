@@ -30,11 +30,25 @@ class PolicyUpdater(metaclass=abc.ABCMeta):
         """
 
 class SelfPlayWorker(metaclass=abc.ABCMeta):
+    """
+    This interface is only really important for the frametime measurement worker,
+    """
 
     @abc.abstractmethod
-    def selfplay(self, gameReporter, policyUpdater):
+    def main(self):
         """
-        Calling this should play games and call the gameReporter with new records of games to be learned from.
-        Additionally call the PolicyUpdater in a regular fashion. That might pull a new policy from
-        a training server or it might train the policy on data gathered so far.
+        Play games against yourself forever.
+        """
+
+    @abc.abstractmethod
+    def initSelfplay(self):
+        """
+        Call once before starting to loop over playBatch()
+        """
+
+    @abc.abstractmethod
+    def playBatch(self):
+        """
+        call to play one move on every game in the batch.
+        Returns time taken for a single move in ms, excluding time spent doing game reporting or policy updates.
         """
