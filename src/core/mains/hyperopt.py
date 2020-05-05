@@ -30,8 +30,13 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 
 zeroTime = current_milli_time()
 
+<<<<<<< HEAD
 sPerIteration = 0.1 * 60 * 60
 baseWorkDir = "/ImbaKeks/runs/hyperopt2/test/"
+=======
+sPerIteration = 1.25 * 60 * 60
+baseWorkDir = "/PwnKeks/runs/hyperopt/5blocks"
+>>>>>>> 3a0ffe485aeb925e60daadfae5780b9d9016aec2
 
 def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
     template = "confs/hyperopt.yaml"
@@ -92,7 +97,7 @@ def getScore(**kwargs):
     blocks = wdef(kwargs, "blocks", 5)
     filters = wdef(kwargs, "filters", 128)
     extraFilters = wdef(kwargs, "extraFilters", 32)
-    nodes = wdef(kwargs, "nodes", 40)
+    nodes = wdef(kwargs, "nodes", 300)
     cpuct = wdef(kwargs, "cpuct", 4)
     rootNoise = wdef(kwargs, "rootNoise", 0.25)
     drawValue = wdef(kwargs, "drawValue", 0.5)
@@ -193,7 +198,7 @@ if __name__ == "__main__":
 
     optimizer.maximize(
         init_points=5,
-        n_iter=10
+        n_iter=60
     )
 
     print(optimizer.max)
