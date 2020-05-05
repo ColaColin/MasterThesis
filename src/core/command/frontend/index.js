@@ -321,8 +321,8 @@ function CommandPageModel() {
         // iteration -> cost
         const result = {};
 
-        if (nets.length === 0) {
-            return "No networks reported";
+        if (nets.length === 0 || nets[0].frametime == null) {
+            return result;
         }
 
         nets.sort((a, b) => {
@@ -336,11 +336,11 @@ function CommandPageModel() {
         for (let i = 0; i < nets.length; i++) {
             const net = nets[i];
             if (net.frametime == null) {
-                return "Missing frametime for network " + net.id;
-            } else {
-                cost += net.frametime * states[net.id];
-                result[i + 1] = formatTimeCost(cost);
+                break;
             }
+
+            cost += net.frametime * states[net.id];
+            result[i + 1] = formatTimeCost(cost);
         }
 
         return result
