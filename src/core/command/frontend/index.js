@@ -318,6 +318,9 @@ function CommandPageModel() {
         const nets = self.networkList().slice();
         const states = self.statesCountByNetwork();
 
+        // iteration -> cost
+        const result = {};
+
         if (nets.length === 0) {
             return "No networks reported";
         }
@@ -328,16 +331,19 @@ function CommandPageModel() {
 
         let cost = nets[0].frametime * states["initial"];
 
-        for (let i = 0; i < nets.length - 1; i++) {
+        result[0] = formatTimeCost(cost);
+
+        for (let i = 0; i < nets.length; i++) {
             const net = nets[i];
             if (net.frametime == null) {
                 return "Missing frametime for network " + net.id;
             } else {
                 cost += net.frametime * states[net.id];
+                result[i + 1] = formatTimeCost(cost);
             }
         }
 
-        return formatTimeCost(cost);
+        return result
     });
 
     self.fancyNetworkList = ko.computed(() => {
