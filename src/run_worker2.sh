@@ -23,7 +23,7 @@ eval "$('/root/anaconda3/bin/conda' 'shell.bash' 'hook')"
 
 conda init
 
-#conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
+conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
 
 git clone https://github.com/ColaColin/MasterThesis.git
 cd MasterThesis
