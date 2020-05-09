@@ -80,6 +80,6 @@ do
     python -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
 done
 
-nvidia-smi -l &>> gpu_load.log &
+nvidia-smi -l &>> /root/gpu_load.log &
 
 
