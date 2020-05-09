@@ -6,7 +6,6 @@
 
 # apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker.sh ; chmod +x run_worker.sh; ./run_worker.sh https://x0.cclausen.eu <secret> <runid>
 
-#e.g. ./run_worker.sh https://x0.cclausen.eu <secret> <runid>
 
 apt update
 apt install -y git
@@ -24,7 +23,7 @@ eval "$('/root/anaconda3/bin/conda' 'shell.bash' 'hook')"
 
 conda init
 
-conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
+#conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
 
 git clone https://github.com/ColaColin/MasterThesis.git
 cd MasterThesis
