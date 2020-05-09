@@ -70,7 +70,8 @@ WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
 for ((i=1; i <= $WORKERS; i++))
 do
-    python -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
+    echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /root/worker_$i.log '&'
+    python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
 done
 
 nvidia-smi -l &>> /root/gpu_load.log &
