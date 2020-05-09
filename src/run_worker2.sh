@@ -27,7 +27,7 @@ conda init
 
 git clone https://github.com/ColaColin/MasterThesis.git
 cd MasterThesis
-SHA=$(wget -qO- $2/sha/$4)
+SHA=$(wget -qO- $1/sha/$3)
 git checkout $SHA
 cd src
 
