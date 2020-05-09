@@ -66,6 +66,9 @@ Training set size | moves % | wins %
                     [ ] Run 1
                     [ ] Run 2
                     [ ] Run 3
+                    [ ] Run 4 and more. How many runs is possible, how many necessary?
+
+            [ ] implement a backup script, which downloads all data from the server and restores it into my local database.
 
             - use the same optimizer as everyone else did:
                 - SGD with momentum of 0.9
