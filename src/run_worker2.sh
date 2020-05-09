@@ -69,7 +69,6 @@ MAX_BY_CPU=$(nproc)
 WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
 echo $GPUC
-echo $CPUC
 echo $MAX_BY_GPU
 echo $MAX_BY_CPU
 echo $WORKERS
