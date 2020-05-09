@@ -68,11 +68,6 @@ MAX_BY_CPU=$(nproc)
 
 WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
-echo $GPUC
-echo $MAX_BY_GPU
-echo $MAX_BY_CPU
-echo $WORKERS
-
 for ((i=1; i <= $WORKERS; i++))
 do
     python -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
