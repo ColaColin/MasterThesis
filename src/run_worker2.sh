@@ -64,8 +64,7 @@ fi
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 MAX_BY_GPU=$((MAX_PER_GPU * GPUC))
 
-CPUC=$(nproc)
-MAX_BY_CPU=$((CPUC / 2))
+MAX_BY_CPU=$(nproc)
 
 WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
