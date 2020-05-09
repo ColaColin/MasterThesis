@@ -1,0 +1,181 @@
+% Dokumentenklasse fuer Artikel waehlen
+\documentclass[12pt,onecolumn,oneside,titlepage]{article}
+
+% Deutsche Grundeinstellungen und DIN A4
+\usepackage{a4}
+
+% Zur Einbindung von Grafiken mit \includegraphics
+\usepackage[pdftex]{graphicx,color}
+\DeclareGraphicsExtensions{.pdf,.jpg,.png,.eps,.ps}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+\usepackage{textcomp,upquote,lmodern,listings}
+\usepackage{subcaption}
+\usepackage{float}
+
+% Bibliographie mit BibTeX
+%\usepackage{natbib}
+
+% Mehrsprachige Bibliographie mit babelbib
+
+\usepackage[english]{babel}
+%\usepackage[ngerman]{babel}
+
+\usepackage{babelbib}
+
+% Korrekte Umsetzung von Umlauten
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+
+\usepackage{url}
+\usepackage{hyperref}
+
+% Mathematische Symbole
+\usepackage[intlimits,centertags]{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsmath}
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+% Einrueckung der ersten Zeile eines Absatzes
+\setlength{\parindent}{0em}
+
+% Abstand zwischen Absaetzen
+\setlength{\parskip}{1.5ex plus0.5ex minus0.5ex}
+
+% Seitenstil
+% \pagestyle{headings}
+
+% Seitennummerierung
+\pagenumbering{arabic}
+\setcounter{page}{2}
+
+% Silbentrennungsliste
+\hyphenation{native-Hello}
+
+% -- Dokumentenbegin --------
+
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                              %%
+%%                          Titelseite                          %%
+%%                                                              %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{center}
+{\huge \it Masterthesis}
+
+\thispagestyle{empty}
+
+\vspace{2cm}
+
+{\Large \bf Investigation of possible improvements to increase the efficiency of the AlphaZero algorithm.}
+
+\vspace{2.25cm}
+
+\vspace{2.25cm}
+
+{\large 
+Christian-Albrechts-Universität zu Kiel \\
+Institut für Informatik  \\
+}
+
+\end{center}
+
+\vspace{2cm}
+
+\begin{tabular}{ll}
+angefertigt von:             & {\bf Colin Clausen} \\
+betreuender Hochschullehrer: & Prof. Dr.-Ing. Sven Tomforde \\%
+\end{tabular}
+
+\vspace{1cm}
+
+\begin{center}
+Kiel, 20.7.2020
+\end{center}
+
+
+\pagebreak
+
+\newpage\null\thispagestyle{empty}\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                              %%
+%%                Selbstständigkeitserklärung                   %%
+%%                                                              %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\noindent {\bf Selbstständigkeitserklärung}
+
+\vspace{1.5cm}
+
+\noindent Ich erkläre hiermit, dass ich die vorliegende Arbeit selbstständig und nur unter Verwendung der angegebenen Literatur und Hilfsmittel angefertigt habe.
+
+\vspace{2cm}
+\noindent ............................................................... \\
+Colin Clausen
+
+\thispagestyle{empty}
+
+\pagebreak
+
+\newpage\null\thispagestyle{empty}\newpage
+
+
+\tableofcontents
+
+\pagebreak
+
+
+
+\section{Introduction}
+
+
+\section{Previous work}
+
+\subsection{Monte Carlo Tree Search}
+
+\subsection{AlphaZero}
+
+\subsection{Extensions to AlphaZero}
+
+
+\section{Evaluated novel improvements}
+\subsection{Network modifications}
+\subsection{Playing games as trees}
+\subsection{Automatic auxilary features}
+
+\section{Experiments}
+
+\subsection{Baselines}
+\subsubsection{AlphaZero implementation}
+\subsubsection{Extended AlphaZero}
+
+
+\subsection{Results on novel improvements}
+\subsubsection{Network modifications}
+\subsubsection{Playing games as trees}
+\subsubsection{Automatic auxilary features}
+\subsubsection{Evolutionary hyperparameters}
+
+
+
+
+
+
+\pagebreak
+
+\cite{silver2018general}
+
+% -- Literaturverzeichnis --------
+
+\bibliographystyle{plain}     % nummeriere Zitate [1], [2], ...
+
+% Quellenangaben stehen in einer separaten BibTeX-Datei Seminararbeit.bib
+\bibliography{document}
+
+\end{document}

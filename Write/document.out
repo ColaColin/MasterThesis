@@ -1,0 +1,18 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Previous work}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Monte Carlo Tree Search}{section.2}% 3
+\BOOKMARK [2][-]{subsection.2.2}{AlphaZero}{section.2}% 4
+\BOOKMARK [2][-]{subsection.2.3}{Extensions to AlphaZero}{section.2}% 5
+\BOOKMARK [1][-]{section.3}{Evaluated novel improvements}{}% 6
+\BOOKMARK [2][-]{subsection.3.1}{Network modifications}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.2}{Playing games as trees}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.3}{Automatic auxilary features}{section.3}% 9
+\BOOKMARK [1][-]{section.4}{Experiments}{}% 10
+\BOOKMARK [2][-]{subsection.4.1}{Baselines}{section.4}% 11
+\BOOKMARK [3][-]{subsubsection.4.1.1}{AlphaZero implementation}{subsection.4.1}% 12
+\BOOKMARK [3][-]{subsubsection.4.1.2}{Extended AlphaZero}{subsection.4.1}% 13
+\BOOKMARK [2][-]{subsection.4.2}{Results on novel improvements}{section.4}% 14
+\BOOKMARK [3][-]{subsubsection.4.2.1}{Network modifications}{subsection.4.2}% 15
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Playing games as trees}{subsection.4.2}% 16
+\BOOKMARK [3][-]{subsubsection.4.2.3}{Automatic auxilary features}{subsection.4.2}% 17
+\BOOKMARK [3][-]{subsubsection.4.2.4}{Evolutionary hyperparameters}{subsection.4.2}% 18

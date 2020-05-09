@@ -30,8 +30,23 @@ current_milli_time = lambda: int(round(time.time() * 1000))
 
 zeroTime = current_milli_time()
 
-sPerIteration = 1.25 * 60 * 60
-baseWorkDir = "/PwnKeks/runs/hyperopt/5blocks"
+sPerIteration = 1 * 60 * 60
+baseWorkDir = "/ImbaKeks/runs/hyperoptZ"
+
+# Run 1
+# |  1        |  75.8     |  14.26    |  4.392    |  0.000114 |  0.3023   |
+# |  2        |  78.97    |  6.962    |  0.7809   |  0.1863   |  0.3456   |
+# |  3        |  79.35    |  6.951    |  1.03     |  0.1371   |  0.2909   |
+
+# Run 2
+#|  1        |  76.29    |  14.26    |  4.392    |  0.000114 |  0.3023   |
+#|  2        |  78.73    |  6.962    |  0.7809   |  0.1863   |  0.3456   |
+#|  3        |  79.79    |  6.951    |  1.03     |  0.1371   |  0.2909   |
+
+# Run 3
+#|  1        |  76.82    |  14.26    |  4.392    |  0.000114 |  0.3023   |
+#|  2        |  80.07    |  6.962    |  0.7809   |  0.1863   |  0.3456   |
+#|  3        |  78.5     |  6.951    |  1.03     |  0.1371   |  0.2909   |
 
 def writeConfig(outDir, blocks, filters, extraFilters, nodes, cpuct, rootNoise, drawValue, explorationPlyCount, fpu, lr, wd, windowSize, reportsPerIteration, alphaBase, epochs):
     template = "confs/hyperopt.yaml"
@@ -192,8 +207,8 @@ if __name__ == "__main__":
     optimizer.subscribe(Events.OPTIMIZATION_STEP, logger)
 
     optimizer.maximize(
-        init_points=5,
-        n_iter=60
+        init_points=2,
+        n_iter=1
     )
 
     print(optimizer.max)
