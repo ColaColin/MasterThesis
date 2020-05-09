@@ -4,7 +4,7 @@
 
 # Use this as the startup script on vast.ai:
 
-# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker.sh https://x0.cclausen.eu <secret> <runid>
+# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid>
 
 
 apt update
