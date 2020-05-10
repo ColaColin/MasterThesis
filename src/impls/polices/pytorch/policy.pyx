@@ -197,7 +197,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
-    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None):
+    def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, \
+            optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -234,6 +235,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.silent = silent
 
         self.gradClipValue = gradClipValue
+
+        self.valueLossWeight = valueLossWeight
 
         self.initNetwork()
 
@@ -409,7 +412,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             mLoss = -torch.sum(mO * yM) / batchSize
             wLoss = -torch.sum(wO * yW) / batchSize
 
-            loss = mLoss + wLoss
+            loss = mLoss + (self.valueLossWeight * wLoss)
             loss.backward()
 
             if self.gradClipValue is not None:

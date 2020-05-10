@@ -37,6 +37,7 @@ resnet:
   lrDecider: $lrschedule
   optimizerName: torch.optim.adamw.AdamW
   optimizerArgs: $optimizerArgs
+  valueLossWeight: 1
 
 mcts:
   name: MctsPolicyIterator

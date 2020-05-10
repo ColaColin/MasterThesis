@@ -134,6 +134,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                -> suggested parameters by prev work: drawValue 0.5, cpuct = 4, fpu = 0 (per deep mind), alphaBase = 7 (which yields alpha of 1, since alphaBase is divided by the number of legal moves)
             [X] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [X] Decide on the network size to use based on supervised results, 
+            [ ] "Iteration 170% completed" -> why would it say that? Why not stop at 100%?!
             [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
                [ ] prev work suggested parameters
                     [ ] Run 1
