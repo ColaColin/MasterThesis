@@ -75,8 +75,12 @@ class StatesDownloader():
         t.start()
 
     def openPackage(self, idName):
-        data = readFileUnderPath(os.path.join(self.storageDirectory, idName))
-        return decodeFromBson(data)
+        try:
+            data = readFileUnderPath(os.path.join(self.storageDirectory, idName))
+            return decodeFromBson(data)
+        except Exception as error:
+            logMsg("COuld not open downloaded package" + idName + "!", error)
+            return []
 
     def run(self):
         logMsg("Starting states downloader, storing files in", self.storageDirectory)
