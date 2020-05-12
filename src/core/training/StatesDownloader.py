@@ -83,7 +83,9 @@ class StatesDownloader():
         while self.running:
             try:
                 # first download the current file describing the states on the server
-                list = requests.get(url=self.commandHost + "/api/state/list/" + self.runId, headers={"secret": self.secret}).json()
+                lresponse = requests.get(url=self.commandHost + "/api/state/list/" + self.runId, headers={"secret": self.secret})
+                lresponse.raise_for_status()
+                list = lresponse.json()
 
                 sumNewStates = 0
                 newEntries = []
