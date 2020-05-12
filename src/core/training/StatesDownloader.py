@@ -79,7 +79,7 @@ class StatesDownloader():
             data = readFileUnderPath(os.path.join(self.storageDirectory, idName))
             return decodeFromBson(data)
         except Exception as error:
-            logMsg("COuld not open downloaded package" + idName + "!", error)
+            logMsg("Could not open downloaded package" + idName + "!", error)
             return []
 
     def run(self):
@@ -105,7 +105,7 @@ class StatesDownloader():
                     #logMsg("Found %i new state packages with %i states on the server!" % (len(newEntries), sumNewStates))
 
                     for newEntry in newEntries:
-                        response = requests.get(url=self.commandHost + "/api/state/download/" + newEntry["id"], headers={"secret": self.secret}, timeout=10)
+                        response = requests.get(url=self.commandHost + "/api/state/download/" + newEntry["id"], stream=True, headers={"secret": self.secret}, timeout=10)
                         response.raise_for_status()
                         statesData = response.raw.data
                         storeFileUnderPath(os.path.join(self.storageDirectory, newEntry["id"]), statesData)
