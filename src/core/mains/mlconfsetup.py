@@ -13,7 +13,7 @@ from impls.solved.players import RandomPlayPolicy, BestPlayPolicy, SemiPerfectPo
 from impls.solved.PonsSolver import PonsSolver
 from core.solved.TestDatabaseGenerator import TestDatabaseGenerator, TestDatabaseGenerator2
 from core.solved.PolicyTester import PolicyPlayer, ShuffleBatchedPolicyPlayer, SolverBatchedPolicyPlayer, PolicyIteratorPlayer, DatasetPolicyTester, DatasetPolicyTester2
-from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter
+from impls.distributed.distributed import DistributedNetworkUpdater, DistributedReporter, DistributedNetworkUpdater2
 from core.training.TrainingWorker import TrainingWorker
 from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
 from core.training.StreamTrainingWorker import StreamTrainingWorker
@@ -63,6 +63,7 @@ def registerClasses():
         mlconfig.register(DatasetPolicyTester2)
         mlconfig.register(FilePolicyUpdater)
         mlconfig.register(SupervisedNetworkTrainer)
+        mlconfig.register(DistributedNetworkUpdater2)
         registered = True
 
 def mlConfigBasedMain(configPath):
