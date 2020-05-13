@@ -8,7 +8,12 @@ import sys
 import requests
 from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
+from utils.misc import readFileUnderPath, openJsonFile
+
 from datetime import datetime
+
+import subprocess
+import os
 
 class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
     def __init__(self, packageSize = 1000):
@@ -60,7 +65,49 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
             except Exception as error:
                 logMsg("Could not report states due to an error. Will try again soon!", error)
                 self.waitTill = time.monotonic() + 60
-                
+
+class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
+    """
+    Version of the distributed networks updater that uses an extra networks_downloader process to handle network downloading.
+    That process is stared once by every worker, but it exits if it detects another one was already started before, so there is only one downloading process.
+    """
+
+    def __init__(self, storage):
+        self.lastNetworkCheck = -999
+        self.checkInterval = 1.5
+        self.storage = storage
+
+        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--worker" in sys.argv) and ("--command" in sys.argv)
+
+        if not hasArgs:
+            raise Exception("You need to provide arguments for the distributed worker: --secret <server password>, --run <uuid>, --worker <name> and --command <command server host>!")
+
+        self.secret = sys.argv[sys.argv.index("--secret")+1]
+        self.run = sys.argv[sys.argv.index("--run")+1]
+        self.commandHost = sys.argv[sys.argv.index("--command")+1]
+
+        subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
+
+    def update(self, policy):
+        if time.monotonic() - self.lastNetworkCheck > self.checkInterval:
+            self.lastNetworkCheck = time.monotonic()
+
+            try:
+                networks = openJsonFile(os.path.join(self.storage, "networks.json"))
+                if len(networks) > 0:
+                    networks.sort(key=lambda n: n["creation"])
+                    bestNetwork = networks[-1]
+                    if bestNetwork["id"] != policy.getUUID():
+                        logMsg("New network found created at UTC", datetime.utcfromtimestamp(bestNetwork["creation"] / 1000).strftime('%Y-%m-%d %H:%M:%S'))
+                        policy.load(decodeFromBson(readFileUnderPath(os.path.join(self.storage, bestNetwork["id"]))))
+                        logMsg("Policy replaced, now working with policy ", policy.getUUID())
+
+            except Exception as error:
+                logMsg("Failed to check for a new network")
+
+        return policy
+
+
 class DistributedNetworkUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
     def __init__(self, checkInterval = 15):

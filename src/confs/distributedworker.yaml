@@ -3,8 +3,8 @@ reporter:
   packageSize: 512
 
 updater:
-  name: DistributedNetworkUpdater
-  checkInterval: 1
+  name: DistributedNetworkUpdater2
+  storage: /tmp/x0_networks
 
 mnk:
   name: Connect4GameState

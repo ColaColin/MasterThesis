@@ -68,12 +68,13 @@ MAX_BY_CPU=$(nproc)
 
 WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
+nvidia-smi -l &>> /root/gpu_load.log &
+
 for ((i=1; i <= $WORKERS; i++))
 do
     echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /root/worker_$i.log '&'
     python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
+    sleep 1
 done
-
-nvidia-smi -l &>> /root/gpu_load.log &
 
 

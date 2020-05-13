@@ -2,7 +2,7 @@ import importlib
 
 import os
 from pathlib import Path
-
+import json
 import abc
 
 def constructor_for_class_name(module_name):
@@ -24,6 +24,13 @@ def readFileUnderPath(path):
     with open(path, "rb") as f:
         return f.read()
 
+def openJsonFile(path):
+    with open(path) as f:
+        return json.load(f)
+
+def writeJsonFile(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=4, sort_keys=True)
 
 class IterationCalculatedValue(metaclass=abc.ABCMeta):
     @abc.abstractmethod
