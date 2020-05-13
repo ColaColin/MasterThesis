@@ -86,24 +86,27 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
         self.run = sys.argv[sys.argv.index("--run")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
 
-        subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
+        subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", self.storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
 
     def update(self, policy):
         if time.monotonic() - self.lastNetworkCheck > self.checkInterval:
             self.lastNetworkCheck = time.monotonic()
 
-            try:
-                networks = openJsonFile(os.path.join(self.storage, "networks.json"))
-                if len(networks) > 0:
-                    networks.sort(key=lambda n: n["creation"])
-                    bestNetwork = networks[-1]
-                    if bestNetwork["id"] != policy.getUUID():
-                        logMsg("New network found created at UTC", datetime.utcfromtimestamp(bestNetwork["creation"] / 1000).strftime('%Y-%m-%d %H:%M:%S'))
-                        policy.load(decodeFromBson(readFileUnderPath(os.path.join(self.storage, bestNetwork["id"]))))
-                        logMsg("Policy replaced, now working with policy ", policy.getUUID())
+            npath = os.path.join(self.storage, "networks.json")
 
-            except Exception as error:
-                logMsg("Failed to check for a new network")
+            if os.path.exists(npath):
+                try:
+                    networks = openJsonFile(npath)
+                    if len(networks) > 0:
+                        networks.sort(key=lambda n: n["creation"])
+                        bestNetwork = networks[-1]
+                        if bestNetwork["id"] != policy.getUUID():
+                            logMsg("New network found created at UTC", datetime.utcfromtimestamp(bestNetwork["creation"] / 1000).strftime('%Y-%m-%d %H:%M:%S'))
+                            policy.load(decodeFromBson(readFileUnderPath(os.path.join(self.storage, bestNetwork["id"]))))
+                            logMsg("Policy replaced, now working with policy ", policy.getUUID())
+
+                except Exception as error:
+                    logMsg("Failed to check for a new network", error)
 
         return policy
 

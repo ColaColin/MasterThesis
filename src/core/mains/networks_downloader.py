@@ -50,11 +50,9 @@ if __name__ == "__main__":
         logMsg("Storage already exists, there must be another downloader already running, exiting...")
         exit(0)
 
-    logMsg("Starting networks downloader, storage in %s" % storagePath)
-
-    writeJsonFile(os.path.join(storage, "networks.json"), [])
-
     try:
+        logMsg("Starting networks downloader, storage in %s" % storagePath)
+        writeJsonFile(os.path.join(storagePath, "networks.json"), [])
         loopNetworksDownload(storagePath)
     finally:
         shutil.rmtree(storagePath)
