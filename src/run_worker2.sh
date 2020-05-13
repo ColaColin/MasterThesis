@@ -39,26 +39,26 @@ chmod +x build.sh
 
 ./build.sh testworker
 
-MAX_PER_GPU=3
+MAX_PER_GPU=4
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '1080 Ti'; then
-  MAX_PER_GPU=4
+  MAX_PER_GPU=5
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q 'RTX 2070 SUPER'; then
-  MAX_PER_GPU=4
+  MAX_PER_GPU=5
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080'; then
-  MAX_PER_GPU=4
+  MAX_PER_GPU=5
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q 'RTX 2080 SUPER'; then
-  MAX_PER_GPU=5
+  MAX_PER_GPU=6
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080 Ti'; then
-  MAX_PER_GPU=5
+  MAX_PER_GPU=6
 fi
 
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
