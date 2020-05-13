@@ -5,7 +5,7 @@ from utils.prints import logMsg, setLoggingEnabled
 import sys
 from core.training.NetworkApi import NetworkApi
 
-import requests
+from utils.req import requestJson, postJson
 
 import tempfile
 
@@ -60,16 +60,9 @@ if __name__ == "__main__":
 
     def getNextWork():
         while True:
-            try:
-                response = requests.get(commandHost + "/api/frametimes/", headers={"secret": secret})
-                response.raise_for_status()
-                nextWork = response.json()
-
-                if len(nextWork) > 0:
-                    return nextWork[0]["run"], nextWork[0]["network"]
-            except Exception as error:
-                logMsg("Could not check for next evaluations to work on, will try again soon", error)
-
+            nextWork = requestJson(commandHost + "/api/frametimes/", secret)
+            if len(nextWork) > 0:
+                return nextWork[0]["run"], nextWork[0]["network"]
             time.sleep(15)
 
     def getRunConfig(runId, networkFile):
@@ -82,9 +75,7 @@ if __name__ == "__main__":
         runConfig = ""
         while True:
             try:
-                response = requests.get(commandHost + "/api/runs/" + runId, headers={"secret": secret})
-                response.raise_for_status()
-                runConfig = response.json()["config"]
+                runConfig = requestJson(commandHost + "/api/runs/" + runId, secret)["config"]
                 break
             except Exception as error:
                 logMsg("Could not get run configuration for run, will try again soon", error)
@@ -124,17 +115,10 @@ if __name__ == "__main__":
         return ff
 
     def submitResult(frametime, network_id):
-        while True:
-            try:
-                result = {
-                    "frametime": frametime
-                }
-                response = requests.post(commandHost + "/api/frametimes/" + network_id, json=result, headers={"secret": secret})
-                response.raise_for_status()
-                break
-            except Exception as error:
-                logMsg("Could not submit result, will try again soon", error)
-                time.sleep(10)
+        result = {
+            "frametime": frametime
+        }
+        postJson(commandHost + "/api/frametimes/" + network_id, secret, result))
     
     while True:
         pool = mp.Pool(processes=PROC_COUNT)

@@ -3,8 +3,7 @@ import sys
 
 from utils.bsonHelp.bsonHelp import decodeFromBson, encodeToBson
 from utils.prints import logMsg
-
-import requests
+from utils.req import requestJson, postBytes, requestBytes
 
 class NetworkApi():
     def __init__(self, noRun=False):
@@ -33,35 +32,12 @@ class NetworkApi():
         
 
     def getNetworkList(self):
-        while True:
-            try:
-                networkList = requests.get(url=self.commandHost + "/api/networks/list/" + self.runId, headers={"secret": self.secret}).json()
-                return networkList
-            except Exception as error:
-                logMsg("Could not get network list, hoping this is a temporary failure, will try again soon!", error)
-                time.sleep(10)
+        return requestJson(self.commandHost + "/api/networks/list/" + self.runId, self.secret)
 
     def uploadNetwork(self, policy):
-        while True:
-            try:
-                newPolicyEncoded = encodeToBson(policy.store())
-                response = requests.post(url=self.commandHost + "/api/networks/" + self.runId + "/" + policy.getUUID(), data=newPolicyEncoded,
-                    headers={"secret": self.secret})
-                response.raise_for_status()
-                logMsg("Network uploaded successfully!")
-                break
-            except Exception as error:
-                logMsg("Could not upload network, hoping this is a temporary failure, will try again soon!", error)
-                time.sleep(10)
-    
+        newPolicyEncoded = encodeToBson(policy.store())
+        postBytes(self.commandHost + "/api/networks/" + self.runId + "/" + policy.getUUID(), self.secret, newPolicyEncoded)
+        logMsg("Network uploaded successfully!")
+   
     def downloadNetwork(self, networkId):
-        while True:
-            try:
-                response = requests.get(url=self.commandHost + "/api/networks/download/" + networkId, stream=True, headers={"secret": self.secret})
-                response.raise_for_status()
-                networkData = decodeFromBson(response.raw.data)
-                return networkData
-            except Exception as error:
-                logMsg("Could not download network, will try again soon", error)
-                time.sleep(10)
-
+        return decodeFromBson(requestBytes(self.commandHost + "/api/networks/download/" + networkId, self.secret))

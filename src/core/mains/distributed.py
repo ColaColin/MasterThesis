@@ -1,10 +1,12 @@
 from core.mains.mlconfsetup import mlConfigBasedMain
 import sys
-import requests
+from utils.req import requestJson
 import json
 import os
 from utils.prints import logMsg, setLoggingEnabled
 import setproctitle
+
+
 
 # loader for distributed workers
 # given some command line parameters
@@ -38,10 +40,7 @@ if __name__ == "__main__":
     run = sys.argv[sys.argv.index("--run")+1]
     commandHost = sys.argv[sys.argv.index("--command")+1]
 
-    response = requests.get(commandHost + "/api/runs/" + run, headers={"secret": secret})
-    response.raise_for_status()
-
-    runConfig = response.json()
+    runConfig = requestJson(commandHost + "/api/runs/" + run, secret)
 
     cfgPath = os.path.join(os.getcwd(), "downloaded_config.yaml")
 

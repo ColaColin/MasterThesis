@@ -1,5 +1,6 @@
 import threading
-import requests
+
+from utils.req import requestBytes, requestJson
 
 import sys
 import os
@@ -87,9 +88,7 @@ class StatesDownloader():
         while self.running:
             try:
                 # first download the current file describing the states on the server
-                lresponse = requests.get(url=self.commandHost + "/api/state/list/" + self.runId, headers={"secret": self.secret}, timeout=10)
-                lresponse.raise_for_status()
-                list = lresponse.json()
+                list = requestJson(self.commandHost + "/api/state/list/" + self.runId, self.secret)
 
                 sumNewStates = 0
                 newEntries = []
@@ -105,9 +104,7 @@ class StatesDownloader():
                     #logMsg("Found %i new state packages with %i states on the server!" % (len(newEntries), sumNewStates))
 
                     for newEntry in newEntries:
-                        response = requests.get(url=self.commandHost + "/api/state/download/" + newEntry["id"], stream=True, headers={"secret": self.secret}, timeout=10)
-                        response.raise_for_status()
-                        statesData = response.raw.data
+                        statesData = requestBytes(self.commandHost + "/api/state/download/" + newEntry["id"], self.secret)
                         storeFileUnderPath(os.path.join(self.storageDirectory, newEntry["id"]), statesData)
                         self.downloadedStatesObject[newEntry["id"]] = newEntry
                         self.downloadedStatesHistory.append(newEntry)

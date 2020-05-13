@@ -2,7 +2,7 @@ import setproctitle
 import time
 from utils.prints import logMsg, setLoggingEnabled
 
-import requests
+from utils.req import requestJson, postJson
 
 import tempfile
 
@@ -35,16 +35,9 @@ if __name__ == "__main__":
 
     def getNextWork():
         while True:
-            try:
-                response = requests.get(commandHost + "/api/evaluations/", headers={"secret": secret})
-                response.raise_for_status()
-                nextWork = response.json()
-
-                if len(nextWork) > 0:
-                    return nextWork[0]["run"], nextWork[0]["network"]
-            except Exception as error:
-                logMsg("Could not check for next evaluations to work on, will try again soon", error)
-
+            nextWork = requestJson(commandHost + "/api/evaluations/", secret)
+            if len(nextWork) > 0:
+                return nextWork[0]["run"], nextWork[0]["network"]
             time.sleep(15)
 
     def getRunConfig(runId):
@@ -56,9 +49,7 @@ if __name__ == "__main__":
         runConfig = ""
         while True:
             try:
-                response = requests.get(commandHost + "/api/runs/" + runId, headers={"secret": secret})
-                response.raise_for_status()
-                runConfig = response.json()["config"]
+                runConfig = requestJson(commandHost + "/api/runs/" + runId, secret)["config"]
                 break
             except Exception as error:
                 logMsg("Could not get run configuration for run, will try again soon", error)
@@ -73,14 +64,7 @@ if __name__ == "__main__":
         return ff
 
     def submitResult(result, network_id):
-        while True:
-            try:
-                response = requests.post(commandHost + "/api/evaluations/" + network_id, json=result, headers={"secret": secret})
-                response.raise_for_status()
-                break
-            except Exception as error:
-                logMsg("Could not submit result, will try again soon", error)
-                time.sleep(10)
+        postJson(commandHost + "/api/evaluations/" + network_id, secret, result)
 
     while True:
         run, network = getNextWork()

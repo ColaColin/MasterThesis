@@ -21,6 +21,8 @@ from impls.polices.pytorch.policy import PytorchPolicy
 
 from utils.prints import logMsg, setLoggingEnabled
 
+from utils.req import requestJson, requestBytes, postBytes, postJson
+
 # This test requires a database called x0_test with user x0_test and password x0_test to exist in a local postgres installation
 # That database will be filled with tables and cleared
 
@@ -131,23 +133,14 @@ class ApiTest(unittest.TestCase):
             "config": "This is a Config\nIt has multiple lines of text",
             "sha": "285f492ace6dcebb69880263f9113320d3ab69e1"
         }
-        runjs = json.dumps(rundata)
 
-        response = requests.post(url=urlBase + "api/runs/", data=runjs, headers= {
-            "secret": config["secret"],
-            "Content-Type": "application/json;charset=utf-8"
-        })
-        self.assertEqual(response.status_code, 200)
-        rundata["id"] = response.json()
+        rundata["id"] = postJson(urlBase + "api/runs/", config["secret"], rundata, getResponse=True, retries=1)
         return rundata
 
     def test_create_run(self):
         rundata = self.postARun()
 
-        response = requests.get(url=urlBase + "api/runs", headers={"secret": config["secret"]})
-        self.assertEqual(response.status_code, 200)
-
-        runsList = response.json()
+        runsList = requestJson(urlBase + "api/runs", config["secret"], retries=1)
 
         self.assertEqual(len(runsList), 1)
         self.assertEqual(runsList[0]["id"], rundata["id"])
@@ -155,10 +148,8 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(runsList[0]["config"], rundata["config"])
         self.assertEqual(runsList[0]["sha"], rundata["sha"])
 
-        response = requests.get(url=urlBase + "/api/runs/" + rundata["id"], headers={"secret": config["secret"]})
-        response.raise_for_status()
+        post = requestJson(urlBase + "/api/runs/" + rundata["id"], config["secret"], retries=1)
 
-        post = response.json()
         self.assertEqual(rundata["id"], post["id"])
         self.assertEqual(rundata["name"], post["name"])
         self.assertEqual(rundata["config"], post["config"])
@@ -177,9 +168,8 @@ class ApiTest(unittest.TestCase):
         report2Id = requests.post(url=urlBase + "api/state/test2/" + run2["id"],
             data=encodeToBson(states2), headers={"secret": config["secret"]}).json()
 
-        listRun1 = requests.get(url=urlBase + "api/state/list/" + run1["id"], headers={"secret": config["secret"]}).json()
-
-        listRun2 = requests.get(url=urlBase + "api/state/list/" + run2["id"], headers={"secret": config["secret"]}).json()
+        listRun1 = requestJson(urlBase + "api/state/list/" + run1["id"], config["secret"], retries=1)
+        listRun2 = requestJson(urlBase + "api/state/list/" + run2["id"], config["secret"], retries=1)
 
         self.assertEqual(len(listRun1), 1)
         self.assertEqual(len(listRun2), 1)
@@ -193,15 +183,8 @@ class ApiTest(unittest.TestCase):
         self.assertEqual(listRun1[0]["packageSize"], len(states1))
         self.assertEqual(listRun2[0]["packageSize"], len(states2))
 
-        response = requests.get(url=urlBase + "api/state/download/" + report1Id, stream=True, headers={"secret": config["secret"]})
-        response.raise_for_status()
-
-        states1Downloaded = decodeFromBson(response.raw.data)
-
-        response = requests.get(url=urlBase + "api/state/download/" + report2Id, stream=True, headers={"secret": config["secret"]})
-        response.raise_for_status()
-
-        states2Downloaded = decodeFromBson(response.raw.data)
+        states1Downloaded = decodeFromBson(requestBytes(urlBase + "api/state/download/" + report1Id, config["secret"], retries=1))
+        states2Downloaded = decodeFromBson(requestBytes(urlBase + "api/state/download/" + report2Id, config["secret"], retries=1))
 
         self.assertEqual(len(states1), len(states1Downloaded))
         self.assertEqual(len(states2), len(states2Downloaded))
@@ -234,18 +217,13 @@ class ApiTest(unittest.TestCase):
             "weight_decay": 0.0001
         })
 
-        response = requests.post(url=urlBase + "api/networks/" + run["id"] + "/" + policy.getUUID(), data=encodeToBson(policy.store()),
-            headers={"secret": config["secret"]})
-        response.raise_for_status()
+        postBytes(urlBase + "api/networks/" + run["id"] + "/" + policy.getUUID(), config["secret"], encodeToBson(policy.store()), retries=1)
 
-        networkList = requests.get(url=urlBase + "api/networks/list/" + run["id"], headers={"secret": config["secret"]}).json()
+        networkList = requestJson(urlBase + "api/networks/list/" + run["id"], config["secret"], retries=1)
         self.assertEqual(len(networkList), 1)
         self.assertEqual(networkList[0]["id"], policy.getUUID())
 
-        response = requests.get(url=urlBase + "api/networks/download/" + policy.getUUID(), stream=True, headers={"secret": config["secret"]})
-        response.raise_for_status()
-
-        redownloaded = decodeFromBson(response.raw.data)
+        redownloaded = decodeFromBson(requestBytes(urlBase + "api/networks/download/" + policy.getUUID(), config["secret"], retries=1))
 
         game = Connect4GameState(7,6,4)
         game = game.playMove(np.random.randint(7))
