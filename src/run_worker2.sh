@@ -1,13 +1,14 @@
 #! /bin/bash
 
 # meant to work as root in pytorch/pytorch:1.5-cuda10.1-cudnn7-runtime docker container
+# everything happens in /workspace in that container.
 
 # Use this as the startup script on vast.ai:
 
 # apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid>
 
 NET_DIR=/tmp/x0_networks
-CHECK_FILE=installed.flag
+CHECK_FILE=/workspace/installed.flag
 
 if [[ -f "$CHECK_FILE" ]]
 then
@@ -15,7 +16,8 @@ then
   rm $NET_DIR -rf
 
 else
-  echo "Seems this is the first start here, installing x0 $SHA!"
+  SHA=$(wget -qO- $1/sha/$3)
+  echo "Seems this is the first start here, installing x0 $SHA for run $3!"
   touch $CHECK_FILE
 
   apt update
@@ -25,7 +27,6 @@ else
 
   git clone https://github.com/ColaColin/MasterThesis.git
   cd MasterThesis
-  SHA=$(wget -qO- $1/sha/$3)
   git checkout $SHA
   cd src
 
@@ -67,12 +68,12 @@ MAX_BY_CPU=$(nproc)
 
 WORKERS=$((MAX_BY_CPU > MAX_BY_GPU ? MAX_BY_GPU : MAX_BY_CPU))
 
-nvidia-smi -l &>> /root/gpu_load.log &
+nvidia-smi -l &>> /workspace/gpu_load.log &
 
 for ((i=1; i <= $WORKERS; i++))
 do
-    echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /root/worker_$i.log '&'
-    python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /root/worker_$i.log &
+    echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
+    python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
     sleep 1
 done
 
