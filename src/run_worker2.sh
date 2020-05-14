@@ -18,12 +18,13 @@ then
 else
   SHA=$(wget -qO- $1/sha/$3)
   echo "Seems this is the first start here, installing x0 $SHA for run $3!"
-  touch $CHECK_FILE
 
   apt update
   apt install -y git
   apt install -y gcc
   apt install -y g++
+
+  rm MasterThesis -rf
 
   git clone https://github.com/ColaColin/MasterThesis.git
   cd MasterThesis
@@ -37,6 +38,8 @@ else
   ./build.sh
 
   ./build.sh testworker
+
+  touch $CHECK_FILE
 fi
 
 MAX_PER_GPU=4
