@@ -378,6 +378,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         self.net.train(True)
 
+        cdef int examplesCount, batchNum, bi, batchStart, batchEnd, thisBatchSize
+
+        cdef int sbatchSize = self.batchSize
+        cdef float vlw = self.valueLossWeight
+
         nIn, mT, wT, examplesCount = data
 
         batchNum = math.ceil(examplesCount / self.batchSize)
@@ -387,10 +392,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         wls = []
         
         for bi in range(batchNum):
-            batchStart = bi*self.batchSize
-            batchEnd = min((bi+1) * self.batchSize, examplesCount)
-            batchSize = batchEnd - batchStart
-            batchMiddle = batchStart + (batchSize // 2)
+            batchStart = bi*sbatchSize
+            batchEnd = min((bi+1) * sbatchSize, examplesCount)
+            thisBatchSize = batchEnd - batchStart
 
             x = nIn[batchStart:batchEnd]
             yM = mT[batchStart:batchEnd]
@@ -400,10 +404,10 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
             mO, wO = self.net(x)
 
-            mLoss = -torch.sum(mO * yM) / batchSize
-            wLoss = -torch.sum(wO * yW) / batchSize
+            mLoss = -torch.sum(mO * yM) / thisBatchSize
+            wLoss = -torch.sum(wO * yW) / thisBatchSize
 
-            loss = mLoss + (self.valueLossWeight * wLoss)
+            loss = mLoss + (vlw * wLoss)
             loss.backward()
 
             if self.gradClipValue is not None:
@@ -427,6 +431,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.setLr(prevLr)
 
         self.net.train(False)
+
+        return mls, wls
 
     def load(self, packed):
         ublen = packed[0]
