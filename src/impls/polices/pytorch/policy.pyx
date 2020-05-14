@@ -137,37 +137,6 @@ def gameResultsToAbsoluteWinTensor(wins, playerCount):
     result /= np.sum(result)
     return result
 
-def fillTrainingSet(protoState, data, int startIndex, moveOutput, winOutput, networkInput):
-    if len(data) == 0:
-        return
-    moveOutput[startIndex : startIndex + len(data)].fill_(0)
-    winOutput[startIndex : startIndex + len(data)].fill_(0)
-    networkInput[startIndex : startIndex + len(data)].fill_(0)
-
-    cdef float [:,:] moveTensor = moveOutput.numpy()
-    cdef float [:,:] winTensor = winOutput.numpy()
-
-    cdef float [:, :, :, :] inputTensor = networkInput.numpy()
-
-    cdef int fidx, idx, mappedIndex, pid
-
-    for fidx, frame  in enumerate(data):
-        game = protoState.load(data[fidx]["state"])
-
-        newPolicy = data[fidx]["policyIterated"]
-
-        game.encodeIntoTensor(inputTensor, startIndex + fidx, False)
-
-        for idx, p in enumerate(newPolicy):
-            moveTensor[startIndex + fidx, idx] = p
-        
-        absoluteWinners = gameResultsToAbsoluteWinTensor(data[fidx]["knownResults"], game.getPlayerCount()+1)
-
-        winTensor[startIndex + fidx, 0] = absoluteWinners[0]
-        for pid in range(1, game.getPlayerCount()+1):
-            mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
-            winTensor[startIndex + fidx, mappedIndex] = absoluteWinners[pid]
-
 class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
     def __init__(self, startValue, stepEvery, stepMultiplier, minValue):
         self.startValue = startValue
@@ -359,6 +328,43 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         for param_group in self.optimizer.param_groups:
             param_group["lr"] = lr
 
+    def prepareExample(self, frame):
+        inputArray = torch.zeros((1, ) + self.gameDims)
+        outputMoves = torch.zeros((1, self.protoState.getMoveCount()))
+        outputWins = torch.zeros((1, (self.protoState.getPlayerCount() + 1)))
+
+        game = self.protoState.load(frame["state"])
+
+        cdef float [:, :, :, :] inputTensor = inputArray.numpy()
+        cdef float [:, :] moveTensor = outputMoves.numpy()
+        cdef float [:, :] winTensor = outputWins.numpy()
+
+        newPolicy = frame["policyIterated"]
+
+        game.encodeIntoTensor(inputTensor, 0, False)
+
+        cdef int idx, pid
+
+        for idx, p in enumerate(newPolicy):
+            moveTensor[0, idx] = p
+
+        absoluteWinners = gameResultsToAbsoluteWinTensor(frame["knownResults"], game.getPlayerCount() + 1)
+
+        winTensor[0, 0] = absoluteWinners[0]
+        for pid in range(1, game.getPlayerCount() + 1):
+            mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
+            winTensor[0, mappedIndex] = absoluteWinners[pid]
+
+        return (inputArray, outputMoves, outputWins, hash(game))
+
+    def packageExamplesBatch(self, examples):
+        # format is (inputs, movesOut, winsOut, examplesCount)[]
+        random.shuffle(examples)
+        inputs = torch.cat(list(map(lambda x: x[0], examples))).to(self.device)
+        movesOut = torch.cat(list(map(lambda x: x[1], examples))).to(self.device)
+        winsOut = torch.cat(list(map(lambda x: x[2], examples))).to(self.device)
+        return (inputs, movesOut, winsOut, len(examples))
+
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         self.uuid = str(uuid.uuid4())
 
@@ -370,34 +376,19 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             lrv = self.lrDecider.getValue(iteration, iterationProgress)
             self.setLr(lrv)
 
-        data = data.copy()
-        recordsCount = len(data)
-        self.trainingInputs = torch.zeros((recordsCount, ) + self.gameDims)
-        self.trainingOutputsMoves = torch.zeros((recordsCount, self.protoState.getMoveCount()))
-        self.trainingOutputsWins = torch.zeros((recordsCount, (self.protoState.getPlayerCount() + 1)))
         self.net.train(True)
 
-        batchNum = math.ceil(len(data) / self.batchSize)
+        nIn, mT, wT, examplesCount = data
 
-        mls = []
-        wls = []
-
-        pStart = time.time()
-        random.shuffle(data)
-        fillTrainingSet(self.protoState, data, 0, self.trainingOutputsMoves, self.trainingOutputsWins, self.trainingInputs)
-
-        pEnd = time.time()
-        if not self.silent:
-            logMsg("Preparing %i data samples took %f seconds" % (len(data), time.time() - pStart))
+        batchNum = math.ceil(examplesCount / self.batchSize)
 
         epochStart = time.time()
-        nIn = Variable(self.trainingInputs.clone().detach()).to(self.device)
-        mT = Variable(self.trainingOutputsMoves.clone().detach()).to(self.device)
-        wT = Variable(self.trainingOutputsWins.clone().detach()).to(self.device)
-
+        mls = []
+        wls = []
+        
         for bi in range(batchNum):
             batchStart = bi*self.batchSize
-            batchEnd = min((bi+1) * self.batchSize, recordsCount)
+            batchEnd = min((bi+1) * self.batchSize, examplesCount)
             batchSize = batchEnd - batchStart
             batchMiddle = batchStart + (batchSize // 2)
 
@@ -425,18 +416,17 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         
         if not self.silent:
             logMsg("Completed fit with loss (Moves) %f + (Winner) %f in %f seconds" % (np.mean(mls), np.mean(wls), time.time() - epochStart))
-       
-        self.net.train(False)
 
-        del self.trainingInputs
-        del self.trainingOutputsMoves
-        del self.trainingOutputsWins
-        torch.cuda.empty_cache()
+        del nIn
+        del mT
+        del wT
+
+        # not sure if this is still needed, this comes from some much older version of the code that worked very differently.
+        #torch.cuda.empty_cache()
 
         self.setLr(prevLr)
 
-        return mls, wls
-       
+        self.net.train(False)
 
     def load(self, packed):
         ublen = packed[0]

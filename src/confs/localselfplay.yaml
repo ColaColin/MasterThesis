@@ -47,7 +47,7 @@ bestMcts:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 200
+  expansions: 40
   cpuct: 1.5
   rootNoise: 0.2
   drawValue: 0.4

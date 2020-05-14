@@ -240,6 +240,12 @@ class OraclePolicy(Policy, metaclass=abc.ABCMeta):
     def getUUID(self):
         return self.uuid
 
+    def prepareExample(self, frame):
+        assert False, "Not implemented"
+
+    def packageExamplesBatch(self, examples):
+        assert False, "Not implemented"
+
     def fit(self):
         assert False, "Not implemented"
 

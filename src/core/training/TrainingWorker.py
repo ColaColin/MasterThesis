@@ -63,11 +63,14 @@ class TrainingWorker():
 
         while True:
             window = self.windowManager.prepareWindow(self.downloader, len(networkList))
+            qwindow = [self.policy.prepareExample(w) for w in window]
 
             startFitting = time.monotonic()
             for _ in range(self.epochs):
-                self.policy.fit(window)
+                self.policy.fit(self.packageExamplesBatch(qwindow))
             endFitting = time.monotonic()
+
+            torch.cuda.empty_cache()
 
             logMsg("One iteration of training took %is" % int(endFitting - startFitting))
 

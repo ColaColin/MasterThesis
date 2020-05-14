@@ -177,7 +177,7 @@ class DatasetPolicyTester():
             inputs = [s for (s, _) in miniBatch]
             sols = [s for (_, s) in miniBatch]
 
-            moves = self.batchedPolicyPlayer.getMoves(inputs)
+            moves, _ = list(zip(*self.batchedPolicyPlayer.getMoves(inputs)))
             for midx, move in enumerate(moves):
                 if move in sols[midx]:
                     hits += 1.0

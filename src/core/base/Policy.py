@@ -23,17 +23,38 @@ class Policy(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def prepareExample(self, frame):
+        """
+        prepare a tuple of that represents the frame as prepared data, ready to be used to construct a batch of training examples
+        format should be (must be for the StreamTrainingWorker2 with position deduplication):
+            (netInput, movesTarget, winstarget, hashValue of the game state to find duplicates faster)
+        """
+
+    @abc.abstractmethod
+    def packageExamplesBatch(self, examples):
+        """
+        pass in a list of prepared examples, get out an object ready to be passed into fit() as training data.
+        """
+
+    def quickPrepare(self, frames):
+        """
+        helper in case no optimized handling of examples is desired
+        """
+        prepared = [self.prepareExample(frame) for frame in frames]
+        return self.packageExamplesBatch(prepared)
+
+    @abc.abstractmethod
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         """
         Fits the policy to the data given. Changes the policy UUID. Does not require the policy
         to randomize parameters before fitting, so e.g. a network can learn based on previous parameters,
         in fact this is not just used to learn on whole epochs of data, but is also called with single minibatches 
         in some scenarios.
-        @param data: a list of dict() objects with data as defined by the GameReporter interface
+        @param data: data prepared by packageExamplesBatch()
         @param iteration: If given the network iteration this fit is called for. Can be None. Meant to vary e.g. the learning rate.
         @param iterationProgress: How far the current iteration has progressed. Can be None. Meant to vary e.g. the learning rate.
         @param forceLr: If set will force the learning rate to be that value.
-        @return: Nothing, the Policy is modified instead.
+        @return: loss values (moves, wins)
         """
 
     @abc.abstractmethod

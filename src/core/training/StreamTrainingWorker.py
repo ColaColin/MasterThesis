@@ -172,7 +172,7 @@ class StreamTrainingWorker():
                     trainingFrames = self.pickFramesForTraining(trainFrameCount)
 
                     trainedCount += len(trainingFrames)
-                    fitResult = self.policy.fit(trainingFrames, iterationNumber, newFramesCount / iterationSize)
+                    fitResult = self.policy.fit(self.policy.quickPrepare(trainingFrames), iterationNumber, newFramesCount / iterationSize)
 
                     if fitResult is not None:
                         mls, wls = fitResult

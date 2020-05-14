@@ -159,8 +159,10 @@ class SingleProcessUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
             logMsg("Loaded stored policy with UUID %s!" % policy.getUUID())
 
         if needsFitting:
+            prepared = [policy.prepareExample(d) for d in reportedData]
+
             for _ in range(self.trainEpochs):
-                policy.fit(reportedData)
+                policy.fit(policy.packageExamplesBatch(prepared))
             needsFitting = False
             self.storeState(policy)
 

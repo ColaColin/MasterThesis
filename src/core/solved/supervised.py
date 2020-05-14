@@ -112,7 +112,7 @@ class SupervisedNetworkTrainer():
 
             for batchIndex in range(numBatches):
                 batchData = trainingSet[batchIndex * self.batchSize : (batchIndex + 1) * self.batchSize]
-                mls, wls = self.policy.fit(batchData, forceLr = curLr)
+                mls, wls = self.policy.fit(self.policy.quickPrepare(batchData), forceLr = curLr)
                 moveLosses += mls
                 winLosses += wls
 

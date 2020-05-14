@@ -59,8 +59,9 @@ class TestPolicySanity(metaclass=abc.ABCMeta):
             reports.append(r)
         
         prevUUID = self.subject.getUUID()
+        preparedReports = [self.subject.prepareExample(report) for report in reports]
         for e in range(250):
-            self.subject.fit(reports, e, 1)
+            self.subject.fit(self.subject.packageExamplesBatch(preparedReports), e, 1)
 
         self.assertNotEqual(prevUUID, self.subject.getUUID())
 
