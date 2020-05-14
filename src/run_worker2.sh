@@ -1,33 +1,27 @@
 #! /bin/bash
 
-# meant to work as root in nvidia/cuda:10.1-cudnn7-devel-ubuntu18.04 docker container
+# meant to work as root in pytorch/pytorch:1.5-cuda10.1-cudnn7-runtime docker container
 
 # Use this as the startup script on vast.ai:
 
 # apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid>
 
-AFILE=Anaconda3-2019.10-Linux-x86_64.sh
+NET_DIR=/tmp/x0_networks
+CHECK_FILE=installed.flag
 
-if [ ! -f "$AFILE" ]; then
-  echo "Seems this is the first start here, installing dependencies!"
+if [[ -f "$CHECK_FILE" ]]
+then
+  echo "Not the first start on this machine, skipped installation"
+  rm $NET_DIR -rf
+
+else
+  echo "Seems this is the first start here, installing x0 $SHA!"
+  touch $CHECK_FILE
 
   apt update
   apt install -y git
   apt install -y gcc
   apt install -y g++
-
-  wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
-
-  chmod +x Anaconda3-2019.10-Linux-x86_64.sh
-
-  ./Anaconda3-2019.10-Linux-x86_64.sh -b -p /root/anaconda3
-
-  export PATH="/root/anaconda3/bin:$PATH"
-  eval "$('/root/anaconda3/bin/conda' 'shell.bash' 'hook')"
-
-  conda init
-
-  conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
 
   git clone https://github.com/ColaColin/MasterThesis.git
   cd MasterThesis
@@ -42,8 +36,6 @@ if [ ! -f "$AFILE" ]; then
   ./build.sh
 
   ./build.sh testworker
-else
-  echo "Not the first start on this machine, skipped installation"
 fi
 
 MAX_PER_GPU=4
