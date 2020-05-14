@@ -134,6 +134,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                -> suggested parameters by prev work: drawValue 0.5, cpuct = 4, fpu = 0 (per deep mind), alphaBase = 7 (which yields alpha of 1, since alphaBase is divided by the number of legal moves)
             [X] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
             [X] Decide on the network size to use based on supervised results, 
+            [X] Restart secure play workers
             [ ] "Iteration 170% completed" -> why would it say that? Why not stop at 100%?!
             [ ] raise for status and timeout for StatesDownloader2!
             [ ] v2 of the training code should allow to restart the process 

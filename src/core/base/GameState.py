@@ -96,7 +96,7 @@ class GameState(metaclass=abc.ABCMeta):
         Write floats that represent the game situation into the given tensor
         @param tensor: A tensor object (numpy!) of shape (batchIndex, ) + getDataShape()
         @param batchIndex: Use this to write to the specific batch index
-        @param augment: If true the data may be augmented randomly by whatever means the GameState implementation thinks fit the game (rotation, mirroring, etc)
+        @param augment: Unusued, always False
         # TODO augmment makes no sense like that. There needs to be an augment() on gameState instead, otherwise the changes in the output value are impossible to capture!
         """
 

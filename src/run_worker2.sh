@@ -6,38 +6,45 @@
 
 # apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid>
 
+AFILE=Anaconda3-2019.10-Linux-x86_64.sh
 
-apt update
-apt install -y git
-apt install -y gcc
-apt install -y g++
+if [ ! -f "$AFILE" ]; then
+  echo "Seems this is the first start here, installing dependencies!"
 
-wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
+  apt update
+  apt install -y git
+  apt install -y gcc
+  apt install -y g++
 
-chmod +x Anaconda3-2019.10-Linux-x86_64.sh
+  wget https://repo.anaconda.com/archive/Anaconda3-2019.10-Linux-x86_64.sh
 
-./Anaconda3-2019.10-Linux-x86_64.sh -b -p /root/anaconda3
+  chmod +x Anaconda3-2019.10-Linux-x86_64.sh
 
-export PATH="/root/anaconda3/bin:$PATH"
-eval "$('/root/anaconda3/bin/conda' 'shell.bash' 'hook')"
+  ./Anaconda3-2019.10-Linux-x86_64.sh -b -p /root/anaconda3
 
-conda init
+  export PATH="/root/anaconda3/bin:$PATH"
+  eval "$('/root/anaconda3/bin/conda' 'shell.bash' 'hook')"
 
-conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
+  conda init
 
-git clone https://github.com/ColaColin/MasterThesis.git
-cd MasterThesis
-SHA=$(wget -qO- $1/sha/$3)
-git checkout $SHA
-cd src
+  conda install -y pytorch torchvision cudatoolkit=10.1 -c pytorch
 
-pip install -r req_workers.txt
+  git clone https://github.com/ColaColin/MasterThesis.git
+  cd MasterThesis
+  SHA=$(wget -qO- $1/sha/$3)
+  git checkout $SHA
+  cd src
 
-chmod +x build.sh
+  pip install -r req_workers.txt
 
-./build.sh
+  chmod +x build.sh
 
-./build.sh testworker
+  ./build.sh
+
+  ./build.sh testworker
+else
+  echo "Not the first start on this machine, skipped installation"
+fi
 
 MAX_PER_GPU=4
 
