@@ -246,6 +246,9 @@ class OraclePolicy(Policy, metaclass=abc.ABCMeta):
     def packageExamplesBatch(self, examples):
         assert False, "Not implemented"
 
+    def getExamplePrepareObject(self):
+        assert False, "Not implemented"
+
     def fit(self):
         assert False, "Not implemented"
 

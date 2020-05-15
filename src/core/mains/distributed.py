@@ -26,6 +26,9 @@ import setproctitle
 # python -m core.mains.distributed --command 'http://127.0.0.1:8042' --secret 42 --run 'c8e187a0-de60-4251-b985-9b3464b831dd' --worker test1
 # python -m core.mains.distributed --command https://x0.cclausen.eu --secret 42 --run '4cdf1719-ed90-455b-b9a0-ac3a5c7fbab5' --worker test1
 
+# for the trainer it might be necessary to increase the open file limit:
+# ulimit -n 300000; python -m ...
+
 if __name__ == "__main__":
     setLoggingEnabled(True)
 

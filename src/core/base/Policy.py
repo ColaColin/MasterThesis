@@ -1,5 +1,20 @@
 import abc
 
+class ExamplePrepareWorker(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
+    def prepareExample(self, frame):
+        """
+        prepare a tuple of that represents the frame as prepared data, ready to be used to construct a batch of training examples
+        format should be (must be for the StreamTrainingWorker2 with position deduplication):
+            (netInput, movesTarget, winstarget, hashValue of the game state to find duplicates faster)
+        """
+
+    @abc.abstractmethod
+    def packageExamplesBatch(self, examples):
+        """
+        pass in a list of prepared examples, get out an object ready to be passed into fit() as training data.
+        """
+
 class Policy(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def forward(self, batch, asyncCall = None):
@@ -42,6 +57,12 @@ class Policy(metaclass=abc.ABCMeta):
         """
         prepared = [self.prepareExample(frame) for frame in frames]
         return self.packageExamplesBatch(prepared)
+
+    @abc.abstractmethod
+    def getExamplePrepareObject(self):
+        """
+        produce an implementation of ExamplePrepareWorker, that can be passed between processes
+        """
 
     @abc.abstractmethod
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):

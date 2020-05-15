@@ -13,7 +13,7 @@ from torch.autograd import Variable
 
 import uuid
 
-from core.base.Policy import Policy
+from core.base.Policy import Policy, ExamplePrepareWorker
 
 from utils.encoding import stringToBytes, bytesToString
 
@@ -137,6 +137,57 @@ def gameResultsToAbsoluteWinTensor(wins, playerCount):
     result /= np.sum(result)
     return result
 
+class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
+    def __init__(self, device, gameCtor, gameParams, gameDims):
+        self.device = device
+        self.gameCtor = gameCtor
+        self.gameParams = gameParams
+        self.protoState = None
+        self.gameDims = gameDims
+
+    def prepareExample(self, frame):
+        if self.protoState is None:
+            ctor = constructor_for_class_name(self.gameCtor)
+            self.protoState = ctor(**self.gameParams)
+
+        inputArray = torch.zeros((1, ) + self.gameDims)
+        outputMoves = torch.zeros((1, self.protoState.getMoveCount()))
+        outputWins = torch.zeros((1, (self.protoState.getPlayerCount() + 1)))
+
+        game = self.protoState.load(frame["state"])
+
+        cdef float [:, :, :, :] inputTensor = inputArray.numpy()
+        cdef float [:, :] moveTensor = outputMoves.numpy()
+        cdef float [:, :] winTensor = outputWins.numpy()
+
+        newPolicy = frame["policyIterated"]
+
+        game.encodeIntoTensor(inputTensor, 0, False)
+
+        cdef int idx, pid, mappedIndex
+
+        for idx, p in enumerate(newPolicy):
+            moveTensor[0, idx] = p
+
+        absoluteWinners = gameResultsToAbsoluteWinTensor(frame["knownResults"], game.getPlayerCount() + 1)
+
+        winTensor[0, 0] = absoluteWinners[0]
+        for pid in range(1, game.getPlayerCount() + 1):
+            mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
+            winTensor[0, mappedIndex] = absoluteWinners[pid]
+
+        result = (inputArray, outputMoves, outputWins, hash(game))
+        return result
+
+    def packageExamplesBatch(self, examples):
+        # format is (inputs, movesOut, winsOut, examplesCount)[]
+        random.shuffle(examples)
+        inputs = torch.cat(list(map(lambda x: x[0], examples))).to(self.device)
+        movesOut = torch.cat(list(map(lambda x: x[1], examples))).to(self.device)
+        winsOut = torch.cat(list(map(lambda x: x[2], examples))).to(self.device)
+        return (inputs, movesOut, winsOut, len(examples))
+    
+
 class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
     def __init__(self, startValue, stepEvery, stepMultiplier, minValue):
         self.startValue = startValue
@@ -210,6 +261,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.initNetwork()
 
         self.lrDecider = lrDecider
+
+        self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims)
 
         logMsg("\nCreated a PytorchPolicy using device " + str(self.device) + "\n", pms.summary(self.net, torch.zeros((1, ) + self.gameDims, device = self.device)))
 
@@ -329,41 +382,13 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             param_group["lr"] = lr
 
     def prepareExample(self, frame):
-        inputArray = torch.zeros((1, ) + self.gameDims)
-        outputMoves = torch.zeros((1, self.protoState.getMoveCount()))
-        outputWins = torch.zeros((1, (self.protoState.getPlayerCount() + 1)))
-
-        game = self.protoState.load(frame["state"])
-
-        cdef float [:, :, :, :] inputTensor = inputArray.numpy()
-        cdef float [:, :] moveTensor = outputMoves.numpy()
-        cdef float [:, :] winTensor = outputWins.numpy()
-
-        newPolicy = frame["policyIterated"]
-
-        game.encodeIntoTensor(inputTensor, 0, False)
-
-        cdef int idx, pid
-
-        for idx, p in enumerate(newPolicy):
-            moveTensor[0, idx] = p
-
-        absoluteWinners = gameResultsToAbsoluteWinTensor(frame["knownResults"], game.getPlayerCount() + 1)
-
-        winTensor[0, 0] = absoluteWinners[0]
-        for pid in range(1, game.getPlayerCount() + 1):
-            mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
-            winTensor[0, mappedIndex] = absoluteWinners[pid]
-
-        return (inputArray, outputMoves, outputWins, hash(game))
+        return self.packer.prepareExample(frame)
 
     def packageExamplesBatch(self, examples):
-        # format is (inputs, movesOut, winsOut, examplesCount)[]
-        random.shuffle(examples)
-        inputs = torch.cat(list(map(lambda x: x[0], examples))).to(self.device)
-        movesOut = torch.cat(list(map(lambda x: x[1], examples))).to(self.device)
-        winsOut = torch.cat(list(map(lambda x: x[2], examples))).to(self.device)
-        return (inputs, movesOut, winsOut, len(examples))
+        return self.packer.packageExamplesBatch(examples)
+
+    def getExamplePrepareObject(self):
+        return PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims)
 
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         self.uuid = str(uuid.uuid4())

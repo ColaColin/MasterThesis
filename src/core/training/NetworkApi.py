@@ -36,8 +36,11 @@ class NetworkApi():
 
     def uploadNetwork(self, policy):
         newPolicyEncoded = encodeToBson(policy.store())
-        postBytes(self.commandHost + "/api/networks/" + self.runId + "/" + policy.getUUID(), self.secret, newPolicyEncoded)
-        logMsg("Network uploaded successfully!")
+        self.uploadEncodedNetwork(policy.getUUID(), newPolicyEncoded)
    
+    def uploadEncodedNetwork(self, policyUUID, newPolicyEncoded):
+        postBytes(self.commandHost + "/api/networks/" + self.runId + "/" + policyUUID, self.secret, newPolicyEncoded)
+        logMsg("Network uploaded successfully!")
+
     def downloadNetwork(self, networkId):
         return decodeFromBson(requestBytes(self.commandHost + "/api/networks/download/" + networkId, self.secret))
