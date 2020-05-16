@@ -358,6 +358,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             batchStart = bi * self.batchSize
             batchEnd = min((bi+1) * self.batchSize, nbatch)
             fresult = self.innerForward(batch[batchStart:batchEnd], asyncCall)
+            # after the first call do not call it again in the next batch!
+            asyncCall = None
             for fr in fresult:
                 results.append(fr)
         return results
@@ -442,6 +444,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
             mls.append(mLoss.data.item())
             wls.append(wLoss.data.item())
+            del mO
+            del wO
+            del mLoss
+            del wLoss
+            del loss
         
         if not self.silent:
             logMsg("Completed fit with loss (Moves) %f + (Winner) %f in %f seconds" % (np.mean(mls), np.mean(wls), time.time() - epochStart))

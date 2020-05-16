@@ -132,6 +132,9 @@ class StreamManagement():
         # for a full network iteration
         self.windowBuffer = []
 
+        self.pullBuffer = []
+        self.newBuffer = collections.deque()
+
         # waiting room for game states that have already been learned from, but might be
         # reused in the next iteration. Gets drained back into the windowBuffer,
         # when the current network iteration is finished
@@ -240,6 +243,15 @@ class StreamManagement():
 
     def clearWaitBuffer(self, iteration):
         cpyc = 0
+
+        logMsg("Draining %i unprocessed new frames into the wait buffer, this number should stay low!" % (len(self.newBuffer) + len(self.pullBuffer)))
+
+        self.waitBuffer += self.newBuffer
+        self.waitBuffer += self.pullBuffer
+
+        self.newBuffer = collections.deque()
+        self.pullBuffer = []
+
         self.waitBuffer.sort(key = lambda x: x[1], reverse=True)
         nextWindowSize = self.windowManager.getWindowSize(iteration+1) - self.windowManager.getIterationSize(iteration)
         for frame in self.waitBuffer:
@@ -250,7 +262,9 @@ class StreamManagement():
                 break
         dropped = len(self.waitBuffer) - cpyc
         self.waitBuffer = []
-        
+
+        random.shuffle(self.windowBuffer)
+
         iterationEnd = time.monotonic()
         logMsg("Moved %i states back into the window from the waiting buffer. Dropped %i old ones. Iteration finished, iteration time: %.2fs" % (cpyc, dropped, iterationEnd - self.iterationStartTime))
 
@@ -265,11 +279,30 @@ class StreamManagement():
         return min(result, self.windowManager.getWindowSize(iterationNumber))
 
     def pickFramesForTraining(self, num):
-        random.shuffle(self.windowBuffer)
-        picked = self.windowBuffer[:num]
-        self.windowBuffer = self.windowBuffer[num:]
+        picked = []
+        while len(picked) < num:
+            allLen = len(self.windowBuffer) + len(self.newBuffer)
+            propNew = 1 - (len(self.newBuffer) / allLen)
+            if random.random() > propNew:
+                # try to add as much randomness into the order of examples as possible
+                if random.random() > 0.5:
+                    picked.append(self.newBuffer.pop())
+                else:
+                    picked.append(self.newBuffer.popleft())
+            else:
+                picked.append(self.windowBuffer.pop())
+
         self.waitBuffer += picked
         return list(map(lambda x: x[0], picked))
+
+    def drainPullBuffer(self):
+        # new examples are first put into the pullBuffer and once the next batch to learn from is ready that buffer is shuffeld.
+        random.shuffle(self.pullBuffer)
+        if random.random() > 0.5:
+            self.newBuffer.extend(self.pullBuffer)
+        else:
+            self.newBuffer.extendleft(self.pullBuffer)
+        self.pullBuffer = []
 
     def manageLoop(self):
         while True:
@@ -287,8 +320,9 @@ class StreamManagement():
 
             logMsg("Beginning network iteration %i" % iterationNumber)
             logMsg("We have %i old states, want to fit on %i states, this requires %.2f examples learnt per new state" % (oldDataSize, sumStatesCount, framesPerNewFrame))
-            logMsg("Pending new frames waiting to be processed: %i" % len(self.newQueue))
-            overhang = (len(self.newQueue) / iterationSize) * 100
+            newWaiting = len(self.newQueue)
+            logMsg("Pending new frames waiting to be processed: %i" % newWaiting)
+            overhang = (newWaiting / iterationSize) * 100
             logMsg("That means overhang from the last iteration is %.2f%%" % overhang)
             if overhang > 50:
                 logMsg("!!!!!!!!!!!!!!!! Large overhang detected, training is falling behind !!!!!!!!!!!!!!!!")
@@ -298,8 +332,11 @@ class StreamManagement():
             pendingForTraining = 0
 
             for frameNumber in range(iterationSize):
-                self.windowBuffer.append(blockGet(self.newQueue))
+                self.pullBuffer.append(blockGet(self.newQueue))
                 pendingForTraining += framesPerNewFrame
+
+                if pendingForTraining >= self.batchSize:
+                    self.drainPullBuffer()
 
                 while pendingForTraining >= self.batchSize:
                     nextBatch = self.pickFramesForTraining(self.batchSize)
@@ -332,6 +369,8 @@ class StreamManagement():
 
         while minSize > len(self.windowBuffer):
             self.windowBuffer.append(blockGet(self.newQueue))
+
+        random.shuffle(self.windowBuffer)
 
         # TODO how to do startup on a partially completed run?
         # iterationNumber = self.getCurrentIterationNumber()

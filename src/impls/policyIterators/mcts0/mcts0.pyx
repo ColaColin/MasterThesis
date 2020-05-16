@@ -394,7 +394,6 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
                     evaloutB = policy.forward([p.getState() for p in preparedDataB], asyncCall = asyncWork)
                 else:
                     evaloutA = policy.forward([p.getState() for p in preparedDataA], asyncCall = asyncWork)
-                
                 asyncA = not asyncA
 
         self.backupWork(preparedDataA, evaloutA)
