@@ -30,7 +30,7 @@ from utils.stacktracing import trace_start
 
 # this better version of the StreamTrainingWorker2 also uses the WindowSizeManager defined in StreamTrainingWorker.py
 
-# ulimit -n 300000 !
+# ulimit -n 300000 might be needed. Or maybe not anymore.
 
 import collections
 
@@ -47,10 +47,6 @@ def manageStreamWork(trainQueue, eventsQueue, command, secret, run, windowManage
     try:
         setLoggingEnabled(True)
         manager = StreamManagement(command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher)
-        
-        # receiver = threading.Thread(target=lambda x: x.doReceiveDownloads(), args=(manager, ))
-        # receiver.start()
-        # logMsg("Receiver thread started")
 
         downloader = threading.Thread(target=lambda x: x.doStatesDownloading(), args=(manager, ))
         downloader.start()
@@ -77,37 +73,6 @@ def blockGet(d):
     while(len(d) == 0):
         time.sleep(0.1)
     return d.popleft()
-
-# multiprocessing is just not useful at all, pushing the data between threads is buggy and slow.
-# def initDownloading(command, secret, run, examplesBatcher, downloadQueue):
-#     StatesDownloader(command, secret, run, examplesBatcher, downloadQueue).start()
-
-# class StatesDownloader():
-#     def __init__(self, command, secret, run, examplesBatcher, downloadQueue):
-#         self.command = command
-#         self.secret = secret
-#         self.run = run
-#         self.examplesBatcher = examplesBatcher
-#         self.downloadQueue = downloadQueue
-#         self.downloadedStates = set()
-
-#     def start(self):
-#         try:
-#             while True:
-#                 time.sleep(1)
-#                 serverStates = requestJson(self.command + "/api/state/list/" + self.run, self.secret)
-#                 # download oldest statest first, so states are learnt from in order of creation
-#                 serverStates.sort(key=lambda x: x["creation"])
-
-#                 for state in serverStates:
-#                     if not state["id"] in self.downloadedStates:
-#                         package = decodeFromBson(requestBytes(self.command + "/api/state/download/" + state["id"], self.secret))
-#                         self.downloadedStates.add(state["id"])
-                        
-#                         for state in package:
-#                             self.downloadQueue.put((self.examplesBatcher.prepareExample(state), state["creation"]))
-#         except:
-#             print("StatesDownloader ERROR", "".join(traceback.format_exception(*sys.exc_info())))
 
 class StreamManagement():
     def __init__(self, command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher):
@@ -160,21 +125,6 @@ class StreamManagement():
         self.downloadedStates = set()
 
         self.downloadedStatesCount = 0
-
-        # self.downloadQueue = mp.Queue()
-        # self.downloadProcess = mp.Process(target=initDownloading, args=(command, secret, run, examplesBatcher, self.downloadQueue))
-        # self.downloadProcess.start()
-
-    # def doReceiveDownloads(self):
-    #     try:
-    #         while True:
-    #             downloaded = self.downloadQueue.get()
-    #             self.downloadedStatesCount += 1
-    #             self.newQueue.append(downloaded)
-    #             print(self.downloadedStatesCount)
-
-    #     except:
-    #         print("doReceiveDownloads ERROR", "".join(traceback.format_exception(*sys.exc_info())))
 
     def doProcessDownloades(self):
         try:
@@ -371,15 +321,6 @@ class StreamManagement():
             self.windowBuffer.append(blockGet(self.newQueue))
 
         random.shuffle(self.windowBuffer)
-
-        # TODO how to do startup on a partially completed run?
-        # iterationNumber = self.getCurrentIterationNumber()
-        # expectedOldSize = self.getExpectedIterationWindowSize(iterationNumber) - iterationSize
-        # if expectedOldSize < self.knownServerStates:
-        #     logMsg("Looks like the server has a lot of states already, waiting for a full window before continuing!")
-        #     while len(self.windowBuffer) < expectedOldSize:
-        #         newState = self.newQueue.get()
-        #         self.windowBuffer.append(newState)
 
         self.manageLoop()
             
