@@ -17,7 +17,7 @@ def requestJson(url, secret, timeout=30, retries=999999):
             if cnt > retries:
                 raise error
             else:
-                logMsg("Failed requestJson %s will retry soon.", error)
+                logMsg("Failed requestJson %s will retry soon." % url, error)
                 time.sleep(timeout // 4)
 
 
@@ -33,7 +33,7 @@ def requestBytes(url, secret, timeout=30, retries=999999):
             if cnt > retries:
                 raise error
             else:
-                logMsg("Failed requestBytes %s will retry soon", error)
+                logMsg("Failed requestBytes %s will retry soon" % url, error)
                 time.sleep(timeout // 4)
 
 def postJson(url, secret, data, timeout=30, retries=999999, getResponse=False):
@@ -55,7 +55,7 @@ def postJson(url, secret, data, timeout=30, retries=999999, getResponse=False):
             if cnt > retries:
                 raise error
             else:
-                logMsg("Failed postJson %s will retry soon", error)
+                logMsg("Failed postJson %s will retry soon" % url, error)
                 time.sleep(timeout // 4)
 
 def postBytes(url, secret, data, timeout=30, retries=999999):
@@ -70,6 +70,6 @@ def postBytes(url, secret, data, timeout=30, retries=999999):
             if cnt > retries:
                 raise error
             else:
-                logMsg("Failed postBytes %s will retry soon", error)
+                logMsg("Failed postBytes %s will retry soon" % url, error)
                 time.sleep(timeout // 4)
 
