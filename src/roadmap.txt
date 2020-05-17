@@ -127,9 +127,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 
      -> the top ones are all very similar, with few exception, pick the two best, the best one represents a typical "best", the 2nd has an unusual cpuct value of above 1.5
 
-     alphaBase | cpuct  | drawValue | fpu
-     12.5      | 0.9267 | 0.4815    |0.9168
-     20.38     | 1.545  | 0.6913    |0.8545
+
 
                -> suggested parameters by prev work: drawValue 0.5, cpuct = 4, fpu = 0 (per deep mind), alphaBase = 7 (which yields alpha of 1, since alphaBase is divided by the number of legal moves)
             [X] Build a selfplay speed measurement system and run tests to show how much variation there is in the measurements.
@@ -137,14 +135,37 @@ N, acc, alphaBase, cpuct, drawValue, fpu
             [X] Restart secure play workers
             [X] "Iteration 170% completed" -> why would it say that? Why not stop at 100%?!
             [X] raise for status and timeout for StatesDownloader2!
-            [ ] v2 of the training code should allow to restart the process 
+            [-] v2 of the training code should allow to restart the process  Skip, don't really need that.
             
             [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
-               [ ] prev work suggested parameters
-                    [ ] Run 1
-                    [ ] Run 2
-                    [ ] Run 3
-                    [ ] Run 4 and more. How many runs is possible, how many necessary?
+
+               3 Sets of potential parameters were identified:
+                    name      | alphaBase | cpuct  | drawValue | fpu
+                    hyperopt1 | 12.5      | 0.9267 | 0.4815    | 0.9168
+                    hyperopt2 | 20.38     | 1.545  | 0.6913    | 0.8545
+                    prevWork  | 7         | 4      | 0.5       | 0
+
+               [ ] hyperopt1
+                    [ ] run1:
+                    [ ] run2:
+                    [ ] run3:
+                    [ ] run4:
+                    [ ] run5:
+
+
+               [ ] hyperopt2
+                    [ ] run1:
+                    [ ] run2:
+                    [ ] run3:
+                    [ ] run4:
+                    [ ] run5:
+
+               [ ] prevWork
+                    [ ] run1:
+                    [ ] run2:
+                    [ ] run3:
+                    [ ] run4:
+                    [ ] run5:
 
             [ ] implement a backup script, which downloads all data from the server and restores it into my local database.
 
