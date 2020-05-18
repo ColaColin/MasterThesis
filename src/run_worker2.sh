@@ -14,7 +14,8 @@ if [[ -f "$CHECK_FILE" ]]
 then
   echo "Not the first start on this machine, skipped installation"
   rm $NET_DIR -rf
-
+  cd /workspace/MasterThesis/src
+  
 else
   SHA=$(wget -qO- $1/sha/$3)
   echo "Seems this is the first start here, installing x0 $SHA for run $3!"

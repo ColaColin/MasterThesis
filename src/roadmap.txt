@@ -137,7 +137,9 @@ N, acc, alphaBase, cpuct, drawValue, fpu
             [X] raise for status and timeout for StatesDownloader2!
             [-] v2 of the training code should allow to restart the process  Skip, don't really need that.
             
+
             [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
+               Goal to reach is 90.5% mcts accuracy. Measure cost to reach that iteration. Stop after 10 iterations with no further mcts accuracy improvement
 
                3 Sets of potential parameters were identified:
                     name      | alphaBase | cpuct  | drawValue | fpu
@@ -146,10 +148,10 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     prevWork  | 7         | 4      | 0.5       | 0
 
                [ ] hyperopt1
-                    [ ] run1:
-                    [ ] run2:
-                    [ ] run3:
-                    [ ] run4:
+                    [X] run1: 90.01% in iteration 22. Failed to reach 90.5%
+                    [X] run2: 90.01% in iteration 25. Failed to reach 90.5%
+                    [X] run3: 90.03% in iteration 20. Peak at 90.26% in iteration 25. Failed to reach 90.5%
+                    [X] run4: 90.06% in iteration 20. Peak at 90.46% in iteration 33. Failted to reach 90.5%
                     [ ] run5:
 
 
