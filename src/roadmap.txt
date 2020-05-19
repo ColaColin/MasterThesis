@@ -151,16 +151,16 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     [X] run1: 90.01% in iteration 22. Failed to reach 90.5%
                     [X] run2: 90.01% in iteration 25. Failed to reach 90.5%
                     [X] run3: 90.03% in iteration 20. Peak at 90.26% in iteration 25. Failed to reach 90.5%
-                    [X] run4: 90.06% in iteration 20. Peak at 90.46% in iteration 33. Failted to reach 90.5%
-                    [ ] run5:
+                    [X] run4: 90.06% in iteration 20. Peak at 90.46% in iteration 33. Failed to reach 90.5%
+                    [X] run5: 90.11% in iteration 19. Failed to reach 90.5%
 
 
                [ ] hyperopt2
-                    [ ] run1:
-                    [ ] run2:
-                    [ ] run3:
-                    [ ] run4:
-                    [ ] run5:
+                    [X] run1: 90.5% in iteration 19. Peak 91% in iteration 33.
+                    [X] run2: 90.41% in iteration 19. Failed to reach 90.5% :(
+                    [X] run3: 90.07% in iteration 17. 90.51 in iteration 27.
+                    [X] run4: 90.09% in iteration 19. Peak 91% in iteration 38.
+                    [X] run5: 
 
                [ ] prevWork
                     [ ] run1:
