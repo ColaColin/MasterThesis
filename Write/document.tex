@@ -134,15 +134,52 @@ Colin Clausen
 
 \section{Introduction}
 
+Games have been used for a long time as a standin of the more complex real world in developing artifical intelligence. Beating humans at various games has often been viewed as a milestone.
+
+(TODO a few sentences here about progress on various milestone games).
+
+In March 2016 a computerprogram called AlphaGo for the first time in history has defeated a top human player in the board game Go \cite{leesedolVsAlphaGo}.
+Go had eluded attempts at super human level play for a very long time, Louis Victor Allies attributes \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
+but also to the way humans use their natural pattern recognition ability
+to quickly eliminate most of the often 200 or more possible moves and focus on few promising ones.
+
+This combination of the usage of hard-to-program pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on programmed heuristics.
+AlphaGo solved this issue by using the strong pattern recognition abilities of deep learning and combining them with a tree search, allowing the computer to learn patterns, similar to a human, but also search forward in the game tree to find the best move to play.
+
+Further development of the AlphaGo algorithm yielded the AlphaZero algorithm, which significantly simplified AlphaGo, allowing learning to start with a random network and no requirements for human expert input of any kind.
+
+In the following thesis I want to investigate further possible improvements to reduce the computational cost of using AlphaZero to learn to play games.
+
+(TODO here one could state some key results, once they exist...)
+
+This thesis is structured as follows: First I will look at previous work, starting with the basis of AlphaZero, Monte Carlo Tree Search, moving onto the various versions of AlphaZero with previously suggested improvements.
+Then a list of novel improvements will be described. Finally an extensive set of experiments will be presented, first establishing a baseline performance, then showing the results on the novel improvements.
+
 
 \section{Previous work}
 
+In this section previous work relevant to AlphaZero will be presented.
+
 \subsection{Monte Carlo Tree Search}
+
+Monte Carlo Tree Search, in short MCTS, is a tree search mechanism which was specifically developed for computer Go. 
 
 \subsection{AlphaZero}
 
+The AlphaZero algorithm \cite{silver2018general} is a simplification of AlphaGoZero \cite{silver2017mastering} and AlphaGo \cite{silver2016mastering}.
+AlphaGo used a complicated system involving initialization with example games, random roleouts during tree searches and used multiple networks for different tasks. AlphaGoZero drastically simplified the system by only using a single network for all tasks,
+and not doing any roleouts anymore, instead the network evaluation for the given positions is directly used.
+
+The difference between AlphaGoZero and AlphaZero is mainly that AlphaGoZero involved comparing the currently trained network against the previously known best player by letting them play a set of evaluation games against each other.
+Only the best player was used to generate new games. AlphaZero skips this and just always uses the current network to produce new games, surprisingly this appears to not give any disadvantage, learning remains stable.
+
+The main advantage of the ``Zero`` versions is that they do not require any human knowledge about the game apart from the rules, the networks are trained from scratch by self-play alone.
+This allows the algorithm to find the best way to play without human bias which seems to slightly increase final playing strength.
+Additionally it allows to use the algorithm for research of games for which no human experts exist, such as No-Castling Chess \cite{NoCastleChess}.
+
 \subsection{Extensions to AlphaZero}
 
+Many improvements to the AlphaZero algorithm have been proposed, typically aiming at reducing the extreme computational cost of learning to play a new game.
 
 \section{Evaluated novel improvements}
 \subsection{Network modifications}

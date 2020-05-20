@@ -3,44 +3,46 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: document.aux
 The style file: plain.bst
 Database file #1: document.bib
-You've used 1 entry,
+Warning--to sort, need author or key in leesedolVsAlphaGo
+You've used 7 entries,
             2118 wiz_defined-function locations,
-            505 strings with 4384 characters,
-and the built_in function-call counts, 649 in all, are:
-= -- 55
-> -- 58
+            546 strings with 5670 characters,
+and the built_in function-call counts, 2685 in all, are:
+= -- 235
+> -- 202
 < -- 0
-+ -- 24
-- -- 22
-* -- 66
-:= -- 120
-add.period$ -- 3
-call.type$ -- 1
-change.case$ -- 13
++ -- 82
+- -- 74
+* -- 223
+:= -- 473
+add.period$ -- 21
+call.type$ -- 7
+change.case$ -- 52
 chr.to.int$ -- 0
-cite$ -- 1
-duplicate$ -- 11
-empty$ -- 30
-format.name$ -- 22
-if$ -- 118
+cite$ -- 8
+duplicate$ -- 70
+empty$ -- 170
+format.name$ -- 74
+if$ -- 525
 int.to.chr$ -- 0
-int.to.str$ -- 1
-missing$ -- 1
-newline$ -- 8
-num.names$ -- 2
-pop$ -- 11
+int.to.str$ -- 7
+missing$ -- 6
+newline$ -- 38
+num.names$ -- 12
+pop$ -- 64
 preamble$ -- 1
-purify$ -- 12
+purify$ -- 47
 quote$ -- 0
-skip$ -- 8
+skip$ -- 50
 stack$ -- 0
-substring$ -- 37
-swap$ -- 1
+substring$ -- 110
+swap$ -- 7
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 4
-warning$ -- 0
-while$ -- 4
-width$ -- 2
-write$ -- 13
+type$ -- 26
+warning$ -- 1
+while$ -- 18
+width$ -- 8
+write$ -- 74
+(There was 1 warning)

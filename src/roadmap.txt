@@ -155,21 +155,21 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     [X] run5: 90.11% in iteration 19. Failed to reach 90.5%
 
 
-               [ ] hyperopt2
+               [X] hyperopt2
                     [X] run1: 90.5% in iteration 19. Peak 91% in iteration 33.
                     [X] run2: 90.41% in iteration 19. Failed to reach 90.5% :(
                     [X] run3: 90.07% in iteration 17. 90.51 in iteration 27.
                     [X] run4: 90.09% in iteration 19. Peak 91% in iteration 38.
-                    [X] run5: 
+                    [X] run5: 90.2% in iteration 19. Peak 90.7% in iteration 30.
 
                [ ] prevWork
-                    [ ] run1:
-                    [ ] run2:
-                    [ ] run3:
+                    [X] run1: peak at 89.88% in iteration 49. 
+                    [X] run2: peak at 89.76% in iteration 46.
+                    [X] run3: peak at 89.86% in iteration 55.
                     [ ] run4:
                     [ ] run5:
 
-            [ ] implement a backup script, which downloads all data from the server and restores it into my local database.
+            [X] implement a backup script, which downloads all data from the server and restores it into my local database.
 
             - use the same optimizer as everyone else did:
                 - SGD with momentum of 0.9
@@ -190,13 +190,13 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 08.5.2020   Have a look at possible metrics to determine if the training suffers from any form of forgetting-and-relearning, as per chapter 4.2 of the proposal
 
             Implement known improvements that were stated as obligatory in the proposal:
-15.5.2020       - squeeze-and-excitation networks
 15.5.2020       X more filters in the network heads
-15.5.2020       - use a cyclic learning rate
-15.5.2020       - use playout caps
-15.5.2020       - predict the opponens move
 15.5.2020       X predict a drawing probability directly
 15.5.2020       - handle duplicate training positions
+15.5.2020       - use a cyclic learning rate
+15.5.2020       - use playout caps
+15.5.2020       - squeeze-and-excitation networks
+15.5.2020       - predict the opponens move
 15.5.2020       - improve training window size handling
 
 22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.

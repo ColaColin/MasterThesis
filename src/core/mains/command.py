@@ -10,7 +10,7 @@ import subprocess
 def getCommandConfiguration():
     cfg = {
         "staticPath": os.path.join(os.getcwd(), "core/command/frontend/"),
-        "dataPath": "/ImbaKeks/x0/",
+        "dataPath": "/ImbaKeks/x0_backup/x0",
         "secret": "42",
         "dbuser": "x0",
         "dbpassword": "x0",

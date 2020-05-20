@@ -1,5 +1,34 @@
 \begin{thebibliography}{1}
 
+\bibitem{leesedolVsAlphaGo}
+\url{http://www.straitstimes.com/asia/east-asia/googles-alphago-gets-divine-go-ranking}.
+\newblock Accessed: 2020-05-17.
+
+\bibitem{allis1994searching}
+Louis~Victor Allis et~al.
+\newblock {\em Searching for solutions in games and artificial intelligence}.
+\newblock Ponsen \& Looijen Wageningen, 1994.
+
+\bibitem{NoCastleChess}
+Vladimir Kramnik.
+\newblock Kramnik and alphazero: How to rethink chess.
+\newblock
+  \url{https://www.chess.com/article/view/no-castling-chess-kramnik-alphazero}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{shannon1950xxii}
+Claude~E Shannon.
+\newblock Xxii. programming a computer for playing chess.
+\newblock {\em The London, Edinburgh, and Dublin Philosophical Magazine and
+  Journal of Science}, 41(314):256--275, 1950.
+
+\bibitem{silver2016mastering}
+David Silver, Aja Huang, Chris~J Maddison, Arthur Guez, Laurent Sifre, George
+  Van Den~Driessche, Julian Schrittwieser, Ioannis Antonoglou, Veda
+  Panneershelvam, Marc Lanctot, et~al.
+\newblock Mastering the game of go with deep neural networks and tree search.
+\newblock {\em nature}, 529(7587):484, 2016.
+
 \bibitem{silver2018general}
 David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
   Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore
@@ -7,5 +36,12 @@ David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
 \newblock A general reinforcement learning algorithm that masters chess, shogi,
   and go through self-play.
 \newblock {\em Science}, 362(6419):1140--1144, 2018.
+
+\bibitem{silver2017mastering}
+David Silver, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja
+  Huang, Arthur Guez, Thomas Hubert, Lucas Baker, Matthew Lai, Adrian Bolton,
+  et~al.
+\newblock Mastering the game of go without human knowledge.
+\newblock {\em Nature}, 550(7676):354, 2017.
 
 \end{thebibliography}
