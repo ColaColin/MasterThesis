@@ -162,12 +162,14 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     [X] run4: 90.09% in iteration 19. Peak 91% in iteration 38.
                     [X] run5: 90.2% in iteration 19. Peak 90.7% in iteration 30.
 
-               [ ] prevWork
+               [X] prevWork
                     [X] run1: peak at 89.88% in iteration 49. 
                     [X] run2: peak at 89.76% in iteration 46.
                     [X] run3: peak at 89.86% in iteration 55.
                     [X] run4: peak at 90.24% in iteration 53.
-                    [ ] run5: 
+                    [X] run5: peak at 89.95% in iteration 44.
+
+               [ ] run the cost evaluator
 
             [X] implement a backup script, which downloads all data from the server and restores it into my local database.
 

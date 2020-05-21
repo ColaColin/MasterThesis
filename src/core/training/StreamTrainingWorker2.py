@@ -85,6 +85,12 @@ class StreamManagement():
         self.deduplicate = deduplicate
         self.deduplicationWeight = deduplicationWeight
 
+        if self.deduplicate:
+            logMsg("Deduplication is enabled with a deduplicationWeight of %.2f" % self.deduplicationWeight)
+        else:
+            logMsg("Deduplication is not enabled!")
+            
+
         self.networks = NetworkApi()
 
         # the downloading process puts newly downloaded packages after processing into this queue
@@ -112,6 +118,7 @@ class StreamManagement():
         # dict of hash -> list of states that have that hash. All states are inserted here and get updated in here for deduplication.
         # states are lists: [prepareExample(), creationTimeStamp, seenCount]
         self.stateRepository = dict()
+        self.repositorySize = 0
 
         # how big are the batches send to the training process
         self.batchSize = batchSize
@@ -157,9 +164,14 @@ class StreamManagement():
                 self.stateRepository[eHash] = [newExample]
             
             if not knownAlready:
+                self.repositorySize += 1
                 self.newQueue.append(newExample)
 
     def doProcessDownloades(self):
+        displayUniqueStatsEvery = 100000
+        lastRepoSize = self.repositorySize
+        lastDownloadedSize = self.downloadedStatesCount
+
         try:
             while True:
                 nextPackage = blockGet(self.newPackages)
@@ -177,6 +189,14 @@ class StreamManagement():
                     self.downloadedStatesCount += 1
                     self.pendingUnpacks -= 1
                     self.acceptNewExample(up)
+
+                    if self.downloadedStatesCount % displayUniqueStatsEvery == 0 and self.deduplicate:
+                        repoAdd = self.repositorySize - lastRepoSize
+                        downloadAdd = self.downloadedStatesCount - lastDownloadedSize
+                        logMsg("Amount of unique frames produced overall: %.2f%%, in last %ik: %.2f%%" % (100.0 * (self.repositorySize / self.downloadedStatesCount), displayUniqueStatsEvery // 1000, 100.0 * (repoAdd / downloadAdd)))
+                        lastRepoSize = self.repositorySize
+                        lastDownloadedSize = self.downloadedStatesCount
+
         except:
             print("doProcessDownloades ERROR", "".join(traceback.format_exception(*sys.exc_info())))
 
@@ -222,7 +242,7 @@ class StreamManagement():
                     newUUID = nextEvent[2]
                     policyData = nextEvent[3]
 
-                    logMsg("Iteration %i completed, frames processed: %i, of which were duplicates: %i" % (iteration, self.trainFrameCount, self.dedupeFramesUsed))
+                    logMsg("Iteration %i completed, frames processed: %i, of which were seen before: %i" % (iteration, self.trainFrameCount, self.dedupeFramesUsed))
                     logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss)))
                     self.networks.uploadEncodedNetwork(newUUID, policyData)
 
@@ -353,9 +373,9 @@ class StreamManagement():
                 if time.monotonic() - lastPrint > 30:
                     lastPrint = time.monotonic()
                     progressPerc = (frameNumber / iterationSize) * 100.0
-                    logMsg("Iteration %i completed: %.2f%% " % (iterationNumber, progressPerc))
+                    logMsg("Iteration %i: %.2f%% " % (iterationNumber, progressPerc))
 
-            logMsg("Iteration %i completed: %.2f%% " % (iterationNumber, 100))
+            logMsg("Iteration %i completed" % (iterationNumber))
 
             self.publishWait = True
             self.trainQueue.put(("publish", iterationNumber))
