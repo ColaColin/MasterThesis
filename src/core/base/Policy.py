@@ -10,6 +10,25 @@ class ExamplePrepareWorker(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def getHashForExample(self, example):
+        """
+        return a hash for the given example
+        """
+
+    @abc.abstractmethod
+    def areExamplesEqual(self, exampleA, exampleB):
+        """
+        return if the given two examples are equal in respect to the game situations considered. Only input values are considered, target output values are allowed to differ!
+        """
+
+    @abc.abstractmethod
+    def mergeInto(self, target, source, sourceWeight):
+        """
+        merge two examples into one, giving source the respective weight (0 would mean just return target, 1 just returns source)
+        target will be modified.
+        """
+
+    @abc.abstractmethod
     def packageExamplesBatch(self, examples):
         """
         pass in a list of prepared examples, get out an object ready to be passed into fit() as training data.
@@ -61,7 +80,7 @@ class Policy(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def getExamplePrepareObject(self):
         """
-        produce an implementation of ExamplePrepareWorker, that can be passed between processes
+        produce an implementation of ExamplePrepareWorker, that can be passed between processes and has some extra functionality to handle examples in more complex ways.
         """
 
     @abc.abstractmethod

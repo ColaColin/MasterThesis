@@ -37,6 +37,50 @@ class TestPolicySanity(metaclass=abc.ABCMeta):
         f = self.subject.forward(games)
         return [(r.tolist(), w.tolist()) for (r, w) in f]
 
+    def packageGameAsFrame(self, game, gidx, policyUUID):
+        r = dict()
+        r["knownResults"] = [gidx % (game.getPlayerCount() + 1)]
+        r["policyIterated"] = np.zeros(game.getMoveCount(), dtype=np.float32)
+        r["policyIterated"][gidx % game.getMoveCount()] = 1
+        r["state"] = game.store()
+        r["gamename"] = game.getGameName()
+        r["uuid"] = str(uuid.uuid4())
+        r["parent"] = str(uuid.uuid4())
+        r["policyUUID"] = policyUUID
+        return r
+
+    def makeEqualExamples(self):
+        gameA = self.getExampleGameState()
+        gameB = self.getExampleGameState()
+        for i in range(3):
+            gameA = playRandomMove(gameA, 0, i)
+            gameB = playRandomMove(gameB, 0, i)
+        
+        frameA = self.packageGameAsFrame(gameA, 0, self.subject.getUUID())
+        frameB = self.packageGameAsFrame(gameB, 1, self.subject.getUUID())
+
+        batcher = self.subject.getExamplePrepareObject()
+        exampleA = batcher.prepareExample(frameA)
+        exampleB = batcher.prepareExample(frameB)
+
+        return exampleA, exampleB
+
+    def test_HashFits(self):
+        prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+        setLoggingEnabled(prntVerbose)
+
+        exampleA, exampleB = self.makeEqualExamples()
+        batcher = self.subject.getExamplePrepareObject()
+        self.assertEqual(batcher.getHashForExample(exampleA), batcher.getHashForExample(exampleB))
+
+    def test_areExamplesEqual(self):
+        prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+        setLoggingEnabled(prntVerbose)
+
+        exampleA, exampleB = self.makeEqualExamples()
+        batcher = self.subject.getExamplePrepareObject()
+        self.assertTrue(batcher.areExamplesEqual(exampleA, exampleB))
+
     def test_fit(self):
         prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
         setLoggingEnabled(prntVerbose)
@@ -47,16 +91,7 @@ class TestPolicySanity(metaclass=abc.ABCMeta):
         reports = []
         policyUUID = str(uuid.uuid4())
         for gidx, game in enumerate(games):
-            r = dict()
-            r["knownResults"] = [gidx % (game.getPlayerCount() + 1)]
-            r["policyIterated"] = np.zeros(game.getMoveCount(), dtype=np.float32)
-            r["policyIterated"][gidx % game.getMoveCount()] = 1
-            r["state"] = game.store()
-            r["gamename"] = game.getGameName()
-            r["uuid"] = str(uuid.uuid4())
-            r["parent"] = str(uuid.uuid4())
-            r["policyUUID"] = policyUUID
-            reports.append(r)
+            reports.append(self.packageGameAsFrame(game, gidx, policyUUID))
         
         prevUUID = self.subject.getUUID()
         preparedReports = [self.subject.prepareExample(report) for report in reports]

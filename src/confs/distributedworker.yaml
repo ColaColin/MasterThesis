@@ -74,4 +74,4 @@ trainer:
   policy: $resnet
   batchSize: 1024
   deduplicate: True
-  deduplicationWeight: 0.1
+  deduplicationWeight: 0.8

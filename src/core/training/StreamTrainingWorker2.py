@@ -34,7 +34,7 @@ from utils.stacktracing import trace_start
 
 import collections
 
-def manageStreamWork(trainQueue, eventsQueue, command, secret, run, windowManager, batchSize, examplesBatcher):
+def manageStreamWork(trainQueue, eventsQueue, command, secret, run, windowManager, batchSize, examplesBatcher, deduplicate, deduplicationWeight):
     """
         do the management loop that checks how many states are known and controls the iterations.
         this includes checking if training can start. It can only start if all states for the current iteration have been downloaded
@@ -46,7 +46,7 @@ def manageStreamWork(trainQueue, eventsQueue, command, secret, run, windowManage
 
     try:
         setLoggingEnabled(True)
-        manager = StreamManagement(command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher)
+        manager = StreamManagement(command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher, deduplicate, deduplicationWeight)
 
         downloader = threading.Thread(target=lambda x: x.doStatesDownloading(), args=(manager, ))
         downloader.start()
@@ -75,13 +75,15 @@ def blockGet(d):
     return d.popleft()
 
 class StreamManagement():
-    def __init__(self, command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher):
+    def __init__(self, command, secret, run, trainQueue, eventsQueue, windowManager, batchSize, examplesBatcher, deduplicate, deduplicationWeight):
         self.command = command
         self.secret = secret
         self.run = run
         self.trainQueue = trainQueue
         self.eventsQueue = eventsQueue
         self.windowManager = windowManager
+        self.deduplicate = deduplicate
+        self.deduplicationWeight = deduplicationWeight
 
         self.networks = NetworkApi()
 
@@ -107,6 +109,10 @@ class StreamManagement():
         # older states will not be put back and instead dropped entirely.
         self.waitBuffer = []
 
+        # dict of hash -> list of states that have that hash. All states are inserted here and get updated in here for deduplication.
+        # states are lists: [prepareExample(), creationTimeStamp, seenCount]
+        self.stateRepository = dict()
+
         # how big are the batches send to the training process
         self.batchSize = batchSize
 
@@ -128,6 +134,31 @@ class StreamManagement():
         self.pendingDownloads = 0
         self.pendingUnpacks = 0
 
+        self.dedupeFramesUsed = 0
+
+    def acceptNewExample(self, newExample):
+        if not self.deduplicate:
+            self.newQueue.append(newExample)
+        else:
+            eHash = self.examplesBatcher.getHashForExample(newExample[0])
+            knownAlready = False
+            if eHash in self.stateRepository:
+                qLst = self.stateRepository[eHash]
+                for ql in qLst:
+                    if self.examplesBatcher.areExamplesEqual(ql[0], newExample[0]):
+                        knownAlready = True
+                        self.examplesBatcher.mergeInto(ql[0], newExample[0], self.deduplicationWeight)
+                        ql[1] = newExample[1]
+                        ql[2] += 1
+                        break
+                if not knownAlready:
+                    qLst.append(newExample)
+            else:
+                self.stateRepository[eHash] = [newExample]
+            
+            if not knownAlready:
+                self.newQueue.append(newExample)
+
     def doProcessDownloades(self):
         try:
             while True:
@@ -137,15 +168,15 @@ class StreamManagement():
                 endDecode = time.monotonic_ns()
 
                 startPrepare = time.monotonic_ns()
-                unpacked = list(map(lambda x: (self.examplesBatcher.prepareExample(x), x["creation"]), statesList))
+                unpacked = list(map(lambda x: [self.examplesBatcher.prepareExample(x), x["creation"], 1], statesList))
                 endPrepare = time.monotonic_ns()
 
                 #logMsg("Completed processing for a downloaded package %.1fms to decode, %.1fms to prepare" % ((endDecode - startDecode) / 1000000, (endPrepare - startPrepare) / 1000000))
 
                 for up in unpacked:
                     self.downloadedStatesCount += 1
-                    self.newQueue.append(up)
                     self.pendingUnpacks -= 1
+                    self.acceptNewExample(up)
         except:
             print("doProcessDownloades ERROR", "".join(traceback.format_exception(*sys.exc_info())))
 
@@ -191,7 +222,7 @@ class StreamManagement():
                     newUUID = nextEvent[2]
                     policyData = nextEvent[3]
 
-                    logMsg("Iteration %i completed, frames processed: %i" % (iteration, self.trainFrameCount))
+                    logMsg("Iteration %i completed, frames processed: %i, of which were duplicates: %i" % (iteration, self.trainFrameCount, self.dedupeFramesUsed))
                     logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss)))
                     self.networks.uploadEncodedNetwork(newUUID, policyData)
 
@@ -254,6 +285,11 @@ class StreamManagement():
                 picked.append(self.windowBuffer.pop())
 
         self.waitBuffer += picked
+
+        for pick in picked:
+            if pick[2] > 1:
+                self.dedupeFramesUsed += 1
+
         return list(map(lambda x: x[0], picked))
 
     def drainPullBuffer(self):
@@ -271,6 +307,7 @@ class StreamManagement():
             self.currentMoveLoss = []
             self.currentWinLoss = []
             self.trainFrameCount = 0
+            self.dedupeFramesUsed = 0
 
             iterationNumber = self.getCurrentIterationNumber()
             iterationSize = self.windowManager.getIterationSize(iterationNumber)
@@ -349,8 +386,7 @@ class StreamManagement():
 
 
 class StreamTrainingWorker2():
-    def __init__(self, policy, windowManager, batchSize = 1024):
-
+    def __init__(self, policy, windowManager, batchSize = 1024, deduplicate = False, deduplicationWeight = 0.5):
         hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
@@ -364,12 +400,14 @@ class StreamTrainingWorker2():
         self.windowManager = windowManager
         self.networks = NetworkApi()
         self.batchSize = batchSize
+        self.deduplicate = deduplicate
+        self.deduplicationWeight = deduplicationWeight
 
     def initManager(self):
         self.trainQueue = mp.Queue()
         self.trainEventsQueue = PlainQueue()
 
-        self.proc = mp.Process(target=manageStreamWork, args=(self.trainQueue, self.trainEventsQueue, self.commandHost, self.secret, self.runId, self.windowManager, self.batchSize, self.policy.getExamplePrepareObject()))
+        self.proc = mp.Process(target=manageStreamWork, args=(self.trainQueue, self.trainEventsQueue, self.commandHost, self.secret, self.runId, self.windowManager, self.batchSize, self.policy.getExamplePrepareObject(), self.deduplicate, self.deduplicationWeight))
         self.proc.start()
 
         # helpful to debug, the sub process can hide some types of errors (like segfaults...)

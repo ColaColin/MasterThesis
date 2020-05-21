@@ -176,8 +176,21 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
             mappedIndex = game.mapPlayerNumberToTurnRelative(pid) + 1
             winTensor[0, mappedIndex] = absoluteWinners[pid]
 
-        result = (inputArray, outputMoves, outputWins, hash(game))
+        result = [inputArray, outputMoves, outputWins, hash(game)]
         return result
+
+    def getHashForExample(self, example):
+        return example[3]
+
+    def areExamplesEqual(self, exampleA, exampleB):
+        return torch.equal(exampleA[0], exampleB[0])
+
+    def mergeInto(self, target, source, sourceWeight):
+        targetWeight = 1 - sourceWeight
+        target[1] *= targetWeight
+        target[2] *= targetWeight
+        target[1] += sourceWeight * source[1]
+        target[2] += sourceWeight * source[2]
 
     def packageExamplesBatch(self, examples):
         # format is (inputs, movesOut, winsOut, examplesCount)[]

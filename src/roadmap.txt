@@ -166,8 +166,8 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     [X] run1: peak at 89.88% in iteration 49. 
                     [X] run2: peak at 89.76% in iteration 46.
                     [X] run3: peak at 89.86% in iteration 55.
-                    [ ] run4:
-                    [ ] run5:
+                    [X] run4: peak at 90.24% in iteration 53.
+                    [ ] run5: 
 
             [X] implement a backup script, which downloads all data from the server and restores it into my local database.
 
@@ -192,7 +192,12 @@ N, acc, alphaBase, cpuct, drawValue, fpu
             Implement known improvements that were stated as obligatory in the proposal:
 15.5.2020       X more filters in the network heads
 15.5.2020       X predict a drawing probability directly
-15.5.2020       - handle duplicate training positions
+15.5.2020       X handle duplicate training positions
+               do a few test runs:
+               [ ] 0.2 weight:
+               [ ] 0.5 weight:
+               [ ] 0.8 weight:
+
 15.5.2020       - use a cyclic learning rate
 15.5.2020       - use playout caps
 15.5.2020       - squeeze-and-excitation networks
