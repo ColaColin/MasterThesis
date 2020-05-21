@@ -69,7 +69,9 @@ trainerWindow:
   iterationSize: 32000
 
 trainer:
-  name: StreamTrainingWorker
+  name: StreamTrainingWorker2
   windowManager: $trainerWindow
   policy: $resnet
-  batchSize: 128
+  batchSize: 1024
+  deduplicate: True
+  deduplicationWeight: 0.1

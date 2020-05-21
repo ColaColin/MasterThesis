@@ -125,6 +125,8 @@ class StreamManagement():
         self.downloadedStates = set()
 
         self.downloadedStatesCount = 0
+        self.pendingDownloads = 0
+        self.pendingUnpacks = 0
 
     def doProcessDownloades(self):
         try:
@@ -143,20 +145,29 @@ class StreamManagement():
                 for up in unpacked:
                     self.downloadedStatesCount += 1
                     self.newQueue.append(up)
+                    self.pendingUnpacks -= 1
         except:
             print("doProcessDownloades ERROR", "".join(traceback.format_exception(*sys.exc_info())))
 
     def doStatesDownloading(self):
         try:
             while True:
-                time.sleep(1)
                 self.serverStates = requestJson(self.command + "/api/state/list/" + self.run, self.secret)
                 # download oldest statest first, so states are learnt from in order of creation
                 self.serverStates.sort(key=lambda x: x["creation"])
 
+                self.pendingDownloads = 0
+                for state in self.serverStates:
+                    if not state["id"] in self.downloadedStates:
+                        self.pendingDownloads += state["packageSize"]
+
+                time.sleep(0.25)
+
                 for state in self.serverStates:
                     if not state["id"] in self.downloadedStates:
                         self.newPackages.append(requestBytes(self.command + "/api/state/download/" + state["id"], self.secret))
+                        self.pendingUnpacks += state["packageSize"]
+                        self.pendingDownloads -= state["packageSize"]
                         self.downloadedStates.add(state["id"])
                         #logMsg("Downloaded state %s" % state["id"])
         except:
@@ -272,7 +283,9 @@ class StreamManagement():
             logMsg("We have %i old states, want to fit on %i states, this requires %.2f examples learnt per new state" % (oldDataSize, sumStatesCount, framesPerNewFrame))
             newWaiting = len(self.newQueue)
             logMsg("Pending new frames waiting to be processed: %i" % newWaiting)
-            overhang = (newWaiting / iterationSize) * 100
+            logMsg("Pending frames to be downloaded: %i" % self.pendingDownloads)
+            logMsg("Pending packages to be unpacked: %i" % self.pendingUnpacks)
+            overhang = ((self.pendingDownloads + newWaiting + self.pendingUnpacks) / iterationSize) * 100
             logMsg("That means overhang from the last iteration is %.2f%%" % overhang)
             if overhang > 50:
                 logMsg("!!!!!!!!!!!!!!!! Large overhang detected, training is falling behind !!!!!!!!!!!!!!!!")
@@ -280,6 +293,8 @@ class StreamManagement():
                 logMsg("!!!!!!!!!!!!!!!! Large overhang detected, training is falling behind !!!!!!!!!!!!!!!!")
 
             pendingForTraining = 0
+
+            lastPrint = time.monotonic() - 999
 
             for frameNumber in range(iterationSize):
                 self.pullBuffer.append(blockGet(self.newQueue))
@@ -297,6 +312,13 @@ class StreamManagement():
                     #logMsg("Queue batch %i" % trainId)
                     self.trainFrameCount += len(nextBatch)
                     self.trainQueue.put(("trainBatch", trainId, nextBatchPrepared, iterationNumber, frameNumber / iterationSize))
+
+                if time.monotonic() - lastPrint > 30:
+                    lastPrint = time.monotonic()
+                    progressPerc = (frameNumber / iterationSize) * 100.0
+                    logMsg("Iteration %i completed: %.2f%% " % (iterationNumber, progressPerc))
+
+            logMsg("Iteration %i completed: %.2f%% " % (iterationNumber, 100))
 
             self.publishWait = True
             self.trainQueue.put(("publish", iterationNumber))
