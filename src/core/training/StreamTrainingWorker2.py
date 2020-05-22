@@ -143,6 +143,16 @@ class StreamManagement():
 
         self.dedupeFramesUsed = 0
 
+    def removeFromRepository(self, example):
+        removed = 0
+        eHash = self.examplesBatcher.getHashForExample(example[0])
+        if eHash in self.stateRepository:
+            prevSize = len(self.stateRepository[eHash])
+            self.stateRepository[eHash] = list(filter(lambda x: not self.examplesBatcher.areExamplesEqual(x[0], example[0])), self.stateRepository[eHash])
+            removed += len(self.stateRepository[eHash]) - prevSize
+            self.repositorySize -= removed
+        return removed
+
     def acceptNewExample(self, newExample):
         if not self.deduplicate:
             self.newQueue.append(newExample)
@@ -266,13 +276,15 @@ class StreamManagement():
 
         self.waitBuffer.sort(key = lambda x: x[1], reverse=True)
         nextWindowSize = self.windowManager.getWindowSize(iteration+1) - self.windowManager.getIterationSize(iteration)
-        for frame in self.waitBuffer:
-            if len(self.windowBuffer) < nextWindowSize:
-                cpyc += 1
-                self.windowBuffer.append(frame)
-            else:
-                break
-        dropped = len(self.waitBuffer) - cpyc
+
+        while len(self.waitBuffer) > 0 and len(self.windowBuffer) < nextWindowSize:
+            self.windowBuffer.append(self.waitBuffer.pop())
+            cpyc += 1
+
+        dropped = len(self.waitBuffer)
+        for drop in self.waitBuffer:
+            r = self.removeFromRepository(drop)
+            assert r == 1, ("Dropping a frame from the wait buffer should remove exactly 1 frame, but it removed: %i" % r)
         self.waitBuffer = []
 
         random.shuffle(self.windowBuffer)

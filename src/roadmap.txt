@@ -195,9 +195,10 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 15.5.2020       X more filters in the network heads
 15.5.2020       X predict a drawing probability directly
 15.5.2020       X handle duplicate training positions
+               [X] fix issue of "forgotten" frames by tracking which frames have been removed from the waitBuffer-cycle and readding them as new frames if they show up again
                do a few test runs:
                [ ] 0.2 weight:
-               [ ] 0.5 weight:
+               [X] 0.5 weight: peak 91.35% in iteration 37. 90% in 18, 91% in 28.
                [ ] 0.8 weight:
 
 15.5.2020       - use a cyclic learning rate
