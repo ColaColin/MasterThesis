@@ -149,7 +149,7 @@ class StreamManagement():
         if eHash in self.stateRepository:
             prevSize = len(self.stateRepository[eHash])
             self.stateRepository[eHash] = list(filter(lambda x: not self.examplesBatcher.areExamplesEqual(x[0], example[0]), self.stateRepository[eHash]))
-            removed += len(self.stateRepository[eHash]) - prevSize
+            removed += prevSize - len(self.stateRepository[eHash])
             self.repositorySize -= removed
         return removed
 
