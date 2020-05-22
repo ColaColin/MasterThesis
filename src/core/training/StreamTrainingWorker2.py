@@ -156,6 +156,7 @@ class StreamManagement():
     def acceptNewExample(self, newExample):
         if not self.deduplicate:
             self.newQueue.append(newExample)
+            return True
         else:
             eHash = self.examplesBatcher.getHashForExample(newExample[0])
             knownAlready = False
@@ -177,10 +178,12 @@ class StreamManagement():
                 self.repositorySize += 1
                 self.newQueue.append(newExample)
 
+            return not knownAlready
+
     def doProcessDownloades(self):
         displayUniqueStatsEvery = 100000
-        lastRepoSize = self.repositorySize
         lastDownloadedSize = self.downloadedStatesCount
+        addCounter = 0
 
         try:
             while True:
@@ -198,13 +201,14 @@ class StreamManagement():
                 for up in unpacked:
                     self.downloadedStatesCount += 1
                     self.pendingUnpacks -= 1
-                    self.acceptNewExample(up)
+                    newFrame = self.acceptNewExample(up)
+                    if newFrame:
+                        addCounter += 1
 
                     if self.downloadedStatesCount % displayUniqueStatsEvery == 0 and self.deduplicate:
-                        repoAdd = self.repositorySize - lastRepoSize
                         downloadAdd = self.downloadedStatesCount - lastDownloadedSize
-                        logMsg("Amount of unique frames produced overall: %.2f%%, in last %ik: %.2f%%" % (100.0 * (self.repositorySize / self.downloadedStatesCount), displayUniqueStatsEvery // 1000, 100.0 * (repoAdd / downloadAdd)))
-                        lastRepoSize = self.repositorySize
+                        logMsg("Amount of unique frames produced in last %ik: %.2f%%" % (displayUniqueStatsEvery // 1000, 100.0 * (addCounter / downloadAdd)))
+                        addCounter = 0
                         lastDownloadedSize = self.downloadedStatesCount
 
         except:
