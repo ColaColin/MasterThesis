@@ -278,7 +278,7 @@ class StreamManagement():
         self.newBuffer = collections.deque()
         self.pullBuffer = []
 
-        self.waitBuffer.sort(key = lambda x: x[1], reverse=True)
+        self.waitBuffer.sort(key = lambda x: x[1])
         nextWindowSize = self.windowManager.getWindowSize(iteration+1) - self.windowManager.getIterationSize(iteration)
 
         while len(self.waitBuffer) > 0 and len(self.windowBuffer) < nextWindowSize:

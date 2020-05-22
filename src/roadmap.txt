@@ -197,7 +197,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 15.5.2020       X handle duplicate training positions
                [X] fix issue of "forgotten" frames by tracking which frames have been removed from the waitBuffer-cycle and readding them as new frames if they show up again
                do a few test runs:
-               [X] 0.2 weight: peak 89.09% in iteration 26. (!!!)
+               [X] 0.2 weight: 
                [X] 0.5 weight: peak 91.35% in iteration 37. 90% in 18, 91% in 28.
                [ ] 0.8 weight:
 
