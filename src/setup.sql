@@ -20,7 +20,7 @@ create table runs (
 create table networks (
     id uuid primary key,
     creation timestamptz default NOW() not null,
-    run uuid references runs (id) not null on delete cascade,
+    run uuid references runs (id) on delete cascade not null,
     acc_network_moves float,
     acc_network_wins float,
     acc_mcts_moves float,
@@ -45,11 +45,11 @@ create table states (
     iteration integer not null,
     -- will be null in iteration 0, as there is no trained network for iteration 0. The random network is not submitted
     network uuid references networks(id),
-    run uuid references runs (id) not null  on delete cascade
+    run uuid references runs (id)  on delete cascade not null
 );
 
 create table run_iteration_stats (
-    run uuid references runs (id) not null on delete cascade,
+    run uuid references runs (id) on delete cascade not null,
     iteration integer,
 
     played_states integer not null,

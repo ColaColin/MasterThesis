@@ -6,7 +6,7 @@ from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
 from impls.singleprocess.singleprocess import SingleProcessReporter, SingleProcessUpdater, FilePolicyUpdater, NoopPolicyUpdater, NoopGameReporter
-from impls.polices.pytorch.policy import PytorchPolicy, LrStepSchedule
+from impls.polices.pytorch.policy import PytorchPolicy, LrStepSchedule, OneCycleSchedule
 from core.playing.playvs import PlayVs
 from impls.externalplayers.human import HumanMNKInterface, HumanConnect4Interface
 from impls.solved.players import RandomPlayPolicy, BestPlayPolicy, SemiPerfectPolicy
@@ -66,6 +66,7 @@ def registerClasses():
         mlconfig.register(SupervisedNetworkTrainer)
         mlconfig.register(DistributedNetworkUpdater2)
         mlconfig.register(StreamTrainingWorker2)
+        mlconfig.register(OneCycleSchedule)
         registered = True
 
 def mlConfigBasedMain(configPath):

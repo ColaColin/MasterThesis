@@ -225,13 +225,49 @@ class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
 
         return val
 
+class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
+    def __init__(self, peak, end, baseVal, peakVal, endVal, name):
+        self.peak = peak
+        self.end = end
+        self.baseVal = baseVal
+        self.peakVal = peakVal
+        self.endVal = endVal
+        self.lastPhase = "inc" # inc -> dec -> end
+        self.name = name
+
+    def getValue(self, iteration, iterationProgress):
+        currentPhase = "inc"
+        if iterationProgress >= self.peak:
+            currentPhase = "dec"
+        if iterationProgress >= self.end:
+            currentPhase = "end"
+
+        if currentPhase != self.lastPhase:
+            logMsg("OneCycle parameter %s enters new phase: %s" % (self.name, self.lastPhase))
+            self.lastPhase = currentPhase
+
+        if currentPhase == "inc":
+            progress = iterationProgress / self.peak
+            result = self.baseVal + progress * (self.peakVal - self.baseVal)
+            return result
+        elif currentPhase == "dec":
+            progress = (iterationProgress - self.peak) / (self.end - self.peak)
+            result = self.peakVal + progress * (self.baseVal - self.peakVal)
+            return result
+        elif currentPhase == "end":
+            progress = (iterationProgress - self.end) / (1 - self.end)
+            result = self.baseVal + progress * (self.endVal - self.baseVal)
+            return result
+
+        assert False, ("unknown currentPhase value: " + currentPhase)
+
 class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     """
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
     """
 
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, \
-            optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1):
+            optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1, momentumDecider = None):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -274,6 +310,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.initNetwork()
 
         self.lrDecider = lrDecider
+        self.momentumDecider = momentumDecider
 
         self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims)
 
@@ -390,11 +427,27 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         for param_group in self.optimizer.param_groups:
             if "lr" in param_group:
                 result = param_group["lr"]
+                break
         return result
 
     def setLr(self, lr):
         for param_group in self.optimizer.param_groups:
             param_group["lr"] = lr
+
+    def getMomentum(self):
+        result = None
+        for param_group in self.optimizer.param_groups:
+            if "momentum" in param_group:
+                result = param_group["momentum"]
+                break
+        return result
+
+    def setMomentum(self, momentum):
+        if momentum is None:
+            return
+
+        for param_group in self.optimizer.param_groups:
+            param_group["momentum"] = momentum
 
     def prepareExample(self, frame):
         return self.packer.prepareExample(frame)
@@ -409,12 +462,16 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.uuid = str(uuid.uuid4())
 
         prevLr = self.getLr()
+        prevMomentum = self.getMomentum()
 
         if forceLr is not None:
             self.setLr(forceLr)
         elif iteration is not None and self.lrDecider is not None and iterationProgress is not None:
             lrv = self.lrDecider.getValue(iteration, iterationProgress)
             self.setLr(lrv)
+
+        if iteration is not None and self.momentumDecider is not None and iterationProgress is not None:
+            self.setMomentum(self.momentumDecider.getValue(iteration, iterationProgress))
 
         self.net.train(True)
 
@@ -474,6 +531,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         #torch.cuda.empty_cache()
 
         self.setLr(prevLr)
+        self.setMomentum(prevMomentum)
 
         self.net.train(False)
 
