@@ -288,7 +288,13 @@ class StreamManagement():
         dropped = len(self.waitBuffer)
         for drop in self.waitBuffer:
             r = self.removeFromRepository(drop)
-            assert r == 1, ("Dropping a frame from the wait buffer should remove exactly 1 frame, but it removed: %i" % r)
+            if r == 0:
+                logMsg("!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!")
+                logMsg("Dropped a frame, but did not find it in the window repository:", drop)
+                logMsg("!!!!!!!!!!!!!! WARNING !!!!!!!!!!!!!!!!")
+            else:
+                logMsg("Problem frame is", drop)
+                assert r == 1, ("Dropping a frame from the wait buffer should remove exactly 1 frame, but it removed: %i" % r)
         self.waitBuffer = []
 
         random.shuffle(self.windowBuffer)

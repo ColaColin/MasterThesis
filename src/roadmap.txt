@@ -196,12 +196,14 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 15.5.2020       X predict a drawing probability directly
 15.5.2020       X handle duplicate training positions
                [X] fix issue of "forgotten" frames by tracking which frames have been removed from the waitBuffer-cycle and readding them as new frames if they show up again
+               [ ] assert failed with a value of 0?!
                do a few test runs:
-               [X] 0.2 weight: 
+               [~] 0.2 weight: looks not much difference, though it failed on a bug in iteration 25.
                [X] 0.5 weight: peak 91.35% in iteration 37. 90% in 18, 91% in 28.
                [ ] 0.8 weight:
 
-15.5.2020       - use a cyclic learning rate
+15.5.2020       [X] use a cyclic learning rate
+                [ ] run a test
 15.5.2020       - use playout caps
 15.5.2020       - squeeze-and-excitation networks
 15.5.2020       - predict the opponens move
