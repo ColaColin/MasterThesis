@@ -232,7 +232,7 @@ class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
         self.baseVal = baseVal
         self.peakVal = peakVal
         self.endVal = endVal
-        self.lastPhase = "inc" # inc -> dec -> end
+        self.lastPhase = "end" # inc -> dec -> end
         self.name = dbgName
 
     def getValue(self, iteration, iterationProgress):
@@ -243,7 +243,7 @@ class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
             currentPhase = "end"
 
         if currentPhase != self.lastPhase:
-            logMsg("OneCycle parameter %s enters new phase: %s" % (self.name, self.lastPhase))
+            logMsg("OneCycle parameter %s enters new phase: %s" % (self.name, currentPhase))
             self.lastPhase = currentPhase
 
         if currentPhase == "inc":
