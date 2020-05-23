@@ -54,6 +54,31 @@ class ConstantWindowSizeManager(WindowSizeManager, metaclass=abc.ABCMeta):
     def getMinimumWindowSize(self):
         return self.minimumSize
 
+class SlowWindowSizeManager(WindowSizeManager, metaclass=abc.ABCMeta):
+    def __init__(self, startSize, growStart, growFinish, finalSize, iterationSize, minimumSize):
+        self.startSize = startSize
+        self.growStart = growStart
+        self.growFinish = growFinish
+        self.finalSize = finalSize
+        self.iterationSize = iterationSize
+        self.minimumSize = minimumSize
+    
+    def getWindowSize(self, currentIteration):
+        if currentIteration >= self.growFinish:
+            return self.finalSize
+        elif currentIteration < self.growStart:
+            return self.startSize
+        else:
+            steps = currentIteration - self.growStart + 1
+            numSteps = self.growFinish - self.growStart + 1
+            stepSize = (self.finalSize - self.startSize) / numSteps
+            return self.startSize + steps * stepSize
+
+    def getIterationSize(self, currentIteration):
+        return self.iterationSize
+
+    def getMinimumWindowSize(self):
+        return self.minimumSize
 
 class StreamTrainingWorker():
     def __init__(self, policy, windowManager, batchSize):

@@ -17,7 +17,7 @@ from impls.distributed.distributed import DistributedNetworkUpdater, Distributed
 from core.training.TrainingWorker import TrainingWorker
 from impls.training.ConstantTrainingWindowManager import ConstantTrainingWindowManager
 from core.training.StreamTrainingWorker import StreamTrainingWorker
-from core.training.StreamTrainingWorker import ConstantWindowSizeManager
+from core.training.StreamTrainingWorker import ConstantWindowSizeManager, SlowWindowSizeManager
 from core.solved.supervised import SupervisedNetworkTrainer
 from core.training.StreamTrainingWorker2 import StreamTrainingWorker2
 
@@ -67,6 +67,7 @@ def registerClasses():
         mlconfig.register(DistributedNetworkUpdater2)
         mlconfig.register(StreamTrainingWorker2)
         mlconfig.register(OneCycleSchedule)
+        mlconfig.register(SlowWindowSizeManager)
         registered = True
 
 def mlConfigBasedMain(configPath):

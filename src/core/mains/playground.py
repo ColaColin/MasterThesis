@@ -14,6 +14,8 @@ from impls.polices.pytorch.policy import PytorchPolicy
 
 from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
+from core.training.StreamTrainingWorker import SlowWindowSizeManager
+
 import bson
 import uuid
 
@@ -149,6 +151,9 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    reportsApiTest3()
+    # reportsApiTest3()
 
-    
+    wm = SlowWindowSizeManager(550000, 5, 15, 2000000, 180000, 8096)
+
+    for i in range(20):
+        print("i = %i, Window size: %i, iteration size: %i" % (i, wm.getWindowSize(i), wm.getIterationSize(i)))

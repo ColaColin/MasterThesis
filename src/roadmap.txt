@@ -202,12 +202,16 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                [X] 0.5 weight: peak 91.35% in iteration 37. 90% in 18, 91% in 28.
                [ ] 0.8 weight:
 
-15.5.2020       [X] use a cyclic learning rate
-                [ ] run a test
+15.5.2020      [X] use a cyclic learning rate
+               [X] run a test: looks good, seems to help
+15.5.2020      [X] improve training window size handling
+               [ ] run a test
+                
 15.5.2020       - use playout caps
 15.5.2020       - squeeze-and-excitation networks
 15.5.2020       - predict the opponens move
-15.5.2020       - improve training window size handling
+
+
 
 22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.
 
