@@ -43,26 +43,26 @@ else
   touch $CHECK_FILE
 fi
 
-MAX_PER_GPU=4
+MAX_PER_GPU=3
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '1080 Ti'; then
-  MAX_PER_GPU=5
+  MAX_PER_GPU=4
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q 'RTX 2070 SUPER'; then
-  MAX_PER_GPU=5
+  MAX_PER_GPU=4
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080'; then
-  MAX_PER_GPU=5
+  MAX_PER_GPU=4
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q 'RTX 2080 SUPER'; then
-  MAX_PER_GPU=6
+  MAX_PER_GPU=5
 fi
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080 Ti'; then
-  MAX_PER_GPU=6
+  MAX_PER_GPU=5
 fi
 
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)

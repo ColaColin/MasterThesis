@@ -205,9 +205,11 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 15.5.2020      [X] use a cyclic learning rate
                [X] run a test: looks good, seems to help over baseline
 15.5.2020      [X] improve training window size handling
-               [ ] run a test
+               [X] run a test: looks ok. No great improvement however.
                 
-15.5.2020       - use playout caps
+15.5.2020      [X] use playout caps
+               [ ] run test: 
+               
 15.5.2020       - squeeze-and-excitation networks
 15.5.2020       - predict the opponens move
 
