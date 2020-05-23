@@ -203,7 +203,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                [ ] 0.8 weight:
 
 15.5.2020      [X] use a cyclic learning rate
-               [X] run a test: looks good, seems to help
+               [X] run a test: looks good, seems to help over baseline
 15.5.2020      [X] improve training window size handling
                [ ] run a test
                 
@@ -236,3 +236,10 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                  - more optional stuff if time allows...
 
 15.7.2020   Finalize writing            
+
+Some extra ideas:
+     - exploration is really stupid in the lategame, try out to reduce temperature by ply 12 instead of 30
+     - the fpu calculation based on "Am I winning?"
+     - "if I am winning, do not explore at all"
+     - play out forced moves automatically without any policy iteration on them. Do not record them as training frames.
+          -> this also would need to happen inside the mcts tree?!

@@ -13,6 +13,8 @@ import time
 import numpy as np
 import datetime
 
+import random
+
 class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def decideMove(self, gameState, policyDistribution, extraStats):
@@ -21,7 +23,13 @@ class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
         """
 
 class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
-    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider, gameReporter, policyUpdater):
+    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider, gameReporter, policyUpdater, capPolicyP = None, capPolicyIterator = None, capMoveDecider = None):
+        """
+        To use playout cap randomization (see arXiv:1902.10565v3), configure:
+        capPolicyP: what fraction of the games should be capped (this is 1-p in the paper, I find that more easy to understand)
+        capPolicyIterator: policy iterator to use for capped play steps. E.g. MCTS with a lower expansions setting. Possibly also less cpuct, less fpu, no rootNoise, lower drawValue to reduce exploration and maximize strength in these moves.
+        capMoveDecider: moveDecider to use on capped moves. Can be omitted, then the normal moveDecider will be used
+        """
         logMsg("Creating LinearSelfPlayWorker gameCount=%i" % gameCount)
         self.initialState = initialState
         self.policy = policy
@@ -34,6 +42,15 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.gameReporter = gameReporter
         self.policyUpdater = policyUpdater
         self.lastSpeedStatsPrint = time.monotonic()
+
+        self.capPolicyP = capPolicyP
+        self.capPolicyIterator = capPolicyIterator
+        self.capMoveDecider = capMoveDecider
+
+        assert (self.capPolicyP is None and self.capPolicyIterator is None) or (self.capPolicyP is not None and self.capPolicyIterator is not None), "capPolicyP and capPolicyIterator both need to be set or not set"
+
+        if self.capPolicyP is not None:
+            logMsg("Playout Cap Randomization is enabled, %i%% of moves will be played with a faster policy iterator and not recorded as training material to playout more games at little cost!" % (self.capPolicyP * 100))
 
     def handleSpeedStats(self):
         if time.monotonic() - self.lastSpeedStatsPrint > 300:
@@ -55,28 +72,53 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
     def initSelfplay(self):
         self.policy = self.policyUpdater.update(self.policy)
-
-    def playBatch(self):
-        moveTimeNanos = 0
-
-        iteratationStart = time.monotonic_ns()
-        iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, self.open)
-        moveTimeNanos += time.monotonic_ns() - iteratationStart
-
-        self.addTrackingData(iteratedPolicy)
-        self.policy = self.policyUpdater.update(self.policy)
         assert not (self.policy is None), "the policy updater returned a None policy!"
 
-        playStart = time.monotonic_ns()
-        movesToPlay = list(map(lambda x: self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
-        self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
-        moveTimeNanos += time.monotonic_ns() - playStart
+    def playBatch(self):
+        """
+        For the frametime measurement, this has to measure how long it takes to generate a single frame of training data and return that.
+        So if multiple moves are played per frame of training data, that has all to be measured.
+        """
+        moveTimeNanos = 0
 
+        while True:
+            playRealMove = self.capPolicyP is None or random.random() >= self.capPolicyP
+
+            policyIterator = self.policyIterator
+            moveDecider = self.moveDecider
+            if not playRealMove:
+                policyIterator = self.capPolicyIterator
+                if self.capMoveDecider is not None:
+                    moveDecider = self.capMoveDecider
+
+            # generate iterated policy to be played on
+            iteratationStart = time.monotonic_ns()
+            iteratedPolicy = policyIterator.iteratePolicy(self.policy, self.open)
+            moveTimeNanos += time.monotonic_ns() - iteratationStart
+
+            if playRealMove:
+                # remember the iterated policy for each game to be later processed into training frames.
+                self.addTrackingData(iteratedPolicy)
+
+                # potentially update the policy with a new policy from somewhere (e.g. a training server)
+                self.initSelfplay()
+
+            # play the moves using the iterated policy.
+            playStart = time.monotonic_ns()
+            movesToPlay = list(map(lambda x: moveDecider.decideMove(x[0], x[1][0], x[1][1]), zip(self.open, iteratedPolicy)))
+            self.open = list(map(lambda x: x[0].playMove(x[1]), zip(self.open, movesToPlay)))
+            moveTimeNanos += time.monotonic_ns() - playStart
+
+            # go over finished games and replace them with new ones, reporting their frames to the server
+            self.finalizeGames()
+
+            if playRealMove:
+                break
+
+        # sum up the time used to iterate the policy and play the move
         usTime = int((moveTimeNanos / float(len(self.open))) / 1000)
         self.microsPerMovePlayedHistory.append(usTime)
         self.handleSpeedStats()
-
-        self.finalizeGames()
 
         return usTime / 1000.0
 
@@ -91,6 +133,12 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         reports = []
 
         trackList = self.tracking[idx]
+
+        # this can happen with playout cap randomization, if an entire game is played with the cheap policy.
+        # that tends to happen espacially with an untrained network that plays very bad moves.
+        if trackList is None:
+            return
+
         assert self.open[idx].hasEnded()
         result = self.open[idx].getWinnerNumber()
         policyUUID = self.policy.getUUID()
@@ -115,11 +163,10 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             record["final"] = False
             reports.append(record)
 
-        reports[len(reports) - 1]["final"] = True
-            
         self.tracking[idx] = None
 
         if len(reports) > 0:
+            reports[len(reports) - 1]["final"] = True
             self.gameReporter.reportGame(reports)
 
     def finalizeGames(self):
