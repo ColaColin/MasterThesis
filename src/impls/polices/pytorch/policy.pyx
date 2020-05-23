@@ -226,14 +226,14 @@ class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
         return val
 
 class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
-    def __init__(self, peak, end, baseVal, peakVal, endVal, name):
+    def __init__(self, peak, end, baseVal, peakVal, endVal, dbgName="one_cycle"):
         self.peak = peak
         self.end = end
         self.baseVal = baseVal
         self.peakVal = peakVal
         self.endVal = endVal
         self.lastPhase = "inc" # inc -> dec -> end
-        self.name = name
+        self.name = dbgName
 
     def getValue(self, iteration, iterationProgress):
         currentPhase = "inc"
