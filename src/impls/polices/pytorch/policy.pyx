@@ -226,7 +226,7 @@ class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
         return val
 
 class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
-    def __init__(self, peak, end, baseVal, peakVal, endVal, dbgName="one_cycle"):
+    def __init__(self, peak, end, baseVal, peakVal, endVal, dbgName="one_cycle", targetIteration=0, targetReductionFactor=1):
         self.peak = peak
         self.end = end
         self.baseVal = baseVal
@@ -234,6 +234,8 @@ class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
         self.endVal = endVal
         self.lastPhase = "end" # inc -> dec -> end
         self.name = dbgName
+        self.targetIteration = targetIteration
+        self.targetReductionFactor = targetReductionFactor
 
     def getValue(self, iteration, iterationProgress):
         currentPhase = "inc"
@@ -249,17 +251,24 @@ class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
         if currentPhase == "inc":
             progress = iterationProgress / self.peak
             result = self.baseVal + progress * (self.peakVal - self.baseVal)
-            return result
         elif currentPhase == "dec":
             progress = (iterationProgress - self.peak) / (self.end - self.peak)
             result = self.peakVal + progress * (self.baseVal - self.peakVal)
-            return result
         elif currentPhase == "end":
             progress = (iterationProgress - self.end) / (1 - self.end)
             result = self.baseVal + progress * (self.endVal - self.baseVal)
-            return result
+        else:
+            assert False, ("unknown currentPhase value: " + currentPhase)
 
-        assert False, ("unknown currentPhase value: " + currentPhase)
+        if (iteration - 1) >= self.targetIteration:
+            result *= self.targetReductionFactor
+        else:
+            reduceDiff = 1 - self.targetReductionFactor
+            targetFrac = ((iteration - 1) / self.targetIteration) * reduceDiff
+            rFactor = 1 - targetFrac
+            result *= rFactor
+
+        return result
 
 class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     """
