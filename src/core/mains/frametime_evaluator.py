@@ -118,7 +118,7 @@ if __name__ == "__main__":
         result = {
             "frametime": frametime
         }
-        postJson(commandHost + "/api/frametimes/" + network_id, secret, result))
+        postJson(commandHost + "/api/frametimes/" + network_id, secret, result)
     
     while True:
         pool = mp.Pool(processes=PROC_COUNT)
