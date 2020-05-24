@@ -97,7 +97,9 @@ if __name__ == "__main__":
 
         statesSet = set()
 
-        for curi in range(iteration):
+        curi = 0
+
+        while curi < iteration:
             startIterationTime = time.monotonic()
             logMsg("Analyzing iteration %i of run %s" % (curi, run))
             playedStates = 0
@@ -157,3 +159,13 @@ if __name__ == "__main__":
                 if cursor:
                     cursor.close()
                 pool.putconn(con)
+
+            curi += 1
+
+            if curi == iteration:
+                logMsg("Done with current stats work, waiting for continuation!")
+                nextRun, nextIteration = getNextRunIteration()
+                if run == nextRun and iteration < nextIteration:
+                    logMsg("Found continuation until iteration", nextIteration)
+                    iteration = nextIteration
+

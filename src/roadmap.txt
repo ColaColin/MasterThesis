@@ -208,7 +208,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                [X] run a test: looks ok. No great improvement however.
                 
 15.5.2020      [X] use playout caps
-               [ ] run test: 
+               [ ] run test: first test failed due to bad settings on the cheapMcts instance. It degraded game variety massively.
                
 15.5.2020       - squeeze-and-excitation networks
 15.5.2020       - predict the opponens move
