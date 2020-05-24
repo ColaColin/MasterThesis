@@ -25,7 +25,7 @@ from core.mains.mlconfsetup import loadMlConfig
 
 #make sure the gpu is 100% loaded by using enough worker threads!
 PROC_COUNT = 4
-BATCH_COUNT = 100 # playout cap randomization requires this to be a bit larger!
+BATCH_COUNT = 50
 
 def measureFrametime(configPath, idx):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
