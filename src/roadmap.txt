@@ -138,7 +138,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
             [-] v2 of the training code should allow to restart the process  Skip, don't really need that.
             
 
-            [ ] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
+            [X] do a baseline run. Those settings then also need to be what is "factor 1" of training speed. Whatever % that gets on 1Mv2 is the first training goal to reach faster...
                Goal to reach is 90.5% mcts accuracy. Measure cost to reach that iteration. Stop after 10 iterations with no further mcts accuracy improvement
 
                3 Sets of potential parameters were identified:
@@ -147,7 +147,7 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     hyperopt2 | 20.38     | 1.545  | 0.6913    | 0.8545
                     prevWork  | 7         | 4      | 0.5       | 0
 
-               [ ] hyperopt1
+               [X] hyperopt1
                     [X] run1: 90.01% in iteration 22. Failed to reach 90.5%
                     [X] run2: 90.01% in iteration 25. Failed to reach 90.5%
                     [X] run3: 90.03% in iteration 20. Peak at 90.26% in iteration 25. Failed to reach 90.5%
@@ -169,15 +169,9 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     [X] run4: peak at 90.24% in iteration 53.
                     [X] run5: peak at 89.95% in iteration 44.
 
-               [ ] run the cost evaluator
+               [~] run the cost evaluator
 
             [X] implement a backup script, which downloads all data from the server and restores it into my local database.
-
-            - use the same optimizer as everyone else did:
-                - SGD with momentum of 0.9
-                - l2 weight regularition: 0.0001
-                - LR: 0.2, 0.02, 0.002, 0.0002, drop every 20 epochs?
-            - implement position deduplication in the stream trainer
 
             - Allow to play vs any network on the web?
             - optimization: Insta-play forced moves without "thinking" at all? Do not produce frames for them?
@@ -209,11 +203,15 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                 
 15.5.2020      [X] use playout caps
                [X] run test: first test failed due to bad settings on the cheapMcts instance. It degraded game variety massively.
-               -> more tests show either a "degrade game variety massively as it reaches 90.5% in record pace to then break off, or no improvements at all, depending on hyperparameter.
+               -> more tests show either a "degrade game variety massively as it reaches 90.5% in good pace to then break off, or no improvements at all, depending on hyperparameter.
                -> it might be that 30 expansions is just not such a good idea?!
                -> or maybe playout cap randomization limits the final playing strength due to less higher quality games being played.
-               [ ] implement a "NoOpPolicyIterator", which just forwards through the network once and returns the network output directly.
-
+               -> this could be a hyperparameter problem, or connect4 just doesn't suffer as much from the issue as go does, so playout caps do not help for connect4?
+               -> for now skip using this. Maybe later try a few more things:
+               [ ] one more run: p = 50%, cheapSearch does 100 expansions.
+               [ ] implement a "NoOpPolicyIterator", which just forwards through the network once and returns the network output directly
+                    -> maybe do not use randomization to decide which position is fully analyzed, instead do it on positions where the first network output is not "obvious", e.g. has a high entrophy.
+                    -> this would be my own extension, so would belong into the "my own extensions"-part
 15.5.2020       - squeeze-and-excitation networks
 15.5.2020       - predict the opponens move
 
