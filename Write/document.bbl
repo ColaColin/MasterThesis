@@ -1,13 +1,43 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{leesedolVsAlphaGo}
 \url{http://www.straitstimes.com/asia/east-asia/googles-alphago-gets-divine-go-ranking}.
 \newblock Accessed: 2020-05-17.
 
+\bibitem{crazystone}
+Crazystone go engine.
+\newblock \url{https://senseis.xmp.net/?CrazyStone}.
+
+\bibitem{pachi_github}
+Pachi go engine.
+\newblock \url{https://github.com/pasky/pachi}.
+
 \bibitem{allis1994searching}
 Louis~Victor Allis et~al.
 \newblock {\em Searching for solutions in games and artificial intelligence}.
 \newblock Ponsen \& Looijen Wageningen, 1994.
+
+\bibitem{auer2002finite}
+Peter Auer, Nicolo Cesa-Bianchi, and Paul Fischer.
+\newblock Finite-time analysis of the multiarmed bandit problem.
+\newblock {\em Machine learning}, 47(2-3):235--256, 2002.
+
+\bibitem{montecarlogo1993}
+Bernd Brügmann.
+\newblock Monte carlo go.
+\newblock 1993.
+
+\bibitem{gelly2006modification}
+Sylvain Gelly, Yizao Wang, Olivier Teytaud, Modification~Uct Patterns, and
+  Projet Tao.
+\newblock Modification of uct with patterns in monte-carlo go.
+\newblock 2006.
+
+\bibitem{kocsis2006bandit}
+Levente Kocsis and Csaba Szepesv{\'a}ri.
+\newblock Bandit based monte-carlo planning.
+\newblock In {\em European conference on machine learning}, pages 282--293.
+  Springer, 2006.
 
 \bibitem{NoCastleChess}
 Vladimir Kramnik.

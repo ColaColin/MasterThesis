@@ -138,10 +138,11 @@ Games have been used for a long time as a standin of the more complex real world
 
 (TODO a few sentences here about progress on various milestone games).
 
-In March 2016 a computerprogram called AlphaGo for the first time in history has defeated a top human player in the board game Go \cite{leesedolVsAlphaGo}.
-Go had eluded attempts at super human level play for a very long time, Louis Victor Allies attributes \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
-but also to the way humans use their natural pattern recognition ability
-to quickly eliminate most of the often 200 or more possible moves and focus on few promising ones.
+In March 2016 a program called AlphaGo for the first time in history has defeated a top human player in the board game Go \cite{leesedolVsAlphaGo}.
+Go had eluded attempts at super human level play for a very long time.
+
+Louis Victor Allis attributes \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
+but also to the way humans use their natural pattern recognition ability to quickly eliminate most of the often 200 or more possible moves and focus on few promising ones.
 
 This combination of the usage of hard-to-program pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on programmed heuristics.
 AlphaGo solved this issue by using the strong pattern recognition abilities of deep learning and combining them with a tree search, allowing the computer to learn patterns, similar to a human, but also search forward in the game tree to find the best move to play.
@@ -162,12 +163,35 @@ In this section previous work relevant to AlphaZero will be presented.
 
 \subsection{Monte Carlo Tree Search}
 
-Monte Carlo Tree Search, in short MCTS, is a tree search mechanism which was first used in computer Go for the first time in 2006. 
+Monte Carlo Tree Search, in short MCTS, is the idea to search a large tree (e.g. a game tree) in a randomized fashion, gathering statistics on how good the expected return for moves at the root of the tree is.
+
+An early suggestion of this idea was made by Bernd Brügmann in 1993 \cite{montecarlogo1993}, who suggested a tree search in a random fashion inspired by simulated annealing. He used the algorithm to play computer go and found promising results on 9x9 boards.
+
+AlphaZero uses a variant of MCTS called UCT, which was formulated in 2006 \cite{kocsis2006bandit} and used in computer go for the first time in the same year \cite{gelly2006modification}.
+UCT stands for ``UCB applied to trees'', where UCB is the ``Upper Confidence Bounds'' algorithm of the \emph{multi-armed bandit problem} \cite{auer2002finite}. 
+Previous to AlphaZero multiple other strong computer go programs based on MCTS have been released, such as Pachi \cite{pachi_github} or CrazyStone \cite{crazystone}.
 
 
--> ``Monte Carlo Go'' by Bernd Brüugmann in 1993 suggested playing out random go games from a position to the end in a Monte Carlo fashion.
--> Bandit Based Monte-Carlo Planning invents UCT in 2006
--> Modification of UCT with Patterns in Monte-Carlo Go uses UCT on Go in 2006
+In the \emph{multi-armed bandit problem} a player is faced with a machine that has a set of levers, some of which return a high reward, while others return a low reward. The player is tasked with getting a high return from a fixed number of lever pulls.
+This creates a dilemma, where the player has to decide to explore, i.e. try a new lever to maybe find a higher return, or exploit, i.e. pull the lever with the highest known reward. This dilemma is a key problem of reinforcement learning and L.Kocsis et al. \cite{kocsis2006bandit}
+apply it to tree searches, effectively viewing the decision of which move to play in a node of the game tree as a multi-armed bandit problem.
+
+UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played form the root of the tree up to the end of the game. The result
+of the episode is backpropagated upwards in the tree.
+UCT is thus an incremental process, which improves the quality of the approximation of the move values at the root with every episode sampled and can be stopped at any time to return a result.
+
+At every node of the tree the action that maximizes equation \ref{eq:UCT_max} is selected.
+
+\begin{equation}
+ Q_t(s,a,d) + C_{N_{s,d}(t), N_{s,a,d}(t)}\label{eq:UCT_max}
+\end{equation}
+
+
+
+To select a move at a node in the tree during an episode the
+
+
+-> AlphaGo first used the play random games out approach, AlpaZero skips that.
 
 
 

@@ -4,45 +4,49 @@ The top-level auxiliary file: document.aux
 The style file: plain.bst
 Database file #1: document.bib
 Warning--to sort, need author or key in leesedolVsAlphaGo
-You've used 7 entries,
+Warning--to sort, need author or key in pachi_github
+Warning--to sort, need author or key in crazystone
+Warning--empty journal in montecarlogo1993
+Warning--empty journal in gelly2006modification
+You've used 13 entries,
             2118 wiz_defined-function locations,
-            546 strings with 5670 characters,
-and the built_in function-call counts, 2685 in all, are:
-= -- 235
-> -- 202
-< -- 0
-+ -- 82
-- -- 74
-* -- 223
-:= -- 473
-add.period$ -- 21
-call.type$ -- 7
-change.case$ -- 52
+            576 strings with 6364 characters,
+and the built_in function-call counts, 4369 in all, are:
+= -- 401
+> -- 270
+< -- 1
++ -- 110
+- -- 96
+* -- 322
+:= -- 734
+add.period$ -- 38
+call.type$ -- 13
+change.case$ -- 81
 chr.to.int$ -- 0
-cite$ -- 8
-duplicate$ -- 70
-empty$ -- 170
-format.name$ -- 74
-if$ -- 525
+cite$ -- 18
+duplicate$ -- 138
+empty$ -- 318
+format.name$ -- 96
+if$ -- 891
 int.to.chr$ -- 0
-int.to.str$ -- 7
-missing$ -- 6
-newline$ -- 38
-num.names$ -- 12
-pop$ -- 64
+int.to.str$ -- 13
+missing$ -- 10
+newline$ -- 66
+num.names$ -- 20
+pop$ -- 108
 preamble$ -- 1
-purify$ -- 47
+purify$ -- 70
 quote$ -- 0
-skip$ -- 50
+skip$ -- 105
 stack$ -- 0
-substring$ -- 110
-swap$ -- 7
-text.length$ -- 0
+substring$ -- 197
+swap$ -- 21
+text.length$ -- 1
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 26
-warning$ -- 1
-while$ -- 18
-width$ -- 8
-write$ -- 74
-(There was 1 warning)
+type$ -- 50
+warning$ -- 5
+while$ -- 31
+width$ -- 15
+write$ -- 129
+(There were 5 warnings)
