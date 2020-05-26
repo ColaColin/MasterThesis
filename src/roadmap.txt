@@ -213,9 +213,13 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                     -> maybe do not use randomization to decide which position is fully analyzed, instead do it on positions where the first network output is not "obvious", e.g. has a high entrophy.
                     -> this would be my own extension, so would belong into the "my own extensions"-part
 15.5.2020      [X] squeeze-and-excitation networks
-               [ ] run supervised training to test how much better this kind of network can fit connect4 data.
-               [ ] do a test run
+               [X] run supervised training to test how much better this kind of network can fit connect4 data.
 
+Training set size | moves % | wins % 
+------------------+---------+---------
+           800000 |  92.71  |  79.44   <<< best
+
+               [ ] do a test run
 15.5.2020       - predict the opponens move
 
 
