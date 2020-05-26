@@ -35,6 +35,52 @@ import sys
 
 from torch.nn.utils.clip_grad import clip_grad_norm_
 
+# SELayer was taken from https://github.com/moskomule/senet.pytorch/blob/9d279eccb5a0ca6cb09ad1053b5f971656b801de/senet/se_module.py
+class SELayer(nn.Module):
+    def __init__(self, channel, reduction=16):
+        super(SELayer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(
+            nn.Linear(channel, channel // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(channel // reduction, channel, bias=False),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y.expand_as(x)
+
+class SEResBlock(nn.Module):
+    def __init__(self, features):
+        super(SEResBlock, self).__init__()
+        self.conv1 = nn.Conv2d(features, features, 3, padding=1)
+        self.bn1 = nn.BatchNorm2d(features)
+        self.conv2 = nn.Conv2d(features, features, 3, padding=1)
+        self.bn2 = nn.BatchNorm2d(features)
+        self.act = nn.ReLU(inplace=True)
+        self.se = SELayer(features)
+        
+    def forward(self, x):
+        residual = x
+        
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.act(out)
+        
+        out = self.conv2(out)
+        out = self.bn2(out)
+        
+        out = self.se(out)
+
+        out += residual
+        
+        out = self.act(out)
+        
+        return out
+
 class ResBlock(nn.Module):
     def __init__(self, features):
         super(ResBlock, self).__init__()
@@ -59,9 +105,9 @@ class ResBlock(nn.Module):
         out = self.act(out)
         
         return out
-    
+
 class ResCNN(nn.Module):
-    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize, extraHeadFilters):
+    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize, extraHeadFilters, mode="plain"):
         super(ResCNN, self).__init__()
 
         paddingSize = 1 if baseKernelSize > 2 else 0
@@ -75,9 +121,16 @@ class ResCNN(nn.Module):
         else:
             self.matchConv = None
         
+        if mode == "plain":
+            logMsg("Using plain ResNet!")
+            rblock = ResBlock
+        elif mode == "sq":
+            logMsg("Using squeeze-excite ResNet!")
+            rblock = SEResBlock
+
         blockList = []
         for _ in range(blocks):
-            blockList.append(ResBlock(features))
+            blockList.append(rblock(features))
         self.resBlocks = nn.Sequential(*blockList)
 
         self.extraHeadFilters = extraHeadFilters;
@@ -273,10 +326,14 @@ class OneCycleSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
 class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     """
     A policy that uses Pytorch to implement a ResNet-tower similar to the one used by the original AlphaZero implementation.
+    different network variants can be used with the network parameter:
+    plain: "classical" AlphaZero resnet
+    sq: AlphaZero, but with Squeeze Excite elements
     """
 
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, \
-            optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1, momentumDecider = None):
+            optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1, momentumDecider = None, \
+            networkMode="plain"):
         self.batchSize = batchSize
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -292,6 +349,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             logMsg("No GPU is available, falling back to cpu!")
             self.device = torch.device("cpu")
         
+        self.networkMode = networkMode
+
         self.extraHeadFilters = extraHeadFilters
         self.uuid = str(uuid.uuid4())
         self.gameDims = protoState.getDataShape()
@@ -328,7 +387,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def initNetwork(self):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
             self.headKernel, self.headFilters, self.filters, self.blocks,\
-            self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1, self.extraHeadFilters)
+            self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1, self.extraHeadFilters,\
+            mode=self.networkMode)
         self.net = self.net.to(self.device)
 
         # can't use mlconfig, as mlconfig has no access to self.net.parameters :(

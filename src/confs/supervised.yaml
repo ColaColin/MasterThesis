@@ -1,11 +1,11 @@
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: /PwnKeks/gits/MasterThesis/src/datasets/connect4/1M.txt.zip
+  datasetFile: datasets/connect4/1Mv2.txt.zip
   initialGame: $c4
   policy: $resnet
-  windowSizeSplits: 2
-  trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/fixed/2blocks/1M
+  windowSizeSplits: 1
+  trainingRuns: 1
+  workingDirectory: /ImbaKeks/x0/supervised/testSq
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
@@ -27,11 +27,12 @@ optimizerArgs:
 resnet:
   name: PytorchPolicy
   batchSize: 128
-  blocks: 2
+  blocks: 5
   filters: 128
   headKernel: 3
   headFilters: 64
   extraHeadFilters: 32
+  networkMode: sq
   protoState: $c4
   device: cuda
   optimizerName: torch.optim.SGD

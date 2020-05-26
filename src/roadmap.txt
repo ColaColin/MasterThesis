@@ -186,8 +186,8 @@ N, acc, alphaBase, cpuct, drawValue, fpu
 08.5.2020   Have a look at possible metrics to determine if the training suffers from any form of forgetting-and-relearning, as per chapter 4.2 of the proposal
 
             Implement known improvements that were stated as obligatory in the proposal:
-15.5.2020       X more filters in the network heads
-15.5.2020       X predict a drawing probability directly
+15.5.2020       X more filters in the network heads -> implemented from the beginning
+15.5.2020       X predict a drawing probability directly -> implemented from the beginning, because it makes the x0 framework more flexible
 15.5.2020       X handle duplicate training positions
                [X] fix issue of "forgotten" frames by tracking which frames have been removed from the waitBuffer-cycle and readding them as new frames if they show up again
                [X] assert failed with a value of 0?!
@@ -212,7 +212,8 @@ N, acc, alphaBase, cpuct, drawValue, fpu
                [ ] implement a "NoOpPolicyIterator", which just forwards through the network once and returns the network output directly
                     -> maybe do not use randomization to decide which position is fully analyzed, instead do it on positions where the first network output is not "obvious", e.g. has a high entrophy.
                     -> this would be my own extension, so would belong into the "my own extensions"-part
-15.5.2020       - squeeze-and-excitation networks
+15.5.2020      [ ] squeeze-and-excitation networks
+
 15.5.2020       - predict the opponens move
 
 
