@@ -66,7 +66,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{center}
-{\huge \it Masterthesis}
+{\huge \it Master's Thesis}
 
 \thispagestyle{empty}
 
@@ -88,14 +88,14 @@ Institut für Informatik  \\
 \vspace{2cm}
 
 \begin{tabular}{ll}
-angefertigt von:             & {\bf Colin Clausen} \\
-betreuender Hochschullehrer: & Prof. Dr.-Ing. Sven Tomforde \\%
+written by:             & {\bf Colin Clausen} \\
+supervising university lecturer: & Prof. Dr.-Ing. Sven Tomforde \\%
 \end{tabular}
 
 \vspace{1cm}
 
 \begin{center}
-Kiel, 20.7.2020
+Kiel, 22.7.2020
 \end{center}
 
 
@@ -153,7 +153,9 @@ In the following thesis I want to investigate further possible improvements to r
 
 (TODO here one could state some key results, once they exist...)
 
-This thesis is structured as follows: First I will look at previous work, starting with the basis of AlphaZero, Monte Carlo Tree Search, moving onto the various versions of AlphaZero with previously suggested improvements.
+This thesis is structured as follows:
+
+First I will look at previous work, starting with the basis of AlphaZero, Monte Carlo Tree Search, moving onto the various versions of AlphaZero with previously suggested improvements.
 Then a list of novel improvements will be described. Finally an extensive set of experiments will be presented, first establishing a baseline performance, then showing the results on the novel improvements.
 
 
@@ -162,12 +164,13 @@ Then a list of novel improvements will be described. Finally an extensive set of
 In this section previous work relevant to AlphaZero will be presented.
 
 \subsection{Monte Carlo Tree Search}
+\label{s:mcts}
 
 Monte Carlo Tree Search, in short MCTS, is the idea to search a large tree (e.g. a game tree) in a randomized fashion, gathering statistics on how good the expected return for moves at the root of the tree is.
 
 An early suggestion of this idea was made by Bernd Brügmann in 1993 \cite{montecarlogo1993}, who suggested a tree search in a random fashion inspired by simulated annealing. He used the algorithm to play computer go and found promising results on 9x9 boards.
 
-AlphaZero uses a variant of MCTS called UCT, which was formulated in 2006 \cite{kocsis2006bandit} and used in computer go for the first time in the same year \cite{gelly2006modification}.
+AlphaZero uses a variant of MCTS called UCT, which was formulated in 2006 \cite{kocsis2006bandit} by L.Kocsis et al. and used in computer go for the first time in the same year \cite{gelly2006modification}.
 UCT stands for ``UCB applied to trees'', where UCB is the ``Upper Confidence Bounds'' algorithm of the \emph{multi-armed bandit problem} \cite{auer2002finite}. 
 Previous to AlphaZero multiple other strong computer go programs based on MCTS have been released, such as Pachi \cite{pachi_github} or CrazyStone \cite{crazystone}.
 
@@ -180,33 +183,93 @@ UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which
 of the episode is backpropagated upwards in the tree.
 UCT is thus an incremental process, which improves the quality of the approximation of the move values at the root with every episode sampled and can be stopped at any time to return a result.
 
-At every node of the tree the action that maximizes equation \ref{eq:UCT_max} is selected.
+For every action $a$, state $s$, tree depth $d$ and time $t$ an implementation of UCT needs to track the estimated value of $a$ in $s$ at depth $d$ and time $t$ $Q_t(s,a,d)$, the number of visits of $s$ up to $d$ and $t$ $N_{s,d}(t)$ and the number of times
+$a$ was selected in $s$ at depth $d$ and time $t$ $N_{s,a,d}(t)$.
+
+A bias term, shown in equation \ref{eq:UCT_bias}, is defined where $C_p$ is a constant.
 
 \begin{equation}
- Q_t(s,a,d) + C_{N_{s,d}(t), N_{s,a,d}(t)}\label{eq:UCT_max}
+ C_{t,s} = 2C_p \sqrt{\frac{\ln t}{s}}\label{eq:UCT_bias}
 \end{equation}
 
 
+\begin{equation}
+ argmax_a(Q_t(s,a,d) + C_{N_{s,d}(t), N_{s,a,d}(t)}\label{eq:UCT_max})
+\end{equation}
 
-To select a move at a node in the tree during an episode the
+MCTS with UCT selects actions at every node of the tree according to equation \ref{eq:UCT_max}, updating the visit counts and estimated values of nodes as episodes are completed.
 
-
--> AlphaGo first used the play random games out approach, AlpaZero skips that.
-
+Equation \ref{eq:UCT_max} can be understood as weighting exploitation, in the form of the $Q$ term, against exploration, in the form of the $C$ term. The specific form of $C_{t,s}$ is shown to be consistent and to have finite sample bounds on the estimation error by L.Kocsis et al.
 
 
 \subsection{AlphaZero}
 
-The AlphaZero algorithm \cite{silver2018general} is a simplification of AlphaGoZero \cite{silver2017mastering} and AlphaGo \cite{silver2016mastering}.
-AlphaGo used a complicated system involving initialization with example games, random roleouts during tree searches and used multiple networks for different tasks. AlphaGoZero drastically simplified the system by only using a single network for all tasks,
-and not doing any roleouts anymore, instead the network evaluation for the given positions is directly used.
+TODO: Should I describe AlphaGo here in more detail? I don't really care about all the complications it did compared to AlphaZero, but it might still be interesting?
+
+The AlphaZero algorithm \cite{silver2018general} is the application of AlphaGoZero \cite{silver2017mastering} to games other than Go. AlphaGoZero is a significant simplification of AlphaGo \cite{silver2016mastering}.
+AlphaGo  is the first program to reach superhuman performance in the Go by combining MCTS with deep learning.
+
+AlphaGo used a complicated system involving initialization with example games, random roleouts during tree searches and used multiple networks, one to predict the value of a position, another to predict promising moves.
+AlphaGoZero drastically simplified the system by only using a single network and not doing any roleouts anymore, instead the network evaluation for the given positions is directly used.
 
 The difference between AlphaGoZero and AlphaZero is mainly that AlphaGoZero involved comparing the currently trained network against the previously known best player by letting them play a set of evaluation games against each other.
 Only the best player was used to generate new games. AlphaZero skips this and just always uses the current network to produce new games, surprisingly this appears to not give any disadvantage, learning remains stable.
 
-The main advantage of the ``Zero`` versions is that they do not require any human knowledge about the game apart from the rules, the networks are trained from scratch by self-play alone.
-This allows the algorithm to find the best way to play without human bias which seems to slightly increase final playing strength.
+The main advantage of the ``Zero`` versions is that they do not require any human knowledge about the game apart from the rules, the networks are trained from scratch by self-play alone, so unlike AlphaGo, AlphaGoZero does not require supervised initialization 
+of the network with a dataset of top level human play. This allows the algorithm to find the best way to play without human bias which seems to slightly increase final playing strength.
 Additionally it allows to use the algorithm for research of games for which no human experts exist, such as No-Castling Chess \cite{NoCastleChess}.
+
+\subsubsection{The AlphaZero algorithm}
+
+The AlphaZero algorithm \cite{silver2018general} uses MCTS with the UCT formulation, as described in section \ref{s:mcts}, and modifies it to incorporate a deep neural network which serves as a heuristic to bias the tree search and provide evaluations of unfinished games.
+The network is then trained to predict the final result of the MCTS search directly, as well as the final result of games played by MCTS against itself.
+This allows to form a closed cycle of self improvement, which starts with a random network and has been shown to successfully learn to play various games, such as chess, shogi or go on the highest level, if given substantial computation resources.
+
+Work written concurrently to AlphaGoZero describes a similar algorithm tested with the game hex \cite{anthony2017thinking}. They describe the algorithm as thinking slow, via MCTS, and fast, via the network alone, in reference to results from human behavioral science \cite{kahneman2011thinking}.
+AlphaZero in that sense learns in a similar fashion as a human: At first a time intensive ''thought process`` is used to reason about a new problem, but with pratice good decisions can be made much faster.
+
+The network in AlphaZero is provided with an encoding of a game situation and has two outputs: a policy describing move likelihoods and the expected value of the situation for the players, i.e. it predicts what move should be played and who is likely to win in the given situation.
+
+MCTS with UCT is modified to include the network outputs, which biases the search towards moves that the network believes to be promising.
+To this end for every node of the search tree some statistics are stored, shown in table \ref{t:mcts_stats_values}.
+
+\begin{table} [H]
+ \centering
+  \begin{tabular}{ c l }
+  $N(s,a)$ & The number of visists of action $a$ in state $s$. \\ 
+  $W(s,a)$ & The total action value. \\  
+  $Q(s, a)$ & The average action value, equal to $\frac{N(s,a)}{W(s,a)}$. \\
+  $P(s,a)$ & The network policy output to play action $a$ in state $s$.
+  \end{tabular}
+  \caption{Statistics tracked per node in the AlphaZero MCTS}
+  \label{t:mcts_stats_values}
+\end{table}
+
+As described before in chapter \ref{s:mcts}, MCTS plays through episodes in an iterative fashion, starting at the root of the tree and playing moves. Unlike in raw UCT, episodes in AlphaZero do not have to end with a terminal game position. Instead
+a tree with a fixed number of nodes is created and then the search is stopped. To evaluate positions the networks value output is used. This allows to analyze positions which are early in the game, where playing out an entire episode till the end of the game is prohibitively expensive.
+
+To decide on a better policy for a given situation a number of simulations is executed. Every simulation starts at the root node, picking actions to go down the tree until a leaf is discovered, at which point the network is invoked to find the prior probability
+for that leaf and backpropagate the value estimation by the network back up to the root, updating the node statistics on the way.
+
+The action to be played on a given node $s$ is selected according to 
+
+\begin{equation}
+ argmax_a(Q(s, a) + U(s, a))
+\end{equation}
+
+where
+\begin{equation}
+ U(s,a) = C_{puct} P(s,a) \frac{\sqrt{N(s)}}{(1+N(s,a))}
+\end{equation}
+
+with $N(s)$ being the parent visit count and $C_{puct}$ being a constant controlling exploration.
+Once a leaf is encountered the value predicted by the network is backpropagated upwards, adding to $N(s,a)$ and $W(s,a)$ of nodes and recalculating the average action values.
+
+The final policy generated by MCTS is determined by the visitation count of the actions of the root node.
+
+Using this tree search games are played out, the resulting game states are stored with the MCTS policy and the final game result. The network is then trained to predict the MCTS policy for the states and the final result of the game.
+Since the policy generated by the MCTS is always better than the one by the network alone this improves the playing strength of the network, which in the next iteration will allow MCTS to produce even better examples of play.
+
 
 \subsection{Extensions to AlphaZero}
 
@@ -236,8 +299,6 @@ Many improvements to the AlphaZero algorithm have been proposed, typically aimin
 
 
 \pagebreak
-
-\cite{silver2018general}
 
 % -- Literaturverzeichnis --------
 

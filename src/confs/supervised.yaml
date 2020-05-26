@@ -4,8 +4,8 @@ main:
   initialGame: $c4
   policy: $resnet
   windowSizeSplits: 1
-  trainingRuns: 1
-  workingDirectory: /ImbaKeks/x0/supervised/testSq
+  trainingRuns: 5
+  workingDirectory: /ImbaKeks/x0/supervised/sq
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128

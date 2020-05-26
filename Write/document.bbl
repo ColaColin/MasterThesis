@@ -17,6 +17,12 @@ Louis~Victor Allis et~al.
 \newblock {\em Searching for solutions in games and artificial intelligence}.
 \newblock Ponsen \& Looijen Wageningen, 1994.
 
+\bibitem{anthony2017thinking}
+Thomas Anthony, Zheng Tian, and David Barber.
+\newblock Thinking fast and slow with deep learning and tree search.
+\newblock In {\em Advances in Neural Information Processing Systems}, pages
+  5360--5370, 2017.
+
 \bibitem{auer2002finite}
 Peter Auer, Nicolo Cesa-Bianchi, and Paul Fischer.
 \newblock Finite-time analysis of the multiarmed bandit problem.
@@ -32,6 +38,11 @@ Sylvain Gelly, Yizao Wang, Olivier Teytaud, Modification~Uct Patterns, and
   Projet Tao.
 \newblock Modification of uct with patterns in monte-carlo go.
 \newblock 2006.
+
+\bibitem{kahneman2011thinking}
+Daniel Kahneman.
+\newblock Thinking, fast and slow. new york.
+\newblock 2011.
 
 \bibitem{kocsis2006bandit}
 Levente Kocsis and Csaba Szepesv{\'a}ri.
