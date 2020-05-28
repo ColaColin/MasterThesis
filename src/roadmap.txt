@@ -219,9 +219,10 @@ Training set size | moves % | wins %
 ------------------+---------+---------
            800000 |  92.71  |  79.44   <<< best
 
-               [ ] do a test run
+               [X] do a test run -> 90% in iteration 16, which is maybe about the cost of iteration 17 without sq, so pretty good.
 15.5.2020       - predict the opponens move
-
+               [ ] implement this
+               [ ] test run
 
 
 22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.

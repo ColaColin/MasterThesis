@@ -149,7 +149,7 @@ AlphaGo solved this issue by using the strong pattern recognition abilities of d
 
 Further development of the AlphaGo algorithm yielded the AlphaZero algorithm, which significantly simplified AlphaGo, allowing learning to start with a random network and no requirements for human expert input of any kind.
 
-In the following thesis I want to investigate further possible improvements to reduce the computational cost of using AlphaZero to learn to play games.
+In the following thesis I want to investigate further possible improvements to reduce the computational cost of using AlphaZero to learn to play games without using the generality of the algorithm.
 
 (TODO here one could state some key results, once they exist...)
 
@@ -176,8 +176,8 @@ Previous to AlphaZero multiple other strong computer go programs based on MCTS h
 
 
 In the \emph{multi-armed bandit problem} a player is faced with a machine that has a set of levers, some of which return a high reward, while others return a low reward. The player is tasked with getting a high return from a fixed number of lever pulls.
-This creates a dilemma, where the player has to decide to explore, i.e. try a new lever to maybe find a higher return, or exploit, i.e. pull the lever with the highest known reward. This dilemma is a key problem of reinforcement learning and L.Kocsis et al. \cite{kocsis2006bandit}
-apply it to tree searches, effectively viewing the decision of which move to play in a node of the game tree as a multi-armed bandit problem.
+This creates a dilemma, where the player has to decide to explore, i.e. try a new lever to maybe find a higher return, or exploit, i.e. pull the lever with the highest known reward. This exploration-exploitation dilemma is a key problem of reinforcement learning
+and L.Kocsis et al. \cite{kocsis2006bandit} apply it to tree searches, effectively viewing the decision of which move to play in a node of the game tree as a multi-armed bandit problem.
 
 UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played form the root of the tree up to the end of the game. The result
 of the episode is backpropagated upwards in the tree.
@@ -220,13 +220,14 @@ of the network with a dataset of top level human play. This allows the algorithm
 Additionally it allows to use the algorithm for research of games for which no human experts exist, such as No-Castling Chess \cite{NoCastleChess}.
 
 \subsubsection{The AlphaZero algorithm}
+\label{s:azalgo}
 
 The AlphaZero algorithm \cite{silver2018general} uses MCTS with the UCT formulation, as described in section \ref{s:mcts}, and modifies it to incorporate a deep neural network which serves as a heuristic to bias the tree search and provide evaluations of unfinished games.
 The network is then trained to predict the final result of the MCTS search directly, as well as the final result of games played by MCTS against itself.
 This allows to form a closed cycle of self improvement, which starts with a random network and has been shown to successfully learn to play various games, such as chess, shogi or go on the highest level, if given substantial computation resources.
 
 Work written concurrently to AlphaGoZero describes a similar algorithm tested with the game hex \cite{anthony2017thinking}. They describe the algorithm as thinking slow, via MCTS, and fast, via the network alone, in reference to results from human behavioral science \cite{kahneman2011thinking}.
-AlphaZero in that sense learns in a similar fashion as a human: At first a time intensive ''thought process`` is used to reason about a new problem, but with pratice good decisions can be made much faster.
+AlphaZero in that sense learns in a similar fashion as humans: At first a time intensive ''thought process`` is used to reason about a new problem, but with pratice good decisions can be made much faster.
 
 The network in AlphaZero is provided with an encoding of a game situation and has two outputs: a policy describing move likelihoods and the expected value of the situation for the players, i.e. it predicts what move should be played and who is likely to win in the given situation.
 
@@ -245,46 +246,191 @@ To this end for every node of the search tree some statistics are stored, shown 
   \label{t:mcts_stats_values}
 \end{table}
 
-As described before in chapter \ref{s:mcts}, MCTS plays through episodes in an iterative fashion, starting at the root of the tree and playing moves. Unlike in raw UCT, episodes in AlphaZero do not have to end with a terminal game position. Instead
-a tree with a fixed number of nodes is created and then the search is stopped. To evaluate positions the networks value output is used. This allows to analyze positions which are early in the game, where playing out an entire episode till the end of the game is prohibitively expensive.
+As described before in chapter \ref{s:mcts}, UCT plays through episodes in an iterative fashion, starting at the root of the tree and playing moves until it finds a terminal game state.
 
-To decide on a better policy for a given situation a number of simulations is executed. Every simulation starts at the root node, picking actions to go down the tree until a leaf is discovered, at which point the network is invoked to find the prior probability
-for that leaf and backpropagate the value estimation by the network back up to the root, updating the node statistics on the way.
+Unlike plain UCT, AlphaZero does not play out entire episodes till terminal game states, but rather calls the network whenever a move is mode that reaches a node in the search tree which has not been reached before.
 
-The action to be played on a given node $s$ is selected according to 
+The analysis of the network is then backpropagated upwards the search tree, updating the node statistics in the process. The tree search then moves down the tree again, using the updated statistics, until it reaches again an unknown node to be evaluated by the network.
+
+The tree grows until some fixed number of nodes is created. The output is the distribution of visits to the actions of the root node, as a high visit count implies the tree search considers a move to be worthwhile and has analyzed it thoroughly.
+
+To use the network outputs in UCT, the formulations are changed. The action $a$ in a given node is selected accoring to equation \ref{eq:alpha_max_zero}, where $U(s,a)$ is a term that is inspired by UCT but is biased by the network policy, as seen in equation \ref{eq:alpha_zero_u}.
+$C_{puct}$ is a constant to be chosen, the same as $C_p$ in UCT.
 
 \begin{equation}
- argmax_a(Q(s, a) + U(s, a))
+ argmax_a(Q(s, a) + U(s, a))\label{eq:alpha_max_zero}
 \end{equation}
 
-where
 \begin{equation}
- U(s,a) = C_{puct} P(s,a) \frac{\sqrt{N(s)}}{(1+N(s,a))}
+ U(s,a) = C_{puct} P(s,a) \frac{\sqrt{N(s)}}{(1+N(s,a))}\label{eq:alpha_zero_u}
 \end{equation}
-
-with $N(s)$ being the parent visit count and $C_{puct}$ being a constant controlling exploration.
-Once a leaf is encountered the value predicted by the network is backpropagated upwards, adding to $N(s,a)$ and $W(s,a)$ of nodes and recalculating the average action values.
-
-The final policy generated by MCTS is determined by the visitation count of the actions of the root node.
 
 Using this tree search games are played out, the resulting game states are stored with the MCTS policy and the final game result. The network is then trained to predict the MCTS policy for the states and the final result of the game.
-Since the policy generated by the MCTS is always better than the one by the network alone this improves the playing strength of the network, which in the next iteration will allow MCTS to produce even better examples of play.
 
+The self play learning hinges on the assumption that the policy generated by MCTS with the network is always better than the one by the network alone. In pratice this appears to hold, as learning is quite stable even very complex games such as go. Intuitively this makes sense,
+as the MCTS effectively averages many network predictions into one, forming a sort of ensemble of network evaluations on possible future positions.
+
+A drawback of this approach is the high computational cost, as in practice for good results the search tree to play a single move has to be grown to at least hundreds of nodes, requiring the same number of forward passes through the network to play a single move.
+For more complex games it takes millions of games to be played until the highest level of play is reached with a network having millions of parameters. This motivates my work in researching possible improvements to the algorithm that allow learning to progress
+faster or with less example games played.
 
 \subsection{Extensions to AlphaZero}
 
 Many improvements to the AlphaZero algorithm have been proposed, typically aiming at reducing the extreme computational cost of learning to play a new game.
+In this section I will present a collection of such proposals, especially focusing at ideas that do not require game specific knowledge to be incorporated. Still, some improvements might work better on some games than others,
+depending on hyperparameters used. In section \ref{s:exexp} I will present experimental results of my own implementation of a selection of these proposals by previous work.
+
+\subsubsection{Network and training modifications}
+
+The original network used in AlphaZero is a tower of 20 or 40 residual network blocks with 256 convolutional filters. Some ways have been found to improve this network to speed up training without any actual change to the AlphaZero algorithm, mainly by applying progress in the artificial neural network design.
+
+\begin{itemize}
+ \item Enhancing the blocks with Squeeze-and-excitation elements \cite{hu2018squeeze}, has been proposed by the Leela Chess Zero projects, which reimplements AlphaZero for Chess as a distributed effort \cite{leela0sq}.
+       A very similar approach is used in \cite{wu2019accelerating} which also cites the similarity to Squeeze-and-excitation networks.
+ \item The original design of the network only uses 2 filters in the policy head and a single filter in the value head, using 32 filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
+ \item Cyclic learning rates can be used to improve the network fitting to the data, \cite{oracledevs6} shows a modest speed up.
+\end{itemize}
+
+\subsubsection{Modification of the tree search}
+
+The behavior of the tree search can be modified to change how available time is spent to understand given game positions.
+
+\begin{itemize}
+ \item Instead of using a single network \cite{lan2019multiple} proposes to combine multiple networks of different sizes, especially two networks, one big, one small. Specifically, in the paper, the 
+ big network has 10 residual blocks with 128 convolutional filters, whereas the small network has 5 residual block with 64 convolutional filters. This results in one forward pass of the big network taking as long as eight forward passes of the small network.
+ Using the small network in most positions reduces computational requirements, 
+ which allows more search steps. This appears to increase playing strength given the same computational budget, the authors state that training is accelerated by a factor of at least 2.
+ \item An idea called Playout Caps is proposed in \cite{wu2019accelerating}. They drastically reduce the number of MCTS playouts randomly in most of the moves played. It allows to play more games in the same time, somewhat similar to 
+ the concept of using a combination of a small and a big network, the authors argue that this gives more data to train the value target, which is starved for data since every game played is only a single data point for this target. A training acceleration of 27\% is stated.
+ \item Propagation of terminal moves through the search tree to simplify the search is proposed by the Leela Chess Zero project, with a moderate improvement in playing strength \cite{leela0propagation}. This kind of improvement falls
+ into a family of various other ways to improve the handling of the search tree, such as detecting positional transpositions. From the AlphaZero paper it is not clear to what degree DeepMind used such optimizations.
+ \item The Leela Chess Zero project suggests analyzing statistics, namly the Kullback-Leibler divergence of the policy as it evolves during the tree search, to understand how complex a position is and apply more tree search evaluations on complex situations. They find a noteable increase
+   in playing strength \cite{leela0kldgain} using the same computational budget.
+\end{itemize}
+
+\subsubsection{Learning target modifications}
+
+\begin{itemize}
+ \item \cite{wu2019accelerating} Proposes to predict the opponent's reply to regularize training. A modest improvement is shown.
+ \item \cite{wu2019accelerating} also shows major improvements can be made if some domain specific targets are used to regularize the learning process. This hints at the possibility to search for ways to automatically determine such regularization targets.
+ They again point at how the learning is highly constrained by available data on the value target and how these additional targets may help alleviate this.
+ \item Forced Playouts and Policy Target Pruning, proposed in \cite{wu2019accelerating}, force that nodes, if they are ever selected, receive a minimum number of further playouts. Pruning is used to remove this from the policy distribution used to train the network for bad moves,
+ as the forced playouts are only meant to improve exploration. Training progress is stated to be accelerated by 20\%.
+ \item The Leela Chess Zero project uses a modification of the value target, which explicitly predicts a drawing probability, as this allows the network to tell the difference between a very uncertain position and a position that is very likely drawn \cite{leela0wdl}.
+ \item \cite{anonymous2020threehead} suggests using a third output head which predicts the win probability for every move. This can be used to shortcut the tree search, reducing the number of network evaluations, but the win probability estimate might be of a worse quality.
+  Small improvements are claimed.
+ \item Instead of using the result of games as a learning target for the value output of the network \cite{oracledevs6} proposes to use the average value of the MCTS node at the end of the MCTS search for a given position. This has the advantage of providing richer data,
+ and reducing the influence of a single bad move at the end of a game, which would taint the evaluation of all positions in that game. However, since this MCTS-based value has other accuracy issues they specifically propose to combine the two values, which shows a noticeable improvement.
+\end{itemize}
+
+
+\subsubsection{Training data enhancements}
+\begin{itemize}
+ \item There can be multiple copies of the same identical position in the training data. \cite{oracledevs6} shows that averaging the targets for these positions and reducing them to a single example is beneficial. This is shown on the game of Connect 4,
+ which is especially prone to identical positions showing up, so it is not clear how well it might translate to more complex games.
+ \item As noticed in \cite{oracledevs6}, the playing strength quickly increases the moment the very first training examples are removed. This is likely because those examples were effectively generated with a random network and are thus very bad, holding back training.
+ A modification to the training data windowing is proposed, which fixes this.
+\end{itemize}
+
 
 \section{Evaluated novel improvements}
-\subsection{Network modifications}
-\subsection{Playing games as trees}
-\subsection{Automatic auxilary features}
 
-\section{Experiments}
+In this section I preset my proposals on possible improvements to AlphaZero, experimental results on my proposals will be presented in section \ref{s:experiments}
+
+\subsection{Network modifications}
+
+Research on artifical neural networks has advanced since the release of AlphaZero in 2018. Some of these advances might be easy to apply to the network structure of AlphaZero and yield likely small but certain improvements.
+
+To get started novel improvements to AlphaZero I want to investigate the application of Gather-Excite elements in the network \cite{DBLP:journals/corr/abs-1810-12348}. Gather-Excite elements are a development of Squeeze-and-excitation elements by the same authors, which previous work has already
+shown can improve performance of AlphaZero. Similar to Squeeze-and-excitation elements, Gather-Excite elements have the goal to make the global feature context more available to local decisions made in the convolutional layers of the network. Since the global situation of a game is often
+very important to local board decisions, it seems a reasonable to expect this to further help AlphaZero.
+
+A more far fetched idea is to change the network structure to resemble that of the especially resource efficient mobilenetv3 \cite{howard2019searching}. 
+
+\subsection{Playing games as trees}
+
+Various previous work points at how the value target is starved for data, since it only receives examples by whole games that can be tarnished by random mistakes in the last few moves and suggest improvements targetting this \cite{wu2019accelerating}, \cite{oracledevs6}, \cite{lan2019multiple}.
+
+I suggest to occasionally copy game states and playing on differently, for example using the 2nd best move found, in the copy.
+This will result in early game states having multiple possible continuations, which are played out to the end. Thus early game states played will tend to have multiple known outcomes,
+which can be averaged to produce a more accurate estimate of the value of those positions. The influence of a single bad move towards the end should be reduced and the value head of the network should learn faster, since the training data will be of higher quality.
+There should be no substantial computation cost to implement this, as it just changes the structure in which games are played.
+
+TODO: pretty diagram showing how this forms a tree-structure
+
+\subsection{Using network internal features as auxiliary targets}
+
+\cite{wu2019accelerating} shows that using domain specific features as auxiliary targets to regularize learning is very helpful. This motivates the search for an automatic way to find such targets.
+
+Since I am especially interested in ways to improve learning performance at little additional computational cost, I suggest to use internal features of the network from previous network iterations as regularization targets to learn for future iterations.
+Since the internal features are learnt either way, this only introduces a small additional cost in the form of the computation of the increased size of the output layer.
+
+Specifically I propose to designate a layer $\mathbb{F}$ in the network and connect an additional head $\mathbb{H}_{future}$ to the layer before $\mathbb{F}$. 
+The network stem $\mathbb{S}$ up to $\mathbb{F}$ is then used to produce additional learning targets by applying $\mathbb{S}$ to the 2-ply future of every game state used as training data.
+This uses the encoding the network found to be meaningful for game playing to encode the immediate future of the game and uses this as a learning target. The usage of the 2-ply future is required, since otherwise the network would just be tasked with producing
+its own internal features. Instead the network will be required to predict the future game situation after one action by each player.
+
+The reason for attaching the head $\mathbb{H}_{future}$ before $\mathbb{F}$ is such that $\mathbb{F}$ only contains an encoding relevant to the value and policy heads, not an encoding that also tries to encode information for $\mathbb{H}_{future}$ of previous iterations.
+
+An extension of this could be to try $n$-ply futures, for example 4-ply or 6-ply to evaluate how predicting a more distance future could be helpful, if 2-ply prediction shows promise.
+
+\subsection{Using the self-playing phase as an evolutionary process}
+
+There are many hyperparameters involved in AlphaZero which have to be tuned. An important subset of these hyperparameters controls the exact behavior of the MCTS search, for example $C_{puct}$, as discussed in section \ref{s:azalgo}, equation \ref{eq:alpha_zero_u}.
+Experiments on hyperparameter search show that these MCTS-parameters have a noteable impact on much the MCTS can improve the playing strength of the network alone. Better parameters therefore translate into faster training progression.
+
+I propose to use the self playing phase of AlphaZero to optimize these hyperparameters by designating ''players``, which utilize different hyperparameters and have them play against each other in a league-system using a rating system such as Glicko. The games played 
+in this league make up the self playing phase, but additionally the results of these games will be used to judge which hyperparameters perform best. After some hyperparameters are found to perform best, the weaker players can be replaced with modified versions 
+of the best players, forming an evolutionary process. This should allow to search the hyperparameter space of the MCTS search very efficiently at no substantial additional cost.
+
+
+\section{Experiments} \label{s:experiments}
+
+I have developed a framework for experiments with AlphaZero which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
+TODO talk a lot more about this, publish the code in a more refined manner...
+
+
+
+My experiments are split into multiple parts:
+\begin{enumerate}
+ \item Establish a baseline with a base implementation very close to raw AlphaZero
+ \item Extend AlphaZero with some known extensions.
+ \item Evaluate my proposed improvements one by one.
+\end{enumerate}
+
+\subsection{Testing on Connect4}
+
+To reduce costs of experiments I am restricting myself to experiments with the game Connect4. Unlike Go, Connect4 is a game with a known solution, as it is a solved game for which strong solvers are available \cite{trompsolved, pascalsolver}, 
+i.e. for any given position the solver can quickly find the most optimal move to play. This allows me to evaluate the playing strength of AlphaZero as a measure of accuracy against the strong solver on a dataset of test positions.
+It also allows to run supervised training of the used network on a dataset of games played by the solver, establishing a maximum performance possible by the network.
+
+\subsubsection{Generating a test dataset}
+
+The generation of the database to be used as a testing set for the learning process is an important step that determines how comparable my results are to previous work. Starting my work I knew of the results of \cite{oracledevs}[Developers from Oracle],
+who claim to reach $~97\%$ to $~99\%$ accuracy, depending on the definition of a correct move, compared to a Connect 4 solver. However my attempts at reaching these numbers failed. I believe this is due to various decisions made during the generation of the dataset.
+
+A first decision is on what is a correct move in a given situation. In Connect4 there are many positions where the player has multiple ways to force a win, but some may lead to a longer game before the win is forced.
+\cite{oracledevs} defines here \emph{strong} and \emph{weak} testsets: 
+
+A \emph{strong} testset only considers a move correct if it yields the fastest win or the slowest loss. 
+
+A \emph{weak} testset only cares about the move producing the same result 
+as the best move, no matter how much longer the win will take or how much faster the loss will occur.
+
+They report $~97\%$ accuracy on strong datasets and $~99\%$ on weak datasets and most of their charts appear to show results on the weak dataset, reaching close to $~99\%$ accuracy.
+
+Additional important decisions made in the dataset creation, which are not talked about by Oracle, 
+
+
 
 \subsection{Baselines}
+
+
+
+\subsubsection{Supervised training}
+
 \subsubsection{AlphaZero implementation}
-\subsubsection{Extended AlphaZero}
+\subsubsection{Extended AlphaZero} \label{s:exexp}
 
 
 \subsection{Results on novel improvements}

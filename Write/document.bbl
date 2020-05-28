@@ -4,6 +4,34 @@
 \url{http://www.straitstimes.com/asia/east-asia/googles-alphago-gets-divine-go-ranking}.
 \newblock Accessed: 2020-05-17.
 
+\bibitem{leela0sq}
+\url{https://blog.lczero.org/search?updated-max=2019-01-08T10:35:00%2B01:00&max-results=11}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0propagation}
+\url{https://github.com/LeelaChessZero/lc0/pull/700}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0kldgain}
+\url{https://github.com/LeelaChessZero/lc0/pull/721}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{leela0wdl}
+\url{https://github.com/LeelaChessZero/lc0/pull/635}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{trompsolved}
+\url{https://tromp.github.io/c4/c4.html}.
+\newblock Accessed: 2020-05-28.
+
+\bibitem{pascalsolver}
+\url{https://connect4.gamesolver.org/}.
+\newblock Accessed: 2020-05-28.
+
+\bibitem{pascalsolvergithub}
+\url{https://github.com/PascalPons/connect4}.
+\newblock Accessed: 2020-05-28.
+
 \bibitem{crazystone}
 Crazystone go engine.
 \newblock \url{https://senseis.xmp.net/?CrazyStone}.
@@ -16,6 +44,13 @@ Pachi go engine.
 Louis~Victor Allis et~al.
 \newblock {\em Searching for solutions in games and artificial intelligence}.
 \newblock Ponsen \& Looijen Wageningen, 1994.
+
+\bibitem{anonymous2020threehead}
+Anonymous.
+\newblock Three-head neural network architecture for alphazero learning.
+\newblock In {\em Submitted to International Conference on Learning
+  Representations}, 2020.
+\newblock under review.
 
 \bibitem{anthony2017thinking}
 Thomas Anthony, Zheng Tian, and David Barber.
@@ -39,6 +74,24 @@ Sylvain Gelly, Yizao Wang, Olivier Teytaud, Modification~Uct Patterns, and
 \newblock Modification of uct with patterns in monte-carlo go.
 \newblock 2006.
 
+\bibitem{howard2019searching}
+Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo~Chen, Mingxing
+  Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, et~al.
+\newblock Searching for mobilenetv3.
+\newblock {\em arXiv preprint arXiv:1905.02244}, 2019.
+
+\bibitem{DBLP:journals/corr/abs-1810-12348}
+Jie Hu, Li~Shen, Samuel Albanie, Gang Sun, and Andrea Vedaldi.
+\newblock Gather-excite: Exploiting feature context in convolutional neural
+  networks.
+\newblock {\em CoRR}, abs/1810.12348, 2018.
+
+\bibitem{hu2018squeeze}
+Jie Hu, Li~Shen, and Gang Sun.
+\newblock Squeeze-and-excitation networks.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 7132--7141, 2018.
+
 \bibitem{kahneman2011thinking}
 Daniel Kahneman.
 \newblock Thinking, fast and slow. new york.
@@ -55,6 +108,18 @@ Vladimir Kramnik.
 \newblock Kramnik and alphazero: How to rethink chess.
 \newblock
   \url{https://www.chess.com/article/view/no-castling-chess-kramnik-alphazero}.
+\newblock Accessed: 2019-11-29.
+
+\bibitem{lan2019multiple}
+Li-Cheng Lan, Wei Li, Ting-Han Wei, I~Wu, et~al.
+\newblock Multiple policy value monte carlo tree search.
+\newblock {\em arXiv preprint arXiv:1905.13521}, 2019.
+
+\bibitem{oracledevs}
+Aditya Prasad.
+\newblock Lessons from implementing alphazero.
+\newblock
+  \url{https://medium.com/oracledevs/lessons-from-implementing-alphazero-7e36e9054191}.
 \newblock Accessed: 2019-11-29.
 
 \bibitem{shannon1950xxii}
@@ -84,5 +149,17 @@ David Silver, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja
   et~al.
 \newblock Mastering the game of go without human knowledge.
 \newblock {\em Nature}, 550(7676):354, 2017.
+
+\bibitem{wu2019accelerating}
+David~J Wu.
+\newblock Accelerating self-play learning in go.
+\newblock {\em arXiv preprint arXiv:1902.10565}, 2019.
+
+\bibitem{oracledevs6}
+Anthony Young.
+\newblock Lessons from implementing alphazero, part 6.
+\newblock
+  \url{https://medium.com/oracledevs/lessons-from-alpha-zero-part-6-hyperparameter-tuning-b1cfcbe4ca9a}.
+\newblock Accessed: 2019-11-29.
 
 \end{thebibliography}
