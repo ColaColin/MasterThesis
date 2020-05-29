@@ -163,7 +163,7 @@ cdef class Connect4GameData():
     def mapPlayerNumberToTurnRelative(self, int number):
         return mapPlayerNumberTurnRel(self._mnk, number)
 
-    def toString(self, networkMoves = None, networkWins = None, iteratedMoves = None, observedWins = None):
+    def toString(self, networkMoves = None, networkWins = None, iteratedMoves = None, observedWins = None, replyMoves = None):
         mm = ['.', '░', '█']
         
         if self.lastMove != -1:
@@ -245,6 +245,14 @@ cdef class Connect4GameData():
             for mi, m in enumerate(iteratedMoves):
                 iline += pFmt(m)
                 if len(iteratedMoves) - 1 > mi:
+                    iline += "|"
+            s += iline + "\n"
+
+        if replyMoves is not None:
+            iline = "Reply   |"
+            for mi, m in enumerate(replyMoves):
+                iline += pFmt(m)
+                if len(replyMoves) - 1 > mi:
                     iline += "|"
             s += iline + "\n"
 
@@ -482,8 +490,8 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
     def __hash__(self):
         return self._data.getHash()
 
-    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
-        return self._data.toString(networkMoves=networkMoves, networkWins=networkWins, iteratedMoves=iteratedMoves, observedWins=observedWins)
+    def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins, replyMoves=None):
+        return self._data.toString(networkMoves=networkMoves, networkWins=networkWins, iteratedMoves=iteratedMoves, observedWins=observedWins, replyMoves=replyMoves)
 
     def __str__(self):
         return self._data.toString()

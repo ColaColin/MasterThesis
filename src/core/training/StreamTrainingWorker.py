@@ -80,6 +80,7 @@ class SlowWindowSizeManager(WindowSizeManager, metaclass=abc.ABCMeta):
     def getMinimumWindowSize(self):
         return self.minimumSize
 
+# this is a deprecated older version, see StreamTrainingWorker2 for the newer version!
 class StreamTrainingWorker():
     def __init__(self, policy, windowManager, batchSize):
         """
@@ -203,7 +204,8 @@ class StreamTrainingWorker():
                         fitResult = None
 
                     if fitResult is not None:
-                        mls, wls = fitResult
+                        mls, wls, rls = fitResult
+                        assert rls is None, "reply target prediction is not support by StreamTrainingWorker, use StreamTrainingWorker2"
                         gmls += mls
                         gwls += wls
 

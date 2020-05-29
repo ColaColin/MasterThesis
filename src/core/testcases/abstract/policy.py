@@ -42,6 +42,8 @@ class TestPolicySanity(metaclass=abc.ABCMeta):
         r["knownResults"] = [gidx % (game.getPlayerCount() + 1)]
         r["policyIterated"] = np.zeros(game.getMoveCount(), dtype=np.float32)
         r["policyIterated"][gidx % game.getMoveCount()] = 1
+        r["reply"] = np.zeros(game.getMoveCount(), dtype=np.float32)
+        r["reply"][gidx % game.getMoveCount()] = 1
         r["state"] = game.store()
         r["gamename"] = game.getGameName()
         r["uuid"] = str(uuid.uuid4())

@@ -27,10 +27,15 @@ class InsightResource():
             iteratedMoves = record["policyIterated"]
             knownResults = record["knownResults"]
 
+            if "reply" in record:
+                replyMoves = record["reply"]
+            else:
+                replyMoves = None
+
             txt = datetime.datetime.fromtimestamp(record["creation"]).strftime('%Y-%m-%d %H:%M:%S.%f') + "\n"
             txt += "\nPlayed by policy " + record["policyUUID"] + "\n"
 
-            txt += gameState.prettyString(networkMoves, networkWins, iteratedMoves, knownResults) + "\n"
+            txt += gameState.prettyString(networkMoves, networkWins, iteratedMoves, knownResults, replyMoves=replyMoves) + "\n"
 
             result.append(txt)
 

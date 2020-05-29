@@ -53,6 +53,10 @@ resnet:
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
   valueLossWeight: 0.01
+  networkMode: sq
+  # default is 0, which removes the output layer completely from the network
+  # 0.35 is what KataGo used
+  replyWeight: 0.35
 
 mcts:
   name: MctsPolicyIterator

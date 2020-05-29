@@ -144,7 +144,9 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         policyUUID = self.policy.getUUID()
 
         prevStateUUID = None
-        for state, iPolicy in trackList:
+
+        for ti in range(len(trackList)):
+            state, iPolicy = trackList[ti]
             # do not learn from terminal states, there is no move that can be made on them
             assert not state.hasEnded()
             record = dict()
@@ -161,6 +163,15 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             record["gamename"] = state.getGameName()
             record["creation"] = datetime.datetime.utcnow().timestamp()
             record["final"] = False
+
+            # if the game is over after the current move is played, encode that as a uniform distribution over all moves
+            reply = np.ones_like(record["policyIterated"])
+            reply /= reply.shape[0]
+            if (ti + 1) < len(trackList):
+                # if however there is another move played, track the distribution for that move
+                reply = trackList[ti+1][1][0]
+            record["reply"] = reply
+
             reports.append(record)
 
         self.tracking[idx] = None

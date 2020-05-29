@@ -112,7 +112,8 @@ class SupervisedNetworkTrainer():
 
             for batchIndex in range(numBatches):
                 batchData = trainingSet[batchIndex * self.batchSize : (batchIndex + 1) * self.batchSize]
-                mls, wls = self.policy.fit(self.policy.quickPrepare(batchData), forceLr = curLr)
+                mls, wls, rls = self.policy.fit(self.policy.quickPrepare(batchData), forceLr = curLr)
+                assert rls is None, "reply prediction is not supported in supervised training!"
                 moveLosses += mls
                 winLosses += wls
 

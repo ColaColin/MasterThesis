@@ -128,6 +128,7 @@ class StreamManagement():
         self.pendingCounter = 1
         self.currentMoveLoss = []
         self.currentWinLoss = []
+        self.currentReplyLoss = []
 
         self.iterationStartTime = 0
 
@@ -226,7 +227,7 @@ class StreamManagement():
                     if not state["id"] in self.downloadedStates:
                         self.pendingDownloads += state["packageSize"]
 
-                time.sleep(0.25)
+                time.sleep(2)
 
                 for state in self.serverStates:
                     if not state["id"] in self.downloadedStates:
@@ -248,6 +249,8 @@ class StreamManagement():
                     #logMsg("Finished batch %i" % batchId)
                     self.currentMoveLoss += nextEvent[2]
                     self.currentWinLoss += nextEvent[3]
+                    if nextEvent[4] is not None:
+                        self.currentReplyLoss += nextEvent[4]
 
                 elif nextEvent[0] == "network":
                     # publish the network, which finishes the iteration
@@ -257,7 +260,10 @@ class StreamManagement():
                     policyData = nextEvent[3]
 
                     logMsg("Iteration %i completed, frames processed: %i, of which were seen before: %i" % (iteration, self.trainFrameCount, self.dedupeFramesUsed))
-                    logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss)))
+                    if len(self.currentReplyLoss) > 0:
+                        logMsg("Iteration network loss: %.4f on moves, %.4f on outcome, %.4f on reply" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss), np.mean(self.currentReplyLoss)))
+                    else:
+                        logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss)))
                     self.networks.uploadEncodedNetwork(newUUID, policyData)
 
                     self.clearWaitBuffer(iteration)
@@ -350,6 +356,7 @@ class StreamManagement():
             self.iterationStartTime = time.monotonic()
             self.currentMoveLoss = []
             self.currentWinLoss = []
+            self.currentReplyLoss = []
             self.trainFrameCount = 0
             self.dedupeFramesUsed = 0
 
@@ -477,10 +484,11 @@ class StreamTrainingWorker2():
                 if fitResult is None:
                     wls = []
                     mls = []
+                    rls = None
                 else:
-                    mls, wls = fitResult
+                    mls, wls, rls = fitResult
 
-                self.trainEventsQueue.put(("finish", nextWork[1], mls, wls))
+                self.trainEventsQueue.put(("finish", nextWork[1], mls, wls, rls))
             elif nextWork[0] == "publish":
                 iteration = nextWork[1]
                 self.trainEventsQueue.put(("network", iteration, self.policy.getUUID(), encodeToBson(self.policy.store())))
