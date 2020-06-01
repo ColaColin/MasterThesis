@@ -32,6 +32,31 @@ def writeJsonFile(path, data):
     with open(path, "w") as f:
         json.dump(data, f, indent=4, sort_keys=True)
 
+def rPad(sx, padLen):
+    result = sx
+    while (len(result) < padLen):
+        result += " "
+    return result
+
+def hConcatStrings(strs):
+    blocks = [s.split("\n") for s in strs]
+    maxHeight = max(*[len(b) for b in blocks])
+    blockWidths = [max(*[len(l) for l in b]) for b in blocks]
+    result = ""
+
+    print(maxHeight, blockWidths)
+
+    for h in range(maxHeight):
+        for bwidth, block in zip(blockWidths, blocks):
+            if len(block) > h:
+                result += rPad(block[h], bwidth)
+            else:
+                result += rPad("", bwidth)
+        result += "\n"
+
+    return result
+
+
 class IterationCalculatedValue(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def getValue(self, iteration, iterationProgress):

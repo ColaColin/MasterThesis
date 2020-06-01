@@ -221,33 +221,72 @@ Training set size | moves % | wins %
 
                [X] do a test run -> 90% in iteration 16, which is maybe about the cost of iteration 17 without sq, so pretty good. Though it then failed to reach 90.5%...
 15.5.2020       - predict the opponens move
-               [ ] implement this
-               [ ] test run
+               [X] implement this
+               [X] test run: 90% in iteration 17. Seems ok
 
 
 22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.
+          [ ] rainbow run: everything, but playout caps.
 
-            Implement suggested new improvements, first the network architecture changes:
-22.5.2020       - gather-excity blocks
-22.5.2020       - mobilenetv3 network blocks
+               [X] run1
+               [X] run2
+               [X] run3
+               [ ] run4
+               [ ] run5
 
-1.6.2020   Do a training run to 99%+ and measure improvements of the network architecture changes.
+-> Revised by weeks:
+WK 23
+     [~] complete extended run
+     [ ] write some code that makes diagrams from the data on the server to be included into latex
+     [ ] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
+     [ ] writing goal: Complete stuff about the extended run
+WK 24
+     [ ] buffer
+WK 25
+     [ ] play games as mcts-like-trees
+     [ ] writing goal: Complete stuff about the hyperparameter search
+WK 26
+     [ ] reuse internal network features
+     [ ] writing goal: Complete stuff about the tree-game-playing
+WK 27
+     [ ] make x0-framework pretty in its own repository with some documentation.
+     [ ] writing goal: Complete stuff about the internal network features
+     [ ] prepare presentation?
+WK 28
+     [ ] writing goal: conclusions
+     [ ] hold presentation or at start of week 29?
 
-01.6.2020   Writing about proposed ideas is completed.
+WK 29: Deadline is Wednesday
+
+
+
+     Skip it?:
+     [?] implement network architecture changes: gather-excite and mobilenetv3
+          -> maybe skip this, the improvements from squeeze-excite where already quite small, gather-excite should be an even smaller step up. Not worth the time.
+
+
+
+     Implement suggested new improvements, first the network architecture changes:
+       - gather-excity blocks
+       - mobilenetv3 network blocks
+
+   Do a training run to 99%+ and measure improvements of the network architecture changes.
+
+   Writing about proposed ideas is completed.
 
             Implement more conceptual changes to the algorithm:
-01.6.2020       - Play games as trees and evaluate with a training run
-05.6.2020       - Use internal network features of previous iterations as automatic auxilary targets and evaluate it with a training run
-19.6.2020       - Adapt the self-playing phase to search for hyperpameters and evaluate it with a training run
+       - Adapt the self-playing phase to search for hyperpameters and evaluate it with a training run
+       - Play games as trees and evaluate with a training run
+       - Use internal network features of previous iterations as automatic auxilary targets and evaluate it with a training run
 
-23.6.2020   Write about measured results
+   Write about measured results
 
             Implement optional known improvements:
-26.6.2020        - Combine two networks in the search process and evaluate with a training run
-03.7.2020        - Use the kullback-leibler distance to determine how certain the tree search is on a position and evaluate with a training run
+        - Combine two networks in the search process and evaluate with a training run
+        - Use the kullback-leibler distance to determine how certain the tree search is on a position and evaluate with a training run
                  - more optional stuff if time allows...
 
-15.7.2020   Finalize writing            
+   Finalize writing            
 
 Some extra ideas:
      - exploration is really stupid in the lategame, try out to reduce temperature by ply 12 instead of 30

@@ -20,21 +20,23 @@ optimizerArgs:
 
 lrcycle:
   name: OneCycleSchedule
-  peak: 0.3
-  end: 0.8
+  peak: 0.35
+  end: 0.7
   baseVal: 0.02
   peakVal: 0.2
-  endVal: 0.002
-  name: lr
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 20
+  targetReductionFactor: 0.4
 
 momentumcycle:
   name: OneCycleSchedule
-  peak: 0.3
-  end: 0.8
+  peak: 0.35
+  end: 0.7
   baseVal: 0.95
   peakVal: 0.85
   endVal: 0.95
-  name: momentum
+  dbgName: momentum
 
 resnet:
   name: PytorchPolicy
@@ -54,38 +56,55 @@ resnet:
   gradClipValue: 1
   valueLossWeight: 0.01
   networkMode: sq
-  # default is 0, which removes the output layer completely from the network
-  # 0.35 is what KataGo used
   replyWeight: 0.35
 
-mcts:
-  name: MctsPolicyIterator
-  expansions: 20
+mctsParameters:
+  name: dict
+  expansions: 343
   cpuct: 1.545
-  rootNoise: 0.25
   drawValue: 0.6913
   alphaBase: 20.38
   fpu: 0.8545
+
+hAccess:
+  name: FixedPlayerAccess
+  parameters: $mctsParameters
+
+mcts:
+  name: MctsPolicyIterator
+  parameters: $mctsParameters
+  rootNoise: 0.25
 
 tempDecider:
   name: TemperatureMoveDecider
   explorationPlyCount: 30
 
+fixedThink:
+  name: FixedThinkDecider
+  expansions: 350
+
 worker:
-  name: LinearSelfPlayWorker
+  name: LeagueSelfPlayerWorker
   initialState: $mnk
   policy: $resnet
   policyIterator: $mcts
-  gameCount: 256
+  gameCount: 4
   moveDecider: $tempDecider
   gameReporter: $reporter
   policyUpdater: $updater
+  playerAccess: $hAccess
+  expansionIncrement: 50
+  expansionMax: 9300
+  thinkDecider: $fixedThink
 
 trainerWindow:
-  name: ConstantWindowSizeManager
-  size: 2000000
+  name: SlowWindowSizeManager
+  startSize: 500000
+  growStart: 5
+  growFinish: 15
+  finalSize: 2000000
+  iterationSize: 180000
   minimumSize: 8192
-  iterationSize: 90000
 
 trainer:
   name: StreamTrainingWorker2
@@ -93,4 +112,4 @@ trainer:
   policy: $resnet
   batchSize: 1024
   deduplicate: True
-  deduplicationWeight: 0.5
+  deduplicationWeight: 0.8

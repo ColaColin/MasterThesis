@@ -5,7 +5,6 @@ import mlconfig
 from utils.prints import logMsg, setLoggingEnabled
 
 from impls.selfplay.LinearSelfPlay import LinearSelfPlayWorker
-from impls.policyIterators.mcts0.mcts0 import MctsPolicyIterator
 from impls.selfplay.movedeciders import TemperatureMoveDecider
 from impls.games.mnk.mnk import MNKGameState
 from impls.games.connect4.connect4 import Connect4GameState
@@ -27,7 +26,15 @@ import requests
 
 import psycopg2
 
+from utils.misc import hConcatStrings
+
 # random testing code
+
+def getRandomGame():
+    game = Connect4GameState(7,6,4)
+    for _ in range(7):
+        game = game.playMove(np.random.randint(7))
+    return game
 
 def makeReport():
     game = Connect4GameState(7,6,4)
@@ -153,7 +160,12 @@ if __name__ == "__main__":
 
     # reportsApiTest3()
 
-    wm = SlowWindowSizeManager(550000, 5, 15, 2000000, 180000, 8096)
+    # wm = SlowWindowSizeManager(550000, 5, 15, 2000000, 180000, 8096)
 
-    for i in range(20):
-        print("i = %i, Window size: %i, iteration size: %i" % (i, wm.getWindowSize(i), wm.getIterationSize(i)))
+    # for i in range(20):
+    #     print("i = %i, Window size: %i, iteration size: %i" % (i, wm.getWindowSize(i), wm.getIterationSize(i)))
+
+    games = [str(getRandomGame()) for _ in range(3)]
+    games[1] += "\nOne more line"
+    
+    print(hConcatStrings(games))

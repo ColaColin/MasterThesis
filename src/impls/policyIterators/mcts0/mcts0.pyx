@@ -1,6 +1,6 @@
 # cython: profile=False
 
-from core.base.PolicyIterator import PolicyIterator
+from core.base.PolicyIterator import PolicyIterator, PIteratorInstance
 
 import abc
 
@@ -292,57 +292,102 @@ cdef class MCTSNode():
 
         return result
 
+class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
+    def __init__(self, game, playerHyperParams, rootNoise, noExploration, defaultParameters):
+        self.game = game
+        self.playerHyperParams = playerHyperParams
+        self.rootNoise = rootNoise
+        self.node = MCTSNode(game, noiseMix = 0 if noExploration else self.rootNoise)
+
+        pIndex = self.game.getPlayerOnTurnNumber()
+        if pIndex in playerHyperParams:
+            self.playerHyperparams = playerHyperParams[pIndex]
+            self.cpuct = playerHyperParams[pIndex]["cpuct"]
+            self.drawValue = playerHyperParams[pIndex]["drawValue"]
+            self.fpu = playerHyperParams[pIndex]["fpu"]
+            self.alphaBase = playerHyperParams[pIndex]["alphaBase"]
+        else:
+            self.playerHyperparams = defaultParameters
+            self.cpuct = defaultParameters["cpuct"]
+            self.drawValue = defaultParameters["drawValue"]
+            self.fpu = defaultParameters["fpu"]
+            self.alphaBase = defaultParameters["alphaBase"]
+
+    def getGame(self):
+        return self.game
+
+    def getCurrentPlayerParameters(self):
+        return self.playerHyperparams
+
+    def getResult(self):
+        cdef MCTSNode node = self.node
+        assert node.allVisits > 0, "before calling getResult() the nodes need to be iterated on at least once!"
+        generics = dict()
+        generics["net_values"] = [x for x in node.netValueEvaluation]
+        generics["net_priors"] = node.getNetworkPriors()
+        return (node.getMoveDistribution(), generics)
+
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """
     AlphaZero-style MCTS implementation extended with explicit handling of draws.
     FPU can be configured, AlphaZero standard is 0. There must be better ways to handle it, however.
     """
+    def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None):
+        # newer configs use the parameters value, but older configs still use the direct properties, so support both
+        if parameters is None: #old config
+            parameters = dict()
+            parameters["cpuct"] = cpuct
+            parameters["drawValue"] = drawValue
+            parameters["fpu"] = fpu
+            parameters["alphaBase"] = alphaBase
+            parameters["expansions"] = expansions
 
-    def __init__(self, expansions, cpuct, rootNoise, drawValue, fpu = 0.45, alphaBase = 10):
-        logMsg("Creating MctsPolicyIterator(expansions=%i, cpuct=%f,rootNoise=%f, drawValue=%f,fpu=%f)" % (expansions, cpuct, rootNoise, drawValue, fpu))
-        self.expansions = expansions
-        self.cpuct = cpuct
+        assert rootNoise is not None, "YOu need to set a rootNoise value!"
+
+        logMsg("Creating MctsPolicyIterator with noise of %.2f and parameters dict:\n" % (rootNoise, ), parameters)
         self.rootNoise = rootNoise
-        self.drawValue = drawValue
-        self.fpu = fpu
-        self.alphaBase = alphaBase
-  
+        self.parameters = parameters
+        self.expansions = parameters["expansions"]
+
     def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node
         cdef int idx
+        cdef float drawValue
 
         for idx, ev in enumerate(evalout):
-            node = backupSet[idx]
+            node = backupSet[idx][0]
+            drawValue = backupSet[idx][1]
             w = ev[1]
             if node.hasEnded:
                 w = node.getTerminalResult()
             else:
-                node.expand(ev[0], ev[1], self.drawValue)
+                node.expand(ev[0], ev[1], drawValue)
             
-            node.backup(w, self.drawValue)
+            node.backup(w, drawValue)
 
     def cpuWork(self, list prepareSet, list backupSet, list evalout):
         cdef list prepareResult = []
-        
         cdef MCTSNode tnode
         
         if backupSet is not None:
             self.backupWork(backupSet, evalout)
-        
+
+        cdef int i        
         for i in range(len(prepareSet)):
-            tnode = prepareSet[i]
-            prepareResult.append(tnode.selectDown(self.cpuct, self.fpu, self.alphaBase))
+            tnode = prepareSet[i].node
+            selectedNode = tnode.selectDown(prepareSet[i].cpuct, prepareSet[i].fpu, prepareSet[i].alphaBase)
+            prepareResult.append((selectedNode, prepareSet[i].drawValue))
 
         return prepareResult
 
-    def iteratePolicy(self, policy, gamesBatch, noExploration = False):
-        noise = 0 if noExploration else self.rootNoise
-        cdef list nodes = [MCTSNode(g, noiseMix = noise) for g in gamesBatch]
+    def createIterator(self, game, playerHyperparametersDict=dict(), noExploration=False):
+        return MctsPIterator(game, playerHyperparametersDict, self.rootNoise, noExploration, self.parameters)
 
-        cdef int halfw = len(nodes) // 2
+    def iteratePolicyEx(self, policy, iterators, iterations = None):
+        cdef int halfw = len(iterators) // 2
 
-        cdef list nodesA = nodes[:halfw]
-        cdef list nodesB = nodes[halfw:]
+        cdef list iteratorsA = iterators[:halfw]
+        cdef list iteratorsB = iterators[halfw:]
 
         # the pipeline goes:
 
@@ -361,10 +406,10 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
 
         asyncA = True
 
-        cdef list preparedDataA = self.cpuWork(nodesA, None, None)
-        cdef list evaloutA = policy.forward([p.getState() for p in preparedDataA])
+        cdef list preparedDataA = self.cpuWork(iteratorsA, None, None)
+        cdef list evaloutA = policy.forward([p[0].getState() for p in preparedDataA])
 
-        cdef list preparedDataB = self.cpuWork(nodesB, None, None)
+        cdef list preparedDataB = self.cpuWork(iteratorsB, None, None)
         cdef list evaloutB = None
 
         me = self
@@ -376,36 +421,24 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             nonlocal me
             nonlocal evaloutA
             nonlocal evaloutB
-            nonlocal nodesA
-            nonlocal nodesB
+            nonlocal iteratorsA
+            nonlocal iteratorsB
 
             if asyncA:
-                preparedDataA = me.cpuWork(nodesA, preparedDataA, evaloutA)
+                preparedDataA = me.cpuWork(iteratorsA, preparedDataA, evaloutA)
             else:
-                preparedDataB = me.cpuWork(nodesB, preparedDataB, evaloutB)
+                preparedDataB = me.cpuWork(iteratorsB, preparedDataB, evaloutB)
         
         cdef int nodeExpansions
-        nodeExpansions = self.expansions
+        nodeExpansions = self.expansions if iterations is None else iterations
 
         cdef int e, ex
         for e in range(nodeExpansions):
             for ex in range(2):
                 if asyncA:
-                    evaloutB = policy.forward([p.getState() for p in preparedDataB], asyncCall = asyncWork)
+                    evaloutB = policy.forward([p[0].getState() for p in preparedDataB], asyncCall = asyncWork)
                 else:
-                    evaloutA = policy.forward([p.getState() for p in preparedDataA], asyncCall = asyncWork)
+                    evaloutA = policy.forward([p[0].getState() for p in preparedDataA], asyncCall = asyncWork)
                 asyncA = not asyncA
 
         self.backupWork(preparedDataA, evaloutA)
-
-        cdef list result = []
-
-        cdef MCTSNode node
-
-        for node in nodes:
-            generics = dict()
-            generics["net_values"] = [x for x in node.netValueEvaluation]
-            generics["net_priors"] = node.getNetworkPriors()
-            result.append((node.getMoveDistribution(), generics))
-
-        return result

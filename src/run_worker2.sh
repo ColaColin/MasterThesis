@@ -42,7 +42,7 @@ else
 
   touch $CHECK_FILE
 fi
-P42109ct
+
 MAX_PER_GPU=3
 
 if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '1080 Ti'; then

@@ -20,6 +20,7 @@ from core.training.StreamTrainingWorker import StreamTrainingWorker
 from core.training.StreamTrainingWorker import ConstantWindowSizeManager, SlowWindowSizeManager
 from core.solved.supervised import SupervisedNetworkTrainer
 from core.training.StreamTrainingWorker2 import StreamTrainingWorker2
+from impls.selfplay.PlayersSelfplay import LeagueSelfPlayerWorker, FixedPlayerAccess, FixedThinkDecider
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -29,6 +30,9 @@ registered = False
 def registerClasses():
     global registered
     if not registered:
+        mlconfig.register(FixedPlayerAccess)
+        mlconfig.register(FixedThinkDecider)
+        mlconfig.register(LeagueSelfPlayerWorker)
         mlconfig.register(NoopPolicyUpdater)
         mlconfig.register(NoopGameReporter)
         mlconfig.register(DatasetPolicyTester)

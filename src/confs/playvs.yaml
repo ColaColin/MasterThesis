@@ -1,6 +1,6 @@
 main:
   name: PlayVs
-  externalPlayerNumber: 11
+  externalPlayerNumber: 1
   policy: $resnet
   policyIterator: $mcts
   policyUpdater: $loader
@@ -16,9 +16,8 @@ bestMoves:
   explorationPlyCount: 0
 
 loader:
-  name: SingleProcessUpdater
-  trainEpochs: 3
-  state: /ImbaKeks/runs/connect4
+  name: FilePolicyUpdater
+  path: /ImbaKeks/x0/91_7_network_extended_iteration_28
 
 mnk:
   name: Connect4GameState
@@ -28,24 +27,54 @@ mnk:
 
 mcts:
   name: MctsPolicyIterator
-  expansions: 100
-  cpuct: 1
-  rootNoise: 0.5
-  drawValue: 0.5
+  expansions: 500
+  cpuct: 1.545
+  rootNoise: 0.25
+  drawValue: 0.6913
+  alphaBase: 20.38
+  fpu: 0.8545
 
 optimizerArgs:
   name: dict
   lr: 0.001
   weight_decay: 0.0001
 
+lrcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.02
+  peakVal: 0.2
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 20
+  targetReductionFactor: 0.4
+
+momentumcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.95
+  peakVal: 0.85
+  endVal: 0.95
+  dbgName: momentum
+
 resnet:
   name: PytorchPolicy
-  batchSize: 1
-  blocks: 3
-  filters: 64
+  batchSize: 256
+  blocks: 5
+  filters: 128
   headKernel: 3
   headFilters: 64
+  extraHeadFilters: 32
   protoState: $mnk
+  silent: true
   device: cuda
-  optimizerName: torch.optim.adamw.AdamW
+  lrDecider: $lrcycle
+  momentumDecider: $momentumcycle
+  optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  valueLossWeight: 0.01
+  networkMode: sq
+  replyWeight: 0.35
