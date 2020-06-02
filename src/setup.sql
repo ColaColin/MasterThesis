@@ -64,6 +64,26 @@ create table run_iteration_stats (
     primary key (run, iteration)
 );
 
+create table league_players (
+    id uuid primary key,
+    run uuid references runs (id) on delete cascade not null,
+    rating float not null,
+    -- stringified json for simplicity sake, the parameter data is very generic
+    parameter_vals varchar not null,
+    parameter_stddevs varchar not null
+);
+
+create table league_matches(
+    id serial primary key,
+    run uuid references runs (id) on delete cascade not null,
+    player1 uuid references league_players (id) on delete cascade not null,
+    player2 uuid references league_players (id) on delete cascade not null,
+    result float not null,
+    ratingChange float not null,
+    creation timestamptz not null
+
+);
+
 create view runs_info as
     select r.id, r.name, r.creation, count(n.id) as iterations
     from runs r

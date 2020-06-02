@@ -5,12 +5,18 @@ from core.playing.SelfPlayWorker import SelfPlayWorker
 
 from utils.misc import hConcatStrings
 
+from utils.req import requestJson, postJson
+
 import time
 
 import datetime
 import numpy as np
 
 import random
+
+import sys
+
+import threading
 
 # selfplay with "players" (i.e. mcts hyperparameter sets) that compete a in league against each other
 # will not support playout caps, maybe they could be added in later, but for now they do not seem to help easily anyway.
@@ -44,15 +50,7 @@ class FixedThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
         self.expansions = expansions
 
     def wantsToThinkBatch(self, piterators, remainings, currentIterations):
-        result = []
-
-        for ci in currentIterations:
-            diff = random.random() * 100 - 50            
-            result.append(self.expansions > ci - diff)
-
-        return result
-
-        #return [self.expansions > ci for ci in currentIterations]
+        return [self.expansions > ci for ci in currentIterations]
 
 class FixedPlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
     """
@@ -66,7 +64,101 @@ class FixedPlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         return (("p1", self.parameters), ("p2", self.parameters))
 
     def reportResult(self, p1Id, p2Id, winnerId):
-        print("Reported result:", p1Id, "vs", p2Id, "; winner is:", winnerId)
+        pass
+
+class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
+    """
+    evolvoing set of players managed on a server. Starts a thread which in regular intervals pulls the list of players
+    from the server, getNextMatch generates matches from that list.
+    reportResult pushes results back to the server.
+    Requires same sys arguments:
+        --command <command server host>
+        --secret <server api password>
+        --run <run-uuid>
+    """
+
+    def __init__(self):
+        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
+
+        if not hasArgs:
+            raise Exception("You need to provide arguments for LeaguePlayerAccess: --secret <server password>, --run <uuid> and --command <command server host>!")
+
+        self.secret = sys.argv[sys.argv.index("--secret")+1]
+        self.run = sys.argv[sys.argv.index("--run")+1]
+        self.commandHost = sys.argv[sys.argv.index("--command")+1]
+
+        # list of all known players, sorted by their rating in a descending fashion
+        # Data format is tuples: (player-id-string, player-rating, player-parameters)
+        self.playerList = []
+
+        # reports of games waiting to be send by the network thread.
+        self.pendingReports = []
+
+        self.networkThread = threading.Thread(target=self.procNetwork)
+        self.networkThread.daemon = True
+        self.networkThread.start()
+
+    def procNetwork(self):
+        logMsg("Started league management network thread!")
+        while True:
+            try:
+                while len(self.pendingReports) > 0:
+                    report = self.pendingReports.pop()
+                    rDict = dict()
+                    rDict["p1"] = report[0]
+                    rDict["p2"] = report[1]
+                    rDict["winner"] = report[2]
+                    postJson(self.commandHost + "/api/league/reports/" + self.run, self.secret, rDict)
+
+                self.playerList = requestJson(self.commandHost + "/api/league/players/" + self.run, self.secret)
+
+                time.sleep(3)
+            except Exception as error:
+                print(error)
+
+        logMsg("something bad happened to the league network thread, quitting worker!!!")    
+        exit(-1)
+
+    def getNextMatch(self):
+        while len(self.playerList) < 2:
+            logMsg("Waiting for player list to be filled!")
+            time.sleep(1)
+
+        # the list might be replaced by the network thread, so take the current list and store the reference
+        lst = self.playerList
+
+        p1Idx = random.randint(0, len(lst)-1)
+        stepProp = 0.1
+
+        p2Offset = 1
+        while True:
+            upP2 = p1Idx + p2Offset
+            downP2 = p1Idx - p2Offset
+
+            failedUp = upP2 >= len(lst)
+            failedDown = downP2 < 0
+
+            if not failedUp and random.random() < stepProp:
+                p2Idx = upP2
+                break
+
+            if not failedDown and random.random() < stepProp:
+                p2Idx = downP2
+                break
+
+            if failedDown and failedUp:
+                if p1Idx == 0:
+                    p2Idx = 1
+                else:
+                    p2Idx = p1Idx - 1
+                break
+
+            p2Offset += 1
+
+        return ((lst[p1Idx][0], lst[p1Idx][2]), (lst[p2Idx][0], lst[p2Idx][2]))
+
+    def reportResult(self, p1Id, p2Id, winnerId):
+        self.pendingReports.append((p1Id, p2Id, winnerId))
 
 class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
     def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider,\
@@ -238,7 +330,7 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             moveTimeNs += time.monotonic_ns() - iterStartTime
 
             #Do not enable unless you run a specific config that only has a very low gameCount, else it will spam your terminal.
-            self.debugPrintState(moveTimeNs)
+            #self.debugPrintState(moveTimeNs)
 
         moveTimeNs /= (movesPlayed - self.prevMoves)
 

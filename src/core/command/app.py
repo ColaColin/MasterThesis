@@ -9,6 +9,7 @@ from core.command.networkStats import NetworkStatsResource
 from core.command.runsha import RunShaResource
 from core.command.insight import InsightResource
 from core.command.frametime import FrametimeResource
+from core.command.league import LeagueResource
 
 import psycopg2
 from psycopg2 import pool
@@ -54,6 +55,9 @@ def defineApp(config):
 
         state = StateResource(pool, config)
         app.add_route("/api/state/{key}/{entity_id}", state)
+
+        league = LeagueResource(pool)
+        app.add_route("/api/league/{mode}/{run_id}", league)
 
         networks = NetworksResource(pool, config)
         app.add_route("/api/networks/{param1}/{param2}", networks)

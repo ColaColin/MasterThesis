@@ -342,12 +342,15 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             parameters["alphaBase"] = alphaBase
             parameters["expansions"] = expansions
 
-        assert rootNoise is not None, "YOu need to set a rootNoise value!"
+        assert rootNoise is not None, "You need to set a rootNoise value!"
 
         logMsg("Creating MctsPolicyIterator with noise of %.2f and parameters dict:\n" % (rootNoise, ), parameters)
         self.rootNoise = rootNoise
         self.parameters = parameters
-        self.expansions = parameters["expansions"]
+        if "expansions" in parameters:
+            self.expansions = parameters["expansions"]
+        else:
+            self.expansions = None
 
     def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node
@@ -429,6 +432,8 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             else:
                 preparedDataB = me.cpuWork(iteratorsB, preparedDataB, evaloutB)
         
+        assert not (iterations is None and self.expansions is None), "You need to provide either a fixed expansions value or use the LeagueSelfplayWorker!"
+
         cdef int nodeExpansions
         nodeExpansions = self.expansions if iterations is None else iterations
 

@@ -2,6 +2,8 @@ import mlconfig
 
 import mlconfig
 
+from core.mains.mlconfsetup import loadMlConfig
+
 from utils.prints import logMsg, setLoggingEnabled
 
 from impls.selfplay.LinearSelfPlay import LinearSelfPlayWorker
@@ -165,7 +167,21 @@ if __name__ == "__main__":
     # for i in range(20):
     #     print("i = %i, Window size: %i, iteration size: %i" % (i, wm.getWindowSize(i), wm.getIterationSize(i)))
 
-    games = [str(getRandomGame()) for _ in range(3)]
-    games[1] += "\nOne more line"
+    # games = [str(getRandomGame()) for _ in range(3)]
+    # games[1] += "\nOne more line"
     
-    print(hConcatStrings(games))
+    # print(hConcatStrings(games))
+
+    core = loadMlConfig("confs/distributedworker.yaml")
+    league = core.serverLeague()
+
+    p1 = league.newPlayer()
+
+    p1M1 = league.mutatePlayer(p1)
+    p1M2 = league.mutatePlayer(p1)
+
+    print(p1)
+    print(p1M1)
+    print(p1M2)
+
+    print(league.getNewRatings(1700, 1600, 0.5))

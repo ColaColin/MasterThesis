@@ -58,21 +58,43 @@ resnet:
   networkMode: sq
   replyWeight: 0.35
 
-mctsParameters:
+playerParameters:
   name: dict
-  expansions: 343
   cpuct: 1.545
   drawValue: 0.6913
   alphaBase: 20.38
   fpu: 0.8545
 
+thinkVector:
+  name: dict
+  length: 10
+  range: [-1, 1]
+
+playerParameterRanges:
+  name: dict
+  cpuct: [0.1, 8]
+  drawValue: [0, 1]
+  alphaBase: [5, 30]
+  fpu: [-0.2, 1.2]
+#  thinkVector: $thinkVector
+
+serverLeague:
+  name: EloGaussServerLeague
+  parameters: $playerParameterRanges
+  generationGames: 1000
+  populationSize: 50
+  mutateTopN: 15
+  mutateCount: 2
+  initialRating: 1600
+  n: 400
+  K: 32
+
 hAccess:
-  name: FixedPlayerAccess
-  parameters: $mctsParameters
+  name: LeaguePlayerAccess
 
 mcts:
   name: MctsPolicyIterator
-  parameters: $mctsParameters
+  parameters: $playerParameters
   rootNoise: 0.25
 
 tempDecider:

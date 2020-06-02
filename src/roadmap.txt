@@ -239,9 +239,10 @@ WK 23
      [~] complete extended run
      [ ] write some code that makes diagrams from the data on the server to be included into latex
      [ ] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
-     [ ] writing goal: Complete stuff about the extended run
+     [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
 WK 24
      [ ] buffer
+     [ ] writing goal: Complete stuff about the extended run
 WK 25
      [ ] play games as mcts-like-trees
      [ ] writing goal: Complete stuff about the hyperparameter search
@@ -254,10 +255,12 @@ WK 27
      [ ] prepare presentation?
 WK 28
      [ ] writing goal: conclusions
-     [ ] hold presentation or at start of week 29?
+     [ ] hold presentation or in week 29?
 
-WK 29: Deadline is Wednesday
+WK 29
+     [ ] buffer
 
+WK 30: deadline on Wednesday
 
 
      Skip it?:
