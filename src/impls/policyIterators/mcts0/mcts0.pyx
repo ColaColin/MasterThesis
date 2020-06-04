@@ -293,7 +293,7 @@ cdef class MCTSNode():
         return result
 
 class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
-    def __init__(self, game, playerHyperParams, rootNoise, noExploration, defaultParameters):
+    def __init__(self, game, playerHyperParams, rootNoise, noExploration, defaultParameters = None):
         self.game = game
         self.playerHyperParams = playerHyperParams
         self.rootNoise = rootNoise
@@ -307,6 +307,7 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
             self.fpu = playerHyperParams[pIndex]["fpu"]
             self.alphaBase = playerHyperParams[pIndex]["alphaBase"]
         else:
+            assert defaultParameters is not None
             self.playerHyperparams = defaultParameters
             self.cpuct = defaultParameters["cpuct"]
             self.drawValue = defaultParameters["drawValue"]
@@ -325,6 +326,7 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
         generics = dict()
         generics["net_values"] = [x for x in node.netValueEvaluation]
         generics["net_priors"] = node.getNetworkPriors()
+        generics["mcts_state_value"] = node.stateValue
         return (node.getMoveDistribution(), generics)
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
@@ -334,7 +336,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """
     def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None):
         # newer configs use the parameters value, but older configs still use the direct properties, so support both
-        if parameters is None: #old config
+        if parameters is None and cpuct is not None: #old config
             parameters = dict()
             parameters["cpuct"] = cpuct
             parameters["drawValue"] = drawValue
@@ -347,10 +349,12 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         logMsg("Creating MctsPolicyIterator with noise of %.2f and parameters dict:\n" % (rootNoise, ), parameters)
         self.rootNoise = rootNoise
         self.parameters = parameters
-        if "expansions" in parameters:
+        if parameters is not None and "expansions" in parameters:
             self.expansions = parameters["expansions"]
         else:
-            self.expansions = None
+            self.expansions = expansions
+        
+        assert self.expansions is not None, "for the evaluator you have to provide a value for mcts tree expansions!"
 
     def backupWork(self, list backupSet, list evalout):
         cdef MCTSNode node

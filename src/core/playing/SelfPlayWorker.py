@@ -41,7 +41,7 @@ class SelfPlayWorker(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def initSelfplay(self):
+    def initSelfplay(self, runId):
         """
         Call once before starting to loop over playBatch()
         """

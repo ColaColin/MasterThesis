@@ -70,7 +70,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         while True:
             self.playBatch()
 
-    def initSelfplay(self):
+    def initSelfplay(self, runId):
         self.policy = self.policyUpdater.update(self.policy)
         assert not (self.policy is None), "the policy updater returned a None policy!"
 
@@ -101,7 +101,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 self.addTrackingData(iteratedPolicy)
 
                 # potentially update the policy with a new policy from somewhere (e.g. a training server)
-                self.initSelfplay()
+                self.initSelfplay(None)
 
             # play the moves using the iterated policy.
             playStart = time.monotonic_ns()

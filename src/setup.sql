@@ -1,11 +1,12 @@
 -- run this to setup or reset the database to have all the tables needed
 
-drop table if exists run_iteration_stats;
-drop view if exists runs_info;
-drop table if exists states;
-drop table if exists networks;
-drop table if exists runs;
-
+drop table if exists run_iteration_stats cascade;
+drop view if exists runs_info cascade;
+drop table if exists states cascade;
+drop table if exists networks cascade;
+drop table if exists runs cascade;
+drop table if exists league_players cascade;
+drop table if exists league_matches cascade;
 
 create table runs (
     id uuid primary key,
@@ -76,6 +77,7 @@ create table league_players (
 create table league_matches(
     id serial primary key,
     run uuid references runs (id) on delete cascade not null,
+    network uuid references networks(id) on delete cascade,
     player1 uuid references league_players (id) on delete cascade not null,
     player2 uuid references league_players (id) on delete cascade not null,
     result float not null,

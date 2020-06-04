@@ -7,6 +7,8 @@ import json
 import setproctitle
 import subprocess
 
+from utils.prints import logMsg, setLoggingEnabled
+
 def getCommandConfiguration():
     cfg = {
         "staticPath": os.path.join(os.getcwd(), "core/command/frontend/"),
@@ -41,6 +43,7 @@ def spawnStatsGenerator():
 
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_command")
+    setLoggingEnabled(True)
     cfg = getCommandConfiguration()
     statsGen = None
     try:

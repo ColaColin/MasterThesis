@@ -137,6 +137,36 @@ function CommandPageModel() {
     self.statesList = ko.observable([]);
     self.statsList = ko.observable([]);
 
+    self.playersList = ko.observable([]);
+    self.players = ko.computed(() => {
+        let plst = self.playersList();
+        return plst.slice(0, 10).map(x => {
+            return {
+                id: x[0].split("-")[0],
+                wins: x[3][0],
+                losses: x[3][1],
+                draws: x[3][2],
+                rating: Math.round(x[1]),
+                parameters: x[2]
+            }
+        });
+    });
+
+    self.matches = ko.observable([]);
+    self.matchesDisplay = ko.computed(() => {
+        let lst = self.matches();
+        return lst.map(x => {
+            return {
+                p1: x[0].split("-")[0],
+                p2: x[1].split("-")[0],
+                p1Win: x[2] == 1,
+                p2Win: x[2] == 0,
+                rating: x[3],
+                time: formatTimeSince(x[4], 60)
+            }
+        });
+    });
+
     self.loadReportsAscii = async function() {
         let runs = await self.authFetch("/api/insight/" + self.shownReportId(), {
             method: "GET",
@@ -294,6 +324,24 @@ function CommandPageModel() {
         }
     };
 
+    self.pullLeague = async (forRunId) => {
+        let players = await self.authFetch("/api/league/players/" + forRunId, {
+            method: "GET"
+        });
+        if (players.ok) {
+            let pulled = await players.json();
+            self.playersList([]);
+            self.playersList(pulled);
+        }
+        let m = await self.authFetch("/api/league/matches/"+forRunId, {
+            method: "GET"
+        });
+        if (m.ok) {
+            self.matches([]);
+            self.matches(await m.json());
+        }
+    };
+
     self.pullNetworks = async (forRunId) => {
         let networks = await self.authFetch("/api/networks/list/" + forRunId, {
             method: "GET"
@@ -429,8 +477,9 @@ function CommandPageModel() {
         self.upCounter++;
         let runId = self.selectedRun();
         if (runId != null) {
-            if (self.upCounter % 20 === 1) {
+            if (self.upCounter % 10 === 1) {
                 console.log("update");
+                await self.pullLeague(runId);
                 await self.pullNetworks(runId);
                 await self.pullStates(runId);
                 await self.pullStats(runId);
@@ -443,13 +492,13 @@ function CommandPageModel() {
 
                 let preStats = self.statsList();
                 self.statsList([])
-                self.statsList(preStats)
+                self.statsList(preStats);
             }
             setTimeout(() => {
                 if (self.selectedRun() != null) {
                     self.updateForActiveRun();
                 }
-            }, 500);
+            }, 1000);
         }
     };
 
@@ -458,10 +507,14 @@ function CommandPageModel() {
         this.get("#runs/new", function() {
             self.selectedRun(null);
             self.shownReportFrame(0);
+            self.playersList([]);
+            self.matches([]);
         });
 
         this.get("#runs/list", function() {
             console.log("List runs!");
+            self.playersList([]);
+            self.matches([]);
             self.shownReportFrame(0);
             self.currentHash(location.hash);
             self.pullRuns();

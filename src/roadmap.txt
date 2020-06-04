@@ -267,7 +267,7 @@ WK 30: deadline on Wednesday
      [?] implement network architecture changes: gather-excite and mobilenetv3
           -> maybe skip this, the improvements from squeeze-excite where already quite small, gather-excite should be an even smaller step up. Not worth the time.
 
-
+     [ ] use the thinkdecider in the evaluation code by estimating the average number of remaining moves based on the turn number.
 
      Implement suggested new improvements, first the network architecture changes:
        - gather-excity blocks

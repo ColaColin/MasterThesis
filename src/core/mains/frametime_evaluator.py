@@ -25,16 +25,16 @@ from core.mains.mlconfsetup import loadMlConfig
 
 #make sure the gpu is 100% loaded by using enough worker threads!
 PROC_COUNT = 4
-BATCH_COUNT = 50
+BATCH_COUNT = 60
 
-def measureFrametime(configPath, idx):
+def measureFrametime(configPath, idx, run):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
     core = loadMlConfig(configPath)
     setLoggingEnabled(False)
 
     worker = core.worker(recursive=True)
 
-    worker.initSelfplay()
+    worker.initSelfplay(run)
 
     times = []
 
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         with getNetworkFile(network) as networkFile:
             with getRunConfig(run, networkFile.name) as config:
                 for idx in range(PROC_COUNT):
-                    callResults.append(pool.apply_async(measureFrametime, (config.name, idx)))
+                    callResults.append(pool.apply_async(measureFrametime, (config.name, idx, run)))
                 callResults = list(map(lambda x: 1000 / x.get(), callResults))
 
         frametime = 1000 / sum(callResults)

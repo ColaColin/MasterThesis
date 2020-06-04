@@ -36,8 +36,8 @@ if __name__ == "__main__":
     def getNextWork():
         while True:
             nextWork = requestJson(commandHost + "/api/evaluations/", secret)
-            if len(nextWork) > 0:
-                return nextWork[0]["run"], nextWork[0]["network"]
+            if len(nextWork) > 1:
+                return nextWork[1]["run"], nextWork[1]["network"]
             time.sleep(15)
 
     def getRunConfig(runId):
@@ -80,6 +80,9 @@ if __name__ == "__main__":
 
         logMsg("Evaluation: Loaded policy with id", policy.getUUID())
 
+        # this will be an empty dict for runs without a player-league, which will then have no effect
+        bestPlayer = requestJson(commandHost + "/api/bestplayer/" + policy.getUUID(), secret)
+
         policyIterator = core.worker.policyIterator(recursive=True)
 
         # pick the best moves moveDecider
@@ -88,7 +91,7 @@ if __name__ == "__main__":
         initialState = core.worker.initialState(recursive=True)
 
         networkPlayer = PolicyPlayer(policy, None, moveDecider)
-        fullPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128)
+        fullPlayer = PolicyIteratorPlayer(policy, policyIterator, None, moveDecider, 128, playerParams=bestPlayer)
 
         networkMoveAcc, networkWinAcc = DatasetPolicyTester2(networkPlayer, datasetPath, initialState).main()
         mctsMoveAcc, _ = DatasetPolicyTester2(fullPlayer, datasetPath, initialState).main()

@@ -79,3 +79,11 @@ tr:nth-child(even) {
 .monospace {
     font-family: monospace, monospace;
 }
+
+.winner {
+    color: green;
+}
+
+.loser {
+    color: red;
+}

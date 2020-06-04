@@ -146,6 +146,65 @@
                             </table>
                         </div>
                         <div bp="2">
+                            Top 10 players:
+                        </div>
+                        <div bp="10">
+                            <table class="fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>W</th>
+                                        <th>L</th>
+                                        <th>D</th>
+                                        <th>Rating</th>
+                                        <th>Parameters</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: players">
+                                    <tr>
+                                        <td data-bind="text: $data.id"></td>
+                                        <td data-bind="text: $data.wins"></td>
+                                        <td data-bind="text: $data.losses"></td>
+                                        <td data-bind="text: $data.draws"></td>
+                                        <td data-bind="text: $data.rating"></td>
+                                        <td>
+                                            <table>
+                                                <tbody data-bind="foreach: Object.keys($data.parameters)">
+                                                    <td data-bind="text: JSON.stringify($data)"></td>
+                                                    <td data-bind="text: $parent.parameters[$data]"></td>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            Overall <span data-bind="text: playersList().length"></span> players.
+                        </div>
+                        <!-- <div bp="2">
+                            Recent games:
+                        </div>
+                        <div bp="10">
+
+                            <table class="fullwidth">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Player1</th>
+                                        <th>Player2</th>
+                                        <th>Rdiff</th>
+                                    </tr>
+                                </thead>
+                                <tbody data-bind="foreach: matchesDisplay">
+                                    <tr>
+                                        <td data-bind="text: $data.time"></td>
+                                        <td data-bind="text: $data.p1, css: {winner: $data.p1Win, loser: $data.p2Win}"></td>
+                                        <td data-bind="text: $data.p2, css: {winner: $data.p2Win, loser: $data.p1Win}"></td>
+                                        <td data-bind="text: $data.rating"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div> -->
+                        <div bp="2">
                             Statistics
                         </div>
                         <div bp="10">

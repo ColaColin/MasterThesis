@@ -24,6 +24,7 @@ class PIteratorInstance(metaclass=abc.ABCMeta):
         @return the game this iterator is for
         """
 
+# in hindsight this class should have been named PolicyIteratorFactory, but the name is stuck now
 class PolicyIterator(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def createIterator(self, game, playerHyperparametersDict=dict(), noExploration=False):
@@ -36,12 +37,12 @@ class PolicyIterator(metaclass=abc.ABCMeta):
         @return: A PIteratorInstance
         """
 
-    def iteratePolicy(self, policy, gamesBatch, noExploration = False):
+    def iteratePolicy(self, policy, gamesBatch, noExploration = False, playerHyperparametersDict=dict()):
         """
         old iteratePolicy, still used in places where fine grained control is not required (i.e. everywhere except PlayersSelfplay).
         Handles iterator creation for the user, but also falls back to calling the extended version internally.
         """
-        iterators = [self.createIterator(g, noExploration=noExploration) for g in gamesBatch]
+        iterators = [self.createIterator(g, playerHyperparametersDict=playerHyperparametersDict, noExploration=noExploration) for g in gamesBatch]
         self.iteratePolicyEx(policy, iterators)
         return [ix.getResult() for ix in iterators]
 

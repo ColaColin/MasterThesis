@@ -9,7 +9,7 @@ from core.command.networkStats import NetworkStatsResource
 from core.command.runsha import RunShaResource
 from core.command.insight import InsightResource
 from core.command.frametime import FrametimeResource
-from core.command.league import LeagueResource
+from core.command.league import LeagueResource, BestPlayerResource
 
 import psycopg2
 from psycopg2 import pool
@@ -76,6 +76,9 @@ def defineApp(config):
 
         insight = InsightResource(config)
         app.add_route("/api/insight/{report_id}", insight)
+
+        bestPlayers = BestPlayerResource(pool)
+        app.add_route("/api/bestplayer/{net_id}", bestPlayers)
 
         app.add_route("/password", LoginResource(config["secret"]))
 

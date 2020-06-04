@@ -34,7 +34,8 @@ class InsightResource():
 
             txt = datetime.datetime.fromtimestamp(record["creation"]).strftime('%Y-%m-%d %H:%M:%S.%f') + "\n"
             txt += "\nPlayed by policy " + record["policyUUID"] + "\n"
-
+            if "numIterations" in record:
+                txt += "Number of MCTS iterations: " + str(record["numIterations"]) + "\n"
             txt += gameState.prettyString(networkMoves, networkWins, iteratedMoves, knownResults, replyMoves=replyMoves) + "\n"
 
             result.append(txt)

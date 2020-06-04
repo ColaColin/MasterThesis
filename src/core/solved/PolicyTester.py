@@ -53,12 +53,19 @@ class SolverBatchedPolicyPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
         return result
 
 class PolicyIteratorPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
-    def __init__(self, policy, policyIterator, policyUpdater, moveDecider, batchSize):
+    def __init__(self, policy, policyIterator, policyUpdater, moveDecider, batchSize, playerParams = dict()):
         self.policy = policy
         self.policyIterator = policyIterator
         self.policyUpdater = policyUpdater
         self.moveDecider = moveDecider
         self.batchSize = batchSize
+
+        if len(playerParams) > 0:
+            logMsg("Will test with player configuration:", playerParams)
+
+        self.playerParams = dict()
+        self.playerParams[1] = playerParams
+        self.playerParams[2] = playerParams
 
     def getMoves(self, batch):
         if not self.policyUpdater is None:
@@ -68,7 +75,7 @@ class PolicyIteratorPlayer(BatchedPolicyPlayer, metaclass=abc.ABCMeta):
 
         while len(batch) > 0:
             miniBatch = [state for (state, _) in batch[:self.batchSize]]
-            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, miniBatch, noExploration=True)
+            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, miniBatch, noExploration=True, playerHyperparametersDict=self.playerParams)
             result += list(map(lambda x: (self.moveDecider.decideMove(x[0], x[1][0], x[1][1]), 0), zip(miniBatch, iteratedPolicy)))
 
             batch = batch[self.batchSize:]

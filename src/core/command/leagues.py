@@ -9,6 +9,8 @@ import json
 import datetime
 from utils.prints import logMsg
 
+import time
+
 class ServerLeague(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def getPlayers(self, pool, runId):
@@ -21,7 +23,7 @@ class ServerLeague(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def reportResult(self, p1, p2, winner, runId, pool):
+    def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
@@ -64,24 +66,26 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 con = pool.getconn()
                 cursor = con.cursor()
 
-                cursor.execute("SELECT player1, player2, result, ratingChange, creation where run = %s", (runId, ))
+                cursor.execute("SELECT player1, player2, result, ratingChange, creation from league_matches where run = %s", (runId, ))
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    self.matchHistory.append(row[0], row[1], row[2], row[3], int(row[4].timestamp() * 1000))
+                    self.matchHistory.append((row[0], row[1], row[2], row[3], int(row[4].timestamp() * 1000)))
 
             finally:
                 if cursor:
                     cursor.close()
                 pool.putconn(con)
 
-        self.loadedMatchHistory.sort(key=lambda x: x[4])
+            logMsg("Loaded a history of %i matches for run %s" % (len(self.matchHistory), runId))
+
+        self.matchHistory.sort(key=lambda x: x[4])
         return self.matchHistory
 
     def loadPlayers(self, pool, runId):
         if not self.loadedPlayers:
             self.loadedPlayers = True
-            
+
             try:
                 con = pool.getconn()
                 cursor = con.cursor()
@@ -97,21 +101,58 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                     cursor.close()
                 pool.putconn(con)
 
+            logMsg("Loaded existing %i players for run %s" % (len(self.players), runId))
+
             if len(self.players) == 0:
                 # no players in the db -> init first generation of players
                 self.initPlayers()
                 self.persistPlayers(pool, runId)
 
+                logMsg("Initialized %i players for run %s" % (len(self.players), runId))
+
         self.sortPlayers()
 
     def persistPlayer(self, pool, player, runId):
-        # TODO , this needs to insert or update, depending on the existance of playerId
-        pass
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+            cursor.execute("SELECT id from league_players where id = %s", (player[0],))
+            alreadyExists = len(cursor.fetchall()) > 0
+            cursor.close()
+            cursor = con.cursor()
+            if not alreadyExists:
+                cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs) VALUES (%s, %s, %s, %s, %s)",\
+                    (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3])))
+            else:
+                cursor.execute("update league_players set rating = %s, parameter_vals = %s, parameter_stddevs = %s where id = %s",\
+                    (player[1], json.dumps(player[2]), json.dumps(player[3]), player[0]))
+            con.commit()
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
 
     def addNewMatch(self, pool, runId, match):
         self.matchHistory.append(match)
-        print("Added a new match to the history:", match)
-        # TODO insert the match into the db
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+
+            cursor.execute("SELECT id from networks where id = %s", (match[5],))
+            knowsNetwork = len(cursor.fetchall()) > 0
+
+            cursor.close()
+            cursor = con.cursor()
+
+            tstamp = datetime.datetime.fromtimestamp(match[4] / 1000).astimezone().isoformat()
+            cursor.execute("insert into league_matches (run, network, player1, player2, result, ratingChange, creation) VALUES (%s,%s,%s,%s,%s,%s,%s)",\
+                (runId, match[5] if knowsNetwork else None, match[0], match[1], match[2], match[3], tstamp))
+
+            con.commit()
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
 
     def persistPlayers(self, pool, runId):
         for p in self.players:
@@ -153,7 +194,8 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
     def mutatePlayer(self, player):
         playerId = str(uuid.uuid4())
-        playerRating = player[1]
+        # TODO configuration of the "mutated players probably suck and need to prove themselves"-value
+        playerRating = player[1] - 100
 
         currentParameters = player[2]
         currentStddevs = player[3]
@@ -223,18 +265,26 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     def sortPlayers(self):
         self.players.sort(key=lambda x: x[1], reverse=True)
 
-    def getPlayerStats(self, playerId):
-        matchesAs1 = list(filter(lambda x: x[0] == playerId, self.matchHistory))
-        matchesAs2 = list(filter(lambda x: x[1] == playerId, self.matchHistory))
+    def getAllPlayerStats(self):
+        statsDict = dict()
 
-        winsAs1 = len(list(filter(lambda x: x[2] == 1, matchesAs1)))
-        winsAs2 = len(list(filter(lambda x: x[2] == 0, matchesAs2)))
-        draws = len(list(filter(lambda x: x[2] == 0.5, matchesAs1 + matchesAs2)))
-        wins = winsAs1 + winsAs2
+        for x in self.matchHistory:
+            if not x[0] in statsDict:
+                statsDict[x[0]] = [0,0,0]
+            if not x[1] in statsDict:
+                statsDict[x[1]] = [0,0,0]
 
-        matches = len(matchesAs1) + len(matchesAs2)
-        losses = matches - wins - draws
-        return (wins, losses, draws)
+            if x[2] == 1:
+                statsDict[x[0]][0] += 1
+                statsDict[x[1]][1] += 1
+            elif x[2] == 0:
+                statsDict[x[0]][1] += 1
+                statsDict[x[1]][0] += 1
+            else:
+                statsDict[x[0]][2] += 1
+                statsDict[x[1]][2] += 1
+
+        return statsDict
 
     def getPlayers(self, pool, runId):
         """
@@ -242,21 +292,25 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         (player-id, player-rating, player-parameters, player-stats)
         """
         self.loadPlayers(pool, runId)
-        result = list(map(lambda x: (x[0], x[1], x[2], self.getPlayerStats(x[0])), self.players))
+        self.getMatchHistory(pool, runId)
 
-        print("==== players:")
-        for idx, p in enumerate(result):
-            if idx > 42:
-                break
-            foo = str(idx + 1)
-            if len(foo) < 2:
-                foo = "0" + foo
-            print("#"+foo, p[0].split("-")[1], int(p[1]), p[3], p[2])
+        pstats = self.getAllPlayerStats()
+
+        result = list(map(lambda x: (x[0], x[1], x[2], pstats[x[0]] if x[0] in pstats else [0,0,0]), self.players))
+
+        # print("==== players:")
+        # for idx, p in enumerate(result):
+        #     if idx > 42:
+        #         break
+        #     foo = str(idx + 1)
+        #     if len(foo) < 2:
+        #         foo = "0" + foo
+        #     print("#"+foo, p[0].split("-")[1], int(p[1]), p[3], p[2])
+        # print("... %i more players not shown" % (len(result) - 42))
 
         return result
 
     def calculateNumberOfPlayers(self):
-        print(len(self.matchHistory))
         generations = len(self.matchHistory) // self.generationGames
         newPlayersPerGeneration = self.mutateTopN * self.mutateCount
         return self.populationSize + newPlayersPerGeneration * generations
@@ -273,7 +327,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
             self.players += newPlayers
             self.sortPlayers()
-        logMsg("Next generation has begun, now there are %i players!" % len(self.players))
+            logMsg("Next generation has begun, now there are %i players!" % len(self.players))
 
     def getNewRatings(self, p1R, p2R, sa):
         ea = 1.0 / (1 + 10 ** ((p2R - p1R) / self.n))
@@ -294,12 +348,13 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         
         return (p1R, p2R)
 
-    def reportResult(self, p1, p2, winner, runId, pool):
+    def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
         """
         self.loadPlayers(pool, runId)
+        self.getMatchHistory(pool, runId)
         p1s = list(filter(lambda x: x[0] == p1, self.players))
         p2s = list(filter(lambda x: x[0] == p2, self.players))
         assert len(p1s) == 1
@@ -322,7 +377,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.persistPlayer(pool, p1s[0], runId)
         self.persistPlayer(pool, p2s[0], runId)
 
-        self.addNewMatch(pool, runId, (p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp())))
+        self.addNewMatch(pool, runId, (p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
         self.handleGenerations(pool, runId)
 
