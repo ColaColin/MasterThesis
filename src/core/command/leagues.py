@@ -356,7 +356,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         for x in self.matchHistory:
             self.addMatchToPlayerStats(x)
 
-   def getPlayers(self, pool, runId):
+    def getPlayers(self, pool, runId):
         """
         return a list of players, sorted by ranking, a player is a tuple:
         (player-id, player-rating, player-parameters, player-stats)
