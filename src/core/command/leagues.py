@@ -23,10 +23,12 @@ class ServerLeague(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
+    def reportResultBatch(self, rList, pool):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
+
+        rList is a list of tuples (p1, p2, winner, policyUUID, runId)
         """
 
     @abc.abstractmethod
@@ -54,6 +56,10 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         # players in the EloGaussServerLeague have a 4th entry in their tuple: a dict of
         # the same shape as the 3rd entry, which represents the std-devs of the gaussian mutation steps.
         self.players = []
+
+        # caching sets to reduce number of database queries
+        self.existingPlayers = set()
+        self.networkKnowledge = dict()
 
         self.loadedMatchHistory = False
         self.matchHistory = []
@@ -116,16 +122,78 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         try:
             con = pool.getconn()
             cursor = con.cursor()
-            cursor.execute("SELECT id from league_players where id = %s", (player[0],))
-            alreadyExists = len(cursor.fetchall()) > 0
-            cursor.close()
-            cursor = con.cursor()
+
+            if not (player[0] in self.existingPlayers):
+                cursor.execute("SELECT id from league_players where id = %s", (player[0],))
+                alreadyExists = len(cursor.fetchall()) > 0
+                cursor.close()
+                cursor = con.cursor()
+                if alreadyExists:
+                    self.existingPlayers.add(player[0])
+            else:
+                alreadyExists = True
+
             if not alreadyExists:
                 cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs) VALUES (%s, %s, %s, %s, %s)",\
                     (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3])))
             else:
                 cursor.execute("update league_players set rating = %s, parameter_vals = %s, parameter_stddevs = %s where id = %s",\
                     (player[1], json.dumps(player[2]), json.dumps(player[3]), player[0]))
+            con.commit()
+            self.existingPlayers.add(player[0])
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
+
+    def batchAddMatches(self, pool, runId, matches):
+        self.matchHistory += matches
+
+        knetworks = set()
+        for m in matches:
+            if not m[5] in self.networkKnowledge:
+                knetworks.add(m[5])
+        
+        for kn in knetworks:
+            try:
+                con = pool.getconn()
+                cursor = con.cursor()
+                cursor.execute("SELECT id from networks where id = %s", (kn,))
+                knowsNetwork = len(cursor.fetchall()) > 0
+                self.networkKnowledge[kn] = knowsNetwork
+            finally:
+                if cursor:
+                    cursor.close()
+                pool.putconn(con)
+        
+        def mkQMarkListsFor(qLsts):
+            result = ""
+            for qLst in qLsts:
+                result += "("
+                result += ",".join(["%s"] * len(qLst))
+                result += ")"
+            return result
+
+        flatten = lambda l: [item for sublist in l for item in sublist]
+
+        valLists = [];
+
+        for match in matches:
+            tstamp = datetime.datetime.fromtimestamp(match[4] / 1000).astimezone().isoformat()
+            valLists.append([runId, match[5] if self.networkKnowledge[match[5]] else None, match[0], match[1], match[2], match[3], tstamp])
+        
+        qLists = mkQMarkListsFor(valLists)
+
+        qList = ",".join(qLists)
+        valFlat = flatten(valLists)
+
+        iSql = "insert into league_matches (run, network, player1, player2, result, ratingChange, creation) VALUES " + qList
+        print(iSql, valFlat)
+
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+            cursor.execute(iSql, valFlat)
             con.commit()
         finally:
             if cursor:
@@ -134,6 +202,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
     def addNewMatch(self, pool, runId, match):
         self.matchHistory.append(match)
+
         try:
             con = pool.getconn()
             cursor = con.cursor()
@@ -348,13 +417,53 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         
         return (p1R, p2R)
 
+    def reportResultBatch(self, rList, pool):
+        self.loadPlayers(pool, runId)
+        self.getMatchHistory(pool, runId)
+        pDict = dict()
+        for p in self.players:
+            pDict[p[0]] = p
+        
+        persistsPlayers = set()
+        newMatches = []
+
+        for r in rList:
+            p1, p2, winner, policyUUID, runId = r
+
+            p1Object = pDict[p1]
+            p2Object = pDict[p2]
+
+            sa = 1
+            if winner is None:
+                sa = 0.5
+            if winner == p2:
+                sa = 0
+
+            p1R, p2R = self.getNewRatings(p1Object[1], p2Object[1], sa)
+
+            r1Change = p1R - p1Object[1]
+            r2Change = p2R - p2Object[1]
+
+            p1Object[1] = p1R
+            p2Object[1] = p2R
+
+            persistsPlayers.add(p1)
+            persistsPlayers.add(p2)
+
+            newMatches.append((p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
+
+        for pKey in persistsPlayers:
+            self.persistPlayer(pool, pDict[pkey], runId)
+        
+
+
     def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
         """
 
-        foo = time.monotonic()
+        assert False, "old code, do not call, delete it soon"
 
         self.loadPlayers(pool, runId)
         self.getMatchHistory(pool, runId)
