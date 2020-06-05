@@ -45,7 +45,7 @@ class LeagueResource():
         if league is None:
             resp.media = []
         elif mode == "players":
-            resp.media = league.getPlayers(self.pool, run_id)[:500]
+            resp.media = league.getPlayers(self.pool, run_id)
         else:
             allMatches = league.getMatchHistory(self.pool, run_id)
             cutMatches = list(reversed(allMatches))[:30]
