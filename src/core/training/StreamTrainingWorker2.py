@@ -231,7 +231,14 @@ class StreamManagement():
 
                 for state in self.serverStates:
                     if not state["id"] in self.downloadedStates:
-                        self.newPackages.append(requestBytes(self.command + "/api/state/download/" + state["id"], self.secret))
+
+                        if "127" in self.command or "localhost" in self.command:
+                            newPack = requestBytes(self.command + "/api/state/download/" + state["id"], self.secret)
+                        else:
+                            sid = state["id"]
+                            newPack = requestBytes(self.command + "/data/"+sid[0]+"/"+sid[1]+"/"+sid[2]+"/"+sid, self.secret)
+
+                        self.newPackages.append(newPack)
                         self.pendingUnpacks += state["packageSize"]
                         self.pendingDownloads -= state["packageSize"]
                         self.downloadedStates.add(state["id"])

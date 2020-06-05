@@ -238,7 +238,8 @@ Training set size | moves % | wins %
 WK 23
      [~] complete extended run
      [ ] write some code that makes diagrams from the data on the server to be included into latex
-     [ ] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
+     [X] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
+     [ ] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
 WK 24
      [ ] buffer

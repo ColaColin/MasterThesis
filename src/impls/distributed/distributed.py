@@ -74,7 +74,7 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
 
     def __init__(self, storage):
         self.lastNetworkCheck = -999
-        self.checkInterval = 3
+        self.checkInterval = 4
         self.storage = storage
 
         hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--worker" in sys.argv) and ("--command" in sys.argv)

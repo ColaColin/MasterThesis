@@ -200,7 +200,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
                 self.playerList = requestJson(self.commandHost + "/api/league/players/" + self.run, self.secret)
 
-                time.sleep(random.random() * 10 + 5)
+                time.sleep(random.random() * 10 + 6)
             except Exception as error:
                 print(error)
 
