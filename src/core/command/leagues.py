@@ -453,7 +453,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
             newMatches.append((p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
         for pKey in persistsPlayers:
-            self.persistPlayer(pool, pDict[pkey], runId)
+            self.persistPlayer(pool, pDict[pKey], runId)
         
 
 
