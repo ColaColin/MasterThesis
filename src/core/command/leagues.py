@@ -64,6 +64,8 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.loadedMatchHistory = False
         self.matchHistory = []
 
+        self.playerStatsDict = dict()
+
     def getMatchHistory(self, pool, runId):
         if not self.loadedMatchHistory:
             self.loadedMatchHistory = True
@@ -86,6 +88,9 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
             logMsg("Loaded a history of %i matches for run %s" % (len(self.matchHistory), runId))
 
             self.matchHistory.sort(key=lambda x: x[4])
+
+            self.recalcPlayerStats()
+
         return self.matchHistory
 
     def loadPlayers(self, pool, runId):
@@ -168,6 +173,9 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     def batchAddMatches(self, pool, runId, matches):
         self.matchHistory += matches
 
+        for m in matches:
+            self.addMatchToPlayerStats(m)
+
         knetworks = set()
         for m in matches:
             if not m[5] in self.networkKnowledge:
@@ -209,29 +217,6 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
             con = pool.getconn()
             cursor = con.cursor()
             cursor.execute(iSql, valFlat)
-            con.commit()
-        finally:
-            if cursor:
-                cursor.close()
-            pool.putconn(con)
-
-    def addNewMatch(self, pool, runId, match):
-        self.matchHistory.append(match)
-
-        try:
-            con = pool.getconn()
-            cursor = con.cursor()
-
-            cursor.execute("SELECT id from networks where id = %s", (match[5],))
-            knowsNetwork = len(cursor.fetchall()) > 0
-
-            cursor.close()
-            cursor = con.cursor()
-
-            tstamp = datetime.datetime.fromtimestamp(match[4] / 1000).astimezone().isoformat()
-            cursor.execute("insert into league_matches (run, network, player1, player2, result, ratingChange, creation) VALUES (%s,%s,%s,%s,%s,%s,%s)",\
-                (runId, match[5] if knowsNetwork else None, match[0], match[1], match[2], match[3], tstamp))
-
             con.commit()
         finally:
             if cursor:
@@ -349,28 +334,29 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     def sortPlayers(self):
         self.players.sort(key=lambda x: x[1], reverse=True)
 
-    def getAllPlayerStats(self):
-        statsDict = dict()
+    def addMatchToPlayerStats(self, x):
+        if not x[0] in self.playerStatsDict:
+            self.playerStatsDict[x[0]] = [0,0,0]
+        if not x[1] in self.playerStatsDict:
+            self.playerStatsDict[x[1]] = [0,0,0]
+
+        if x[2] == 1:
+            self.playerStatsDict[x[0]][0] += 1
+            self.playerStatsDict[x[1]][1] += 1
+        elif x[2] == 0:
+            self.playerStatsDict[x[0]][1] += 1
+            self.playerStatsDict[x[1]][0] += 1
+        else:
+            self.playerStatsDict[x[0]][2] += 1
+            self.playerStatsDict[x[1]][2] += 1
+
+    def recalcPlayerStats(self):
+        self.playerStatsDict = dict()
 
         for x in self.matchHistory:
-            if not x[0] in statsDict:
-                statsDict[x[0]] = [0,0,0]
-            if not x[1] in statsDict:
-                statsDict[x[1]] = [0,0,0]
+            self.addMatchToPlayerStats(x)
 
-            if x[2] == 1:
-                statsDict[x[0]][0] += 1
-                statsDict[x[1]][1] += 1
-            elif x[2] == 0:
-                statsDict[x[0]][1] += 1
-                statsDict[x[1]][0] += 1
-            else:
-                statsDict[x[0]][2] += 1
-                statsDict[x[1]][2] += 1
-
-        return statsDict
-
-    def getPlayers(self, pool, runId):
+   def getPlayers(self, pool, runId):
         """
         return a list of players, sorted by ranking, a player is a tuple:
         (player-id, player-rating, player-parameters, player-stats)
@@ -378,7 +364,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.loadPlayers(pool, runId)
         self.getMatchHistory(pool, runId)
 
-        pstats = self.getAllPlayerStats()
+        pstats = self.playerStatsDict
 
         result = list(map(lambda x: (x[0], x[1], x[2], pstats[x[0]] if x[0] in pstats else [0,0,0]), self.players))
 
@@ -470,44 +456,6 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.updatePlayers(pool, runId, list(map(lambda x: pDict[x], persistsPlayers)))
        
         self.batchAddMatches(pool, runId, newMatches)
-
-        self.handleGenerations(pool, runId)
-
-        self.sortPlayers()
-
-    def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
-        """
-        give two player ids, and either player1 id, player2id or None for a draw.
-        Update ratings and possibly mutate players as a response.
-        """
-
-        assert False, "old code, do not call, delete it soon"
-
-        self.loadPlayers(pool, runId)
-        self.getMatchHistory(pool, runId)
-        p1s = list(filter(lambda x: x[0] == p1, self.players))
-        p2s = list(filter(lambda x: x[0] == p2, self.players))
-        assert len(p1s) == 1
-        assert len(p2s) == 1
-
-        sa = 1
-        if winner is None:
-            sa = 0.5
-        if winner == p2:
-            sa = 0
-
-        p1R, p2R = self.getNewRatings(p1s[0][1], p2s[0][1], sa)
-
-        r1Change = p1R - p1s[0][1]
-        r2Change = p2R - p2s[0][1]
-
-        p1s[0][1] = p1R
-        p2s[0][1] = p2R
-
-        self.persistPlayer(pool, p1s[0], runId)
-        self.persistPlayer(pool, p2s[0], runId)
-
-        self.addNewMatch(pool, runId, (p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
         self.handleGenerations(pool, runId)
 
