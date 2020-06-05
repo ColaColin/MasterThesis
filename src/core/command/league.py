@@ -58,19 +58,22 @@ class LeagueResource():
         resp.status = falcon.HTTP_200
 
     def on_post(self, req, resp, mode = None, run_id = None):
-        startPost = time.monotonic()
+        
 
         assert run_id is not None
-        foo = time.monotonic()
         league = self.loadLeague(run_id)
-        print("!!!!!!A", time.monotonic() - foo)
         reports = req.media
+
+        startPost = time.monotonic()
         for report in reports:
             league.reportResult(report["p1"], report["p2"], report["winner"], report["policy"], run_id, self.pool)
+        finished = time.monotonic()
+        logMsg("league_on_post", len(reports), mode, run_id, "took", finished - startPost)
+
+
         resp.status = falcon.HTTP_200
 
-        finished = time.monotonic()
-        logMsg("league_on_post", mode, run_id, "took", finished - startPost)
+
 
 class BestPlayerResource():
 
