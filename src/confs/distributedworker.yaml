@@ -1,6 +1,6 @@
 reporter:
   name: DistributedReporter
-  packageSize: 1024
+  packageSize: 2048
 
 updater:
   name: DistributedNetworkUpdater2
@@ -60,16 +60,16 @@ resnet:
 
 playerParameterRanges:
   name: dict
-  cpuct: [0, 10]
+  cpuct: [1, 10]
   drawValue: [0, 1]
-  alphaBase: [3, 30]
-  fpu: [-0.2, 1.2]
-  stateW: [-5, 5]
-  turnW: [-0.35, 0.35]
-  expW: [-0.035, 0.035]
-  curHW: [-5, 5]
-  netHW: [-5, 5]
-  kldW: [-5000, 50000]
+  alphaBase: [10, 30]
+  fpu: [0, 1]
+  stateW: [-1, 1]
+  turnW: [-0.1, 0.1]
+  expW: [-0.015, 0.015]
+  curHW: [-1, 1]
+  netHW: [-1, 1]
+  kldW: [-5000, 10000]
   bias: [-20, 20]
 
 serverLeague:
