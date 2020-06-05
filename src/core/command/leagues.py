@@ -467,8 +467,8 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
             newMatches.append((p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
-        self.updatePlayers(pool, runId, persistsPlayers)
-        
+        self.updatePlayers(pool, runId, list(map(lambda x: pDict[x], persistsPlayers)))
+       
         self.batchAddMatches(pool, runId, newMatches)
 
     def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
