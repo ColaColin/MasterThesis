@@ -61,7 +61,9 @@ class LeagueResource():
         startPost = time.monotonic()
 
         assert run_id is not None
+        foo = time.monotonic()
         league = self.loadLeague(run_id)
+        print("!!!!!!A", time.monotonic() - foo)
         reports = req.media
         for report in reports:
             league.reportResult(report["p1"], report["p2"], report["winner"], report["policy"], run_id, self.pool)

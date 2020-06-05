@@ -377,14 +377,10 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         p1s[0][1] = p1R
         p2s[0][1] = p2R
 
-        print("!!!!", time.monotonic() - foo)
-
         self.persistPlayer(pool, p1s[0], runId)
         self.persistPlayer(pool, p2s[0], runId)
 
-
         self.addNewMatch(pool, runId, (p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
-
 
         self.handleGenerations(pool, runId)
 
