@@ -353,6 +353,9 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
         """
+
+        foo = time.monotonic()
+
         self.loadPlayers(pool, runId)
         self.getMatchHistory(pool, runId)
         p1s = list(filter(lambda x: x[0] == p1, self.players))
@@ -374,18 +377,14 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         p1s[0][1] = p1R
         p2s[0][1] = p2R
 
-        startPP = time.monotonic()
+        print("!!!!", time.monotonic() - foo)
 
         self.persistPlayer(pool, p1s[0], runId)
         self.persistPlayer(pool, p2s[0], runId)
 
-        logMsg("persisting players took %f", (time.monotonic() - startPP))
-
-        startAddNewMatch = time.monotonic()
 
         self.addNewMatch(pool, runId, (p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
-        logMsg("adding new match took %f" % (time.monotonic() - startAddNewMatch))
 
         self.handleGenerations(pool, runId)
 
