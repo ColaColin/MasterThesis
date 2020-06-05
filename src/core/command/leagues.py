@@ -23,7 +23,7 @@ class ServerLeague(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def reportResultBatch(self, rList, pool):
+    def reportResultBatch(self, rList, pool, runId):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
         Update ratings and possibly mutate players as a response.
@@ -417,7 +417,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         
         return (p1R, p2R)
 
-    def reportResultBatch(self, rList, pool):
+    def reportResultBatch(self, rList, pool, runId):
         self.loadPlayers(pool, runId)
         self.getMatchHistory(pool, runId)
         pDict = dict()
