@@ -64,19 +64,19 @@ playerParameterRanges:
   drawValue: [0, 1]
   alphaBase: [3, 30]
   fpu: [-0.2, 1.2]
-  stateW: [-4, 4]
-  turnW: [-0.25, 0.25]
-  expW: [-0.025, 0.025]
-  curHW: [-3, 3]
-  netHW: [-3, 3]
-  kldW: [-2000, 25000]
-  bias: [-15, 15]
+  stateW: [-5, 5]
+  turnW: [-0.35, 0.35]
+  expW: [-0.035, 0.035]
+  curHW: [-5, 5]
+  netHW: [-5, 5]
+  kldW: [-5000, 50000]
+  bias: [-20, 20]
 
 serverLeague:
   name: EloGaussServerLeague
   parameters: $playerParameterRanges
   generationGames: 2500
-  populationSize: 80
+  populationSize: 75
   mutateTopN: 20
   mutateCount: 2
   initialRating: 1600
@@ -85,7 +85,7 @@ serverLeague:
 
 hAccess:
   name: LeaguePlayerAccess
-  activePopulation: 70
+  activePopulation: 75
 
 mcts:
   name: MctsPolicyIterator
@@ -115,7 +115,7 @@ worker:
   policyUpdater: $updater
   playerAccess: $hAccess
   expansionIncrement: 50
-  expansionsMaxSingle: 2100
+  expansionsMaxSingle: 1400
   expansionMax: 4200
   thinkDecider: $learnThink
 

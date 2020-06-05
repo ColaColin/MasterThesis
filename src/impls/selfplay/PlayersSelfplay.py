@@ -183,6 +183,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         logMsg("Started league management network thread!")
         while self.run is None:
             time.sleep(1)
+        logMsg("League management got run!")
         while True:
             try:
                 pendingReportDicts = []
@@ -342,16 +343,16 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         return list(map(lambda x: not(x[0] and x[1]), zip(wantsIterate, isAllowedToIterator)))
 
-    def trackFrame(self, gidx, iteratedPolicy, numIterations):
-        self.tracking[gidx].append([self.iterators[gidx].getGame(), iteratedPolicy, numIterations])
+    def trackFrame(self, gidx, iteratedPolicy, numIterations, remIterations):
+        self.tracking[gidx].append([self.iterators[gidx].getGame(), iteratedPolicy, numIterations, remIterations])
 
     def playMove(self, gidx):
         timeStart = time.monotonic_ns()
         moveDt = 0
 
-        iteratedPolicy = self.iterators[gidx].getResult()
-        self.trackFrame(gidx, iteratedPolicy, self.currentIterationExpansions[gidx])
         game = self.iterators[gidx].getGame()
+        iteratedPolicy = self.iterators[gidx].getResult()
+        self.trackFrame(gidx, iteratedPolicy, self.currentIterationExpansions[gidx], self.remainingForIterations[gidx][game.getPlayerOnTurnNumber() - 1])
         moveToPlay = self.moveDecider.decideMove(game, iteratedPolicy[0], iteratedPolicy[1])
         nextGame = game.playMove(moveToPlay)
 
@@ -463,11 +464,12 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         prevStateUUID = None
 
         for ti in range(len(trackList)):
-            state, iPolicy, numIterations = trackList[ti]
+            state, iPolicy, numIterations, remIterations = trackList[ti]
             # do not learn from terminal states, there is no move that can be made on them
             assert not state.hasEnded()
             record = dict()
             record["numIterations"] = numIterations
+            record["remIterations"] = remIterations
             record["gameCtor"] = state.getGameConstructorName()
             record["gameParams"] = state.getGameConstructorParams()
             record["knownResults"] = [result]
