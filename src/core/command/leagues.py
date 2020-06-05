@@ -471,6 +471,10 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
        
         self.batchAddMatches(pool, runId, newMatches)
 
+        self.handleGenerations(pool, runId)
+
+        self.sortPlayers()
+
     def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
         """
         give two player ids, and either player1 id, player2id or None for a draw.
