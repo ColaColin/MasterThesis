@@ -137,8 +137,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs) VALUES (%s, %s, %s, %s, %s)",\
                     (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3])))
             else:
-                cursor.execute("update league_players set rating = %s, parameter_vals = %s, parameter_stddevs = %s where id = %s",\
-                    (player[1], json.dumps(player[2]), json.dumps(player[3]), player[0]))
+                cursor.execute("update league_players set rating = %s where id = %s", (player[1], player[0]))
             con.commit()
             self.existingPlayers.add(player[0])
         finally:
@@ -455,7 +454,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         for pKey in persistsPlayers:
             self.persistPlayer(pool, pDict[pKey], runId)
         
-
+        self.batchAddMatches(pool, runId, newMatches)
 
     def reportResult(self, p1, p2, winner, policyUUID, runId, pool):
         """
