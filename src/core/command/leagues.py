@@ -166,12 +166,11 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 pool.putconn(con)
         
         def mkQMarkListsFor(qLsts):
-            result = ""
+            result = []
             for qLst in qLsts:
-                result += "("
-                result += ",".join(["%s"] * len(qLst))
-                result += ")"
-            return result
+                foo = "(" + ",".join(["%s"] * len(qLst)) + ")"
+                result.append(foo)
+            return ",".join(result)
 
         flatten = lambda l: [item for sublist in l for item in sublist]
 
@@ -181,9 +180,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
             tstamp = datetime.datetime.fromtimestamp(match[4] / 1000).astimezone().isoformat()
             valLists.append([runId, match[5] if self.networkKnowledge[match[5]] else None, match[0], match[1], match[2], match[3], tstamp])
         
-        qLists = mkQMarkListsFor(valLists)
-
-        qList = ",".join(qLists)
+        qList = mkQMarkListsFor(valLists)
         valFlat = flatten(valLists)
 
         iSql = "insert into league_matches (run, network, player1, player2, result, ratingChange, creation) VALUES " + qList
