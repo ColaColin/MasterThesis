@@ -118,6 +118,26 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
         self.sortPlayers()
 
+    def updatePlayers(self, pool, runId, players):
+        """
+        assumes the players already exist!
+        """
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+
+            for player in players:
+                cursor.execute("update league_players set rating = %s where id = %s", (player[1], player[0]))
+                if cursor:
+                    cursor.close()
+                cursor = con.cursor()
+
+            con.commit()
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
+
     def persistPlayer(self, pool, player, runId):
         try:
             con = pool.getconn()
@@ -184,7 +204,6 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         valFlat = flatten(valLists)
 
         iSql = "insert into league_matches (run, network, player1, player2, result, ratingChange, creation) VALUES " + qList
-        print(iSql, valFlat)
 
         try:
             con = pool.getconn()
@@ -448,8 +467,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
             newMatches.append((p1, p2, sa, abs(r1Change), int(1000.0 * datetime.datetime.utcnow().timestamp()), policyUUID))
 
-        for pKey in persistsPlayers:
-            self.persistPlayer(pool, pDict[pKey], runId)
+        self.updatePlayers(pool, runId, persistsPlayers)
         
         self.batchAddMatches(pool, runId, newMatches)
 

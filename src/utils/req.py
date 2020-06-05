@@ -4,7 +4,7 @@ import json
 
 from utils.prints import logMsg
 
-def requestJson(url, secret, timeout=60, retries=999999):
+def requestJson(url, secret, timeout=30, retries=999999):
     cnt = 0
     while True:
         cnt += 1
@@ -21,7 +21,7 @@ def requestJson(url, secret, timeout=60, retries=999999):
                 time.sleep(timeout // 4)
 
 
-def requestBytes(url, secret, timeout=60, retries=999999):
+def requestBytes(url, secret, timeout=30, retries=999999):
     cnt = 0
     while True:
         cnt += 1
@@ -36,7 +36,7 @@ def requestBytes(url, secret, timeout=60, retries=999999):
                 logMsg("Failed requestBytes %s will retry soon" % url, error)
                 time.sleep(timeout // 4)
 
-def postJson(url, secret, data, timeout=60, retries=999999, getResponse=False):
+def postJson(url, secret, data, timeout=30, retries=999999, getResponse=False):
     cnt = 0
     while True:
         cnt += 1
@@ -58,7 +58,7 @@ def postJson(url, secret, data, timeout=60, retries=999999, getResponse=False):
                 logMsg("Failed postJson %s will retry soon" % url, error)
                 time.sleep(timeout // 4)
 
-def postBytes(url, secret, data, timeout=60, retries=999999):
+def postBytes(url, secret, data, timeout=30, retries=999999):
     cnt = 0
     while True:
         cnt += 1
