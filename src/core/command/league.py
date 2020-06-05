@@ -64,7 +64,7 @@ class LeagueResource():
         league = self.loadLeague(run_id)
         reports = req.media
 
-        league.reportResultBatch(list(map(lambda x: (x["p1"], x["p2"], x["winner"], x["policy"], run_id))), self.pool)
+        league.reportResultBatch(list(map(lambda x: (x["p1"], x["p2"], x["winner"], x["policy"], run_id), reports)), self.pool)
 
         finished = time.monotonic()
 
