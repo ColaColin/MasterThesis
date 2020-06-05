@@ -6,6 +6,10 @@ from core.mains.mlconfsetup import loadMlConfig
 from core.command.runs import RunsResource
 import tempfile
 
+import time
+from utils.prints import logMsg
+
+
 def asTempFile(strContent):
     ff = tempfile.NamedTemporaryFile(suffix=".yaml", mode="w+")
     ff.write(strContent)
@@ -34,6 +38,8 @@ class LeagueResource():
                 return None
 
     def on_get(self, req, resp, mode, run_id):
+        startGet = time.monotonic()
+
         league = self.loadLeague(run_id)
 
         if league is None:
@@ -45,15 +51,24 @@ class LeagueResource():
             cutMatches = list(reversed(allMatches))[:30]
             resp.media = cutMatches
 
+        finished = time.monotonic()
+
+        logMsg("league_on_get", mode, run_id, "took", finished - startGet)
+
         resp.status = falcon.HTTP_200
 
     def on_post(self, req, resp, mode = None, run_id = None):
+        startPost = time.monotonic()
+
         assert run_id is not None
         league = self.loadLeague(run_id)
         reports = req.media
         for report in reports:
             league.reportResult(report["p1"], report["p2"], report["winner"], report["policy"], run_id, self.pool)
         resp.status = falcon.HTTP_200
+
+        finished = time.monotonic()
+        logMsg("league_on_post", mode, run_id, "took", finished - startPost)
 
 class BestPlayerResource():
 
