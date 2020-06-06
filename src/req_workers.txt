@@ -7,3 +7,4 @@ requests==2.22.0
 setproctitle==1.1.10
 ruamel.yaml==0.16.10
 bayesian-optimization==1.1.0
+falcon==2.0.0
