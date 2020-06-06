@@ -112,7 +112,7 @@ class NetPlayersResource():
             rows = cursor.fetchall()
 
             result = []
-            for row in result:
+            for row in rows:
                 result.append([row[0], row[1], json.loads(row[2])])
             resp.media = result
             resp.status = falcon.HTTP_200
