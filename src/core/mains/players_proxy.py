@@ -23,13 +23,21 @@ import sys
 
 import os
 
+import subprocess
+
+def tryPlayersProxyProcess(command, secret, forPolicy=None):
+    cmd = ["python", "-m", "core.mains.players_proxy", "--command", command, "--secret", secret]
+    if forPolicy is not None:
+        cmd += ["--policy", forPolicy]
+    return subprocess.Popen(cmd)
+
 class ProxyResource():
     def __init__(self, command, secret, forPolicy):
         self.cached = dict()
         self.command = command
         self.secret = secret
         self.forPolicy = forPolicy
-        self.pollSpeed = 3 + random.random() * 2
+        self.pollSpeed = 2 + random.random() * 2
         self.lastDataRequest = time.monotonic()
         pollThread = threading.Thread(target=self.pollData)
         pollThread.daemon = True
@@ -55,6 +63,7 @@ class ProxyResource():
         self.lastDataRequest = time.monotonic()
         if not runId in self.cached:
             self.cached[runId] = self.queryPlayerList(runId)
+        logMsg("players_proxy responding with %i players" % len(self.cached[runId]))
         resp.media = self.cached[runId]
         resp.status = falcon.HTTP_200
 

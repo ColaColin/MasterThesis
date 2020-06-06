@@ -226,17 +226,17 @@ Training set size | moves % | wins %
 
 
 22.5.2020    Do a new training run to 99%+ and measure improvements made by these changes.
-          [ ] rainbow run: everything, but playout caps.
+          [X] rainbow run: everything, but playout caps.
 
                [X] run1
                [X] run2
                [X] run3
-               [ ] run4
-               [ ] run5
+               [X] run4
+               [X] run5
 
 -> Revised by weeks:
 WK 23
-     [~] complete extended run
+     [X] complete extended run
      [ ] write some code that makes diagrams from the data on the server to be included into latex
      [X] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
      -> full blown run (league_test_2): issues with lack of game variance, bad results
@@ -247,11 +247,12 @@ WK 23
      -> test_7 good mcts, limited thinking time params: still not great, definitely not an improvement? (unless framestime are much lower?)
      -> or maybe everything above is invalid, as the -100 rating on mutated players for the most part removes them from the league the moment the are created?!
 
-     [ ] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
+     [X] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
      -> select all player configs which played at least one game with a given network and only use those to play.
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
 WK 24
      [ ] buffer
+     [ ] writing goal: Write about the hyperparameter search
      [ ] writing goal: Complete stuff about the extended run
 WK 25
      [ ] play games as mcts-like-trees

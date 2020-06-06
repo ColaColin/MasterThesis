@@ -20,6 +20,8 @@ import threading
 
 import math
 
+from core.mains.players_proxy import tryPlayersProxyProcess
+
 # selfplay with "players" (i.e. mcts hyperparameter sets) that compete a in league against each other
 # will not support playout caps, maybe they could be added in later, but for now they do not seem to help easily anyway.
 
@@ -184,7 +186,13 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         while self.run is None:
             time.sleep(1)
         logMsg("League management got run!")
+        tryPlayersProxyProcess(self.commandHost, self.secret)
+        cnt = 0
         while True:
+            cnt += 1
+            if cnt % 40 == 0:
+                tryPlayersProxyProcess(self.commandHost, self.secret)
+
             try:
                 pendingReportDicts = []
                 # an effort to reduce the number of http requests to the reports call.
@@ -200,7 +208,8 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
                     if len(pendingReportDicts) > 0:
                         postJson(self.commandHost + "/api/league/reports/" + self.run, self.secret, pendingReportDicts)
 
-                self.playerList = requestJson(self.commandHost + "/api/league/players/" + self.run, self.secret)
+                # call the players_proxy to reduce the number of http requests to the actual command server
+                self.playerList = requestJson("http://127.0.0.1:1337/players/" + self.run, self.secret)
 
                 time.sleep(1)
             except Exception as error:

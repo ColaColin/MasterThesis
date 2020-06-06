@@ -21,6 +21,8 @@ import numpy as np
 
 from core.mains.mlconfsetup import loadMlConfig
 
+from core.mains.players_proxy import tryPlayersProxyProcess
+
 # python -m core.mains.frametime_evaluator --command https://x0.cclausen.eu --secret 42
 
 #make sure the gpu is 100% loaded by using enough worker threads!
@@ -127,6 +129,8 @@ if __name__ == "__main__":
 
         logMsg("Next work: run=%s, network=%s" % (run, network))
 
+        ppproc = tryPlayersProxyProcess(commandHost, secret, network)
+
         callResults = []
 
         with getNetworkFile(network) as networkFile:
@@ -141,6 +145,7 @@ if __name__ == "__main__":
 
         submitResult(frametime, network)
 
+        ppproc.kill()
         pool.terminate()
 
         time.sleep(5)
