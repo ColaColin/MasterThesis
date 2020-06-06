@@ -8,6 +8,45 @@ import os
 from core.command.state import getUUIDPath
 from utils.misc import storeFileUnderPath, readFileUnderPath
 
+class CostResource():
+    def __init__(self, pool):
+        self.pool = pool
+    
+    def on_get(self, req, resp, runId):
+        try:
+            con = self.pool.getconn()
+
+            cursor = con.cursor()
+            cursor.execute("select sum(package_size) from states where network is null and run = %s", (runId, ))
+            nrows = cursor.fetchall()
+            numPackagesPreNetworks = nrows[0][0]
+            cursor.close()
+
+            cursor = con.cursor()
+            cursor.execute("select sum(package_size), acc_network_moves, acc_network_wins, acc_mcts_moves, frametime from networks n, states s where n.id = s.network and n.run = %s group by acc_network_moves, acc_network_wins, acc_mcts_moves, frametime, n.creation order by n.creation", (runId, ));
+            rows = cursor.fetchall()
+
+            result = []
+            costSum = numPackagesPreNetworks * rows[0][4]
+            for row in rows:
+                foo = dict()
+                foo["frames"] = row[0]
+                foo["acc_network_moves"] = row[1]
+                foo["acc_network_wins"] = row[2]
+                foo["acc_mcts_moves"] = row[3]
+                foo["frametime"] = row[4]
+                costSum += row[4] * row[0]
+                foo["cost"] = costSum / 1000 / 3600
+                result.append(foo)
+            
+            resp.media = result                
+            resp.status = falcon.HTTP_200
+        finally:
+            if cursor:
+                cursor.close()
+            con.rollback()
+            self.pool.putconn(con)
+
 class NetworksResource():
     def __init__(self, pool, config):
         """

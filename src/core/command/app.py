@@ -3,7 +3,7 @@ import falcon
 from core.command.runs import RunsResource
 from core.command.login import LoginResource
 from core.command.state import StateResource
-from core.command.networks import NetworksResource
+from core.command.networks import NetworksResource, CostResource
 from core.command.stats import StatsResource
 from core.command.networkStats import NetworkStatsResource
 from core.command.runsha import RunShaResource
@@ -82,6 +82,9 @@ def defineApp(config):
 
         netPlayers = NetPlayersResource(pool)
         app.add_route("/api/netplayers/{net_id}", netPlayers)
+
+        costRes = CostResource(pool)
+        app.add_route("/costs/{runId}", costRes)
 
         app.add_route("/password", LoginResource(config["secret"]))
 
