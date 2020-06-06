@@ -98,7 +98,7 @@ class BestPlayerResource():
                 cursor.close()
             self.pool.putconn(con)
 
-def NetPlayersResource():
+class NetPlayersResource():
     def __init__(self, pool):
         self.pool = pool
 
