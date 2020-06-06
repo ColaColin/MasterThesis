@@ -97,3 +97,26 @@ class BestPlayerResource():
             if cursor:
                 cursor.close()
             self.pool.putconn(con)
+
+def NetPlayersResource():
+    def __init__(self, pool):
+        self.pool = pool
+
+    # runId is not necessary, as networks use UUIDs, so they are unique over the entire database, all runs, anyway.
+    def on_get(self, req, resp, net_id):
+        try:
+            con = self.pool.getconn()
+            cursor = con.cursor()
+
+            cursor.execute("select id, rating, parameter_vals from league_players p inner join (select distinct player1 as pid from league_matches where network = %s union select player2 as pid from league_matches where network = %s) foo on foo.pid = p.id order by p.rating desc", (net_id, net_id))
+            rows = cursor.fetchall()
+
+            result = []
+            for row in result:
+                result.append([row[0], row[1], json.loads(row[2])])
+            resp.media = result
+            resp.status = falcon.HTTP_200
+        finally:
+            if cursor:
+                cursor.close()
+            self.pool.putconn(con)

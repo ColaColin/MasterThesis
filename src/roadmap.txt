@@ -239,7 +239,16 @@ WK 23
      [~] complete extended run
      [ ] write some code that makes diagrams from the data on the server to be included into latex
      [X] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
+     -> full blown run (league_test_2): issues with lack of game variance, bad results
+     -> test_3: tried some different parameter ranges, did not help much
+     -> test_4: only mcts parameters: just as bad, quick drop of variance as well. Variance likely an issue of cpuct
+     -> test_5: use only mcts parameters, only small range around known good params: good results
+     -> test_6: good mcts, free thinking time: bad, but not as bad
+     -> test_7 good mcts, limited thinking time params: still not great, definitely not an improvement? (unless framestime are much lower?)
+     -> or maybe everything above is invalid, as the -100 rating on mutated players for the most part removes them from the league the moment the are created?!
+
      [ ] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
+     -> select all player configs which played at least one game with a given network and only use those to play.
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
 WK 24
      [ ] buffer

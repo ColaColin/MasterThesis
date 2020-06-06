@@ -227,7 +227,7 @@ class StreamManagement():
                     if not state["id"] in self.downloadedStates:
                         self.pendingDownloads += state["packageSize"]
 
-                time.sleep(2)
+                time.sleep(3)
 
                 for state in self.serverStates:
                     if not state["id"] in self.downloadedStates:

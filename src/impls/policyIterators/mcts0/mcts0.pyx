@@ -300,7 +300,7 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
         self.node = MCTSNode(game, noiseMix = 0 if noExploration else self.rootNoise)
 
         pIndex = self.game.getPlayerOnTurnNumber()
-        if pIndex in playerHyperParams:
+        if pIndex in playerHyperParams and len(playerHyperParams[pIndex]) > 0:
             self.playerHyperparams = playerHyperParams[pIndex]
             self.cpuct = playerHyperParams[pIndex]["cpuct"]
             self.drawValue = playerHyperParams[pIndex]["drawValue"]

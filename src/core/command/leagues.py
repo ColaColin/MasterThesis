@@ -263,8 +263,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
     def mutatePlayer(self, player):
         playerId = str(uuid.uuid4())
-        # TODO configuration of the "mutated players probably suck and need to prove themselves"-value
-        playerRating = player[1] - 100
+        playerRating = player[1]
 
         currentParameters = player[2]
         currentStddevs = player[3]

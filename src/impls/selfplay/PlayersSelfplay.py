@@ -187,20 +187,22 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         while True:
             try:
                 pendingReportDicts = []
-                while len(self.pendingReports) > 0:
-                    report = self.pendingReports.pop()
-                    rDict = dict()
-                    rDict["p1"] = report[0]
-                    rDict["p2"] = report[1]
-                    rDict["winner"] = report[2]
-                    rDict["policy"] = report[3]
-                    pendingReportDicts.append(rDict)
-                if len(pendingReportDicts) > 0:
-                    postJson(self.commandHost + "/api/league/reports/" + self.run, self.secret, pendingReportDicts)
+                # an effort to reduce the number of http requests to the reports call.
+                if len(self.pendingReports) > 10:
+                    while len(self.pendingReports) > 0:
+                        report = self.pendingReports.pop()
+                        rDict = dict()
+                        rDict["p1"] = report[0]
+                        rDict["p2"] = report[1]
+                        rDict["winner"] = report[2]
+                        rDict["policy"] = report[3]
+                        pendingReportDicts.append(rDict)
+                    if len(pendingReportDicts) > 0:
+                        postJson(self.commandHost + "/api/league/reports/" + self.run, self.secret, pendingReportDicts)
 
                 self.playerList = requestJson(self.commandHost + "/api/league/players/" + self.run, self.secret)
 
-                time.sleep(random.random() * 10 + 6)
+                time.sleep(1)
             except Exception as error:
                 print(error)
 
