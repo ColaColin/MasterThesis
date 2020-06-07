@@ -13,7 +13,7 @@ class StatsResource():
         try:
             con = self.pool.getconn()
             cursor = con.cursor()
-            cursor.execute("SELECT iteration, played_states, new_states, first_player_wins, draws, game_length_avg, game_length_std from run_iteration_stats where run = %s", (run_id, ));
+            cursor.execute("SELECT iteration, played_states, new_states, first_player_wins, draws, game_length_avg, game_length_std, avg_nodes from run_iteration_stats where run = %s", (run_id, ));
             rows = cursor.fetchall();
 
             result = []
@@ -26,7 +26,8 @@ class StatsResource():
                     "first_player_wins": row[3],
                     "draws": row[4],
                     "game_length_avg": row[5],
-                    "game_length_std": row[6]
+                    "game_length_std": row[6],
+                    "avg_nodes": row[7]
                 });
             
             resp.media = result
