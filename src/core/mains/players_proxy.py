@@ -74,7 +74,7 @@ class ProxyResource():
         else:
             return requestJson(self.command + "/api/netplayers/"+self.forPolicy, self.secret)
     
-    def on_post(self, req, resp, run_id):
+    def on_post(self, req, resp, runId):
         self.lastDataRequest = time.monotonic() 
         if not runId in self.pendingReports:
             self.pendingReports[runId] = []
