@@ -13,12 +13,13 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
     if the game in not in an early turn deterministically play the stronges move found
     """
 
-    def __init__(self, explorationPlyCount):
+    def __init__(self, explorationPlyCount, minProp = -1):
         """
         @paramm explorationPlyCount: Until which ply (turn) to explore randomly
         """
         logMsg("Creating TemperatureMoveDecider(explorationPlyCount=%i)" % explorationPlyCount)
         self.explorationPlyCount = explorationPlyCount
+        self.minProp = minProp
 
     def decideMove(self, gameState, policyDistribution, extraStats):
         legalMoves = np.array(gameState.getLegalMoves(), dtype=np.int)
@@ -34,6 +35,14 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
             pSum = np.sum(cleanPolicy)
             assert pSum > 0
             cleanPolicy /= pSum
+            if self.minProp > 0:
+                for idx in range(len(cleanPolicy)):
+                    if cleanPolicy[idx] < self.minProp:
+                        cleanPolicy[idx] = 0
+                pSum = np.sum(cleanPolicy)
+                assert pSum > 0
+                cleanPolicy /= pSum
+            print(legalMoves, cleanPolicy)
             chosenMove = np.random.choice(legalMoves, 1, replace=False, p = cleanPolicy)[0]
 
         assert chosenMove in legalMoves
