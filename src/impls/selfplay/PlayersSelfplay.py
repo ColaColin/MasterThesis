@@ -336,6 +336,8 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             curGame = curIter.getGame()
             curPlayer = curGame.getPlayerOnTurnNumber() - 1
             self.remainingForIterations[ix][curPlayer] -= self.expansionIncrement
+        
+        return self.expansionIncrement
 
 
     def getCurrentRemainingIterations(self):
@@ -424,9 +426,11 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         movesPlayed = self.prevMoves
 
+        iterationsDone = 0
+
         if not self.playedBatch:
             self.playedBatch = True
-            self.stepIteratorsOnce()
+            iterationsDone += self.stepIteratorsOnce()
 
         while movesPlayed < len(self.iterators):
 
@@ -445,18 +449,24 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
             iterStartTime = time.monotonic_ns()
 
-            self.stepIteratorsOnce()
+            iterationsDone += self.stepIteratorsOnce()
 
             moveTimeNs += time.monotonic_ns() - iterStartTime
 
             #Do not enable unless you run a specific config that only has a very low gameCount, else it will spam your terminal.
             #self.debugPrintState(moveTimeNs)
 
-        moveTimeNs /= (movesPlayed - self.prevMoves)
+        numMovesInBatch = (movesPlayed - self.prevMoves)
+
+        avgIterationsPerMove = iterationsDone / numMovesInBatch
+
+        moveTimeNs /= numMovesInBatch
 
         self.prevMoves = movesPlayed - len(self.iterators)
 
         moveAvgMs = moveTimeNs / 1000000.0
+
+        logMsg("played a batch of %i moves with %.2f avg ms per move and %i avg iterations per move" % (numMovesInBatch, moveAvgMs, avgIterationsPerMove))
 
         return moveAvgMs
 
