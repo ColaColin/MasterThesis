@@ -44,6 +44,16 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
                 cleanPolicy /= pSum
             chosenMove = np.random.choice(legalMoves, 1, replace=False, p = cleanPolicy)[0]
 
+        #     print(gameState.prettyString(policyDistribution, cleanPolicy, None, None))
+
+        #     for m, p in zip(legalMoves, cleanPolicy):
+        #         print(m, p)
+            
+        #     print("====>")
+        #     print(chosenMove)
+
+        # print("=====")
+
         assert chosenMove in legalMoves
 
         return chosenMove

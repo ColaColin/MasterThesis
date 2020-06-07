@@ -28,16 +28,18 @@ cdef int bestLegalValue(float* ar, int n):
     
     cdef int idx, bestIdx, i
     cdef float bestValue
-    
+    cdef int first = 1
+
     bestIdx = -1
     bestValue = -1
     
     for i in range(n):
         idx = (i + startIdx) % n
         
-        if ar[idx] > bestValue:
+        if ar[idx] > bestValue or first == 1:
             bestValue = ar[idx]
             bestIdx = idx
+            first = 0
     
     return bestIdx
 
