@@ -37,7 +37,7 @@ class ProxyResource():
         self.command = command
         self.secret = secret
         self.forPolicy = forPolicy
-        self.pollSpeed = 2 + random.random() * 2
+        self.pendingReports = dict()
         self.lastDataRequest = time.monotonic()
         pollThread = threading.Thread(target=self.pollData)
         pollThread.daemon = True
@@ -46,12 +46,27 @@ class ProxyResource():
     def pollData(self):
         logMsg("Start polling thread player_proxy!")
         while True:
+            for runId in self.pendingReports:
+                pr = []
+                prSrc = self.pendingReports[runId]
+                while len(prSrc) > 0:
+                    pr.append(prSrc.pop())
+                if len(pr) > 0:
+                    self.postReports(runId, pr)
+
             for runId in self.cached:
                 self.cached[runId] = self.queryPlayerList(runId)
-            time.sleep(self.pollSpeed)
+            
             if time.monotonic() - self.lastDataRequest > 60:
                 logMsg("Exit players_proxy, nobody is calling it!")
                 os._exit(0)
+            
+            time.sleep(2 + random.random() * 1)
+
+    def postReports(self, runId, reports):
+        if self.forPolicy is None:
+            logMsg("Posting %i game results" % len(reports))
+            postJson(self.command + "/api/league/reports/" + runId, self.secret, reports)
 
     def queryPlayerList(self, runId):
         if self.forPolicy is None:
@@ -59,8 +74,16 @@ class ProxyResource():
         else:
             return requestJson(self.command + "/api/netplayers/"+self.forPolicy, self.secret)
     
+    def on_post(self, req, resp, run_id):
+        self.lastDataRequest = time.monotonic() 
+        if not runId in self.pendingReports:
+            self.pendingReports[runId] = []
+        for rm in req.media:
+            self.pendingReports[runId].append(rm)
+        resp.status = falcon.HTTP_200
+
     def on_get(self, req, resp, runId):
-        self.lastDataRequest = time.monotonic()
+        self.lastDataRequest = time.monotonic() 
         if not runId in self.cached:
             self.cached[runId] = self.queryPlayerList(runId)
         logMsg("players_proxy responding with %i players" % len(self.cached[runId]))

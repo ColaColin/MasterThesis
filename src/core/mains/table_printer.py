@@ -76,8 +76,6 @@ def plotGroup(name, fig, ax):
         accs = list(map(lambda x: x["acc_mcts_moves"], data))
         datas.append((costs, accs))
 
-    
-
     if len(datas) > 1:
         for cost, acc in datas:
             plt.plot(cost, acc, color=color + (0.62, ), linewidth=1)
@@ -89,7 +87,7 @@ def plotGroup(name, fig, ax):
     elif len(datas) == 1:
         mostLeft = datas[0][0][0] * 0.99
         mostRight = datas[0][0][0] * 1.01
-        plt.plot(datas[0][0], datas[0][1], color=color + (0.62, ), linewidth=1, label=name)
+        plt.plot(datas[0][0], datas[0][1], color=color + (0.9, ), linewidth=1, label=name)
 
     return mostLeft, mostRight
 

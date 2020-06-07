@@ -237,7 +237,7 @@ Training set size | moves % | wins %
 -> Revised by weeks:
 WK 23
      [X] complete extended run
-     [ ] write some code that makes diagrams from the data on the server to be included into latex
+     [~] write some code that makes diagrams from the data on the server to be included into latex
      [X] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
      -> full blown run (league_test_2): issues with lack of game variance, bad results
      -> test_3: tried some different parameter ranges, did not help much

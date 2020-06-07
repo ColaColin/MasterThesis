@@ -195,23 +195,22 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
             try:
                 pendingReportDicts = []
-                # an effort to reduce the number of http requests to the reports call.
-                if len(self.pendingReports) > 10:
-                    while len(self.pendingReports) > 0:
-                        report = self.pendingReports.pop()
-                        rDict = dict()
-                        rDict["p1"] = report[0]
-                        rDict["p2"] = report[1]
-                        rDict["winner"] = report[2]
-                        rDict["policy"] = report[3]
-                        pendingReportDicts.append(rDict)
-                    if len(pendingReportDicts) > 0:
-                        postJson(self.commandHost + "/api/league/reports/" + self.run, self.secret, pendingReportDicts)
+                while len(self.pendingReports) > 0:
+                    report = self.pendingReports.pop()
+                    rDict = dict()
+                    rDict["p1"] = report[0]
+                    rDict["p2"] = report[1]
+                    rDict["winner"] = report[2]
+                    rDict["policy"] = report[3]
+                    pendingReportDicts.append(rDict)
+                if len(pendingReportDicts) > 0:
+                    # call the players_proxy to reduce the number of http requests to the actual command server
+                    postJson("http://127.0.0.1:1337/players/" + self.run, self.secret, pendingReportDicts)
+
+                time.sleep(1)
 
                 # call the players_proxy to reduce the number of http requests to the actual command server
                 self.playerList = requestJson("http://127.0.0.1:1337/players/" + self.run, self.secret)
-
-                time.sleep(1)
             except Exception as error:
                 print(error)
 
