@@ -294,11 +294,12 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
                 nextStddev = curStddev * math.exp(r1 * globalFactor + r * np.random.normal())
                 nextVal = curVal + nextStddev * np.random.normal()
-
-                if nextVal > maximum:
-                    nextVal = maximum
-                if nextVal < minimum:
-                    nextVal = minimum
+                
+                if self.restrictMutations:
+                    if nextVal > maximum:
+                        nextVal = maximum
+                    if nextVal < minimum:
+                        nextVal = minimum
                 
                 playerParameters[k] = nextVal
                 playerStddevs[k] = nextStddev
