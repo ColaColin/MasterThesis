@@ -62,6 +62,8 @@ create table run_iteration_stats (
     game_length_avg float not null,
     game_length_std float not null,
 
+    avg_nodes float not null default 0,
+
     primary key (run, iteration)
 );
 

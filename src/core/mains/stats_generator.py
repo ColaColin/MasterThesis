@@ -81,7 +81,10 @@ if __name__ == "__main__":
                     final = False
                     if "final" in record and record["final"]:
                         final = True
-                    result.append((gameState, record["knownResults"], final))
+                    niters = 0
+                    if "numIterations" in record:
+                        niters = record["numIterations"]
+                    result.append((gameState, record["knownResults"], final, niters))
         finally:
             if cursor:
                 cursor.close()
@@ -109,6 +112,7 @@ if __name__ == "__main__":
             resultsCnt = 0
 
             gameLengths = []
+            nodeCounts = []
 
             states = loadStates(run, curi)
 
@@ -116,6 +120,7 @@ if __name__ == "__main__":
 
             beforeSetSize = len(statesSet)
             for state in states:
+                nodeCounts.append(state[3])
                 statesSet.add(state[0])
                 for result in state[1]:
                     resultsCnt += 1
@@ -135,6 +140,11 @@ if __name__ == "__main__":
                 lengthAvg = 0
                 lengthStd = 0
 
+            if len(nodeCounts) > 0:
+                avgNodes = float(np.mean(nodeCounts))
+            else:
+                avgNodes = 0
+
             iterationProcTime = time.monotonic() - startIterationTime
             logMsg("Finished analyzing, took %.2fs" % iterationProcTime)
 
@@ -150,8 +160,8 @@ if __name__ == "__main__":
                 fpwins = float((firstPlayersWins / resultsCnt) * 100.0)
                 dp = float(draws / resultsCnt) * 100.0
 
-                cursor.execute("insert into run_iteration_stats (run, iteration, played_states, new_states, first_player_wins, draws, game_length_avg, game_length_std) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (run, curi, playedStates, newStates, fpwins, dp, lengthAvg, lengthStd))
+                cursor.execute("insert into run_iteration_stats (run, iteration, played_states, new_states, first_player_wins, draws, game_length_avg, game_length_std, avg_nodes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    (run, curi, playedStates, newStates, fpwins, dp, lengthAvg, lengthStd, avgNodes))
 
                 con.commit()
 
