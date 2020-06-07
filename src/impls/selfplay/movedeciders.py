@@ -42,7 +42,6 @@ class TemperatureMoveDecider(SelfPlayMoveDecider, metaclass=abc.ABCMeta):
                 pSum = np.sum(cleanPolicy)
                 assert pSum > 0
                 cleanPolicy /= pSum
-            print(legalMoves, cleanPolicy)
             chosenMove = np.random.choice(legalMoves, 1, replace=False, p = cleanPolicy)[0]
 
         assert chosenMove in legalMoves
