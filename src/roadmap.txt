@@ -237,7 +237,7 @@ Training set size | moves % | wins %
 -> Revised by weeks:
 WK 23
      [X] complete extended run
-     [~] write some code that makes diagrams from the data on the server to be included into latex
+     [X] write some code that makes diagrams from the data on the server to be included into latex
      [X] self-play hyperparameter search, possibly with dynamic number of expansions decided by a very simple secondary network that is evolved by self-play
      -> full blown run (league_test_2): issues with lack of game variance, bad results
      -> test_3: tried some different parameter ranges, did not help much
@@ -249,9 +249,10 @@ WK 23
 
      [X] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
      -> select all player configs which played at least one game with a given network and only use those to play.
-     [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
 WK 24
-     [ ] buffer
+     [ ] fix the frametime evaluation of league-based runs, somehow they are broken, don't play with the right number of nodes.
+     [ ] run more experiments with evolving players
+     [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search
      [ ] writing goal: Complete stuff about the extended run
 WK 25

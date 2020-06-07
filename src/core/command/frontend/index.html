@@ -228,7 +228,7 @@
                                         <td data-bind="text: (($data.first_player_wins || -1).toFixed(2) + '%')"></td>
                                         <td data-bind="text: (($data.draws || -1).toFixed(2) + '%')"></td>
                                         <td data-bind="text: ($data.game_length_avg || 0).toFixed(2) + ' +/- ' + ($data.game_length_std || 0).toFixed(2)"></td>
-                                        <td data-bind="text: $data.avg_nodes || '-'"></td>
+                                        <td data-bind="text: $data.avg_nodes == 0 ? '-' : $data.avg_nodes.toFixed(0)"></td>
                                     </tr>
                                 </tbody>
                             </table>

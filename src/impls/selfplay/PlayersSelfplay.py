@@ -61,25 +61,32 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
     learn a few parameters that decide about thinking time
     """
 
-    def __init__(self):
+    def __init__(self, mode=1):
         self.lastIterResults = dict()
         self.lastIterCount = dict()
         self.kldgainsSeen = 1
         self.kldgainSum = 0.0001
         self.maxRemSeen = 0
+        self.mode = mode
 
     def shouldContinueThinking(self, params, stateValue, turn, avgExpansionsPlayed, entropyCurrent, entropyNetwork, kldgain):
-        stateW = params["stateW"]
-        turnW = params["turnW"]
-        expW = params["expW"]
-        curHW = params["curHW"]
-        netHW = params["netHW"]
-        kldW = params["kldW"]
-        bias = params["bias"]
-        val = stateValue * stateW + turn * turnW + avgExpansionsPlayed * expW + entropyCurrent * curHW + entropyNetwork * netHW + kldgain * kldW
-        val /= 6
-        val += bias
-        return val > 1
+        if self.mode == 1:
+            stateW = params["stateW"]
+            turnW = params["turnW"]
+            expW = params["expW"]
+            curHW = params["curHW"]
+            netHW = params["netHW"]
+            kldW = params["kldW"]
+            bias = params["bias"]
+            val = stateValue * stateW + turn * turnW + avgExpansionsPlayed * expW + entropyCurrent * curHW + entropyNetwork * netHW + kldgain * kldW
+            val /= 6
+            val += bias
+            return val > 1
+        elif self.mode == 2:
+            kldW = params["kldW"]
+            return kldgain > kldW
+        else:
+            assert False
 
     def wantsToThinkBatch(self, piterators, remainings, currentIterations):
 
@@ -109,7 +116,7 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
 
             self.lastIterCount[idx] = currentIterations[idx]
 
-            kldgain = 2 * (self.kldgainSum / self.kldgainsSeen)
+            kldgain = (self.kldgainSum / self.kldgainsSeen)
 
             presult = piter.getResult()
             now = presult[0]

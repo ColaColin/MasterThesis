@@ -12,19 +12,33 @@ from matplotlib.ticker import MaxNLocator
 
 import numpy as np
 
-plot_name = "foobar"
+plot_name = "Baselines"
 
 groups = {
-    "test": {
+    "extended": {
         "color": (1,0,0),
         "runs": [
-            "0538a5d8-0706-4b90-b601-c0adbfd69cc6",
-            "8b1900b0-d133-4435-baf5-6c35934ff94c"
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+        ]
+    },
+    "base": {
+        "color": (0,0,1),
+        "runs": [
+            "12c31999-e8a9-4a52-b017-796e64b05f8a",
+            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+            "bdf69def-4476-43fc-934d-115a7d895d6e",
+            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
         ]
     }
 }
 
-command = "http://127.0.0.1:8042"
+command = "https://x0.cclausen.eu"
+#command = "http://127.0.0.1:8042"
 img_output = "/ImbaKeks/git/MasterThesis/Write/images/"
 
 def getMeanOf(lsts):
@@ -48,7 +62,7 @@ def interpolateForY(xData, yData, yPoint):
     while idx < len(yData) and yData[idx] < yPoint:
         idx += 1
     
-    if idx == 0 or idx == len(yData):
+    if idx == 0 or idx >= len(yData) or idx >= len(xData):
         return None
 
     xAfter = xData[idx]
@@ -72,13 +86,19 @@ def plotGroup(name, fig, ax):
 
     for run in runs:
         data = requestJson(command + "/costs/" + run, "")
-        costs = list(map(lambda x: x["cost"], data))
-        accs = list(map(lambda x: x["acc_mcts_moves"], data))
+        costs = []
+        accs = []
+        for d in data:
+            cost = d["cost"]
+            acc = d["acc_mcts_moves"]
+            if cost is not None and acc is not None:
+                costs.append(cost)
+                accs.append(acc)
         datas.append((costs, accs))
 
     if len(datas) > 1:
         for cost, acc in datas:
-            plt.plot(cost, acc, color=color + (0.62, ), linewidth=1)
+            plt.plot(cost, acc, color=color + (0.4, ), linewidth=1)
 
         meanX, meanY = meanInterpolatedLine(datas)
         plt.plot(meanY, meanX, label=name, color=color+(1,), linewidth=2)

@@ -42,7 +42,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     """
     Use simple elo rating for players, use gaussian mutation for generations.
     """
-    def __init__(self, parameters, generationGames, populationSize, mutateTopN, mutateCount, initialRating, n, K):
+    def __init__(self, parameters, generationGames, populationSize, mutateTopN, mutateCount, initialRating, n, K, restrictMutations=True):
         self.parameters = parameters
         self.generationGames = generationGames
         self.populationSize = populationSize
@@ -51,6 +51,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.K = K
         self.mutateTopN = mutateTopN
         self.mutateCount = mutateCount
+        self.restrictMutations = restrictMutations
 
         self.loadedPlayers = False
         # players in the EloGaussServerLeague have a 4th entry in their tuple: a dict of
@@ -315,10 +316,11 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                     nextStddev = curStddev * math.exp(r1 * globalFactor + r * np.random.normal())
                     nextVal = curVal + nextStddev * np.random.normal()
 
-                    if nextVal > maximum:
-                        nextVal = maximum
-                    if nextVal < minimum:
-                        nextVal = minimum
+                    if self.restrictMutations:
+                        if nextVal > maximum:
+                            nextVal = maximum
+                        if nextVal < minimum:
+                            nextVal = minimum
 
                     playerParameters[k][vi] = nextVal
                     playerStddevs[k][vi] = nextStddev
