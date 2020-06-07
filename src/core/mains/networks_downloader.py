@@ -31,7 +31,7 @@ def loopNetworksDownload(storage):
 
         writeJsonFile(os.path.join(storage, "networks.json"), networks)
 
-        time.sleep(0.5)
+        time.sleep(2)
 
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_networks_downloader")

@@ -193,13 +193,11 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         while self.run is None:
             time.sleep(1)
         logMsg("League management got run!")
-        tryPlayersProxyProcess(self.commandHost, self.secret)
-        cnt = 0
-        while True:
-            cnt += 1
-            if cnt % 40 == 0:
-                tryPlayersProxyProcess(self.commandHost, self.secret)
+        proxyProc = tryPlayersProxyProcess(self.commandHost, self.secret)
+        time.sleep(1)
+        proxyProc.poll()
 
+        while True:
             try:
                 pendingReportDicts = []
                 while len(self.pendingReports) > 0:

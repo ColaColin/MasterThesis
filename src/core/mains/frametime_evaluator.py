@@ -140,11 +140,11 @@ if __name__ == "__main__":
 
         run, network = getNextWork()
 
-        time.sleep(15)
-
         logMsg("Next work: run=%s, network=%s" % (run, network))
 
-        tryPlayersProxyProcess(commandHost, secret, network)
+        time.sleep(3)
+
+        proc = tryPlayersProxyProcess(commandHost, secret, network)
 
         logMsg("players proxy with specific network should be running now!")
 
@@ -162,9 +162,12 @@ if __name__ == "__main__":
 
         submitResult(frametime, network)
 
-        pool.terminate()
-
         time.sleep(5)
+
+        pool.terminate()
+        proc.wait()
+
+
 
 
 

@@ -61,7 +61,7 @@ class ProxyResource():
                 logMsg("Exit players_proxy, nobody is calling it!")
                 os._exit(0)
             
-            time.sleep(2 + random.random() * 1)
+            time.sleep(4 + random.random() * 1)
 
     def postReports(self, runId, reports):
         if self.forPolicy is None:
