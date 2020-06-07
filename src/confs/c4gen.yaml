@@ -12,7 +12,7 @@ pons:
 
 genPlayer:
   name: SemiPerfectPolicy
-  p: 0.5
+  p: 0.9
 
 main:
   name: TestDatabaseGenerator2
@@ -20,8 +20,8 @@ main:
   solver: $pons
   dedupe: true
   filterTrivial: true
-  databaseSize: 10000
+  databaseSize: 10000000
   framesPerGame: 1
-  outputFile: datasets/connect4/testset.txt.zip
+  outputFile: datasets/connect4/10Mv2.txt.zip
   policy: $genPlayer
-  workers: 4
+  workers: 11

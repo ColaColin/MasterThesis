@@ -329,15 +329,17 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 self.remainingForIterations.append([self.expansionMax, self.expansionMax])
 
     def stepIteratorsOnce(self):
+        iters = 0
         self.policyIterator.iteratePolicyEx(self.policy, self.iterators, iterations = self.expansionIncrement)
         for ix in range(len(self.currentIterationExpansions)):
+            iters += self.expansionIncrement
             self.currentIterationExpansions[ix] += self.expansionIncrement
             curIter = self.iterators[ix]
             curGame = curIter.getGame()
             curPlayer = curGame.getPlayerOnTurnNumber() - 1
             self.remainingForIterations[ix][curPlayer] -= self.expansionIncrement
         
-        return self.expansionIncrement
+        return iters
 
 
     def getCurrentRemainingIterations(self):
@@ -466,7 +468,7 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         moveAvgMs = moveTimeNs / 1000000.0
 
-        logMsg("played a batch of %i moves with %.2f avg ms per move and %i avg iterations per move" % (numMovesInBatch, moveAvgMs, avgIterationsPerMove))
+        logMsg("played a batch of %i moves with %.2f avg ms per move and %i avg nodes per move" % (numMovesInBatch, moveAvgMs, avgIterationsPerMove))
 
         return moveAvgMs
 
