@@ -32,7 +32,7 @@ BATCH_COUNT = 60
 def measureFrametime(configPath, idx, run):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
     core = loadMlConfig(configPath)
-    setLoggingEnabled(False)
+    setLoggingEnabled(True)
 
     worker = core.worker(recursive=True)
 
