@@ -9,7 +9,7 @@
 # the server, just one instance of this proxy per worker-machine.
 
 import falcon
-from utils.req import requestJson
+from utils.req import requestJson, postJson
 import random
 
 import threading
@@ -86,7 +86,7 @@ class ProxyResource():
         self.lastDataRequest = time.monotonic() 
         if not runId in self.cached:
             self.cached[runId] = self.queryPlayerList(runId)
-        #logMsg("players_proxy responding with %i players" % len(self.cached[runId]))
+        logMsg("players_proxy responding with %i players" % len(self.cached[runId]))
         resp.media = self.cached[runId]
         resp.status = falcon.HTTP_200
 
@@ -99,7 +99,10 @@ def startProxy(secret, command, forPolicy=None):
 
     try:
         with make_server("127.0.0.1", 1337, app) as httpd:
-            logMsg("Started players_proxy!")
+            if forPolicy is None:
+                logMsg("Started players_proxy!")
+            else:
+                logMsg("Started players_proxy for policy %s!" % forPolicy)
             httpd.serve_forever()
     except OSError as error:
         if error.errno == 98: #port in use

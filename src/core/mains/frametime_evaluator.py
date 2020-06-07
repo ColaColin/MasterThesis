@@ -131,6 +131,10 @@ if __name__ == "__main__":
 
         ppproc = tryPlayersProxyProcess(commandHost, secret, network)
 
+        time.sleep(3)
+
+        logMsg("players proxy with specific network should be running now!")
+
         callResults = []
 
         with getNetworkFile(network) as networkFile:
