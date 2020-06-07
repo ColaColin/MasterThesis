@@ -86,10 +86,12 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
         self.run = sys.argv[sys.argv.index("--run")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
 
-        subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", self.storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
+        self.downloader = subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", self.storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
 
     def update(self, policy):
         if time.monotonic() - self.lastNetworkCheck > self.checkInterval:
+            downloader.poll()
+            
             self.lastNetworkCheck = time.monotonic()
 
             npath = os.path.join(self.storage, "networks.json")
