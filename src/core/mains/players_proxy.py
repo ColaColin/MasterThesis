@@ -86,7 +86,7 @@ class ProxyResource():
         self.lastDataRequest = time.monotonic() 
         if not runId in self.cached:
             self.cached[runId] = self.queryPlayerList(runId)
-        logMsg("players_proxy responding with %i players" % len(self.cached[runId]))
+        #logMsg("players_proxy responding with %i players" % len(self.cached[runId]))
         resp.media = self.cached[runId]
         resp.status = falcon.HTTP_200
 
