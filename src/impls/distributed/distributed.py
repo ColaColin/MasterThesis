@@ -90,8 +90,8 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
 
     def update(self, policy):
         if time.monotonic() - self.lastNetworkCheck > self.checkInterval:
-            downloader.poll()
-            
+            self.downloader.poll()
+
             self.lastNetworkCheck = time.monotonic()
 
             npath = os.path.join(self.storage, "networks.json")
