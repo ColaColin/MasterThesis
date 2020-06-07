@@ -57,7 +57,7 @@ class ProxyResource():
             for runId in self.cached:
                 self.cached[runId] = self.queryPlayerList(runId)
             
-            if time.monotonic() - self.lastDataRequest > 60:
+            if time.monotonic() - self.lastDataRequest > 10:
                 logMsg("Exit players_proxy, nobody is calling it!")
                 os._exit(0)
             

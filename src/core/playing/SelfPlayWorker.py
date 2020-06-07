@@ -51,4 +51,6 @@ class SelfPlayWorker(metaclass=abc.ABCMeta):
         """
         call to play one move on every game in the batch.
         Returns time taken for a single move in ms, excluding time spent doing game reporting or policy updates.
+        Plus returns the number of dynamic mcts expansions used, if dynamic mcts expansions are used, else None.
+        Format: a tuple: (ms, mcts | None)
         """

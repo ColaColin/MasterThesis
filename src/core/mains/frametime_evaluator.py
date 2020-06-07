@@ -28,9 +28,12 @@ from core.mains.players_proxy import tryPlayersProxyProcess
 #make sure the gpu is 100% loaded by using enough worker threads!
 PROC_COUNT = 4
 BATCH_COUNT = 60
+MIN_TIME = 300
 
 def measureFrametime(configPath, idx, run):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
+    startTime = time.monotonic()
+
     core = loadMlConfig(configPath)
     setLoggingEnabled(True)
 
@@ -39,10 +42,20 @@ def measureFrametime(configPath, idx, run):
     worker.initSelfplay(run)
 
     times = []
+    exs = []
 
     for _ in range(BATCH_COUNT):
-        tx = worker.playBatch()
+        tx, ex = worker.playBatch()
         times.append(tx)
+        exs.append(ex)
+
+    while time.monotonic() - startTime < MIN_TIME:
+        tx, ex = worker.playBatch()
+        times.append(tx)
+        exs.append(ex)
+
+    if not None in exs:
+        logMsg("Avg number of mcts nodes used by playBatch(): ", np.mean(exs))
 
     return np.mean(times)
 
@@ -127,11 +140,11 @@ if __name__ == "__main__":
 
         run, network = getNextWork()
 
+        time.sleep(15)
+
         logMsg("Next work: run=%s, network=%s" % (run, network))
 
-        ppproc = tryPlayersProxyProcess(commandHost, secret, network)
-
-        time.sleep(3)
+        tryPlayersProxyProcess(commandHost, secret, network)
 
         logMsg("players proxy with specific network should be running now!")
 
@@ -149,7 +162,6 @@ if __name__ == "__main__":
 
         submitResult(frametime, network)
 
-        ppproc.kill()
         pool.terminate()
 
         time.sleep(5)

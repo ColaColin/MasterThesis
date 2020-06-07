@@ -470,7 +470,7 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         logMsg("played a batch of %i moves with %.2f avg ms per move and %i avg nodes per move" % (numMovesInBatch, moveAvgMs, avgIterationsPerMove))
 
-        return moveAvgMs
+        return moveAvgMs, avgIterationsPerMove
 
     def handleReportFor(self, idx, finalState):
         reports = []
