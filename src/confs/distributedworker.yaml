@@ -75,17 +75,18 @@ playerParameterRanges:
 serverLeague:
   name: EloGaussServerLeague
   parameters: $playerParameterRanges
-  generationGames: 2500
-  populationSize: 75
-  mutateTopN: 20
+  generationGames: 1000
+  populationSize: 50
+  mutateTopN: 15
   mutateCount: 2
   initialRating: 1600
   n: 400
   K: 32
+  restrictMutations: False
 
 hAccess:
   name: LeaguePlayerAccess
-  activePopulation: 75
+  activePopulation: 50
 
 mcts:
   name: MctsPolicyIterator

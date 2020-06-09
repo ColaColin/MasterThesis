@@ -22,8 +22,25 @@ import math
 
 from core.mains.players_proxy import tryPlayersProxyProcess
 
+np.set_printoptions(linewidth=np.nan)
+
 # selfplay with "players" (i.e. mcts hyperparameter sets) that compete a in league against each other
 # will not support playout caps, maybe they could be added in later, but for now they do not seem to help easily anyway.
+
+def entropy(p):
+    result = 0
+    for idx in range(len(p)):
+        if p[idx] > 0:
+            result -= p[idx] * math.log(p[idx])
+    return result
+
+def kldiv(p, q):
+    result = 0
+    for idx in range(len(p)):
+        if q[idx] != 0 and p[idx] != 0:
+            result += p[idx] * math.log2(p[idx] / q[idx])
+
+    return result
 
 class PlayerAccess(metaclass=abc.ABCMeta):
     @abc.abstractmethod
@@ -64,8 +81,6 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
     def __init__(self, mode=1):
         self.lastIterResults = dict()
         self.lastIterCount = dict()
-        self.kldgainsSeen = 1
-        self.kldgainSum = 0.0001
         self.maxRemSeen = 0
         self.mode = mode
 
@@ -89,22 +104,6 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
             assert False
 
     def wantsToThinkBatch(self, piterators, remainings, currentIterations):
-
-        def entropy(p):
-            result = 0
-            for idx in range(len(p)):
-                if p[idx] > 0:
-                    result -= p[idx] * math.log(p[idx])
-            return result
-
-        def kldiv(p, q):
-            result = 0
-            for idx in range(len(p)):
-                if q[idx] != 0 and p[idx] != 0:
-                    result += p[idx] * math.log2(p[idx] / q[idx])
-
-            return result
-
         result = []
 
         for idx, piter in enumerate(piterators):
@@ -116,8 +115,6 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
 
             self.lastIterCount[idx] = currentIterations[idx]
 
-            kldgain = (self.kldgainSum / self.kldgainsSeen)
-
             presult = piter.getResult()
             now = presult[0]
             netPriors = presult[1]["net_priors"]
@@ -125,9 +122,12 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
 
             if idx in self.lastIterResults:
                 prev = self.lastIterResults[idx]
-                kldgain = kldiv(prev, now)
-                self.kldgainsSeen += 1
-                self.kldgainSum += kldgain
+            else:
+                prev = netPriors
+
+            kldgain = kldiv(prev, now)
+
+            #print(idx, "===>", kldgain, prev, now)
 
             self.lastIterResults[idx] = now
 
@@ -212,10 +212,13 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
                     # call the players_proxy to reduce the number of http requests to the actual command server
                     postJson("http://127.0.0.1:1337/players/" + self.run, self.secret, pendingReportDicts)
 
-                time.sleep(1)
-
                 # call the players_proxy to reduce the number of http requests to the actual command server
                 self.playerList = requestJson("http://127.0.0.1:1337/players/" + self.run, self.secret)
+
+                print(self.playerList[0][0], self.playerList[1][0])
+
+                time.sleep(2)
+
             except Exception as error:
                 print(error)
 
@@ -233,7 +236,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
         maxPIdx = min(self.activePopulation, len(lst)) - 1
         p1Idx = random.randint(0, maxPIdx)
-        stepProp = 0.25
+        stepProp = 0.2
 
         p2Offset = 1
         while True:
@@ -260,7 +263,8 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
             p2Offset += 1
 
-        return ((lst[p1Idx][0], lst[p1Idx][2]), (lst[p2Idx][0], lst[p2Idx][2]))
+        result = ((lst[p1Idx][0], lst[p1Idx][2]), (lst[p2Idx][0], lst[p2Idx][2]))
+        return result
 
     def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId):
         self.run = runId
@@ -407,6 +411,8 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         gameStrs = []
         for idx, i in enumerate(self.iterators):
+            if i > 3:
+                break
             currentExpansions = str(self.currentIterationExpansions[idx])
             remExps = "P1: " + str(self.remainingForIterations[idx][0]) + "\nP2: " + str(self.remainingForIterations[idx][1])
             
@@ -416,7 +422,7 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             netWins = ir[1]["net_values"]
             gs = i.getGame().prettyString(priors, netWins, iterated, None)
 
-            gameStrs.append("Current: " + currentExpansions + "\n" + remExps + "\n" + gs)
+            gameStrs.append("Clock: " + currentExpansions + "\n" + remExps + "\n" + gs)
 
         print(hConcatStrings(gameStrs))
 
@@ -460,7 +466,6 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
             moveTimeNs += time.monotonic_ns() - iterStartTime
 
-            #Do not enable unless you run a specific config that only has a very low gameCount, else it will spam your terminal.
             #self.debugPrintState(moveTimeNs)
 
         numMovesInBatch = (movesPlayed - self.prevMoves)

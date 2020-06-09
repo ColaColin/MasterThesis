@@ -73,7 +73,16 @@ create table league_players (
     rating float not null,
     -- stringified json for simplicity sake, the parameter data is very generic
     parameter_vals varchar not null,
-    parameter_stddevs varchar not null
+    parameter_stddevs varchar not null,
+    generation integer not null default 1
+);
+
+create table league_players_snapshot (
+    id uuid references league_players (id) on delete cascade not null,
+    generation integer not null,
+    network uuid references networks(id) on delete cascade not null,
+    rating float not null,
+    primary key (id, generation)
 );
 
 create table league_matches(

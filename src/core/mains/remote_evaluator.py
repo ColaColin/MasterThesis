@@ -36,8 +36,8 @@ if __name__ == "__main__":
     def getNextWork():
         while True:
             nextWork = requestJson(commandHost + "/api/evaluations/", secret)
-            if len(nextWork) > 1:
-                return nextWork[1]["run"], nextWork[1]["network"]
+            if len(nextWork) > 0:
+                return nextWork[0]["run"], nextWork[0]["network"]
             time.sleep(15)
 
     def getRunConfig(runId):
@@ -82,6 +82,8 @@ if __name__ == "__main__":
 
         # this will be an empty dict for runs without a player-league, which will then have no effect
         bestPlayer = requestJson(commandHost + "/api/bestplayer/" + policy.getUUID(), secret)
+
+        print("Got best player", bestPlayer)
 
         policyIterator = core.worker.policyIterator(recursive=True)
 

@@ -128,6 +128,7 @@ function CommandPageModel() {
     };
 
     self.navRunsNew = () => {
+        
         self.currentHash("#runs/new");
     }
 
@@ -137,17 +138,27 @@ function CommandPageModel() {
     self.statesList = ko.observable([]);
     self.statsList = ko.observable([]);
 
+    self.displayAll = () => {
+        self.showAllPlayers(true)
+    };
+
+    self.displayLimited = () => {
+        self.showAllPlayers(false);
+    };
+
+    self.showAllPlayers = ko.observable(false);
     self.playersList = ko.observable([]);
     self.players = ko.computed(() => {
         let plst = self.playersList();
-        return plst.slice(0, 10).map(x => {
+        return plst.slice(0, self.showAllPlayers() ? 999999 : 3).map(x => {
             return {
                 id: x[0].split("-")[0],
                 wins: x[3][0],
                 losses: x[3][1],
                 draws: x[3][2],
                 rating: Math.round(x[1]),
-                parameters: x[2]
+                parameters: x[2],
+                generation: "G"+x[4]
             }
         });
     });

@@ -73,6 +73,61 @@ class LeagueResource():
         logMsg("league_on_post", len(reports), mode, run_id, "took", finished - startPost)
 
 
+def selectBestPlayersForNetwork(pool, netId):
+    try:
+        con = pool.getconn()
+
+        # the players relevant to the network are the players of the last generation that does not reference a network which was created after the given network
+        cursor = con.cursor()
+        cursor.execute("select run, creation from networks where id = %s", (netId, ))
+        firstRow = cursor.fetchall()[0]
+        runId = firstRow[0]
+        networkCreationTime = firstRow[1]
+        cursor.close()
+
+#run is 1afd62c2-2a0f-4dde-85a6-baa0cbe64be6 network created at 2020-06-08 22:22:34.330666+02:00 for network 758316f8-930a-47e6-b115-e5370a27c7ae
+        print("run is %s network created at %s for network %s" % (runId, networkCreationTime, netId))
+
+        cursor = con.cursor()
+        cursor.execute("select s.generation from league_players_snapshot s, networks n where s.network = n.id and n.creation <= %s and n.run = %s order by creation desc limit 1", (networkCreationTime, runId))
+        genRows = cursor.fetchall()
+        if len(genRows) == 0:
+            useGeneration = None 
+        else:
+            useGeneration = genRows[0][0]
+        cursor.close()
+
+        # the very first network did not get any generation, which is at least a bit odd, generations should be faster than iterations.
+        if useGeneration is None:
+            
+            cursor = con.cursor()
+            cursor.execute("select min(s.generation) from league_players_snapshot s, networks n where s.network = n.id and n.run = %s", (runId, ))
+            minGenRows = cursor.fetchall()
+            if len(minGenRows) > 0 and minGenRows[0][0] is not None:
+                useGeneration = minGenRows[0][0]
+            else:
+                useGeneration = 1
+            logMsg("falling back to generation %i for network %s" % (useGeneration, netId))
+            cursor.close()
+
+        print("useGeneration is", useGeneration)
+
+        cursor = con.cursor()
+        cursor.execute("select s.id, s.rating, p.parameter_vals from league_players_snapshot s, networks n, league_players p where s.id = p.id and s.network = n.id and s.generation = %s and n.run = %s order by rating desc", (useGeneration, runId))
+        rows = cursor.fetchall()
+
+        players = []
+
+        for row in rows:
+            players.append([row[0], row[1], json.loads(row[2])])
+
+        return players
+
+    finally:
+        if cursor:
+            cursor.close()
+        pool.putconn(con)
+
 class BestPlayerResource():
 
     def __init__(self, pool):
@@ -80,23 +135,15 @@ class BestPlayerResource():
 
     # runId is not necessary, as networks use UUIDs, so they are unique over the entire database, all runs, anyway.
     def on_get(self, req, resp, net_id):
-        try:
-            con = self.pool.getconn()
-            cursor = con.cursor()
+        players = selectBestPlayersForNetwork(self.pool, net_id)
+        if len(players) > 0:
+            print("best player for network %s is %s with rating at the time of %i" % (net_id, players[0][0], players[0][1]))
+            resp.media = players[0][2]
+        else:
+            print("There is no best player for network %s" % net_id)
+            resp.media = dict()
+        resp.status = falcon.HTTP_200
 
-            cursor.execute("select p.parameter_vals from league_players p inner join (select distinct player1 as pid from league_matches where network = %s union select player2 as pid from league_matches where network = %s) foo on foo.pid = p.id order by p.rating desc limit 1", (net_id, net_id))
-            rows = cursor.fetchall()
-
-            if len(rows) == 0:
-                resp.media = {}
-                resp.status = falcon.HTTP_200
-            else:
-                resp.media = json.loads(rows[0][0])
-                resp.status = falcon.HTTP_200
-        finally:
-            if cursor:
-                cursor.close()
-            self.pool.putconn(con)
 
 class NetPlayersResource():
     def __init__(self, pool):
@@ -104,19 +151,6 @@ class NetPlayersResource():
 
     # runId is not necessary, as networks use UUIDs, so they are unique over the entire database, all runs, anyway.
     def on_get(self, req, resp, net_id):
-        try:
-            con = self.pool.getconn()
-            cursor = con.cursor()
-
-            cursor.execute("select id, rating, parameter_vals from league_players p inner join (select distinct player1 as pid from league_matches where network = %s union select player2 as pid from league_matches where network = %s) foo on foo.pid = p.id order by p.rating desc", (net_id, net_id))
-            rows = cursor.fetchall()
-
-            result = []
-            for row in rows:
-                result.append([row[0], row[1], json.loads(row[2])])
-            resp.media = result
-            resp.status = falcon.HTTP_200
-        finally:
-            if cursor:
-                cursor.close()
-            self.pool.putconn(con)
+        players = selectBestPlayersForNetwork(self.pool, net_id)
+        resp.media = players
+        resp.status = falcon.HTTP_200

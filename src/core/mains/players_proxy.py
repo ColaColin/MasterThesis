@@ -53,6 +53,8 @@ class ProxyResource():
                     pr.append(prSrc.pop())
                 if len(pr) > 0:
                     self.postReports(runId, pr)
+            
+            time.sleep(3)
 
             for runId in self.cached:
                 self.cached[runId] = self.queryPlayerList(runId)
@@ -60,8 +62,6 @@ class ProxyResource():
             if time.monotonic() - self.lastDataRequest > 10:
                 logMsg("Exit players_proxy, nobody is calling it!")
                 os._exit(0)
-            
-            time.sleep(4 + random.random() * 1)
 
     def postReports(self, runId, reports):
         if self.forPolicy is None:

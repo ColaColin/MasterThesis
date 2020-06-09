@@ -37,6 +37,9 @@ groups = {
     }
 }
 
+# up to what hour of cost to display data
+cutRight = 18
+
 command = "https://x0.cclausen.eu"
 #command = "http://127.0.0.1:8042"
 img_output = "/ImbaKeks/git/MasterThesis/Write/images/"
@@ -98,10 +101,10 @@ def plotGroup(name, fig, ax):
 
     if len(datas) > 1:
         for cost, acc in datas:
-            plt.plot(cost, acc, color=color + (0.4, ), linewidth=1)
+            plt.plot(cost, acc, color=color + (0.3, ), linewidth=1)
 
         meanX, meanY = meanInterpolatedLine(datas)
-        plt.plot(meanY, meanX, label=name, color=color+(1,), linewidth=2)
+        plt.plot(meanY, meanX, label=name, color=color+(1,), linewidth=3)
         mostLeft = meanY[0] * 0.99
         mostRight = meanY[-1] * 1.01
     elif len(datas) == 1:
@@ -150,6 +153,9 @@ if __name__ == "__main__":
 
         if mostRight is None or mostRight < mR:
             mostRight = mR
+
+    if mostRight > cutRight:
+        mostRight = cutRight
 
     plt.xlim([mostLeft, mostRight])
 

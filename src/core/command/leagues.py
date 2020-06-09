@@ -16,7 +16,7 @@ class ServerLeague(metaclass=abc.ABCMeta):
     def getPlayers(self, pool, runId):
         """
         return a list of players, sorted by ranking, a player is a tuple:
-        (player-id, player-rating, player-parameters, player-stats)
+        (player-id, player-rating, player-parameters, player-stats, player-generation)
         player-parameters is a dict of string-key to single number or a list of numbers.
         player-stats is a dict:
         {wins, losses, draws}
@@ -38,12 +38,22 @@ class ServerLeague(metaclass=abc.ABCMeta):
         (player1Id, player2Id, result (1 is p1 wins, 0 is p2 wins, 0.5 is draw), ratingChange, timestamp)
         """
 
+def mkQMarkListsFor(qLsts):
+    result = []
+    for qLst in qLsts:
+        foo = "(" + ",".join(["%s"] * len(qLst)) + ")"
+        result.append(foo)
+    return ",".join(result)
+
+flatten = lambda l: [item for sublist in l for item in sublist]
+
 class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     """
     Use simple elo rating for players, use gaussian mutation for generations.
     """
-    def __init__(self, parameters, generationGames, populationSize, mutateTopN, mutateCount, initialRating, n, K, restrictMutations=True):
+    def __init__(self, parameters, generationGames, populationSize, mutateTopN, mutateCount, initialRating, n, K, fixedParameters=None, restrictMutations=True):
         self.parameters = parameters
+        self.fixedParameters = fixedParameters
         self.generationGames = generationGames
         self.populationSize = populationSize
         self.initialRating = initialRating
@@ -54,8 +64,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.restrictMutations = restrictMutations
 
         self.loadedPlayers = False
-        # players in the EloGaussServerLeague have a 4th entry in their tuple: a dict of
-        # the same shape as the 3rd entry, which represents the std-devs of the gaussian mutation steps.
+        # shape: [id, rating, params, params-stddev, generation]
         self.players = []
 
         # caching sets to reduce number of database queries
@@ -63,9 +72,12 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         self.networkKnowledge = dict()
 
         self.loadedMatchHistory = False
+        # (player1, player2, result, ratingChange, timestamp in unix ms)
         self.matchHistory = []
 
         self.playerStatsDict = dict()
+
+        self.currentGeneration = 1
 
     def getMatchHistory(self, pool, runId):
         if not self.loadedMatchHistory:
@@ -102,11 +114,13 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 con = pool.getconn()
                 cursor = con.cursor()
 
-                cursor.execute("SELECT id, run, rating, parameter_vals, parameter_stddevs from league_players where run = %s", (runId, ))
+                cursor.execute("SELECT id, run, rating, parameter_vals, parameter_stddevs, generation from league_players where run = %s", (runId, ))
                 rows = cursor.fetchall()
 
                 for row in rows:
-                    self.players.append([row[0], row[2], json.loads(row[3]), json.loads(row[4])])
+                    self.players.append([row[0], row[2], json.loads(row[3]), json.loads(row[4]), row[5]])
+                    if row[5] > self.currentGeneration:
+                        self.currentGeneration = row[5]
 
             finally:
                 if cursor:
@@ -160,8 +174,8 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 alreadyExists = True
 
             if not alreadyExists:
-                cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs) VALUES (%s, %s, %s, %s, %s)",\
-                    (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3])))
+                cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs, generation) VALUES (%s, %s, %s, %s, %s, %s)",\
+                    (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3]), player[4]))
             else:
                 cursor.execute("update league_players set rating = %s where id = %s", (player[1], player[0]))
             con.commit()
@@ -193,15 +207,6 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 if cursor:
                     cursor.close()
                 pool.putconn(con)
-        
-        def mkQMarkListsFor(qLsts):
-            result = []
-            for qLst in qLsts:
-                foo = "(" + ",".join(["%s"] * len(qLst)) + ")"
-                result.append(foo)
-            return ",".join(result)
-
-        flatten = lambda l: [item for sublist in l for item in sublist]
 
         valLists = [];
 
@@ -227,6 +232,13 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     def persistPlayers(self, pool, runId):
         for p in self.players:
             self.persistPlayer(pool, p, runId)
+
+    def addDefaultsToParamsDict(self, pDict):
+        newDict = dict(pDict)
+        for k in self.fixedParameters:
+            if k != "name":
+                newDict[k] = self.fixedParameters[k]
+        return newDict
 
     def newPlayer(self):
         playerId = str(uuid.uuid4())
@@ -260,7 +272,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 playerParameters[k] = vector
                 playerStddevs[k] = stddevs
 
-        return [playerId, playerRating, playerParameters, playerStddevs]
+        return [playerId, playerRating, self.addDefaultsToParamsDict(playerParameters), playerStddevs, 1]
 
     def mutatePlayer(self, player):
         playerId = str(uuid.uuid4())
@@ -326,7 +338,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                     playerParameters[k][vi] = nextVal
                     playerStddevs[k][vi] = nextStddev
 
-        return [playerId, playerRating, playerParameters, playerStddevs]
+        return [playerId, playerRating, self.addDefaultsToParamsDict(playerParameters), playerStddevs, self.currentGeneration]
 
     def initPlayers(self):
         for _ in range(self.populationSize):
@@ -368,7 +380,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
 
         pstats = self.playerStatsDict
 
-        result = list(map(lambda x: (x[0], x[1], x[2], pstats[x[0]] if x[0] in pstats else [0,0,0]), self.players))
+        result = list(map(lambda x: (x[0], x[1], x[2], pstats[x[0]] if x[0] in pstats else [0,0,0], x[4]), self.players[:self.populationSize * 2]))
 
         # print("==== players:")
         # for idx, p in enumerate(result):
@@ -377,19 +389,76 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         #     foo = str(idx + 1)
         #     if len(foo) < 2:
         #         foo = "0" + foo
-        #     print("#"+foo, p[0].split("-")[1], int(p[1]), p[3], p[2])
+        #     print("#"+foo, p[0].split("-")[1], p[4], int(p[1]), p[3], p[2])
         # print("... %i more players not shown" % (len(result) - 42))
 
         return result
 
-    def calculateNumberOfPlayers(self):
-        generations = len(self.matchHistory) // self.generationGames
-        newPlayersPerGeneration = self.mutateTopN * self.mutateCount
-        return self.populationSize + newPlayersPerGeneration * generations
+    def hasLatestGenerationEnoughGames(self):
+        gamesOfLatestGen = 0
+        activeNewPlayers = 0
+        for pidx, player in enumerate(self.players):
+            if pidx >= self.populationSize:
+                break
+            if player[4] == self.currentGeneration:
+                activeNewPlayers += 1
+                if player[0] in self.playerStatsDict:
+                    gamesOfLatestGen += np.sum(self.playerStatsDict[player[0]])
+        # games show up twice in the stats, once as a win and once as a loss, or twice as a draw, so divide by 2.
+        gamesOfLatestGen /= 2
+        # only consider new generation players that have not dropped out of the active population
+        # e.g. that have performed so bad, they got thrown down the ladder far enough to not start games anymore.
+        if self.currentGeneration == 1:
+            # the first generation has populationSize players
+            neededGames = (activeNewPlayers / (self.populationSize)) * self.generationGames
+        else:
+            # all following generations have mutateCount * mutateTopN players
+            neededGames = (activeNewPlayers / (self.mutateCount * self.mutateTopN)) * self.generationGames
+        print("Current generation is %i, it has played %i/%i games. Still active: %i" % (self.currentGeneration, gamesOfLatestGen, neededGames, activeNewPlayers))
+        return gamesOfLatestGen >= neededGames
+
+    def storeGeneration(self, pool, runId):
+        # store the current top 50 for the latest generation to be used later for evaluation purposes
+        # as in "these were the best players of this generation"
+        try:
+            con = pool.getconn()
+
+            # first figure out the current network in use
+            cursor = con.cursor()
+            cursor.execute("SELECT id from networks where run = %s order by creation desc limit 1", (runId, ))
+            networkRows = cursor.fetchall()
+            if len(networkRows) > 0:
+                currentNetwork = networkRows[0][0]
+            else:
+                currentNetwork = None
+            cursor.close()
+
+            # no need to store generations for the random initial network
+            # it never gets evaluated anyway.
+            if currentNetwork is not None:
+                cursor = con.cursor()
+                valLists = []
+                for player in self.players[:self.populationSize]:
+                    valLists.append([player[0], self.currentGeneration, currentNetwork, player[1]])
+
+                qList = mkQMarkListsFor(valLists)
+                valFlat = flatten(valLists)
+
+                iSql = "insert into league_players_snapshot (id, generation, network, rating) VALUES " + qList
+
+                cursor.execute(iSql, valFlat)
+                con.commit()                
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
 
     def handleGenerations(self, pool, runId):
-        expectedPlayers = self.calculateNumberOfPlayers()
-        if expectedPlayers > len(self.players):
+        shouldMutate = self.hasLatestGenerationEnoughGames()
+        if shouldMutate:
+            self.storeGeneration(pool, runId)
+
+            self.currentGeneration += 1
             newPlayers = []
             for mi in range(self.mutateTopN):
                 for _ in range(self.mutateCount):

@@ -146,13 +146,20 @@
                             </table>
                         </div>
                         <div bp="2">
-                            Top 10 players:
+                            Top players:<br/>
+                            <!-- ko if: showAllPlayers-->
+                            <button data-bind="click: displayLimited">Show less</button>
+                            <!-- /ko -->
+                            <!-- ko ifnot: showAllPlayers-->
+                            <button data-bind="click: displayAll">Show more</button>
+                            <!-- /ko -->
                         </div>
                         <div bp="10">
                             <table class="fullwidth">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Gen</th>
                                         <th>W</th>
                                         <th>L</th>
                                         <th>D</th>
@@ -163,6 +170,7 @@
                                 <tbody data-bind="foreach: players">
                                     <tr>
                                         <td data-bind="text: $data.id"></td>
+                                        <td data-bind="text: $data.generation"></td>
                                         <td data-bind="text: $data.wins"></td>
                                         <td data-bind="text: $data.losses"></td>
                                         <td data-bind="text: $data.draws"></td>
@@ -178,7 +186,6 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            Overall <span data-bind="text: playersList().length"></span> players.
                         </div>
                         <!-- <div bp="2">
                             Recent games:
