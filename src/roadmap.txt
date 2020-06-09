@@ -250,11 +250,11 @@ WK 23
      [X] frametime evaluator needs to configure the worker to use player-configs that existed at the time of the network measured using the matchistory, probably needs an extra api.
      -> select all player configs which played at least one game with a given network and only use those to play.
 WK 24
-     [~] league generation changes: New generation when the players of the last new generation have played X games.
-     [ ] best players for a network to be defined as the best players of the last generation to only play games with that network
+     [X] league generation changes: New generation when the players of the last new generation have played X games.
+     [X] best players for a network to be defined as the best players of the last generation to only play games with that network
           X record a "generation"-number for the players to implement this.
-          -> remote_eval only evalutates networks for which the latest generation is completed, e.g. there has to be a newer generation which is playing with some other network now.
-     [ ] fix the frametime evaluation of league-based runs, somehow they are broken, don't play with the right number of nodes.
+          X remote_eval only evalutates networks for which the latest generation is completed, e.g. there has to be a newer generation which is playing with some other network now.
+     [?] fix the frametime evaluation of league-based runs, somehow they are broken, don't play with the right number of nodes.
      [ ] run more experiments with evolving players
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search

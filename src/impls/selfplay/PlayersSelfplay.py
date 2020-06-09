@@ -220,7 +220,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
                 time.sleep(2)
 
             except Exception as error:
-                print(error)
+                print("Problem in PlayersSelfplay!", error)
 
         logMsg("something bad happened to the league network thread, quitting worker!!!")    
         exit(-1)

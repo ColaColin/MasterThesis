@@ -7,6 +7,7 @@ drop table if exists networks cascade;
 drop table if exists runs cascade;
 drop table if exists league_players cascade;
 drop table if exists league_matches cascade;
+drop table if exists league_players_snapshot cascade;
 
 create table runs (
     id uuid primary key,
