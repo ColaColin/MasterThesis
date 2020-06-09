@@ -165,7 +165,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         --run <run-uuid>
     """
 
-    def __init__(self, activePopulation = 50):
+    def __init__(self, activePopulation = 50, matchmaking="bias"):
         hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
@@ -174,6 +174,8 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         self.activePopulation = activePopulation
         self.secret = sys.argv[sys.argv.index("--secret")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
+
+        self.matchmaking = matchmaking
 
         # list of all known players, sorted by their rating in a descending fashion
         # Data format is tuples: (player-id-string, player-rating, player-parameters)
@@ -236,33 +238,40 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
         maxPIdx = min(self.activePopulation, len(lst)) - 1
         p1Idx = random.randint(0, maxPIdx)
-        stepProp = 0.05
 
-        p2Offset = 1
-        while True:
-            upP2 = p1Idx + p2Offset
-            downP2 = p1Idx - p2Offset
+        if self.matchmaking == "bias":
+            stepProp = 0.05
 
-            failedUp = upP2 >= len(lst)
-            failedDown = downP2 < 0
+            p2Offset = 1
+            while True:
+                upP2 = p1Idx + p2Offset
+                downP2 = p1Idx - p2Offset
 
-            if not failedUp and random.random() < stepProp:
-                p2Idx = upP2
-                break
+                failedUp = upP2 >= len(lst)
+                failedDown = downP2 < 0
 
-            if not failedDown and random.random() < stepProp:
-                p2Idx = downP2
-                break
+                if not failedUp and random.random() < stepProp:
+                    p2Idx = upP2
+                    break
 
-            if failedDown and failedUp:
-                if p1Idx == 0:
-                    p2Idx = 1
-                else:
-                    p2Idx = p1Idx - 1
-                break
+                if not failedDown and random.random() < stepProp:
+                    p2Idx = downP2
+                    break
 
-            p2Offset += 1
+                if failedDown and failedUp:
+                    if p1Idx == 0:
+                        p2Idx = 1
+                    else:
+                        p2Idx = p1Idx - 1
+                    break
 
+                p2Offset += 1
+        else:
+            # uniform
+            p2Idx = random.randint(0, len(lst) - 1)
+            while p2Idx == p1Idx:
+                p2Idx = random.randint(0, len(lst) - 1)
+            
         result = ((lst[p1Idx][0], lst[p1Idx][2]), (lst[p2Idx][0], lst[p2Idx][2]))
         return result
 

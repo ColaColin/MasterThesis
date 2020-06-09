@@ -87,6 +87,7 @@ serverLeague:
 hAccess:
   name: LeaguePlayerAccess
   activePopulation: 50
+  matchmaking: uniform
 
 mcts:
   name: MctsPolicyIterator
