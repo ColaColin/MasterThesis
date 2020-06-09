@@ -236,7 +236,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
 
         maxPIdx = min(self.activePopulation, len(lst)) - 1
         p1Idx = random.randint(0, maxPIdx)
-        stepProp = 0.2
+        stepProp = 0.05
 
         p2Offset = 1
         while True:
