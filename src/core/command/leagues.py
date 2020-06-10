@@ -47,6 +47,18 @@ def mkQMarkListsFor(qLsts):
 
 flatten = lambda l: [item for sublist in l for item in sublist]
 
+def limitByRollover(val, minVal, maxVal):
+    while val > maxVal:
+        overSize = val - maxVal
+        val = minVal + overSize
+    while val < minVal:
+        underSize = minVal - val
+        val = maxVal - underSize
+    return val
+
+def limitByCut(val, minVal, maxVal):
+    pass
+
 class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
     """
     Use simple elo rating for players, use gaussian mutation for generations.
@@ -330,10 +342,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                     nextVal = curVal + nextStddev * np.random.normal()
 
                     if self.restrictMutations:
-                        if nextVal > maximum:
-                            nextVal = maximum
-                        if nextVal < minimum:
-                            nextVal = minimum
+                        nextVal = limitByRollover(nextVal, minimum, maximum)
 
                     playerParameters[k][vi] = nextVal
                     playerStddevs[k][vi] = nextStddev

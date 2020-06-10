@@ -340,7 +340,6 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
             newMd = ifactor * inverted + (1 - ifactor) * md
             md = newMd
             
-
         return (md, generics)
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
