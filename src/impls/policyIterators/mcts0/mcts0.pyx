@@ -330,12 +330,17 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
 
         md = node.getMoveDistribution()
         if "inversion" in self.myParams:
+            if "inversionP" in self.myParams:
+                if random.random() > self.myParams["inversionP"]:
+                    return (md, generics)
+            
             inverted = 1 - md
             inverted /= np.sum(inverted)
             ifactor = self.myParams["inversion"]
             newMd = ifactor * inverted + (1 - ifactor) * md
-            #print("Inversion completed: ", md, "->", ifactor, "->", newMd)
             md = newMd
+            
+
         return (md, generics)
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):

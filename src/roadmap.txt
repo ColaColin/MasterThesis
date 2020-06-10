@@ -260,6 +260,49 @@ WK 24
           -> Question: Does the ladder-based evolution pick out strong players at all? Or is it all just random noise?
                - use a "inversion"-hyperparameter, where 1 means "play bad moves intentionally" and 0 "play the good moves". I.e.: it should optimize towards 0, if the optimization works.
                - test if if works with restricted evolution
+
+new mutated players:
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '95630379-d5fa-4c3c-af4d-beaacdeebbad' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.532083449089683 | 0.270653516326751
+          2 | 0.375197814043052 | 0.609621298291894
+          3 | 0.147329403989332 | 0.350569696805265
+          4 | 0.304481757692259 | 0.992657085621371
+          5 | 0.186916487718976 | 0.845452319314785
+          6 | 0.138749106244541 | 0.943134779230976
+          7 | 0.142371928611014 | 0.823057518836132
+          8 | 0.151204016447625 |  1.69328668444003
+          9 | 0.245806452288956 |  1.22883539299929
+         10 | 0.201451812705329 |  1.84845647237876
+         11 |  0.16890345582608 |  1.57438121601208
+         12 | 0.134046040254104 |  2.58304425784389
+         13 | 0.357497021388468 |  3.89792466206146
+(13 rows)
+
+best players:
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '95630379-d5fa-4c3c-af4d-beaacdeebbad' group by s.generation;
+ generation |         avg         
+------------+---------------------
+          3 |   0.108627227686143
+          4 |   0.071396162599138
+          5 |  0.0235274631539082
+          6 |  0.0122366837273928
+          7 |  0.0108890069930788
+          8 | 0.00653001957834964
+          9 | 0.00244810817886486
+         10 | 0.00280159160851841
+         11 | 0.00367794678745987
+         12 | 0.00303961886623186
+(10 rows)
+
+restricted evolution causes the stddev to explode, can that be prevented by looping restricted values? That should given an evolutionary advantage to small stddev values instead of big ones?
+
+               -> do a test with chances 100%, 50%, 25%, 5% of inversion based on the selected value, how reliable does it find the better players for those cases? The lower it goes, the more reliable even small differences between players will be found.
+                    -> 10 generation each, avg of results from 3 runs.
+
+
+               -> how does the population size and games per generation affect this?!
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search
      [ ] writing goal: Complete stuff about the extended run
