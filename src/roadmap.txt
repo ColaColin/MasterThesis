@@ -257,6 +257,13 @@ WK 24
      [?] fix the frametime evaluation of league-based runs, somehow they are broken, don't play with the right number of nodes.
      [~] run more experiments with evolving players
           -> just evolving drawValue and fpu without restrictions is pretty bad
+
+          Key questions to research on "can this work at all":
+          -> Does the evolution find good players in the presence of the exploration noise?
+          -> Does a "good" player correspond to a high accuracy according to the solver?
+               -> compare MCTS accuracy of different players as a chart of mcts accuarcy over rank in the ladder after a run for the top 50 players.
+          -> What about game variance, will that break down again?
+
           -> Question: Does the ladder-based evolution pick out strong players at all? Or is it all just random noise?
                - use a "inversion"-hyperparameter, where 1 means "play bad moves intentionally" and 0 "play the good moves". I.e.: it should optimize towards 0, if the optimization works.
                - test if if works with restricted evolution
@@ -298,11 +305,102 @@ x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::fl
 
 restricted evolution causes the stddev to explode, can that be prevented by looping restricted values? That should given an evolutionary advantage to small stddev values instead of big ones?
 
-               -> do a test with chances 100%, 50%, 25%, 5% of inversion based on the selected value, how reliable does it find the better players for those cases? The lower it goes, the more reliable even small differences between players will be found.
+               -> do a test with chances 100%, 25%, 5% of inversion based on the selected value, how reliable does it find the better players for those cases? The lower it goes, the more reliable even small differences between players will be found.
                     -> 10 generation each, avg of results from 3 runs.
 
+               100%:
+b5da9c0b-4db1-49a0-b5aa-8d824e8de1f7
+ generation |        avg
+------------+--------------------
+          3 |  0.135315670930277
+          4 | 0.0776798559955779
+          5 | 0.0658959418103126
+          6 |  0.039462156116895
+          7 | 0.0401443461050646
+          8 | 0.0329108122074383
+          9 | 0.0222988996862122
+         10 |  0.024455258842138
 
-               -> how does the population size and games per generation affect this?!
+ generation |        avg        |        avg         
+------------+-------------------+--------------------
+          1 | 0.474337871731481 |  0.277312684498163
+          2 | 0.358937621854321 |  0.630670298570815
+          3 | 0.386100913086458 |  0.544380223157011
+          4 | 0.239808859000899 |  0.229556865807236
+          5 | 0.145741467295021 | 0.0563991155439515
+          6 | 0.342233843015984 |   0.19255911746328
+          7 | 0.307207798753939 | 0.0838927633805477
+          8 | 0.347439185998696 |  0.128789142140572
+          9 | 0.269315758544495 | 0.0732674588901536
+         10 | 0.268842143493111 |  0.509530181871259
+         11 | 0.281735015468705 | 0.0726444064916898
+
+e104cee9-ee66-4328-8a3d-cc47c0feeb33
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = 'e104cee9-ee66-4328-8a3d-cc47c0feeb33' group by generation order by generation asc;
+ generation |        avg        |        avg         
+------------+-------------------+--------------------
+          1 | 0.497032953958438 |  0.251886989394464
+          2 | 0.365818711912343 |  0.485207308745577
+          3 | 0.393445476948225 |  0.391144245495933
+          4 |     0.27234581778 |  0.409842774967983
+          5 | 0.258452504284082 |  0.789533471319203
+          6 | 0.229666889326379 |   1.02225254739313
+          7 | 0.246915366241892 |    1.6777226727363
+          8 | 0.202325767362225 | 0.0751656866565498
+          9 | 0.195413279844559 | 0.0474251141339001
+         10 | 0.397948313005969 |  0.161716502899679
+         11 | 0.209807663659014 |  0.044573453919493
+(11 rows)
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = 'e104cee9-ee66-4328-8a3d-cc47c0feeb33' group by s.generation;
+ generation |        avg         
+------------+--------------------
+          3 |    0.1570463880953
+          4 | 0.0877856938890719
+          5 | 0.0781986599772075
+          6 | 0.0527047724425045
+          7 |  0.051425144747466
+          8 | 0.0440569015452784
+          9 | 0.0302993221776173
+         10 | 0.0302047049518767
+(8 rows)
+
+
+
+1e3bfeb2-18dc-447a-a1e0-e3a423cc8d3c
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '1e3bfeb2-18dc-447a-a1e0-e3a423cc8d3c' group by generation order by generation asc;
+ generation |        avg         |        avg         
+------------+--------------------+--------------------
+          1 |  0.504080716786349 |  0.265643382418339
+          2 |  0.350329631638036 |   0.39166183668799
+          3 |  0.406854135941621 |  0.415718120908287
+          4 |  0.152844698755316 | 0.0737823579027844
+          5 |  0.165884066615793 | 0.0559317034144853
+          6 |  0.120029678184099 |  0.101869306897708
+          7 | 0.0859888069207291 | 0.0304126168697269
+          8 |  0.111539889459197 | 0.0409149665126872
+          9 |  0.192367672391646 | 0.0968860125251314
+         10 | 0.0883713203315914 | 0.0545262378403878
+         11 |  0.216369814380291 | 0.0151219499964586
+(11 rows)
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '1e3bfeb2-18dc-447a-a1e0-e3a423cc8d3c' group by s.generation;
+ generation |        avg         
+------------+--------------------
+          3 |  0.154824406054617
+          4 | 0.0860682647905006
+          5 | 0.0684224340217999
+          6 | 0.0627801693298965
+          7 | 0.0500601891415002
+          8 | 0.0376065575896017
+          9 | 0.0330803049687997
+         10 | 0.0262694430357088
+(8 rows)
+
+x0=> 
+
+
+
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search
      [ ] writing goal: Complete stuff about the extended run
