@@ -329,7 +329,14 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
         generics["net_values"] = [x for x in node.netValueEvaluation]
         generics["net_priors"] = node.getNetworkPriors()
         generics["mcts_state_value"] = node.stateValue
-        return (node.getMoveDistribution(), generics)
+
+        md = node.getMoveDistribution()
+        if "inversion" in self.playerHyperParams:
+            inverted = 1 - md
+            inverted /= np.sum(inverted)
+            ifactor = self.playerHyperParams["inversion"]
+            md = ifactor * inverted + (1 - ifactor) * md
+        return (md, generics)
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     """

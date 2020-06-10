@@ -255,7 +255,11 @@ WK 24
           X record a "generation"-number for the players to implement this.
           X remote_eval only evalutates networks for which the latest generation is completed, e.g. there has to be a newer generation which is playing with some other network now.
      [?] fix the frametime evaluation of league-based runs, somehow they are broken, don't play with the right number of nodes.
-     [ ] run more experiments with evolving players
+     [~] run more experiments with evolving players
+          -> just evolving drawValue and fpu without restrictions is pretty bad
+          -> Question: Does the ladder-based evolution pick out strong players at all? Or is it all just random noise?
+               - use a "inversion"-hyperparameter, where 1 means "play bad moves intentionally" and 0 "play the good moves". I.e.: it should optimize towards 0, if the optimization works.
+               - test if if works with restricted evolution
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search
      [ ] writing goal: Complete stuff about the extended run
