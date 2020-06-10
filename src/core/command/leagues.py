@@ -320,10 +320,7 @@ class EloGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
                 nextVal = curVal + nextStddev * np.random.normal()
                 
                 if self.restrictMutations:
-                    if nextVal > maximum:
-                        nextVal = maximum
-                    if nextVal < minimum:
-                        nextVal = minimum
+                    nextVal = limitByRollover(nextVal, minimum, maximum)
                 
                 playerParameters[k] = nextVal
                 playerStddevs[k] = nextStddev
