@@ -297,30 +297,28 @@ cdef class MCTSNode():
 class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
     def __init__(self, game, playerHyperParams, rootNoise, noExploration, defaultParameters = None):
         self.game = game
-        self.playerHyperParams = playerHyperParams
         self.rootNoise = rootNoise
         self.node = MCTSNode(game, noiseMix = 0 if noExploration else self.rootNoise)
 
         pIndex = self.game.getPlayerOnTurnNumber()
         if pIndex in playerHyperParams and len(playerHyperParams[pIndex]) > 0:
-            self.playerHyperparams = playerHyperParams[pIndex]
-            self.cpuct = playerHyperParams[pIndex]["cpuct"]
-            self.drawValue = playerHyperParams[pIndex]["drawValue"]
-            self.fpu = playerHyperParams[pIndex]["fpu"]
-            self.alphaBase = playerHyperParams[pIndex]["alphaBase"]
+            wtf = playerHyperParams[pIndex]
         else:
             assert defaultParameters is not None
-            self.playerHyperparams = defaultParameters
-            self.cpuct = defaultParameters["cpuct"]
-            self.drawValue = defaultParameters["drawValue"]
-            self.fpu = defaultParameters["fpu"]
-            self.alphaBase = defaultParameters["alphaBase"]
+            wtf = defaultParameters
+
+        self.cpuct = wtf["cpuct"]
+        self.drawValue = wtf["drawValue"]
+        self.fpu = wtf["fpu"]
+        self.alphaBase = wtf["alphaBase"]
+
+        self.myParams = wtf
 
     def getGame(self):
         return self.game
 
     def getCurrentPlayerParameters(self):
-        return self.playerHyperparams
+        return self.myParams
 
     def getResult(self):
         cdef MCTSNode node = self.node
@@ -331,11 +329,13 @@ class MctsPIterator(PIteratorInstance, metaclass=abc.ABCMeta):
         generics["mcts_state_value"] = node.stateValue
 
         md = node.getMoveDistribution()
-        if "inversion" in self.playerHyperParams:
+        if "inversion" in self.myParams:
             inverted = 1 - md
             inverted /= np.sum(inverted)
-            ifactor = self.playerHyperParams["inversion"]
-            md = ifactor * inverted + (1 - ifactor) * md
+            ifactor = self.myParams["inversion"]
+            newMd = ifactor * inverted + (1 - ifactor) * md
+            #print("Inversion completed: ", md, "->", ifactor, "->", newMd)
+            md = newMd
         return (md, generics)
 
 class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
