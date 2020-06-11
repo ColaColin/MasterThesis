@@ -16,12 +16,13 @@
 \BOOKMARK [1][-]{section.4}{Experiments}{}% 16
 \BOOKMARK [2][-]{subsection.4.1}{Testing on Connect4}{section.4}% 17
 \BOOKMARK [3][-]{subsubsection.4.1.1}{Generating Connect4 datasets}{subsection.4.1}% 18
-\BOOKMARK [2][-]{subsection.4.2}{Baselines}{section.4}% 19
+\BOOKMARK [2][-]{subsection.4.2}{Baseline}{section.4}% 19
 \BOOKMARK [3][-]{subsubsection.4.2.1}{Supervised training}{subsection.4.2}% 20
-\BOOKMARK [3][-]{subsubsection.4.2.2}{AlphaZero implementation}{subsection.4.2}% 21
-\BOOKMARK [3][-]{subsubsection.4.2.3}{Extended AlphaZero}{subsection.4.2}% 22
-\BOOKMARK [2][-]{subsection.4.3}{Results on novel improvements}{section.4}% 23
-\BOOKMARK [3][-]{subsubsection.4.3.1}{Network modifications}{subsection.4.3}% 24
-\BOOKMARK [3][-]{subsubsection.4.3.2}{Playing games as trees}{subsection.4.3}% 25
-\BOOKMARK [3][-]{subsubsection.4.3.3}{Automatic auxilary features}{subsection.4.3}% 26
-\BOOKMARK [3][-]{subsubsection.4.3.4}{Evolutionary hyperparameters}{subsection.4.3}% 27
+\BOOKMARK [3][-]{subsubsection.4.2.2}{Evaluation of training costs}{subsection.4.2}% 21
+\BOOKMARK [3][-]{subsubsection.4.2.3}{Hyperparameter search}{subsection.4.2}% 22
+\BOOKMARK [3][-]{subsubsection.4.2.4}{Results}{subsection.4.2}% 23
+\BOOKMARK [2][-]{subsection.4.3}{Novel improvements}{section.4}% 24
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Network modifications}{subsection.4.3}% 25
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Playing games as trees}{subsection.4.3}% 26
+\BOOKMARK [3][-]{subsubsection.4.3.3}{Automatic auxilary features}{subsection.4.3}% 27
+\BOOKMARK [3][-]{subsubsection.4.3.4}{Evolutionary hyperparameters}{subsection.4.3}% 28

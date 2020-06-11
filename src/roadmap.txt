@@ -308,7 +308,9 @@ restricted evolution causes the stddev to explode, can that be prevented by loop
                -> do a test with chances 100%, 25%, 5% of inversion based on the selected value, how reliable does it find the better players for those cases? The lower it goes, the more reliable even small differences between players will be found.
                     -> 10 generation each, avg of results from 3 runs.
 
-               100%:
+100%:
+
+
 b5da9c0b-4db1-49a0-b5aa-8d824e8de1f7
  generation |        avg
 ------------+--------------------
@@ -397,7 +399,106 @@ x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::fl
          10 | 0.0262694430357088
 (8 rows)
 
-x0=> 
+
+25%
+
+cbbcb00a-b86e-4c5b-9500-ded1f27166c4
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = 'cbbcb00a-b86e-4c5b-9500-ded1f27166c4' group by s.generation;
+ generation |        avg
+------------+--------------------
+          3 |  0.212170113001941
+          4 |   0.20596946524389
+          5 |  0.148560485279079
+          6 |  0.119348676934505
+          7 | 0.0808065710691078
+          8 | 0.0823343761000614
+          9 | 0.0716461937840111
+         10 | 0.0739518568959384
+(8 rows)
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = 'cbbcb00a-b86e-4c5b-9500-ded1f27166c4' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.384153554324508 | 0.251442854182465
+          2 | 0.425582881557033 | 0.369404085712966
+          3 | 0.432255795764667 |  0.58656131485665
+          4 | 0.462092670976575 | 0.495578017079631
+          5 |  0.33641568338584 | 0.188809665963335
+          6 | 0.328765795453694 | 0.324661765659182
+          7 | 0.325066156446237 | 0.934821471754356
+          8 | 0.365700865651259 | 0.200254720102156
+          9 | 0.295305938662884 | 0.177940645977792
+         10 | 0.333849323795964 | 0.142599275284825
+         11 | 0.242002368336345 | 0.148256106971585
+(11 rows)
+
+
+
+33d4aff2-887d-4881-8f06-0dbf26e60a59
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '33d4aff2-887d-4881-8f06-0dbf26e60a59' group by s.generation;
+ generation |        avg
+------------+--------------------
+          3 |  0.295103006304245
+          4 |  0.205320768916679
+          5 |  0.184220516266129
+          6 |   0.15110185292731
+          7 |   0.12349689360056
+          8 |  0.116973748631245
+          9 |  0.100577539219479
+         10 | 0.0879656940967953
+(8 rows)
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '33d4aff2-887d-4881-8f06-0dbf26e60a59' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.472563391416715 | 0.224174708641528
+          2 | 0.422353879507677 | 0.403377854726382
+          3 | 0.431603446575304 | 0.338591254451142
+          4 | 0.461684452021634 | 0.880789409116457
+          5 | 0.284969104577176 |  0.35075569664648
+          6 | 0.447431691449873 | 0.562346709034966
+          7 | 0.332079620082613 | 0.347776797330093
+          8 | 0.298899161714035 |  0.37310604249274
+          9 | 0.291883528254149 | 0.864504630052536
+         10 | 0.331702565111888 | 0.413408011178298
+         11 | 0.337580018577981 | 0.161491387294501
+(11 rows)
+
+
+97332981-fd25-483d-9bad-9d036815a5ff
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '97332981-fd25-483d-9bad-9d036815a5ff' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.513161711766669 | 0.232987810379259
+          2 | 0.419422365024771 | 0.349745860162608
+          3 | 0.509121764898086 | 0.599408936939126
+          4 | 0.449653839618896 | 0.519066499743236
+          5 | 0.416748091862163 | 0.597959122261617
+          6 | 0.395693914970587 | 0.556768624806731
+          7 | 0.365015458708107 | 0.662538942593491
+          8 |  0.29701022053106 |  0.50969336166287
+          9 | 0.306398336298672 | 0.368212389327364
+         10 | 0.306941297924904 | 0.621599906462538
+         11 | 0.263873427327939 | 0.378667112683685
+(11 rows)
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '97332981-fd25-483d-9bad-9d036815a5ff' group by s.generation;
+ generation |        avg
+------------+--------------------
+          3 |  0.301175329788254
+          4 |  0.240982365501921
+          5 |  0.182945310125873
+          6 |    0.1809141262974
+          7 |  0.123343664346808
+          8 |  0.119950059260782
+          9 |  0.101287994628267
+         10 | 0.0943173777349969
+(8 rows)
+
+
 
 
 

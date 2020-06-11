@@ -143,6 +143,14 @@ David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
   and go through self-play.
 \newblock {\em Science}, 362(6419):1140--1144, 2018.
 
+\bibitem{AlphaZero}
+David Silver, Thomas Hubert, Julian Schrittwieser, Ioannis Antonoglou, Matthew
+  Lai, Arthur Guez, Marc Lanctot, Laurent Sifre, Dharshan Kumaran, Thore
+  Graepel, Timothy Lillicrap, Karen Simonyan, and Demis Hassabis.
+\newblock A general reinforcement learning algorithm that masters chess, shogi,
+  and go through self-play.
+\newblock {\em Science}, 362(6419):1140--1144, 2018.
+
 \bibitem{silver2017mastering}
 David Silver, Julian Schrittwieser, Karen Simonyan, Ioannis Antonoglou, Aja
   Huang, Arthur Guez, Thomas Hubert, Lucas Baker, Matthew Lai, Adrian Bolton,
