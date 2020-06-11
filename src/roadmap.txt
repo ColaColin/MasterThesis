@@ -500,6 +500,75 @@ x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::fl
 
 
 
+5%
+
+6ff71176-a20f-4373-a261-e365e1c70471
+
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '6ff71176-a20f-4373-a261-e365e1c70471' group by s.generation;
+ generation |        avg
+------------+-------------------
+          4 | 0.360127060234895
+          5 | 0.384013603676988
+          6 | 0.297299305574522
+          7 | 0.292279478595817
+          8 | 0.271969061408263
+          9 | 0.253473921671012
+         10 | 0.212513869517923
+(7 rows)
+
+
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '6ff71176-a20f-4373-a261-e365e1c70471' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.466175743393894 | 0.236445689276487
+          2 | 0.437295782429233 | 0.325522426160383
+          3 | 0.526922354319683 | 0.214462653502596
+          4 | 0.370265646493185 | 0.463718527262305
+          5 | 0.465670579342031 | 0.251888716391242
+          6 | 0.390284620899183 | 0.320643251561618
+          7 | 0.503366989071182 | 0.830855038856009
+          8 | 0.352115016405858 | 0.340915194047769
+          9 | 0.383152101321452 | 0.222487266876839
+         10 | 0.332324822973722 | 0.522030107516732
+         11 | 0.230733535560882 | 0.150550303103431
+(11 rows)
+
+
+53510cf3-93e0-49a0-80be-4581f88eb162
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '53510cf3-93e0-49a0-80be-4581f88eb162' group by s.generation;
+ generation |        avg
+------------+-------------------
+          3 | 0.467040313780731
+          4 | 0.478016009158946
+          5 | 0.418297385852119
+          6 |   0.3524033635016
+          7 | 0.333685482984613
+          8 |  0.24412976762613
+          9 |  0.24307571129686
+         10 | 0.285478073211543
+         11 |  0.21846347535757
+(9 rows)
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '53510cf3-93e0-49a0-80be-4581f88eb162' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.488834254843892 | 0.264639645517322
+          2 | 0.489185821699346 | 0.444498674011574
+          3 | 0.478590151245306 | 0.801285741030059
+          4 | 0.510468051218407 | 0.758257851463733
+          5 | 0.512760186242474 | 0.780650675224374
+          6 | 0.420453472297268 |  2.26619683541688
+          7 | 0.470798373750446 |  2.65750675490895
+          8 | 0.432507395377698 |  1.93072717635557
+          9 | 0.420868531166156 |  1.24385233929934
+         10 | 0.417166335365749 |  1.70685108067643
+         11 | 0.309617375723279 | 0.457979408740548
+         12 | 0.303508832032863 | 0.582573480183841
+(12 rows)
+
 
 
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
