@@ -17,6 +17,7 @@ echo "Copy binary data from the server to the local machine"
 # rsync is completely overloaded with the number of files invovled
 # rsync -r root@x0.cclausen.eu:/root/x0/ /ImbaKeks/x0_backup/
 
+mkdir /ImbaKeks/x0_backup/
 # tar files and transfer them as a single stream. This needs more bandwidth, but starts to transfer files directly instead of preparing for hours.
 ssh root@x0.cclausen.eu "tar zcfv - x0/" | tar zxf - -C /ImbaKeks/x0_backup/
 

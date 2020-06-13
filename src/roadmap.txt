@@ -570,6 +570,38 @@ x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float),
 (12 rows)
 
 
+2c02e417-0945-43eb-b45d-9462d4000f23
+
+x0=> select s.generation,  avg((p.parameter_vals::json -> 'inversion')::text::float) from league_players_snapshot s, networks n, league_players p where p.id = s.id and s.network = n.id and n.run = '2c02e417-0945-43eb-b45d-9462d4000f23' group by s.generation;
+ generation |        avg
+------------+-------------------
+          3 | 0.403892524517762
+          4 | 0.303165098415021
+          5 | 0.345845439324263
+          6 | 0.272767889649582
+          7 | 0.244265420821731
+          8 | 0.216503816680334
+          9 | 0.231079060897481
+         10 | 0.246223168099894
+(8 rows)
+
+x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float), avg((parameter_stddevs::json -> 'inversion')::text::float) from league_players where run = '2c02e417-0945-43eb-b45d-9462d4000f23' group by generation order by generation asc;
+ generation |        avg        |        avg
+------------+-------------------+-------------------
+          1 | 0.518932527630487 | 0.238609544433569
+          2 | 0.364211899651556 | 0.560477600304842
+          3 | 0.490276821952013 | 0.328678356698229
+          4 | 0.295060300507853 |  0.35078630544329
+          5 | 0.479829340036555 | 0.250291297994818
+          6 | 0.414649069256172 | 0.248934993978178
+          7 |  0.41475838355093 |   0.2647510782443
+          8 | 0.366573197715568 | 0.408978730113543
+          9 | 0.427299168011638 | 0.275357812014702
+         10 | 0.331852592932152 | 0.166616900350705
+         11 | 0.426943379280087 | 0.242017361540383
+(11 rows)
+
+
 
      [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
      [ ] writing goal: Write about the hyperparameter search
