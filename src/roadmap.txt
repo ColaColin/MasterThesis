@@ -609,6 +609,14 @@ x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float),
           -> first few iterations learn faster, at least in this one attempt, but then it starts to suffer from less game variance and falls behind.
 WK 25
      [ ] more work on the league system, investigate why it fails (i.e. that game variance issue?)
+          -> game variance is very visible and probably part of the reason it does not work
+          -> so how well do the selected parameters do vs the standard extended parameters in pure MCTS accuracy using the same network?
+               -> write code to compare different parametersets on the same network and evaluation set. Compare best found players vs "extended" player
+                    -> Then do a hyperparameter search in this way via bayesian optimization (could do the entire thing in a hyperopt script, just use best found players and extended as initial points?!)
+                    [ ] run on an early network
+                    [ ] run on the best network
+                         https://x0.cclausen.eu/#runs/list/325d9f51-97d2-48ab-8999-25f2583979ba
+                         iteration 24 is the best network based on network accuracy
      [ ] writing goal: Complete stuff about the extended run
 WK 26
      [ ] buffer
