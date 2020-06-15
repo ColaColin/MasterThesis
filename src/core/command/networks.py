@@ -8,6 +8,52 @@ import os
 from core.command.state import getUUIDPath
 from utils.misc import storeFileUnderPath, readFileUnderPath
 
+class TableStatsResource():
+    def __init__(self, pool):
+        self.pool = pool
+
+    def getDiversity(self, req, resp, runId):
+        try:
+            con = self.pool.getconn()
+
+            cursor = con.cursor()
+            cursor.execute("select n.frametime from networks n where run = %s order by creation", (runId, ))
+            frameTimeRows = cursor.fetchall()
+            frameTimes = dict()
+            frameTimes[0] = frameTimeRows[0][0]
+            for fidx, ftime in enumerate(frameTimeRows):
+                frameTimes[fidx+1] = ftime[0]
+            cursor.close()
+
+            cursor = con.cursor()
+            cursor.execute("select iteration, played_states, new_states / played_states::float from run_iteration_stats where run = %s order by iteration", (runId, ))
+            divRows = cursor.fetchall()
+
+            result = []
+            costSum = 0
+            for row in divRows:
+                foo = dict()
+                costSum += row[1] * frameTimes[row[0]]
+                foo["cost"] = costSum / 1000 / 3600
+                foo["diversity"] = row[2]
+                result.append(foo)
+
+            resp.media = result
+            resp.status = falcon.HTTP_200
+
+        finally:
+            if cursor:
+                cursor.close()
+            con.rollback()
+            self.pool.putconn(con)
+
+
+    def on_get(self, req, resp, dkey, runId):
+        if dkey == "diversity":
+            return self.getDiversity(req, resp, runId)
+        else:
+            assert False
+
 class CostResource():
     def __init__(self, pool):
         self.pool = pool

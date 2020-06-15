@@ -603,28 +603,37 @@ x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float),
 
 
 
-     [ ] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
-     [ ] writing goal: Write about the hyperparameter search
-     [ ] writing goal: Complete stuff about the extended run
+     [~] write more about the basic setup of the experiments, the way accuracy is measured, the way costs are measured.
+     [~] writing goal: Write about the hyperparameter search
+     [X] league run: Simple parameters, limited.
+          -> first few iterations learn faster, at least in this one attempt, but then it starts to suffer from less game variance and falls behind.
 WK 25
+     [ ] more work on the league system, investigate why it fails (i.e. that game variance issue?)
+     [ ] writing goal: Complete stuff about the extended run
+WK 26
+     [ ] buffer
+WK 27
      [ ] play games as mcts-like-trees
      [ ] writing goal: Complete stuff about the hyperparameter search
-WK 26
+WK 28
+     [ ] buffer
+WK 29
      [ ] reuse internal network features
      [ ] writing goal: Complete stuff about the tree-game-playing
-WK 27
-     [ ] make x0-framework pretty in its own repository with some documentation.
-     [ ] writing goal: Complete stuff about the internal network features
-     [ ] prepare presentation?
-WK 28
-     [ ] writing goal: conclusions
-     [ ] hold presentation or in week 29?
-
-WK 29
+WK 30: 
      [ ] buffer
+WK 31:
+     [ ] document the code
+     [ ] writing goal: Complete stuff about the internal network features
 
-WK 30: deadline on Wednesday
+WK 32:
+     [ ] writing goal: Complete writing
+     [ ] prepare presentation
+WK 33:
+     [ ] writing goal: conclusions
+     [ ] hold presentation
 
+WK 34: deadline on Thursday
 
      Skip it?:
      [?] implement network architecture changes: gather-excite and mobilenetv3

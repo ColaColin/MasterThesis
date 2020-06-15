@@ -37,36 +37,56 @@ import numpy as np
 # }
 
 
-plot_name = "Hyperparameter comparison"
+# plot_name = "Hyperparameter comparison"
+# groups = {
+#     "hyperopt1": {
+#         "color": (1, 0, 0),
+#         "runs": [
+#             "aa4782ae-c162-4443-a290-41d7bb625d17",
+#             "3d09cdce-4e69-4811-bda9-ad2985228230",
+#             "fe764034-ba1f-457b-8329-b5904bb8f66c",
+#             "3eca837f-4b4d-439e-b6e7-09b35edf3d5d",
+#             "55efa347-a847-4241-847e-7497d2497713"
+#         ]
+#     },
+#     "hyperopt2": {
+#         "color": (0, 0, 1),
+#         "runs": [
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a"
+#         ]
+#     },
+#     "prevWork": {
+#         "color": (0,1,0),
+#         "runs": [
+#             "65388799-c526-4870-b371-fb47e35e56af",
+#             "583eae5c-94e8-4bdb-ac48-71bc418c5a51",
+#             "bba7494a-c5f9-42bb-90ff-b93a91b5e74b",
+#             "5350bdc8-8c4b-422b-8bfc-0435d2b6d45d",
+#             "9733ab7c-7ebc-49eb-87db-1f03e0929d10"
+#         ]
+#     }
+# }
+
+plot_name = "Preliminary player evolution of key parameters"
 groups = {
-    "hyperopt1": {
-        "color": (1, 0, 0),
+    "extended": {
+        "color": (1,0,0),
         "runs": [
-            "aa4782ae-c162-4443-a290-41d7bb625d17",
-            "3d09cdce-4e69-4811-bda9-ad2985228230",
-            "fe764034-ba1f-457b-8329-b5904bb8f66c",
-            "3eca837f-4b4d-439e-b6e7-09b35edf3d5d",
-            "55efa347-a847-4241-847e-7497d2497713"
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
         ]
     },
-    "hyperopt2": {
-        "color": (0, 0, 1),
+    "evolution": {
+        "color": (0, 1, 0),
         "runs": [
-            "1edc288e-df3e-47c1-b9ce-52ab0045404a",
-            "bdf69def-4476-43fc-934d-115a7d895d6e",
-            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
-            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
-            "12c31999-e8a9-4a52-b017-796e64b05f8a"
-        ]
-    },
-    "prevWork": {
-        "color": (0,1,0),
-        "runs": [
-            "65388799-c526-4870-b371-fb47e35e56af",
-            "583eae5c-94e8-4bdb-ac48-71bc418c5a51",
-            "bba7494a-c5f9-42bb-90ff-b93a91b5e74b",
-            "5350bdc8-8c4b-422b-8bfc-0435d2b6d45d",
-            "9733ab7c-7ebc-49eb-87db-1f03e0929d10"
+            "325d9f51-97d2-48ab-8999-25f2583979ba"
         ]
     }
 }
@@ -78,7 +98,7 @@ yHigh = 92.5
 
 command = "https://x0.cclausen.eu"
 #command = "http://127.0.0.1:8042"
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/hyper_compare.eps"
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
 
 def getMeanOf(lsts):
     maxLength = 0
