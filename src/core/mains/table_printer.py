@@ -35,7 +35,7 @@ import numpy as np
 #         ]
 #     }
 # }
-
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
 
 # plot_name = "Hyperparameter comparison"
 # groups = {
@@ -70,8 +70,9 @@ import numpy as np
 #         ]
 #     }
 # }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
 
-plot_name = "Preliminary player evolution of key parameters"
+plot_name = "Player evolution of key parameters"
 groups = {
     "extended": {
         "color": (1,0,0),
@@ -88,8 +89,10 @@ groups = {
         "runs": [
             "325d9f51-97d2-48ab-8999-25f2583979ba"
         ]
-    }
+    },
+    "extra": "diversity"
 }
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/player_evolution_low_diversity.eps"
 
 # up to what hour of cost to display data
 cutRight = 40
@@ -98,7 +101,7 @@ yHigh = 92.5
 
 command = "https://x0.cclausen.eu"
 #command = "http://127.0.0.1:8042"
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
+
 
 def getMeanOf(lsts):
     maxLength = 0
@@ -170,11 +173,13 @@ def whitenColor(rgb, f):
     return rgbv * f + (1 - f) * whitev
 
 
-def plotGroup(name, fig, ax):
+def plotGroup(name, fig, ax, ax2, extraStats = None):
     runs = groups[name]["runs"]
     color = groups[name]["color"]
 
     datas = []
+
+    extras = []
 
     for run in runs:
         data = requestJson(command + "/costs/" + run, "")
@@ -188,12 +193,21 @@ def plotGroup(name, fig, ax):
                 accs.append(acc)
         datas.append((costs, accs))
 
+        if extraStats is not None:
+            edata = requestJson(command + "/tables/" + extraStats + "/" + run, "")
+            costs = []
+            extraVals = []
+            for ed in edata:
+                costs.append(ed["cost"])
+                extraVals.append(ed[extraStats])
+            extras.append((costs, extraVals))
+
     if len(datas) > 1:
         for cost, acc in datas:
-            plt.plot(cost, acc, color=whitenColor(color, 0.3), linewidth=1)
+            ax.plot(cost, acc, color=whitenColor(color, 0.3), linewidth=1)
 
         meanX, meanY = meanInterpolatedLine(datas)
-        plt.plot(meanY, meanX, label=name, color=color+(1,), linewidth=2)
+        ax.plot(meanY, meanX, label=name, color=color+(1,), linewidth=2)
 
         #annote_max(meanX, meanY, ax)
 
@@ -202,9 +216,19 @@ def plotGroup(name, fig, ax):
     elif len(datas) == 1:
         mostLeft = datas[0][0][0] * 0.99
         mostRight = datas[0][0][0] * 1.01
-        plt.plot(datas[0][0], datas[0][1], color=whitenColor(color, 0.9), linewidth=1, label=name)
+        ax.plot(datas[0][0], datas[0][1], color=whitenColor(color, 0.9), linewidth=1, label=name)
 
         #annote_max(datas[0][0], datas[0][1], ax)
+
+    if extraStats is not None:
+        if len(extras) > 1:
+            for cost, acc in extras:
+                ax2.plot(cost, acc, "--", color=whitenColor(color, 0.3), linewidth=1)
+
+            meanX, meanY = meanInterpolatedLine(extras)
+            ax2.plot(meanY, meanX, "--", label=name, color=color+(1,), linewidth=2)
+        elif len(extras) == 1:
+            ax2.plot(extras[0][0], extras[0][1], "--", label=name, color=whitenColor(color, 0.9), linewidth=1)
 
     return mostLeft, mostRight
 
@@ -239,8 +263,18 @@ if __name__ == "__main__":
     mostLeft = None
     mostRight = None
 
+    if "extra" in groups:
+        extraStats = groups["extra"]
+        ax2 = ax.twinx()
+        ax2.set_ylabel(extraStats)
+    else:
+        extraStats = None
+        ax2 = None
+
     for groupName in groups:
-        mL, mR = plotGroup(groupName, fig, ax)
+        if groupName == "extra":
+            continue
+        mL, mR = plotGroup(groupName, fig, ax, ax2, extraStats)
 
         if mostLeft is None or mostLeft > mL:
             mostLeft = mL
@@ -251,6 +285,7 @@ if __name__ == "__main__":
     if mostRight > cutRight:
         mostRight = cutRight
 
+
     ax.set_axisbelow(True)
     ax.minorticks_on()
     ax.grid(which="major", linestyle="-", linewidth=0.5, color="black")
@@ -258,13 +293,15 @@ if __name__ == "__main__":
 
     plt.xlim([mostLeft, mostRight])
 
-    plt.ylim([yLow, yHigh])
+    ax.set_ylim([yLow, yHigh])
 
-    plt.legend(loc="lower right", fancybox=True)
+    ax.legend(loc="lower left", fancybox=True, title="Accuracy")
+    if ax2 is not None:
+        ax2.legend(loc="lower right", fancybox=True, title="Diversity")
 
     plt.title(plot_name)
 
-    plt.ylabel("MCTS accuracy %")
+    ax.set_ylabel("MCTS accuracy %")
     plt.xlabel("Estimated cost in hours")
 
     plt.savefig(img_output, bbox_inches="tight", format="eps", dpi=300)

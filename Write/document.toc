@@ -1,30 +1,35 @@
 \select@language {english}
 \select@language {english}
-\contentsline {section}{\numberline {1}Introduction}{7}{section.1}
-\contentsline {section}{\numberline {2}Previous work}{7}{section.2}
-\contentsline {subsection}{\numberline {2.1}Monte Carlo Tree Search}{8}{subsection.2.1}
-\contentsline {subsection}{\numberline {2.2}AlphaZero}{9}{subsection.2.2}
-\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{9}{subsubsection.2.2.1}
-\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{11}{subsection.2.3}
-\contentsline {subsubsection}{\numberline {2.3.1}Network and training modifications}{12}{subsubsection.2.3.1}
-\contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{12}{subsubsection.2.3.2}
-\contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{13}{subsubsection.2.3.3}
-\contentsline {subsubsection}{\numberline {2.3.4}Training data enhancements}{14}{subsubsection.2.3.4}
-\contentsline {section}{\numberline {3}Evaluated novel improvements}{14}{section.3}
-\contentsline {subsection}{\numberline {3.1}Network modifications}{14}{subsection.3.1}
-\contentsline {subsection}{\numberline {3.2}Playing games as trees}{15}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Using network internal features as auxiliary targets}{15}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Using the self-playing phase as an evolutionary process}{16}{subsection.3.4}
-\contentsline {section}{\numberline {4}Experiments}{16}{section.4}
-\contentsline {subsection}{\numberline {4.1}Testing on Connect4}{17}{subsection.4.1}
-\contentsline {subsubsection}{\numberline {4.1.1}Generating Connect4 datasets}{17}{subsubsection.4.1.1}
-\contentsline {subsection}{\numberline {4.2}Baseline}{18}{subsection.4.2}
-\contentsline {subsubsection}{\numberline {4.2.1}Supervised training}{18}{subsubsection.4.2.1}
-\contentsline {subsubsection}{\numberline {4.2.2}Evaluation of training costs}{18}{subsubsection.4.2.2}
-\contentsline {subsubsection}{\numberline {4.2.3}Hyperparameter search}{19}{subsubsection.4.2.3}
-\contentsline {subsubsection}{\numberline {4.2.4}Results}{22}{subsubsection.4.2.4}
-\contentsline {subsection}{\numberline {4.3}Novel improvements}{22}{subsection.4.3}
-\contentsline {subsubsection}{\numberline {4.3.1}Network modifications}{22}{subsubsection.4.3.1}
-\contentsline {subsubsection}{\numberline {4.3.2}Playing games as trees}{22}{subsubsection.4.3.2}
-\contentsline {subsubsection}{\numberline {4.3.3}Automatic auxilary features}{22}{subsubsection.4.3.3}
-\contentsline {subsubsection}{\numberline {4.3.4}Evolutionary hyperparameters}{22}{subsubsection.4.3.4}
+\contentsline {section}{\numberline {1}Introduction}{8}{section.1}
+\contentsline {section}{\numberline {2}Previous work}{8}{section.2}
+\contentsline {subsection}{\numberline {2.1}Monte Carlo Tree Search}{9}{subsection.2.1}
+\contentsline {subsection}{\numberline {2.2}AlphaZero}{10}{subsection.2.2}
+\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{10}{subsubsection.2.2.1}
+\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{12}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.3.1}Network and training modifications}{13}{subsubsection.2.3.1}
+\contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{13}{subsubsection.2.3.2}
+\contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}
+\contentsline {subsubsection}{\numberline {2.3.4}Training data enhancements}{15}{subsubsection.2.3.4}
+\contentsline {section}{\numberline {3}Evaluated novel improvements}{15}{section.3}
+\contentsline {subsection}{\numberline {3.1}Network modifications}{15}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Playing games as trees}{16}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Using network internal features as auxiliary targets}{16}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Using the self-playing phase as an evolutionary process}{17}{subsection.3.4}
+\contentsline {section}{\numberline {4}Experiments}{17}{section.4}
+\contentsline {subsection}{\numberline {4.1}Testing on Connect4}{18}{subsection.4.1}
+\contentsline {subsubsection}{\numberline {4.1.1}Generating Connect4 datasets}{18}{subsubsection.4.1.1}
+\contentsline {subsection}{\numberline {4.2}Baseline}{19}{subsection.4.2}
+\contentsline {subsubsection}{\numberline {4.2.1}Supervised training}{19}{subsubsection.4.2.1}
+\contentsline {subsubsection}{\numberline {4.2.2}Hyperparameter search}{20}{subsubsection.4.2.2}
+\contentsline {subsubsection}{\numberline {4.2.3}Evaluation of training costs}{22}{subsubsection.4.2.3}
+\contentsline {subsubsection}{\numberline {4.2.4}Results}{23}{subsubsection.4.2.4}
+\contentsline {subsection}{\numberline {4.3}Extended Baseline}{24}{subsection.4.3}
+\contentsline {subsubsection}{\numberline {4.3.1}Remove duplicate positions}{24}{subsubsection.4.3.1}
+\contentsline {subsubsection}{\numberline {4.3.2}Cyclic learning rate}{24}{subsubsection.4.3.2}
+\contentsline {subsubsection}{\numberline {4.3.3}Improved training window}{24}{subsubsection.4.3.3}
+\contentsline {subsubsection}{\numberline {4.3.4}Playout Caps}{24}{subsubsection.4.3.4}
+\contentsline {subsubsection}{\numberline {4.3.5}Improving the network structure}{24}{subsubsection.4.3.5}
+\contentsline {subsection}{\numberline {4.4}Novel improvements}{24}{subsection.4.4}
+\contentsline {subsubsection}{\numberline {4.4.1}Evolutionary hyperparameters}{24}{subsubsection.4.4.1}
+\contentsline {subsubsection}{\numberline {4.4.2}Playing games as trees}{24}{subsubsection.4.4.2}
+\contentsline {subsubsection}{\numberline {4.4.3}Automatic auxilary features}{24}{subsubsection.4.4.3}
