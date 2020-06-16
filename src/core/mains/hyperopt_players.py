@@ -29,10 +29,12 @@ def buildScoreFunction(runId, networkId, networks, datasetPath):
         core = loadMlConfig(temp.name)
 
     policy = core.worker.policy(recursive=True)
-    unpackedNetwork = networks.downloadNetwork(networkId)
-    policy.load(unpackedNetwork)
-
-    logMsg("Loaded policy id %s" % policy.getUUID())
+    if networkId is not None:
+        unpackedNetwork = networks.downloadNetwork(networkId)
+        policy.load(unpackedNetwork)
+        logMsg("Loaded policy id %s" % policy.getUUID())
+    else:
+        logMsg("Using random policy!")
 
     policyIterator = core.worker.policyIterator(recursive=True)
 
@@ -64,15 +66,18 @@ if __name__ == "__main__":
     setLoggingEnabled(False)
     datasetPath = "datasets/connect4/testset.txt.zip"
 
-    hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv) and ("--run" in sys.argv) and ("--network" in sys.argv)
+    hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv) and ("--run" in sys.argv)
 
     if not hasArgs:
-        raise Exception("You need to provide arguments for the hyperopt_players: --secret <server password> and --command <command server host> --run <run id> --network <network id>!")
+        raise Exception("You need to provide arguments for the hyperopt_players: --secret <server password> and --command <command server host> --run <run id>!")
 
     secret = sys.argv[sys.argv.index("--secret")+1]
     commandHost = sys.argv[sys.argv.index("--command")+1]
     runId = sys.argv[sys.argv.index("--run")+1]
-    networkId = sys.argv[sys.argv.index("--network")+1]
+    if "--network" in sys.argv:
+        networkId = sys.argv[sys.argv.index("--network")+1]
+    else:
+        networkId = None
 
     networks = NetworkApi(noRun=True)
 
@@ -94,14 +99,15 @@ if __name__ == "__main__":
     optimizer.subscribe(Events.OPTIMIZATION_STEP, logger)
 
     #get the best players of the given network, if any
-    bestPlayer = requestJson(commandHost + "/api/bestplayer/" + networkId, secret)
-    if len(bestPlayer) > 0:
-        logMsg("Probing best player of the network!", bestPlayer)
-        if "alphaBase" in bestPlayer:
-            del bestPlayer["alphaBase"]
-        optimizer.probe(
-            params=bestPlayer
-        )
+    if networkId is not None:
+        bestPlayer = requestJson(commandHost + "/api/bestplayer/" + networkId, secret)
+        if len(bestPlayer) > 0:
+            logMsg("Probing best player of the network!", bestPlayer)
+            if "alphaBase" in bestPlayer:
+                del bestPlayer["alphaBase"]
+            optimizer.probe(
+                params=bestPlayer
+            )
 
     # the known "good" parameters of the first hyperopt run
     logMsg("Probing known good parameters!")
