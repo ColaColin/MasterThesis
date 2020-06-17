@@ -639,7 +639,7 @@ WK 25
 
 
 
-                    [ ] run on a random network
+                    [X] run on a random network
                          -> no league player, as none gets recorded
                          -> extended is far from optimal, best players highlight: low cpuct and very high fpu is a good idea with a random network.
                          -> makes sense: FPU = 1 provides a decent exploration to find "easy wins"
@@ -665,6 +665,13 @@ WK 25
 -> no evolved player available here, but hyperopt clearly defeats extended, showing that a low cpuct indeed is better on a random network.
 
 -> conclusion: Just winning more games against other versions of the network at slightly different parameters does not mean higher mcts accuracy, e.g. does not mean training progress happens faster. Ups!
+
+                    [ ] test out dynamic number of evaluations again
+
+
+     [ ] two little tweaks inbetween:
+          [ ] renormalize edgePriors to 1 with respect to legal moves.
+          [ ] the dynamic fpu thing.
 
      [ ] writing goal: Complete stuff about the extended run
 WK 26

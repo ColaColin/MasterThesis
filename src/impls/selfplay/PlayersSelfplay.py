@@ -34,8 +34,20 @@ def entropy(p):
             result -= p[idx] * math.log(p[idx])
     return result
 
-def kldiv(p, q):
+def kldiv(p0, q0):
+    # kldiv, but do a bit of extra work to handle cases of the policies not matching up, zeros, etc.
+
     result = 0
+    p = np.array(p0)
+    q = np.array(q0)
+
+    pickAr = p != 0
+    p = p[pickAr]
+    q = q[pickAr]
+
+    p /= np.sum(p)
+    q /= np.sum(q)
+
     for idx in range(len(p)):
         if q[idx] != 0 and p[idx] != 0:
             result += p[idx] * math.log2(p[idx] / q[idx])
@@ -100,6 +112,11 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
         elif self.mode == 2:
             kldW = params["kldW"]
             return kldgain > kldW
+        elif self.mode == 3:
+            # same as mode 2, but on log-basis, that might help the evolution with the fast range of possible values involved.
+            kldW = params["kldW"]
+            # try range (-14, 1)
+            return kldgain > 0 and math.log2(kldgain) > kldW
         else:
             assert False
 
@@ -123,11 +140,13 @@ class LearntThinkDecider(PlayerThinkDecider, metaclass=abc.ABCMeta):
             if idx in self.lastIterResults:
                 prev = self.lastIterResults[idx]
             else:
-                prev = netPriors
+                # to prevent negative kldiv gains, zero out prior probabilities for moves that have not been investigated yet
+                # kldiv() normalizes later anyway
+                prev = np.array(netPriors)
+                prev[now == 0] = 0
 
+            #  https://github.com/LeelaChessZero/lc0/pull/721#issuecomment-461988883
             kldgain = kldiv(prev, now)
-
-            #print(idx, "===>", kldgain, prev, now)
 
             self.lastIterResults[idx] = now
 
@@ -420,7 +439,7 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         gameStrs = []
         for idx, i in enumerate(self.iterators):
-            if i > 3:
+            if idx > 3:
                 break
             currentExpansions = str(self.currentIterationExpansions[idx])
             remExps = "P1: " + str(self.remainingForIterations[idx][0]) + "\nP2: " + str(self.remainingForIterations[idx][1])

@@ -272,13 +272,14 @@ cdef class MCTSNode():
 
     cdef object getNetworkPriors(self):
         """
-        Get the network prior edge outputs for legal moves. Likely do not sum to 1.
-        Meant mainly for better understanding of the learning, not required by the algorithm.
+        Get the network prior edge outputs, normalized to 1, over legal moves.
         """
         result = np.zeros(self.state.getMoveCount(), dtype=np.float32)
         cdef int i
         for i in range(self.numMoves):
             result[self.legalMoveKeys[i]] = self.edgePriors[i]
+
+        result /= np.sum(result)
 
         return result
 
