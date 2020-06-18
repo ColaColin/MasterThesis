@@ -171,7 +171,7 @@ cdef class MCTSNode():
             if self.edgeVisits[i] == 0:
                 # idea: if the current position is expected to be really good: Follow the network
                 #       otherwise explore as hard as you can
-                # self.stateValue * self.edgePriors[i] + (1 - self.stateValue) * DESPERATION_FACTOR
+                # self.stateValue * self.edgePriors[i] + (1 - self.stateValue)
                 # try this later
                 nodeQ = fpu
             else:
