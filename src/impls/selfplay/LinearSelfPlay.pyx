@@ -65,7 +65,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             self.microsPerMovePlayedHistory = []
 
     def main(self):
-        self.initSelfplay()
+        self.initSelfplay(None)
 
         while True:
             self.playBatch()
