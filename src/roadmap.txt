@@ -666,11 +666,11 @@ WK 25
 
 -> conclusion: Just winning more games against other versions of the network at slightly different parameters does not mean higher mcts accuracy, e.g. does not mean training progress happens faster. Ups!
 
-                    [ ] test out dynamic number of evaluations again
-
+                    [X] test out dynamic number of evaluations again, some tweaks before that to make the kl div implementation cleaner. Maybe that'll help...
+                         -> "MEH"
 
      [ ] two little tweaks inbetween:
-          [ ] renormalize edgePriors to 1 with respect to legal moves.
+          [~] renormalize edgePriors to 1 with respect to legal moves.
           [ ] the dynamic fpu thing.
 
      [ ] writing goal: Complete stuff about the extended run

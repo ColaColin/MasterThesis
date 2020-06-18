@@ -217,7 +217,7 @@ cdef class MCTSNode():
         parentNode.backup(vs, drawValue)
 
     
-    cdef void expand(self, float[:] movePMap, float[:] vs, float drawValue):
+    cdef void expand(self, float[:] movePMap, float[:] vs, float drawValue, normalizePriors):
         """
         Fill in missing network evaluations, allowing to select a move on this node
         @param movePMap: move policy of the network
@@ -237,10 +237,17 @@ cdef class MCTSNode():
         self.legalMoveKeys = <int*> mallocWithZero(self.numMoves * sizeof(int))
 
         cdef int i, mv
+        cdef float acc = 0
         for i in range(self.numMoves):
             mv = legalMoves[i]
             self.legalMoveKeys[i] = mv
             self.edgePriors[i] = movePMap[mv]
+            acc += self.edgePriors[i]
+        
+        if normalizePriors and acc > 0:
+            for i in range(self.numMoves):
+                print("normalize from", acc)
+                self.edgePriors[i] /= acc
 
         self.isExpanded = 1
         self.netValueEvaluation = vs
@@ -348,7 +355,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     AlphaZero-style MCTS implementation extended with explicit handling of draws.
     FPU can be configured, AlphaZero standard is 0. There must be better ways to handle it, however.
     """
-    def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None):
+    def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None, normalizePriors=False):
         # newer configs use the parameters value, but older configs still use the direct properties, so support both
         if parameters is None and cpuct is not None: #old config
             parameters = dict()
@@ -368,6 +375,8 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         else:
             self.expansions = expansions
         
+        self.normalizePriors = normalizePriors
+
         assert self.expansions is not None, "for the evaluator you have to provide a value for mcts tree expansions!"
 
     def backupWork(self, list backupSet, list evalout):
@@ -382,7 +391,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             if node.hasEnded:
                 w = node.getTerminalResult()
             else:
-                node.expand(ev[0], ev[1], drawValue)
+                node.expand(ev[0], ev[1], drawValue, self.normalizePriors)
             
             node.backup(w, drawValue)
 
