@@ -162,6 +162,8 @@ cdef class MCTSNode():
         # this will still contain old numbers, but those are overwritten anyway below!
         cdef float* valueTmp = &self.edgeData[self.numMoves * 3]
 
+        print("===")
+
         for i in range(self.numMoves):
             if useNoise:
                 valueTmp[i] = (1 - self.noiseMix) * self.edgePriors[i] + self.noiseMix * self.noiseCache[i]
@@ -172,7 +174,8 @@ cdef class MCTSNode():
                 # idea: if the current position is expected to be really good: Follow the network
                 #       otherwise explore as hard as you can
                 if useDynamicFpu:
-                    nodeQ = self.stateValue * self.edgePriors[i] + (1 - self.stateValue)
+                    nodeQ = (self.stateValue * self.edgePriors[i] + (1 - self.stateValue)) * 1.4
+                    print(nodeQ)
                 else:
                     nodeQ = fpu
             else:
