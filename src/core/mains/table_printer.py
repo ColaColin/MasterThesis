@@ -12,7 +12,7 @@ from matplotlib.ticker import MaxNLocator
 
 import numpy as np
 
-#plot_name = "Baselines"
+# plot_name = "Baselines"
 # groups = {
 #     "extended": {
 #         "color": (1,0,0),
@@ -35,7 +35,130 @@ import numpy as np
 #         ]
 #     }
 # }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex.eps"
+
+# plot_name = "Deduplication with different weight factors"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "weight 0.2": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "505b834a-345a-4a1b-a67a-fa405b27d6e4"
+#         ]
+#     },
+#     "weight 0.5": {
+#         "color": (0,1,0),
+#         "runs": [
+#             "43a39db5-5eec-43d9-9e50-a945248a64e8"
+#         ]
+#     },
+#     "weight 0.8": {
+#         "color": (0,0.5,0.5),
+#         "runs": [
+#             "8b1900b0-d133-4435-baf5-6c35934ff94c"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/dedupe.eps"
+
+# plot_name = "Cyclic learning rate"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "cyclic_lr": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d434f56-e7c0-4945-af3b-3abdb30f4fca"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/cyclic_results.eps"
+
+# plot_name = "Slow training window"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "slow window": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "32bb62a4-5541-4c0c-af1d-e84c09dfdccc"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/slow_window.eps"
+
+# plot_name = "Playout Caps"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "Playout Caps": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "0538a5d8-0706-4b90-b601-c0adbfd69cc6"
+#         ]
+#     },
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/playout_caps.eps"
+
+plot_name = "Squeeze and Excite ResNet"
+groups = {
+    "base": {
+        "color": (0,0,1),
+        "runs": [
+            "12c31999-e8a9-4a52-b017-796e64b05f8a",
+            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+            "bdf69def-4476-43fc-934d-115a7d895d6e",
+            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+        ],
+        "onlyMean": True
+    },
+    "Squeeze and Excite": {
+        "color": (1,0,0),
+        "runs": [
+            "f64aae6e-f094-47b5-aa0c-1201b324e939"
+        ]
+    },
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/sqnet.eps"
+
 
 # plot_name = "Hyperparameter comparison"
 # groups = {
@@ -72,27 +195,27 @@ import numpy as np
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
 
-plot_name = "Player evolution of key parameters"
-groups = {
-    "extended": {
-        "color": (1,0,0),
-        "runs": [
-            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
-            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
-            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
-            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
-            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
-        ]
-    },
-    "evolution": {
-        "color": (0, 1, 0),
-        "runs": [
-            "325d9f51-97d2-48ab-8999-25f2583979ba"
-        ]
-    },
-    "extra": "diversity"
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/player_evolution_low_diversity.eps"
+# plot_name = "Player evolution of key parameters"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "evolution": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "325d9f51-97d2-48ab-8999-25f2583979ba"
+#         ]
+#     },
+#     "extra": "diversity"
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/player_evolution_low_diversity.eps"
 
 # up to what hour of cost to display data
 cutRight = 40
@@ -203,8 +326,9 @@ def plotGroup(name, fig, ax, ax2, extraStats = None):
             extras.append((costs, extraVals))
 
     if len(datas) > 1:
-        for cost, acc in datas:
-            ax.plot(cost, acc, color=whitenColor(color, 0.3), linewidth=1)
+        if not "onlyMean" in groups[name] or not groups[name]["onlyMean"]:
+            for cost, acc in datas:
+                ax.plot(cost, acc, color=whitenColor(color, 0.3), linewidth=1)
 
         meanX, meanY = meanInterpolatedLine(datas)
         ax.plot(meanY, meanX, label=name, color=color+(1,), linewidth=2)
@@ -295,7 +419,7 @@ if __name__ == "__main__":
 
     ax.set_ylim([yLow, yHigh])
 
-    ax.legend(loc="lower left", fancybox=True, title="Accuracy")
+    ax.legend(loc="lower left" if ax2 is not None else "lower right", fancybox=True, title="Accuracy")
     if ax2 is not None:
         ax2.legend(loc="lower right", fancybox=True, title="Diversity")
 

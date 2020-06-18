@@ -18,18 +18,18 @@
 \contentsline {section}{\numberline {4}Experiments}{17}{section.4}
 \contentsline {subsection}{\numberline {4.1}Testing on Connect4}{18}{subsection.4.1}
 \contentsline {subsubsection}{\numberline {4.1.1}Generating Connect4 datasets}{18}{subsubsection.4.1.1}
-\contentsline {subsection}{\numberline {4.2}Baseline}{19}{subsection.4.2}
-\contentsline {subsubsection}{\numberline {4.2.1}Supervised training}{19}{subsubsection.4.2.1}
-\contentsline {subsubsection}{\numberline {4.2.2}Hyperparameter search}{20}{subsubsection.4.2.2}
-\contentsline {subsubsection}{\numberline {4.2.3}Evaluation of training costs}{22}{subsubsection.4.2.3}
-\contentsline {subsubsection}{\numberline {4.2.4}Results}{23}{subsubsection.4.2.4}
-\contentsline {subsection}{\numberline {4.3}Extended Baseline}{24}{subsection.4.3}
-\contentsline {subsubsection}{\numberline {4.3.1}Remove duplicate positions}{24}{subsubsection.4.3.1}
-\contentsline {subsubsection}{\numberline {4.3.2}Cyclic learning rate}{24}{subsubsection.4.3.2}
-\contentsline {subsubsection}{\numberline {4.3.3}Improved training window}{24}{subsubsection.4.3.3}
-\contentsline {subsubsection}{\numberline {4.3.4}Playout Caps}{24}{subsubsection.4.3.4}
-\contentsline {subsubsection}{\numberline {4.3.5}Improving the network structure}{24}{subsubsection.4.3.5}
-\contentsline {subsection}{\numberline {4.4}Novel improvements}{24}{subsection.4.4}
-\contentsline {subsubsection}{\numberline {4.4.1}Evolutionary hyperparameters}{24}{subsubsection.4.4.1}
-\contentsline {subsubsection}{\numberline {4.4.2}Playing games as trees}{24}{subsubsection.4.4.2}
-\contentsline {subsubsection}{\numberline {4.4.3}Automatic auxilary features}{24}{subsubsection.4.4.3}
+\contentsline {subsection}{\numberline {4.2}Evaluation of training costs}{19}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Supervised training}{20}{subsection.4.3}
+\contentsline {subsection}{\numberline {4.4}Baseline}{20}{subsection.4.4}
+\contentsline {subsubsection}{\numberline {4.4.1}Hyperparameter search}{21}{subsubsection.4.4.1}
+\contentsline {subsection}{\numberline {4.5}Extended Baseline}{23}{subsection.4.5}
+\contentsline {subsubsection}{\numberline {4.5.1}Remove duplicate positions}{24}{subsubsection.4.5.1}
+\contentsline {subsubsection}{\numberline {4.5.2}Cyclic learning rate}{25}{subsubsection.4.5.2}
+\contentsline {subsubsection}{\numberline {4.5.3}Improved training window}{27}{subsubsection.4.5.3}
+\contentsline {subsubsection}{\numberline {4.5.4}Playout Caps}{28}{subsubsection.4.5.4}
+\contentsline {subsubsection}{\numberline {4.5.5}Improving the network structure}{29}{subsubsection.4.5.5}
+\contentsline {subsection}{\numberline {4.6}Results}{30}{subsection.4.6}
+\contentsline {subsection}{\numberline {4.7}Novel improvements}{31}{subsection.4.7}
+\contentsline {subsubsection}{\numberline {4.7.1}Evolutionary hyperparameters}{31}{subsubsection.4.7.1}
+\contentsline {subsubsection}{\numberline {4.7.2}Playing games as trees}{31}{subsubsection.4.7.2}
+\contentsline {subsubsection}{\numberline {4.7.3}Automatic auxilary features}{31}{subsubsection.4.7.3}

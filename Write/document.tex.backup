@@ -285,11 +285,13 @@ A drawback of this approach is the high computational cost, as in practice for g
 For more complex games it takes millions of games to be played until the highest level of play is reached with a network having millions of parameters. This motivates my work in researching possible improvements to the algorithm that allow learning to progress
 faster or with less example games played.
 
-\subsection{Extensions to AlphaZero}
+\subsection{Extensions to AlphaZero} \label{s:prev_extensions}
 
 Many improvements to the AlphaZero algorithm have been proposed, typically aiming at reducing the extreme computational cost of learning to play a new game.
 In this section I will present a collection of such proposals, especially focusing at ideas that do not require game specific knowledge to be incorporated. Still, some improvements might work better on some games than others,
-depending on hyperparameters used. In section \ref{s:exexp} I will present experimental results of my own implementation of a selection of these proposals by previous work.
+depending on hyperparameters used. 
+
+In section \ref{s:exexp} on page \pageref{s:exexp} I will present experimental results of my own implementation of a selection of these proposals by previous work.
 
 \subsubsection{Network and training modifications}
 
@@ -299,7 +301,7 @@ The original network used in AlphaZero is a tower of 20 or 40 residual network b
  \item Enhancing the blocks with Squeeze-and-excitation elements \cite{hu2018squeeze}, has been proposed by the Leela Chess Zero projects, which reimplements AlphaZero for Chess as a distributed effort \cite{leela0sq}.
        A very similar approach is used in \cite{wu2019accelerating} which also cites the similarity to Squeeze-and-excitation networks.
  \item The original design of the network only uses 2 filters in the policy head and a single filter in the value head, using 32 filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
- \item Cyclic learning rates can be used to improve the network fitting to the data, \cite{oracledevs6} shows a modest speed up.
+ \item Cyclic learning rates, as developed by \cite{smith2017cyclical}, can be used to improve the network fitting to the data, \cite{oracledevs6} shows a modest speed up.
 \end{itemize}
 
 \subsubsection{Modification of the tree search}
@@ -456,21 +458,7 @@ In contrast \cite{oracledevs}[OracleDevs et al.] report $4.07$ correct moves per
 possibly explaining differences in accuarcy values between my work and theirs.
 
 
-\subsection{Baseline}
-
-Various baselines need to be established to compare novel proposals against. Supervised training of the used networks allows to explore the maximum possible performance, a plain AlphaZero baseline shows how the original algorithm performed, while a baseline
-of AlphaZero extended with a set of previously known improvements shows the progress made since the original algorithm was published.
-
-The differentiation between the AlphaZero baseline and the extended AlphaZero baseline is important to verify proposed improvements are cumulative with already known ways to improve AlphaZero.
-
-Results from supervised training are used to decide what size of network to use for AlphaZero experiments.
-
-\subsubsection{Supervised training}
-
-TODO the win-prediction results of supervised training are substantially worse than AlphaZero training and show clear signs of massive overfitting. Can that be fixed somehow?
-
-
-\subsubsection{Evaluation of training costs}
+\subsection{Evaluation of training costs}
 
 The goal of my work is to identify ways to reduce the substantial costs of training using AlphaZero. The majority of GPU capcacity is spent on self-playing games to be used as training material for the neural network.
 In all my experiments I train on a single GPU, evaluate newly produced networks on another single GPU and run self-play workers on a p2p cloud service\footnote{\url{https://vast.ai}} using up to 20 GPUs of various types.
@@ -485,7 +473,24 @@ Since my main source of computational resources for self-play is a p2p cloud ser
 After an experiment is completed a benchmarking program is run on a reference machine using the produced networks and measures how much time is needed on average 
 to play a single move. This value is then used to estimate the cost of the actual number of moves that were played by the self-play workers during the experiments.
 
-This reference machine uses a single RTX 2070S, which is saturated to $100\%$ load by the benchmark. Thus all self-play cost of my experiments is stated as estimated self-play time on that machine and bottlenecked by GPU capcacity on it.
+This reference machine uses a single Nvidia RTX 2070S, which is saturated to $100\%$ load by the benchmark. Thus all self-play cost of my experiments is stated as estimated self-play time on that machine and bottlenecked by GPU capcacity on it.
+
+\subsection{Supervised training}
+
+TODO the win-prediction results of supervised training are substantially worse than AlphaZero training and show clear signs of massive overfitting. Can that be fixed somehow?
+
+\subsection{Baseline}
+
+Various baselines need to be established to compare novel proposals against. Supervised training of the used networks allows to explore the maximum possible performance, a plain AlphaZero baseline shows how the original algorithm performed, while a baseline
+of AlphaZero extended with a set of previously known improvements shows the progress made since the original algorithm was published.
+
+For all experiments, unless noted otherwise, the MCTS uses trees with $350$ nodes, networks will be trained in iterations of $300000$ produced examples. Every network is evaluated on the test set for accuracy compared with the Connect 4 solver.
+Network training happens using SGD with momentum of $0.9$, weight decacy of $0.0001$. The learning rate starts at $0.2$, is dropped to $0.02$ at iteration 7 and $0.002$ at iteration 14. Gradient clipping at a magnitude of $1$ is used to stabilize training at the maximum learning rate of $0.2$.
+A training windows of $2$ million positions is used.
+
+
+Base on the results of the supervised training and under consideration of the training costs all experiments are done with the $5$ block network, which has about $1.5$ million parameters. A larger network might reach slightly better results,
+but the goal of my work is to look for efficiency gains, not maximum final performance. Therefore the smaller network is used to allow faster experimentation.
 
 \subsubsection{Hyperparameter search}
 
@@ -501,8 +506,8 @@ but still allowed for a relatively quick comparison between different hyperparam
 After this initial search, three sets of hyperparameters were selected and evaluated with full experimental runs to maximum accuracy to pick the best hyperparameters for the following work.
 
 The hyperparameters optimized for are listed in table \ref{t:hyperparameters}. A preliminary run of hyperparameter optimization was used to inform the decision to optimize these parameters in particular.
-	
-\begin{table}[!htbp]
+
+\begin{table}[H]
   \centering
     \begin{tabularx}{\textwidth}{lX}
     \toprule
@@ -512,7 +517,7 @@ The hyperparameters optimized for are listed in table \ref{t:hyperparameters}. A
     fpu          & First play urgency. The value of a move which has not been played yet at all during MCTS, it has some control over the balance between exploration and exploitation as well. \\
     alphaBase          & Determines the value of $\alpha$, which is a constant used in AlphaZero to control explorative noise. alphaBase is an extension to adapt to the fact that the raw $\alpha$ value highly depends on the number of legal moves a game has on average.
       alphaBase is used to calculate the value of $\alpha$ depending on the number of legal moves on the fly: $\alpha = \frac{alphaBase}{n}$ where $n$ is the number of legal moves. 
-      In the context of connect4 with a 7x6 board alphaBase thus needs to be divided by at most $7$ to determine the corresponding $\alpha$ value in the context of the original implementation. \\
+      In the context of Connect 4 with a 7x6 board alphaBase thus needs to be divided by at most $7$ to determine the corresponding $\alpha$ value in the context of the original implementation. \\
     drawValue & Determines the value of a draw when calculating the value of a position in a MCTS node. This parameter does exist because of the different way chosen to implement the network value output, which produces
   an output indicating the likelihood of a draw. To estimate the value of a position the formula $W + D*drawValue$ is used, where $W$ is the network estimation of a win and $D$ the estimation for a draw. A high value thus makes draws
   as desirable as wins, a low value as undesirable as losses.\\
@@ -552,22 +557,145 @@ The 5 runs are used to calculate a mean, which is used to compare the different 
 It can be seen that the results of the parameters taken from previous works fall substantially behind the values found via bayesian optimization. This is likely due to the fact that previous work was on other games, 
 using different implementation details, such as different tree sizes, iteration sizes, network sizes or other differences.
 
-The hyperparameter set hyperopt2 is used for all further experiments.
-
-
-\subsubsection{Results}
-
-As a first baseline I have implemented AlphaZero with only very few modifications, as a minimal baseline.
+The hyperparameter set hyperopt2 is used for all further experiments, its performance forms the baseline on which improvements are investigated.
 
 \subsection{Extended Baseline} \label{s:exexp}
 
+As outlayed in chapters \ref{s:prev_extensions} on page \pageref{s:prev_extensions}, much work has been done to propose various ways of improving learning efficiency of AlphaZero. 
+
+The differentiation between the AlphaZero baseline and the extended AlphaZero baseline is important to verify proposed improvements are cumulative with already known ways to improve AlphaZero.
+
+
+\subsubsection{Remove duplicate positions}
+
+Especially for games such as Connect 4 there are a lot of duplicate positions in the training data. Depending on various exploration hyperparameters and training progress, this causes between $30\%$ and $80\%$ duplicate positions to be reached.
+The neural network training thus is provided with a large set of duplicate input values, which will have conflicting target values to be learnt. Additionally positions early in the game will be overrepresented in the training data, as they make up the vast majority of
+duplicate positions.
+
+In the context of Connect 4 \cite{oracledevs6}[OracleDevs et al.] propose to merge duplicate positions to counteract this.
+
+My implementation of this acts in the training worker and only adds new positions to the pool of training examples, previously known positions instead update the target value
+for that position.
+
+For this purpose a record of all previously known positions is kept in a hashmap.
+Every time a duplicate is produced by a self-play worker and send to the training worker, the training worker will merge the new target values with the old target values of the duplicate using a weight
+$w_{\text{duplicate}}$: $$\text{target}_{\text{new}} = \text{target}_{\text{old}} * (1 - w_{\text{duplicate}}) + \text{target}_{\text{duplicate}} * w_{\text{duplicate}}$$
+
+The higher $w_{\text{duplicate}}$, the less importance is given to previous targets for a position. At the maximum value of $1$,
+targets are completely replaced whenever a new report on a position comes in.
+
+The values $0.2$, $0.5$ and $0.8$ are tested in single runs and compared against the baseline to evaluate how promising this approach is. Figure \ref{fig:dedupe_cmp} shows the results. 
+
+A noticeable improvement can be seen. $0.8$ appears to outperform the baseline the most and is chosen to be part of the extended baseline configuration.
+
+To keep the size of iterations consistent with previous experimenets, network iterations are now reduced to once every $180000$ new examples. With the typical rate of duplicates during a baseline run, this comes out at about $300000$ positions played per iteration, at least in the first part
+of the training. The more duplicates are produced during play, the longer iterations become.
+The training window stays at $2$ million positions, which all will be distinct from each other with deduplication.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{dedupe}
+\caption{Comparison of different choices for $w_{\text{duplicate}}$. $0.8$ is chosen for all further experiments.}
+\label{fig:dedupe_cmp}
+\end{figure}
+
+
+\subsubsection{Cyclic learning rate}
+
+Cyclical learning rates are a proposal \cite{smith2017cyclical} to speed up general neural network training. \cite{oracledevs6}[OracleDevs et al.] claim some improvement using them in the context of AlphaZero.
+
+Based on these claims I have implemented cyclic learning rates and cyclic momentum for my version of AlphaZero as a potential addition to the extended learning rate. The cycles are over single iterations of the network, thus $300000$ examples 
+using the baseline or $180000$ new examples using deduplication.
+
+The learning rate starts out at $0.02$, reaches its peak of $0.2$ at $35\%$ of the iteration, then starts to drop back to $0.02$, which is reached by $70\%$ of the iteration, finally the learning rate is dropped down to $0.003$ by the end of the iteration.
+Using the same proportions over the iteration, the momentum starts at $0.95$, drops to $0.85$ and then rises back to $0.95$.
+The values are informed by previous runs to determine the maximum and minimum useful learning rate, especially the supervised training.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{cyclic}
+\caption{The change of the learning rate and momentum over the training of a new network iteration when using cyclic learning rates.}
+\label{fig:cyclic_lr}
+\end{figure}
+
+These curves can be seen in figure \ref{fig:cyclic_lr}.
+Additionally, not shown in the figure, the learning rate is annealed down with a multiplicative factor that drops with the network iterations in a linear fashion. It starts at $1$ in iteration $1$ and reaches $0.4$ in iteration $20$. Beyond iteration $20$ the factor stays at $0.4$.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{cyclic_results}
+\caption{Comparison of the usage of cyclic learning rates and momentum with the baseline.}
+\label{fig:cyclic_results}
+\end{figure}
+
+A single run was done with the baseline configuration, using the described cyclic learning rate and momentum. The results can be seen in figure \ref{fig:cyclic_results}.
+Slight improvements were found, especially in the earlier stages of the training. Cyclic learning rate and momentum was added to the extended baseline 
+configuration. 
+
+
+
+\subsubsection{Improved training window}
+
+\cite{oracledevs6}[OracleDevs et al.] notice that a jump down in the training error can be observed in the first iteration that pushes the examples of the very start of the training out of the training window. It stands to 
+reason that these are especially bad training examples, as the network at that point would be very close to random play. This motives to let the training window start out small and grow over a number of iterations. This way the 
+training examples of early iterations are removed from the training data more quickly. This is called a slow training window.
+
+In my implementation of the slow training window, I start with a training window of $500000$ examples, which grows between iteration $5$ and $12$ up to the maximum size of $2$ million examples. This causes early examples to be removed by iteration $3$.
+
+A single run is done to evaluate the effects of this modification, the results are seen in figure \ref{fig:slow_window_results}. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{slow_window}
+\caption{Comparison of the usage of a slow training window with the baseline.}
+\label{fig:slow_window_results}
+\end{figure}
+
+The slow window is added to the extended baseline, since it does not appear to hurt and it follows a sound idea. To accomodate the fact that the extended baseline uses a training window without duplicate positions the parameters are modified
+to grow from iteration $5$ to $15$, since the number of new examples per iteration is lower.
+
+\subsubsection{Playout Caps}
+
+Playout Caps \cite{wu2019accelerating}[Wu et. al.] implement the idea to play, at random, a substantial fraction of all moves with a substantially reduced number of nodes in the MCTS and only record moves played with the full number of nodes used.
+This means a lot more games are played at a marginally additional cost. Since the moves played with a less deep MCTS are not recorded, the training data does not reduce in quality, but more distinct game results are collected.
+This can help provide better quality data for the value target of the network, which predicts the winner of games. Wu et. al. claim $27\%$ improvement in Go, which is notorious for especially long games.
+
+I have implemented Playout Caps and evaluated them on Connect 4. For $75\%$ of the moves played the number of MCTS nodes was reduced to $30$, only the moves played with the standard $350$ nodes in the other $25\%$ were recorded as training data.
+Results of a test run can be seen in figure \ref{fig:playout_caps}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{playout_caps}
+\caption{Results of implementing Playout Caps on Connect 4.}
+\label{fig:playout_caps}
+\end{figure}
+
+Clearly Playout Caps appear to hurt performance on Connect 4. This likely stems from the fact that an average Connect 4 game tends to take $30$ moves. A game of Go, for which Playout Caps were developed, averages at $211$ moves\footnote{\url{https://homepages.cwi.nl/~aeb/go/misc/gostat.html}}.
+This means the AlphaZero learning to play Go will be a lot more pressed for more game result training data, than AlphaZero learning to play Connect 4.
+
+Playout Caps were not made part of the extended baseline.
+
+\subsubsection{Improving the network structure}
+
+
+\subsection{Results}
+
+As a first baseline I have implemented AlphaZero with only very few modifications, as a minimal baseline.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{baselines}
+\caption{Comparison of the baseline and the extended baseline.}
+\label{fig:baseline_compare}
+\end{figure}
+
+
+
 
 \subsection{Novel improvements}
-\subsubsection{Network modifications}
+\subsubsection{Evolutionary hyperparameters}
 \subsubsection{Playing games as trees}
 \subsubsection{Automatic auxilary features}
-\subsubsection{Evolutionary hyperparameters}
-
 
 
 

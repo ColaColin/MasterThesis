@@ -669,9 +669,6 @@ WK 25
                     [X] test out dynamic number of evaluations again, some tweaks before that to make the kl div implementation cleaner. Maybe that'll help...
                          -> "MEH"
 
-     [ ] two little tweaks inbetween:
-          [ ] the dynamic fpu thing.
-
      [ ] writing goal: Complete stuff about the extended run
 WK 26
      [ ] buffer

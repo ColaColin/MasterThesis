@@ -16,18 +16,18 @@
 \BOOKMARK [1][-]{section.4}{Experiments}{}% 16
 \BOOKMARK [2][-]{subsection.4.1}{Testing on Connect4}{section.4}% 17
 \BOOKMARK [3][-]{subsubsection.4.1.1}{Generating Connect4 datasets}{subsection.4.1}% 18
-\BOOKMARK [2][-]{subsection.4.2}{Baseline}{section.4}% 19
-\BOOKMARK [3][-]{subsubsection.4.2.1}{Supervised training}{subsection.4.2}% 20
-\BOOKMARK [3][-]{subsubsection.4.2.2}{Hyperparameter search}{subsection.4.2}% 21
-\BOOKMARK [3][-]{subsubsection.4.2.3}{Evaluation of training costs}{subsection.4.2}% 22
-\BOOKMARK [3][-]{subsubsection.4.2.4}{Results}{subsection.4.2}% 23
-\BOOKMARK [2][-]{subsection.4.3}{Extended Baseline}{section.4}% 24
-\BOOKMARK [3][-]{subsubsection.4.3.1}{Remove duplicate positions}{subsection.4.3}% 25
-\BOOKMARK [3][-]{subsubsection.4.3.2}{Cyclic learning rate}{subsection.4.3}% 26
-\BOOKMARK [3][-]{subsubsection.4.3.3}{Improved training window}{subsection.4.3}% 27
-\BOOKMARK [3][-]{subsubsection.4.3.4}{Playout Caps}{subsection.4.3}% 28
-\BOOKMARK [3][-]{subsubsection.4.3.5}{Improving the network structure}{subsection.4.3}% 29
-\BOOKMARK [2][-]{subsection.4.4}{Novel improvements}{section.4}% 30
-\BOOKMARK [3][-]{subsubsection.4.4.1}{Evolutionary hyperparameters}{subsection.4.4}% 31
-\BOOKMARK [3][-]{subsubsection.4.4.2}{Playing games as trees}{subsection.4.4}% 32
-\BOOKMARK [3][-]{subsubsection.4.4.3}{Automatic auxilary features}{subsection.4.4}% 33
+\BOOKMARK [2][-]{subsection.4.2}{Evaluation of training costs}{section.4}% 19
+\BOOKMARK [2][-]{subsection.4.3}{Supervised training}{section.4}% 20
+\BOOKMARK [2][-]{subsection.4.4}{Baseline}{section.4}% 21
+\BOOKMARK [3][-]{subsubsection.4.4.1}{Hyperparameter search}{subsection.4.4}% 22
+\BOOKMARK [2][-]{subsection.4.5}{Extended Baseline}{section.4}% 23
+\BOOKMARK [3][-]{subsubsection.4.5.1}{Remove duplicate positions}{subsection.4.5}% 24
+\BOOKMARK [3][-]{subsubsection.4.5.2}{Cyclic learning rate}{subsection.4.5}% 25
+\BOOKMARK [3][-]{subsubsection.4.5.3}{Improved training window}{subsection.4.5}% 26
+\BOOKMARK [3][-]{subsubsection.4.5.4}{Playout Caps}{subsection.4.5}% 27
+\BOOKMARK [3][-]{subsubsection.4.5.5}{Improving the network structure}{subsection.4.5}% 28
+\BOOKMARK [2][-]{subsection.4.6}{Results}{section.4}% 29
+\BOOKMARK [2][-]{subsection.4.7}{Novel improvements}{section.4}% 30
+\BOOKMARK [3][-]{subsubsection.4.7.1}{Evolutionary hyperparameters}{subsection.4.7}% 31
+\BOOKMARK [3][-]{subsubsection.4.7.2}{Playing games as trees}{subsection.4.7}% 32
+\BOOKMARK [3][-]{subsubsection.4.7.3}{Automatic auxilary features}{subsection.4.7}% 33
