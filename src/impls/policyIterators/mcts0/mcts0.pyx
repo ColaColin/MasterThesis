@@ -143,7 +143,7 @@ cdef class MCTSNode():
     def getState(self):
         return self.state
 
-    cdef int _pickMove(self, float cpuct, float fpu, float alphaBase):
+    cdef int _pickMove(self, float cpuct, float fpu, float alphaBase, int useDynamicFpu):
 
         cdef int useNoise = self.parentNode is None and self.noiseMix > 0
 
@@ -171,9 +171,10 @@ cdef class MCTSNode():
             if self.edgeVisits[i] == 0:
                 # idea: if the current position is expected to be really good: Follow the network
                 #       otherwise explore as hard as you can
-                # self.stateValue * self.edgePriors[i] + (1 - self.stateValue)
-                # try this later
-                nodeQ = fpu
+                if useDynamicFpu:
+                    nodeQ = self.stateValue * self.edgePriors[i] + (1 - self.stateValue)
+                else:
+                    nodeQ = fpu
             else:
                 nodeQ = self.edgeTotalValues[i] / self.edgeVisits[i]
 
@@ -192,8 +193,8 @@ cdef class MCTSNode():
 
         return newNode
 
-    cdef MCTSNode _selectMove(self, float cpuct, float fpu, float alphaBase):
-        cdef int moveIndex = self._pickMove(cpuct, fpu, alphaBase)
+    cdef MCTSNode _selectMove(self, float cpuct, float fpu, float alphaBase, int useDynamicFpu):
+        cdef int moveIndex = self._pickMove(cpuct, fpu, alphaBase, useDynamicFpu)
 
         if not moveIndex in self.children:
             self.children[moveIndex] = self._executeMove(moveIndex)
@@ -253,13 +254,13 @@ cdef class MCTSNode():
         self.netValueEvaluation = vs
         self.stateValue = vs[self.playerOnTurnNumber] + vs[0] * drawValue
 
-    cdef MCTSNode selectDown(self, float cpuct, float fpu, float alphaBase):
+    cdef MCTSNode selectDown(self, float cpuct, float fpu, float alphaBase, int useDynamicFpu):
         """
         return a leaf that was chosen by selecting good moves going down the tree
         """
         cdef MCTSNode node = self
         while node.isExpanded and not node.hasEnded:
-            node = node._selectMove(cpuct, fpu, alphaBase)
+            node = node._selectMove(cpuct, fpu, alphaBase, useDynamicFpu)
         return node
 
     cdef object getTerminalResult(self):
@@ -355,7 +356,7 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
     AlphaZero-style MCTS implementation extended with explicit handling of draws.
     FPU can be configured, AlphaZero standard is 0. There must be better ways to handle it, however.
     """
-    def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None, normalizePriors=False):
+    def __init__(self, expansions=None, cpuct=None, rootNoise = None, drawValue = None, fpu = 0.45, alphaBase = 10, parameters=None, normalizePriors=False, dynamicFpu=False):
         # newer configs use the parameters value, but older configs still use the direct properties, so support both
         if parameters is None and cpuct is not None: #old config
             parameters = dict()
@@ -376,6 +377,8 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
             self.expansions = expansions
         
         self.normalizePriors = normalizePriors
+
+        self.dynamicFpu = dynamicFpu
 
         assert self.expansions is not None, "for the evaluator you have to provide a value for mcts tree expansions!"
 
@@ -402,10 +405,11 @@ class MctsPolicyIterator(PolicyIterator, metaclass=abc.ABCMeta):
         if backupSet is not None:
             self.backupWork(backupSet, evalout)
 
-        cdef int i        
+        cdef int i
+        cdef int useDyn = 1 if self.dynamicFpu else 0 
         for i in range(len(prepareSet)):
             tnode = prepareSet[i].node
-            selectedNode = tnode.selectDown(prepareSet[i].cpuct, prepareSet[i].fpu, prepareSet[i].alphaBase)
+            selectedNode = tnode.selectDown(prepareSet[i].cpuct, prepareSet[i].fpu, prepareSet[i].alphaBase, useDyn)
             prepareResult.append((selectedNode, prepareSet[i].drawValue))
 
         return prepareResult

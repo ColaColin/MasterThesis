@@ -670,7 +670,6 @@ WK 25
                          -> "MEH"
 
      [ ] two little tweaks inbetween:
-          [~] renormalize edgePriors to 1 with respect to legal moves.
           [ ] the dynamic fpu thing.
 
      [ ] writing goal: Complete stuff about the extended run
