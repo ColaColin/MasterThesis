@@ -46,7 +46,7 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
         for report in reports:
             self.queue.append(report)
 
-        if len(self.queue) > self.packageSize:
+        while len(self.queue) > self.packageSize:
             if self.waitTill > time.monotonic():
                 return
 

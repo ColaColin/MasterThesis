@@ -247,7 +247,6 @@ cdef class MCTSNode():
         
         if normalizePriors and acc > 0:
             for i in range(self.numMoves):
-                print("normalize from", acc)
                 self.edgePriors[i] /= acc
 
         self.isExpanded = 1

@@ -608,7 +608,7 @@ x0=> select generation, avg((parameter_vals::json -> 'inversion')::text::float),
      [X] league run: Simple parameters, limited.
           -> first few iterations learn faster, at least in this one attempt, but then it starts to suffer from less game variance and falls behind.
 WK 25
-     [ ] more work on the league system, investigate why it fails (i.e. that game variance issue?)
+     [X] more work on the league system, investigate why it fails (i.e. that game variance issue?)
           -> game variance is very visible and probably part of the reason it does not work
           -> so how well do the selected parameters do vs the standard extended parameters in pure MCTS accuracy using the same network?
                -> write code to compare different parametersets on the same network and evaluation set. Compare best found players vs "extended" player
@@ -669,30 +669,29 @@ WK 25
                     [X] test out dynamic number of evaluations again, some tweaks before that to make the kl div implementation cleaner. Maybe that'll help...
                          -> "MEH"
 
-     [ ] writing goal: Complete stuff about the extended run
+     [~] writing goal: Complete stuff about the extended run
 WK 26
-     [ ] buffer
-WK 27
      [ ] play games as mcts-like-trees
      [ ] writing goal: Complete stuff about the hyperparameter search
+WK 27
+     [ ] reuse internal network features
+     [ ] writing goal: Complete stuff about the tree-game-playing
 WK 28
      [ ] buffer
 WK 29
-     [ ] reuse internal network features
-     [ ] writing goal: Complete stuff about the tree-game-playing
-WK 30: 
-     [ ] buffer
-WK 31:
      [ ] document the code
      [ ] writing goal: Complete stuff about the internal network features
-
-WK 32:
+WK 30: 
      [ ] writing goal: Complete writing
      [ ] prepare presentation
-WK 33:
+WK 31:
      [ ] writing goal: conclusions
      [ ] hold presentation
-
+WK 32:
+     [ ] buffer
+WK 33:
+     [ ] buffer
+     
 WK 34: deadline on Thursday
 
      Skip it?:

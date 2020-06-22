@@ -21,6 +21,7 @@ from core.training.StreamTrainingWorker import ConstantWindowSizeManager, SlowWi
 from core.solved.supervised import SupervisedNetworkTrainer
 from core.training.StreamTrainingWorker2 import StreamTrainingWorker2
 from impls.selfplay.PlayersSelfplay import LeagueSelfPlayerWorker, FixedPlayerAccess, FixedThinkDecider, LeaguePlayerAccess, LearntThinkDecider
+from impls.selfplay.TreeSelfPlay import TreeSelfPlayWorker, FakeEvaluationAccess
 from core.command.leagues import EloGaussServerLeague
 
 import sys
@@ -31,6 +32,8 @@ registered = False
 def registerClasses():
     global registered
     if not registered:
+        mlconfig.register(FakeEvaluationAccess)
+        mlconfig.register(TreeSelfPlayWorker)
         mlconfig.register(LearntThinkDecider)
         mlconfig.register(EloGaussServerLeague)
         mlconfig.register(LeaguePlayerAccess)

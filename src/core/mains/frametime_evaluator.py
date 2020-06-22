@@ -28,7 +28,7 @@ from core.mains.players_proxy import tryPlayersProxyProcess
 #make sure the gpu is 100% loaded by using enough worker threads!
 PROC_COUNT = 4
 BATCH_COUNT = 60
-MIN_TIME = 180
+MIN_TIME = 300
 
 def measureFrametime(configPath, idx, run):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
