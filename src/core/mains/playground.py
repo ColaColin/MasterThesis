@@ -30,6 +30,8 @@ import psycopg2
 
 from utils.misc import hConcatStrings
 
+from utils.req import postBytes, requestJson, requestBytes
+
 # random testing code
 
 def getRandomGame():
@@ -160,6 +162,30 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
+    game = getRandomGame()
+
+    print(str(game))
+
+    report = game.store()
+    encReport = encodeToBson(report)
+
+    resp = postBytes("http://127.0.0.1:4242/queue/", "", encReport, expectResponse=True)
+
+    workList = requestJson("http://127.0.0.1:4242/queue", "")
+    # print("Work on server is", workList)
+
+    myWork = requestBytes("http://127.0.0.1:4242/checkout/" + resp, "")
+
+    print(str(game.load(decodeFromBson(myWork))))
+
+    postBytes("http://127.0.0.1:4242/checkin/" + resp, "", encReport)
+
+    workResults = requestJson("http://127.0.0.1:4242/results", "")
+
+    wResultBytes = requestBytes("http://127.0.0.1:4242/results/" + workResults[0], "")
+
+    print(str(game.load(decodeFromBson(wResultBytes))))
+
     # reportsApiTest3()
 
     # wm = SlowWindowSizeManager(550000, 5, 15, 2000000, 180000, 8096)
@@ -172,16 +198,16 @@ if __name__ == "__main__":
     
     # print(hConcatStrings(games))
 
-    core = loadMlConfig("confs/distributedworker.yaml")
-    league = core.serverLeague()
+    # core = loadMlConfig("confs/distributedworker.yaml")
+    # league = core.serverLeague()
 
-    p1 = league.newPlayer()
+    # p1 = league.newPlayer()
 
-    p1M1 = league.mutatePlayer(p1)
-    p1M2 = league.mutatePlayer(p1)
+    # p1M1 = league.mutatePlayer(p1)
+    # p1M2 = league.mutatePlayer(p1)
 
-    print(p1)
-    print(p1M1)
-    print(p1M2)
+    # print(p1)
+    # print(p1M1)
+    # print(p1M2)
 
-    print(league.getNewRatings(1700, 1600, 0.5))
+    # print(league.getNewRatings(1700, 1600, 0.5))

@@ -171,6 +171,7 @@ cdef class MCTSNode():
             if self.edgeVisits[i] == 0:
                 # idea: if the current position is expected to be really good: Follow the network
                 #       otherwise explore as hard as you can
+                # does not appear to be a good idea, at least without more tuning...
                 if useDynamicFpu:
                     nodeQ = (self.stateValue * self.edgePriors[i] + (1 - self.stateValue)) * 1.6
                 else:

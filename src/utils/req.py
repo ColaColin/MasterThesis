@@ -60,14 +60,17 @@ def postJson(url, secret, data, timeout=30, retries=999999, getResponse=False):
                 logMsg("Failed postJson %s will retry soon" % url, error)
                 time.sleep(timeout // 4 + random.random() * 20)
 
-def postBytes(url, secret, data, timeout=30, retries=999999):
+def postBytes(url, secret, data, timeout=30, retries=999999, expectResponse=False):
     cnt = 0
     while True:
         cnt += 1
         try:
             response = requests.post(url, data=data, headers={"secret": secret}, timeout=timeout)
             response.raise_for_status()
-            return
+            if expectResponse:
+                return response.json()
+            else:
+                return
         except Exception as error:
             if cnt > retries:
                 raise error
