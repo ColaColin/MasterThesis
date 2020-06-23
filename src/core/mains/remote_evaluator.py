@@ -74,7 +74,11 @@ if __name__ == "__main__":
         with getRunConfig(run, commandHost, secret) as temp:
             core = loadMlConfig(temp.name)
         
-        policy = core.worker.policy(recursive=True)
+        try:
+            policy = core.worker.policy(recursive=True)
+        except:
+            policy = core.evalWorker.policy(recursive=True)
+
         unpackedNetwork = networks.downloadNetwork(network)
         policy.load(unpackedNetwork)
 
@@ -85,7 +89,10 @@ if __name__ == "__main__":
 
         print("Got best player", bestPlayer)
 
-        policyIterator = core.worker.policyIterator(recursive=True)
+        try:
+            policyIterator = core.worker.policyIterator(recursive=True)
+        except:
+            policyIterator = core.evalWorker.policyIterator(recursive=True)
 
         # pick the best moves moveDecider
         moveDecider = TemperatureMoveDecider(-1)
