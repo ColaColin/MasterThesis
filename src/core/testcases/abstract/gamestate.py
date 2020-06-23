@@ -14,6 +14,12 @@ def playRandomMove(game, idx, offset):
     else:
         return game
 
+def playFirstMove(game):
+    if not game.hasEnded():
+        return game.playMove(game.getLegalMoves()[0])
+    else:
+        return game
+
 class TestGameStateSanity(metaclass=abc.ABCMeta):
     """
     Base class to test game implementations for simple sanity tests and
@@ -150,11 +156,17 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
     def playRandomGame(self, idx):
         game = self.subject
         results = []
-        for i in range(idx % 50):
-            game = playRandomMove(game, i, idx * 7919)
-            results.append(game)
-            if game.hasEnded():
-                break
+
+        if idx == 0:
+            while not game.hasEnded():
+                game = playFirstMove(game)
+                results.append(game)
+        else:
+            for i in range(20 + idx % 30):
+                game = playRandomMove(game, i, idx * 7919)
+                results.append(game)
+                if game.hasEnded():
+                    break
         return results
 
     def test_hashProperties(self):
@@ -234,6 +246,17 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
                 stored = s.store()
                 loaded = self.subject.load(stored)
                 self.assertEqual(loaded, s)
+
+    def test_storeLoadLegalMoves(self):
+        """
+        Calling store and load should reproduce the same legal moves
+        """
+        numTestGames = 1000
+        states = map(lambda x: self.playRandomGame(x), range(numTestGames))
+        for ss in states:
+            for s in ss:
+                loaded = self.subject.load(s.store())
+                self.assertEqual(loaded.getLegalMoves(), s.getLegalMoves())
 
     def test_storeLoadConsistent(self):
         """

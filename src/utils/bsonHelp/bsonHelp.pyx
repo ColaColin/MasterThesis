@@ -26,6 +26,8 @@ def encodeToBson(npDict):
             for k in d:
                 newDict[k] = pack(d[k])
             return newDict
+        elif isinstance(d, tuple):
+            return tuple(map(lambda x: pack(x), d))
         elif isinstance(d, list):
             newList = list()
             for i in range(len(d)):
@@ -63,6 +65,8 @@ def decodeFromBson(encBytes):
                     d[k] = unpack(d[k])
         elif isinstance(d, bytes):
             return np.frombuffer(d, dtype=np.uint8)
+        elif isinstance(d, tuple):
+            return tuple(map(lambda x: unpack(x), d))
         elif isinstance(d, list):
             for i in range(len(d)):
                 d[i] = unpack(d[i])

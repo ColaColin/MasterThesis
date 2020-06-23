@@ -60,9 +60,12 @@ resnet:
 
 mcts:
   name: MctsPolicyIterator
+  expansions: 343
+  cpuct: 1.545
   rootNoise: 0.25
-  # used by the evaluator, LeagueSelfPlayerWorker does support a dynamic number via thinkDecider implementations
-  expansions: 350
+  drawValue: 0.6913
+  alphaBase: 20.38
+  fpu: 0.8545
 
 tempDecider:
   name: TemperatureMoveDecider
@@ -71,6 +74,13 @@ tempDecider:
 fakeEvalAccess:
   name: FakeEvaluationAccess
   iterationSize: 280000
+
+evalWorker:
+  name: EvaluationWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  policyUpdater: $updater
 
 worker:
   name: TreeSelfPlayWorker

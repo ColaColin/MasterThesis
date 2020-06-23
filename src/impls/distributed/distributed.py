@@ -66,6 +66,14 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
                 logMsg("Could not report states due to an error. Will try again soon!", error)
                 self.waitTill = time.monotonic() + 60
 
+import signal
+import ctypes
+libc = ctypes.CDLL("libc.so.6")
+def set_pdeathsig(sig = signal.SIGTERM):
+    def callable():
+        return libc.prctl(1, sig)
+    return callable
+
 class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
     """
     Version of the distributed networks updater that uses an extra networks_downloader process to handle network downloading.
@@ -77,16 +85,16 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
         self.checkInterval = 4
         self.storage = storage
 
-        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--worker" in sys.argv) and ("--command" in sys.argv)
+        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
-            raise Exception("You need to provide arguments for the distributed worker: --secret <server password>, --run <uuid>, --worker <name> and --command <command server host>!")
+            raise Exception("You need to provide arguments for the distributed worker: --secret <server password>, --run <uuid> and --command <command server host>!")
 
         self.secret = sys.argv[sys.argv.index("--secret")+1]
         self.run = sys.argv[sys.argv.index("--run")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
 
-        self.downloader = subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", self.storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run])
+        self.downloader = subprocess.Popen(["python", "-m", "core.mains.networks_downloader", "--path", self.storage, "--secret", self.secret, "--command", self.commandHost, "--run", self.run], preexec_fn = set_pdeathsig(signal.SIGTERM))
 
     def update(self, policy):
         if time.monotonic() - self.lastNetworkCheck > self.checkInterval:
@@ -127,10 +135,10 @@ class DistributedNetworkUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
         self.lastNetworkCheck = -999
         self.checkInterval = checkInterval
 
-        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--worker" in sys.argv) and ("--command" in sys.argv)
+        hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
-            raise Exception("You need to provide arguments for the distributed worker: --secret <server password>, --run <uuid>, --worker <name> and --command <command server host>!")
+            raise Exception("You need to provide arguments for the distributed worker: --secret <server password>, --run <uuid> and --command <command server host>!")
 
         self.secret = sys.argv[sys.argv.index("--secret")+1]
         self.run = sys.argv[sys.argv.index("--run")+1]

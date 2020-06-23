@@ -5,13 +5,27 @@ from utils.prints import logMsg
 from core.playing.SelfPlayWorker import SelfPlayWorker
 
 
-from utils.req import requestJson, postJson
-
-import sys
+from utils.req import requestJson, postJson, requestBytes, postBytes
+from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
 import numpy as np
 
 import time
+
+import subprocess
+import sys
+
+import socket
+
+import uuid
+
+import signal
+import ctypes
+libc = ctypes.CDLL("libc.so.6")
+def set_pdeathsig(sig = signal.SIGTERM):
+    def callable():
+        return libc.prctl(1, sig)
+    return callable
 
 class EvaluationAccess(metaclass=abc.ABCMeta):
     @abc.abstractmethod
@@ -27,6 +41,84 @@ class EvaluationAccess(metaclass=abc.ABCMeta):
         Format: dict() uuid -> ([iterationResult], networkId)
         iterationResult is a tuple out of a policy iterator getResults()
         """
+
+class RemoteEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
+    def __init__(self):
+        hasArgs = "--command" in sys.argv
+
+        if not hasArgs:
+            raise Exception("You need to provide arguments for LocalEvaluationAccess: --command <command server host>!")
+
+        self.evalHost = sys.argv[sys.argv.index("--command")+1].replace("https", "http")
+        self.evalHost += ":4242"
+
+    def requestEvaluation(self, gamesPackage):
+        """
+        push a package to be evaluated. Expects an UUID to identify the evaluation task
+        """
+        return postBytes(self.evalHost + "/queue", "", encodeToBson([g.store() for g in gamesPackage]), expectResponse=True)
+
+    def pollEvaluationResults(self):
+        """
+        return any finished evaluations to be used by the caller. No result is ever returned twice!
+        Format: dict() uuid -> ([iterationResult], networkId)
+        iterationResult is a tuple out of a policy iterator getResults()
+        """
+        workResults = requestJson(self.evalHost + "/results", "")
+        if len(workResults) == 0:
+            time.sleep(0.5)
+        result = dict()
+        for rId in workResults:
+            rBytes = requestBytes(self.evalHost + "/results/" + rId, "")
+            rDict = decodeFromBson(rBytes)
+            result[rId] = (rDict["iterations"], rDict["network"])
+        return result
+
+class LocalEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
+    """
+    Run a local evaluation server and a number of local EvaluationWorkers. 
+    """
+    def __init__(self, workerN=1):
+        logMsg("Starting local eval_manager!")
+        subprocess.Popen(["node", "eval_manager/server.js"], preexec_fn = set_pdeathsig(signal.SIGTERM))
+        hasArgs = "--command" in sys.argv
+
+        if not hasArgs:
+            raise Exception("You need to provide arguments for LocalEvaluationAccess: --command <command server host>!")
+
+        self.commandHost = sys.argv[sys.argv.index("--command")+1]
+        self.secret = sys.argv[sys.argv.index("--secret")+1]
+        self.run = sys.argv[sys.argv.index("--run")+1]
+
+        self.evalHost = "http://127.0.0.1:4242"
+
+        for w in range(workerN):
+            logMsg("Starting local worker %i!" % (w + 1))
+            subprocess.Popen(["python", "-m", "core.mains.distributed", "--command", self.commandHost, "--secret", self.secret, "--run", self.run, "--evalserver", self.evalHost, "--eval", socket.gethostname(), "--windex", str(w+1)], preexec_fn = set_pdeathsig(signal.SIGTERM))
+
+        time.sleep(3)
+
+    def requestEvaluation(self, gamesPackage):
+        """
+        push a package to be evaluated. Expects an UUID to identify the evaluation task
+        """
+        return postBytes(self.evalHost + "/queue", "", encodeToBson([g.store() for g in gamesPackage]), expectResponse=True)
+
+    def pollEvaluationResults(self):
+        """
+        return any finished evaluations to be used by the caller. No result is ever returned twice!
+        Format: dict() uuid -> ([iterationResult], networkId)
+        iterationResult is a tuple out of a policy iterator getResults()
+        """
+        workResults = requestJson(self.evalHost + "/results", "")
+        if len(workResults) == 0:
+            time.sleep(0.5)
+        result = dict()
+        for rId in workResults:
+            rBytes = requestBytes(self.evalHost + "/results/" + rId, "")
+            rDict = decodeFromBson(rBytes)
+            result[rId] = (rDict["iterations"], rDict["network"])
+        return result
 
 class FakeEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
     """
@@ -250,7 +342,12 @@ class MCTSNode():
         result /= float(np.sum(self.edgeVisits))
         return result
 
+# standing for the policy ID of the first iteration
+fooUUID = str(uuid.uuid4())
+
 def packageReport(state, iPolicy, winners, nextPolicy, policyUUID):
+    global fooUUID
+
     # do not learn from terminal states, there is no move that can be made on them
     assert not state.hasEnded()
     record = dict()
@@ -260,6 +357,8 @@ def packageReport(state, iPolicy, winners, nextPolicy, policyUUID):
     record["generics"] = dict(iPolicy[1])
     record["policyIterated"] = iPolicy[0]
     record["uuid"] = str(uuid.uuid4())
+    if policyUUID is None:
+        policyUUID = fooUUID
     record["policyUUID"] = policyUUID
     record["state"] = state.store()
     record["gamename"] = state.getGameName()
@@ -306,6 +405,10 @@ class SelfPlayTree():
         self.reportedStates = set()
         self.pendingReports = []
 
+        self.newPendings = dict()
+
+        self.allowNewGames = True
+
     def backup(self, nodes, result):
         """
         nodes is a list of non-terminal nodes which end with the given result.
@@ -334,17 +437,17 @@ class SelfPlayTree():
         self.pendingReports = []
         return ret
         
-    def handleSelection(self, passedNodes, failNode, newPendings):
+    def handleSelection(self, passedNodes, failNode):
         if failNode.state.hasEnded():
             self.backup(passedNodes, failNode.getTerminalResult())
         elif failNode.state in self.pendingEvalsInverse:
             evalId = self.pendingEvalsInverse[failNode.state]
             pendEval = self.pendingEvals[evalId]
             self.pendingEvals[evalId] = (pendEval[0], pendEval[1] + [passedNodes])
-        elif failNode.state in newPendings:
-            newPendings[failNode.state] = (failNode, newPendings[failNode.state][1] + [passedNodes])
+        elif failNode.state in self.newPendings:
+            self.newPendings[failNode.state] = (failNode, self.newPendings[failNode.state][1] + [passedNodes])
         else:
-            newPendings[failNode.state] = (failNode, [passedNodes])
+            self.newPendings[failNode.state] = (failNode, [passedNodes])
 
     def incPackageSizes(self):
         self.currentMaxPackageSize *= 2
@@ -356,34 +459,81 @@ class SelfPlayTree():
 
         logMsg("Limits are now: %i package size, %i packages" % (self.currentMaxPackageSize, self.currentMaxPendingPackages))
 
-    def handleNewPendings(self, newPendings):
-        package = list(dict.keys(newPendings))
+    def queuePendings(self, nextPending):
+        package = list(dict.keys(nextPending))
+
+        assert len(package) <= self.currentMaxPackageSize
+
+        logMsg("Queue a new package of size %i" % len(package))
+
         packageId = self.evalAccess.requestEvaluation(package)
         self.pendingEvalIds.add(packageId)
 
         for idx, g in enumerate(package):
             evalId = (packageId, idx)
             self.pendingEvalsInverse[g] = evalId
-            self.pendingEvals[evalId] = (newPendings[g][0], newPendings[g][1])
+            self.pendingEvals[evalId] = (nextPending[g][0], nextPending[g][1])
 
-    def fillPendingWithNews(self, newPendings):
+    def handleNewPendings(self):
+        if len(self.newPendings) > 0:
+            while len(self.newPendings) >= self.currentMaxPackageSize:
+                nextPendings = dict()
+                pkeys = list(dict.keys(self.newPendings))[:self.currentMaxPackageSize]
+                for pk in pkeys:
+                    nextPendings[pk] = self.newPendings[pk]
+                    del self.newPendings[pk]
+
+                self.queuePendings(nextPendings)
+
+            self.beginGames()
+
+            if len(self.newPendings) > 0:
+                if len(self.pendingEvalIds) == 0:
+                    self.queuePendings(self.newPendings)
+                    self.newPendings = dict()
+                else:
+                    logMsg("Will wait to fill current package, has size %i, needs %i!" % (len(self.newPendings), self.currentMaxPackageSize))
+
+            logMsg("Now waiting for %i packages with %i games!" % (len(self.pendingEvalIds), self.countPendingGames()))
+
+    def countPendingGames(self):
+        cnt = 0
+        for n, ps in dict.values(self.pendingEvals):
+            cnt += len(ps)
+
+        for n, ps in dict.values(self.newPendings):
+            cnt += len(ps)
+
+        return cnt
+
+    def fillPendingWithNews(self):
         lastSize = -1
-        while len(newPendings) < self.currentMaxPackageSize and lastSize < len(newPendings):
-            lastSize = len(newPendings)
+        failCnt = 0
+        cnt = 0
+        while len(self.newPendings) < self.currentMaxPackageSize and self.countPendingGames() < self.currentMaxPackageSize * self.currentMaxPendingPackages:
+            if lastSize == len(self.newPendings):
+                failCnt += 1
+            else:
+                failCnt = 0
+            if failCnt > 50:
+                break
+            lastSize = len(self.newPendings)
             passedNodes, failNode = self.root.selectDown(self.cpuct, self.fpu)
-            self.handleSelection(passedNodes, failNode, newPendings)
+            cnt += 1
+            self.handleSelection(passedNodes, failNode)
+        return cnt
 
     def beginGames(self):
-        while len(self.pendingEvalIds) < self.currentMaxPendingPackages:
-            newPendings = dict()
-            self.fillPendingWithNews(newPendings)
-            if len(newPendings) == 0:
+        while self.allowNewGames and len(self.pendingEvalIds) < self.currentMaxPendingPackages and self.countPendingGames() < self.currentMaxPackageSize * self.currentMaxPendingPackages:
+            newGames = self.fillPendingWithNews()
+            if newGames == 0:
+                logMsg("Cannot start more games!")
                 break
-            logMsg("L349 new games: %i" % len(newPendings))
-            self.handleNewPendings(newPendings)
+            logMsg("Begin %i new games!" % newGames)
+            self.handleNewPendings()
 
     def hasOpenGames(self):
-        return len(self.pendingEvalIds) > 0
+        return self.countPendingGames() > 0
 
     def continueGames(self, evalResults):
         self.incPackageSizes()
@@ -404,15 +554,17 @@ class SelfPlayTree():
                 del self.pendingEvals[evalId]
                 del self.pendingEvalsInverse[node.state]
 
-            newPendings = dict()
+            preSize = len(self.newPendings)
 
             for node, path in pendingContinuations:
                 passedNodes, failNode = node.selectDown(self.cpuct, self.fpu)
-                self.handleSelection(path + passedNodes, failNode, newPendings)
+                self.handleSelection(path + passedNodes, failNode)
 
-            self.fillPendingWithNews(newPendings)
+            postSize = len(self.newPendings)
 
-            self.handleNewPendings(newPendings)
+            logMsg("Continue %i games from %i positions to %i positions" % (len(pendingContinuations), len(results), postSize - preSize))
+
+            self.handleNewPendings()
 
 
 # there should only be one single of these, ran on a controlled machine.
@@ -466,17 +618,35 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             self.prevTrees = list(filter(lambda x: x.hasOpenGames(), self.prevTrees))
 
             if len(self.prevTrees) < prevTreeCount:
-                logMsg("Completed %i prev trees!" % (prevTreeCount - len(self.prev)))
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+                logMsg("Completed %i prev trees!" % (prevTreeCount - len(self.prevTrees)))
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+
+            if len(self.prevTrees) > 0:
+                gsum = 0
+                for pt in self.prevTrees:
+                    gsum += pt.countPendingGames()
+                logMsg("Previous trees are still playing out %i games!" % gsum)
 
             newIteration = False
             for uuid in evalResults:
                 results, network = evalResults[uuid]
                 if network is not None and not (network in self.seenNetworks):
-                    newIteration = len(self.seenNetworks) > 0
                     self.seenNetworks.add(network)
+                    newIteration = True
+            
+            print(self.seenNetworks)
 
             if newIteration:
-                logMsg("Detected a new iteration!")
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+                logMsg("======================= Detected a new iteration! =======================")
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+                logMsg("Known networks: ", self.seenNetworks)
+                self.currentTree.allowNewGames = False
                 self.prevTrees.append(self.currentTree)
                 if len(self.prevTrees) > 1:
                     logMsg("WARN: there are multiple prev trees: %i" % len(self.prevTrees))

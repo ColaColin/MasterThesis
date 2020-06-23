@@ -162,29 +162,33 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    game = getRandomGame()
+    foobar = encodeToBson(np.random.dirichlet([0.9] * 3))
+    print(foobar)
 
-    print(str(game))
 
-    report = game.store()
-    encReport = encodeToBson(report)
+    # game = getRandomGame()
 
-    resp = postBytes("http://127.0.0.1:4242/queue/", "", encReport, expectResponse=True)
+    # print(str(game))
 
-    workList = requestJson("http://127.0.0.1:4242/queue", "")
-    # print("Work on server is", workList)
+    # report = game.store()
+    # encReport = encodeToBson(report)
 
-    myWork = requestBytes("http://127.0.0.1:4242/checkout/" + resp, "")
+    # resp = postBytes("http://127.0.0.1:4242/queue/", "", encReport, expectResponse=True)
 
-    print(str(game.load(decodeFromBson(myWork))))
+    # workList = requestJson("http://127.0.0.1:4242/queue", "")
+    # # print("Work on server is", workList)
 
-    postBytes("http://127.0.0.1:4242/checkin/" + resp, "", encReport)
+    # myWork = requestBytes("http://127.0.0.1:4242/checkout/" + resp, "")
 
-    workResults = requestJson("http://127.0.0.1:4242/results", "")
+    # print(str(game.load(decodeFromBson(myWork))))
 
-    wResultBytes = requestBytes("http://127.0.0.1:4242/results/" + workResults[0], "")
+    # postBytes("http://127.0.0.1:4242/checkin/" + resp, "", encReport)
 
-    print(str(game.load(decodeFromBson(wResultBytes))))
+    # workResults = requestJson("http://127.0.0.1:4242/results", "")
+
+    # wResultBytes = requestBytes("http://127.0.0.1:4242/results/" + workResults[0], "")
+
+    # print(str(game.load(decodeFromBson(wResultBytes))))
 
     # reportsApiTest3()
 

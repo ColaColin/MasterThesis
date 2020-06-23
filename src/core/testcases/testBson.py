@@ -43,6 +43,12 @@ class BsonTest(unittest.TestCase):
 
         self.assertEqual(transfered, root)
 
+    def test_numpy_tuples(self):
+        data1 = (np.random.dirichlet([0.9] * 2), np.random.dirichlet([0.9] * 2))
+        data2 = decodeFromBson(encodeToBson(data1))
+        self.assertTrue(np.all(data1[0] == data2[0]))
+        self.assertTrue(np.all(data1[1] == data2[1]))
+
     def test_deepNumpyDicts(self):
         root = dict()
         root["A"] = 1

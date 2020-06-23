@@ -442,6 +442,8 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
         for idx in range(fsize):
             result._data._setBoardByte(idx, encoded[16 + idx])
         
+        result._data._resetLegalMoves()
+
         return result
 
     def getLoader(self):

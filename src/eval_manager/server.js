@@ -14,6 +14,9 @@
  // 3: retrieve work results
  GET /results/ to list finished work IDs
  GET /results/<ID> to get finished work item binary result data
+
+
+ This only handles a single run at a time, as the workers need to know by themselves what networks to use, based on the active run!
 */
 
 const express = require("express")
@@ -27,6 +30,9 @@ const openWork = {}
 
 // uuid -> {work: , timestamp: }
 const checkedOutWork = {}
+
+// uuid -> time of creation. Cleared after a few hours.
+const workAge = {}
 
 // uuid -> time of completion. Stored for a few hours to prevent duplicate work results.
 const completedWork = {}
@@ -44,6 +50,7 @@ app.use(function(req, res, next){
 app.post("/queue", (req, res) => {
     const newId = uuid.v4()
     openWork[newId] = req.body
+    workAge[newId] = Date.now()
 
     console.log(new Date(), "Queue work", newId, `Now pending ${Object.keys(openWork).length} work items`);
 
@@ -51,7 +58,11 @@ app.post("/queue", (req, res) => {
 });
 
 app.get("/queue", (req, res) => {
-    res.json(Object.keys(openWork))
+    const items = Object.keys(openWork);
+    items.sort((a, b) => {
+        return workAge[a] - workAge[b];
+    });
+    res.json(items);
 });
 
 function sendBuffer(res, buffer) {
@@ -65,7 +76,13 @@ function sendBuffer(res, buffer) {
 app.use("/checkout/", (req, res) => {
     const workID = req.url.replace("/", "");
     if (openWork[workID] != null) {
-        console.log(new Date(), "Checkout work", workID, `Now pending ${Object.keys(openWork).length} work items`);
+        let oldestWork = Number.MAX_SAFE_INTEGER;
+        for (const k of Object.keys(openWork)) {
+            if (workAge[k] < oldestWork) {
+                oldestWork = workAge[k];
+            }
+        }
+        console.log(new Date(), "Checkout work", workID, `Now pending ${Object.keys(openWork).length} work items. Oldest is ${Math.round((Date.now() - oldestWork) / 1000)}s old!`);
         const workItem = openWork[workID];
         delete openWork[workID];
         checkedOutWork[workID] = {
@@ -124,6 +141,12 @@ setInterval(() => {
     for (const k of Object.keys(completedWork)) {
         if (Date.now() - 7200 * 1000 > completedWork[k]) {
             delete completedWork[k];
+        }
+    }
+
+    for (const k of Object.keys(workAge)) {
+        if (Date.now() - 7200 * 1000 > workAge[k]) {
+            delete workAge[k];
         }
     }
 

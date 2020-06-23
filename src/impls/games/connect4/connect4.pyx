@@ -338,6 +338,23 @@ cdef class Connect4GameData():
         
         return result
 
+    def _fixLegalMoves(self):
+        self._legalMovesList = []
+
+        for x in range(self._mnk.m):
+            self.placeHeights[x] = self._mnk.n
+
+        for y in range(self._mnk.n):
+            for x in range(self._mnk.m):
+                stone = readField(self._mnk.board, self._mnk.m, x, y)
+                realY = self._mnk.n - y - 1
+                if stone == 0 and self.placeHeights[x] > realY:
+                    self.placeHeights[x] = realY
+
+        for x in range(self._mnk.m):
+            if self.placeHeights[x] < self._mnk.n:
+                self._legalMovesList.append(x)
+
     def _getBoardByte(self, int idx):
         return self._mnk.board[idx]
 
@@ -481,7 +498,9 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
         cdef int fsize = m * n
         for idx in range(fsize):
             result._data._setBoardByte(idx, encoded[16 + idx])
-        
+
+        result._data._fixLegalMoves()
+
         return result
 
     def __eq__(self, other):
