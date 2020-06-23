@@ -432,6 +432,8 @@ class SelfPlayTree():
             record = packageReport(node.state, iPolicy, node.getWinnerArray(), nextPolicy, policyUUID)
             self.pendingReports.append(record)
 
+        self.pendingReports[-1]["final"] = True
+
     def pollReports(self):
         ret = self.pendingReports
         self.pendingReports = []
