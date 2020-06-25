@@ -644,7 +644,8 @@ class SelfPlayTree():
             else:
                 acceptedEvals += len(results)
 
-        logMsg("Accepted evaluations of %i states" % acceptedEvals)
+        if acceptedEvals > 0:
+            logMsg("Accepted evaluations of %i states" % acceptedEvals)
 
         return rejectedPackages
 
