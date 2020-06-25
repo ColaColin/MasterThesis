@@ -743,6 +743,8 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 logMsg("=========================================================================")
                 logMsg("Known networks: ", self.seenNetworks)
                 logMsg("Active network: %s" % self.lastestNetwork)
+                logMsg("Stats of the iteration tree")
+                self.currentTree.printReportCountStats()
                 self.currentTree.allowNewGames = False
                 self.prevTrees.append(self.currentTree)
                 if len(self.prevTrees) > 1:
@@ -793,11 +795,11 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         logMsg("Completed a batch, yielded %i new reports in %.2fms" % (len(newReports), dt))
 
-        print("Current tree stats")
-        self.currentTree.printReportCountStats()
+        # print("Current tree stats")
+        # self.currentTree.printReportCountStats()
 
-        for prevTree in self.prevTrees:
-            print("Previous tree stats")
-            prevTree.printReportCountStats()
+        # for prevTree in self.prevTrees:
+        #     print("Previous tree stats")
+        #     prevTree.printReportCountStats()
 
         return (dt / len(newReports)), None, len(newReports)
