@@ -526,14 +526,14 @@ class SelfPlayTree():
             if self.currentMaxPendingPackages > self.maxPendingPackages:
                 self.currentMaxPendingPackages = self.maxPendingPackages
 
-        logMsg("Limits are now: %i package size, %i packages" % (self.currentMaxPackageSize, self.currentMaxPendingPackages))
+        #logMsg("Limits are now: %i package size, %i packages" % (self.currentMaxPackageSize, self.currentMaxPendingPackages))
 
     def queuePendings(self, nextPending):
         package = list(dict.keys(nextPending))
 
         assert len(package) <= self.currentMaxPackageSize
 
-        logMsg("Queue a new package of size %i" % len(package))
+        #logMsg("Queue a new package of size %i" % len(package))
 
         packageId = self.evalAccess.requestEvaluation(package)
         self.pendingEvalIds.add(packageId)
@@ -561,10 +561,10 @@ class SelfPlayTree():
                     logMsg("Warning: Submitting a package with only %i examples in it, as there is nothing else to do anymore!" % len(self.newPendings))
                     self.queuePendings(self.newPendings)
                     self.newPendings = dict()
-                else:
-                    logMsg("Will wait to fill current package, has size %i, needs %i!" % (len(self.newPendings), self.currentMaxPackageSize))
+                # else:
+                #     logMsg("Will wait to fill current package, has size %i, needs %i!" % (len(self.newPendings), self.currentMaxPackageSize))
 
-            logMsg("Now waiting for %i packages with %i games!" % (len(self.pendingEvalIds), self.countPendingGames()))
+            #logMsg("Now waiting for %i packages with %i games!" % (len(self.pendingEvalIds), self.countPendingGames()))
 
     def countPendingGames(self):
         cnt = 0
@@ -670,7 +670,7 @@ class SelfPlayTree():
 
             postSize = len(self.newPendings)
 
-            logMsg("Continue %i games from %i positions to %i positions" % (len(pendingContinuations), len(results), postSize - preSize))
+            #logMsg("Continue %i games from %i positions to %i positions" % (len(pendingContinuations), len(results), postSize - preSize))
 
             self.handleNewPendings()
 
