@@ -672,6 +672,8 @@ WK 25
      [~] writing goal: Complete stuff about the extended run
 WK 26
      [ ] play games as mcts-like-trees
+          -> played states in stats vs states per network?! run 6190f1c8-ed9a-4dbe-b161-ef89753eb4fc
+          
      [ ] writing goal: Complete stuff about the hyperparameter search
 WK 27
      [ ] reuse internal network features

@@ -34,18 +34,25 @@ from utils.misc import hConcatStrings
 
 from utils.req import postBytes, requestJson, requestBytes
 
+import datetime
+
+import random
+
+import pickle
+
 # random testing code
 
 def getRandomGame():
     game = Connect4GameState(7,6,4)
-    for _ in range(7):
-        game = game.playMove(np.random.randint(7))
+    for _ in range(np.random.randint(25)):
+        if game.hasEnded():
+            break
+        moves = game.getLegalMoves()
+        game = game.playMove(random.choice(moves))
     return game
 
 def makeReport():
-    game = Connect4GameState(7,6,4)
-    game = game.playMove(np.random.randint(7))
-    game = game.playMove(np.random.randint(7))
+    game = getRandomGame()
 
     report = dict()
     report["knownResults"] = [1]
@@ -53,8 +60,15 @@ def makeReport():
     report["policyUUID"] = "ab98246f-4b80-48e8-97fc-d365d4a3aa3d"
     report["policyIterated"] = np.random.rand(7).astype(np.float32)
     report["generics"]["wtf"] = np.random.rand(7).astype(np.float32)
+    report["generics"]["wt2f"] = np.random.rand(7).astype(np.float32)
     report["uuid"] = str(uuid.uuid4())
     report["state"] = game.store()
+    report["gameCtor"] = game.getGameConstructorName()
+    report["gameParams"] = game.getGameConstructorParams()
+    report["gamename"] = game.getGameName()
+    report["creation"] = datetime.datetime.utcnow().timestamp()
+    report["reply"] = np.random.rand(7).astype(np.float32)
+    report["final"] = game.hasEnded()
 
     return report
 
@@ -164,18 +178,30 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
+    genStart = time.monotonic()
+    package = [makeReport() for _ in range(2048)]
+    genFinished = time.monotonic()
+
+    print("Generated package in %.4f" % (genFinished - genStart))
+
+    encStart = time.monotonic()
+    encoded = pickle.dump(package, open("save.p", "wb"))
+    encFinished = time.monotonic()
+
+    print("Encoded package in %.4f" % (encFinished - encStart))
+
     # foobar = encodeToBson(np.random.dirichlet([0.9] * 3))
     # print(foobar)
 
-    game = getRandomGame()
+    # game = getRandomGame()
 
-    node = MCTSNode(game)
-    node.nodes[42] = "foo"
+    # node = MCTSNode(game)
+    # node.nodes[42] = "foo"
 
-    node2 = MCTSNode(game)
-    # node2.nodes[42] = "bar"
-    print(node.nodes[42])
-    print(node2.nodes)
+    # node2 = MCTSNode(game)
+    # # node2.nodes[42] = "bar"
+    # print(node.nodes[42])
+    # print(node2.nodes)
 
     # game = getRandomGame()
 

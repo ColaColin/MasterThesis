@@ -8,6 +8,8 @@ import sys
 import requests
 from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
+from utils.req import postBytes
+
 from utils.misc import readFileUnderPath, openJsonFile
 
 from datetime import datetime
@@ -15,8 +17,14 @@ from datetime import datetime
 import subprocess
 import os
 
+import multiprocessing as mp
+
+def reportFinishedPackage(commandHost, workerName, run, secret, pending):
+    reportId = postBytes(commandHost + "/api/state/" + workerName + "/" + run, secret, encodeToBson(pending), expectResponse=True)
+    logMsg("Reported ", len(pending), "states to the server, they were assigned report id ", reportId)
+
 class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
-    def __init__(self, packageSize = 1000):
+    def __init__(self, packageSize = 1000, threads=1):
         """
         Requires some configuration parameters to be present in the arguments to python:
         --command <command server host>
@@ -39,32 +47,26 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
 
         self.queue = []
-        self.waitTill = time.monotonic() - 1
 
+        self.threads = threads
+        if threads > 1:
+            self.pool = mp.Pool(processes=threads)
+
+    def reportFinishedPackage(self, pending):
+        pending = self.queue[:self.packageSize]
+        self.queue = self.queue[self.packageSize:]
+
+        if self.threads > 1:
+            self.pool.apply_async(reportFinishedPackage, (self.commandHost, self.workerName, self.run, self.secret, pending))
+        else:
+            reportFinishedPackage(self.commandHost, self.workerName, self.run, self.secret, pending)
 
     def reportGame(self, reports):
         for report in reports:
             self.queue.append(report)
 
         while len(self.queue) > self.packageSize:
-            if self.waitTill > time.monotonic():
-                return
-
-            pending = self.queue[:self.packageSize]
-
-            try:
-                response = requests.post(url=self.commandHost + "/api/state/" + self.workerName + "/" + self.run,
-                    data=encodeToBson(pending),
-                    headers={"secret": self.secret})
-                response.raise_for_status()
-                reportId = response.json()
-
-                logMsg("Reported ", len(pending), "states to the server, they were assigned report id ", reportId)
-
-                self.queue = self.queue[self.packageSize:]
-            except Exception as error:
-                logMsg("Could not report states due to an error. Will try again soon!", error)
-                self.waitTill = time.monotonic() + 60
+            self.reportFinishedPackage(pending)
 
 import signal
 import ctypes
