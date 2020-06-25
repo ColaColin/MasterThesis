@@ -498,7 +498,8 @@ class SelfPlayTree():
         
         analyze(self.root)
 
-        print("\nThere are %i nodes with %i reports\n %i nodes have not made any report yet.\nThe average of reports for reported nodes is %.2f\nActive nodes: %i\n" % (numNodes, sumReports, numUnreported, sumReports / numReported, activeNodes))
+        print("\nThere are %i nodes with %i reports\n %i nodes have not made any report yet.\nActive nodes: %i\n" %\
+            (numNodes, sumReports, numUnreported, activeNodes))
 
     def pollReports(self):
         ret = self.pendingReports
