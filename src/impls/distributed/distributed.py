@@ -24,7 +24,7 @@ def reportFinishedPackage(commandHost, workerName, run, secret, pending):
     logMsg("Reported ", len(pending), "states to the server, they were assigned report id ", reportId)
 
 class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
-    def __init__(self, packageSize = 1000, threads=1):
+    def __init__(self, packageSize = 1000, threads=0):
         """
         Requires some configuration parameters to be present in the arguments to python:
         --command <command server host>
@@ -49,14 +49,14 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
         self.queue = []
 
         self.threads = threads
-        if threads > 1:
+        if threads > 0:
             self.pool = mp.Pool(processes=threads)
 
     def reportFinishedPackage(self, pending):
         pending = self.queue[:self.packageSize]
         self.queue = self.queue[self.packageSize:]
 
-        if self.threads > 1:
+        if self.threads > 0:
             self.pool.apply_async(reportFinishedPackage, (self.commandHost, self.workerName, self.run, self.secret, pending))
         else:
             reportFinishedPackage(self.commandHost, self.workerName, self.run, self.secret, pending)
