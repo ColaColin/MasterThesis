@@ -130,8 +130,6 @@ if __name__ == "__main__":
             editConfig["evalWorker"]["policyUpdater"] = "$" + plkey
             editConfig["evalWorker"]["isFrameTimeTest"] = True
 
-            editConfig["mcts"]["expansions"] = 343
-
             isTreeSelfPlayAr.append(True)
         else:
             editConfig["worker"]["policyUpdater"] = "$" + plkey

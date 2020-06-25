@@ -65,8 +65,8 @@ if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080 Ti'; then
   MAX_PER_GPU=5
 fi
 
-if [ $4 == "tree"]; then
-  MAX_BY_GPU=$((MAX_BY_GPU - 1))
+if [[ $4 == "tree" ]]; then
+  MAX_PER_GPU=$((MAX_PER_GPU - 1))
 fi
 
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
@@ -80,12 +80,12 @@ nvidia-smi -l &>> /workspace/gpu_load.log &
 
 for ((i=1; i <= $WORKERS; i++))
 do
-    if [ $4 == "tree"]; then
+    if [[ $4 == "tree" ]]; then
       echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --eval $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
       python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --eval $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
     fi
     
-    if [ $4 == "normal"]; then
+    if [[ $4 == "normal" ]]; then
       echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
       python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
     fi
