@@ -52,7 +52,7 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
         if threads > 0:
             self.pool = mp.Pool(processes=threads)
 
-    def reportFinishedPackage(self, pending):
+    def reportFinishedPackage(self):
         pending = self.queue[:self.packageSize]
         self.queue = self.queue[self.packageSize:]
 
@@ -66,7 +66,7 @@ class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
             self.queue.append(report)
 
         while len(self.queue) > self.packageSize:
-            self.reportFinishedPackage(pending)
+            self.reportFinishedPackage()
 
 import signal
 import ctypes
