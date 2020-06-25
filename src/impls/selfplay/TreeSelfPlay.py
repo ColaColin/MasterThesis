@@ -51,6 +51,7 @@ class RemoteEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
 
         self.evalHost = sys.argv[sys.argv.index("--command")+1].replace("https", "http")
         self.evalHost += ":4242"
+        logMsg("Remote evaluation access will use server %s" % self.evalHost)
 
     def requestEvaluation(self, gamesPackage):
         """
@@ -191,12 +192,14 @@ class MCTSNode():
     A MCTS node for MCTS self-play. Handles transpositions.
     """
 
-    def __init__(self, state, nodes = dict()):
+    def __init__(self, state, nodes = None):
         self.state = state
 
         # dict of other nodes, game state -> node. Use to find children when moving down the tree. "Simple way" of handling transpositions.
         # backups still only go back the path that it walked down and ignore cases of multiple parents.
         self.nodes = nodes
+        if self.nodes is None:
+            self.nodes = dict()
 
         # not expanded yet
         self.isExpanded = False
@@ -311,10 +314,11 @@ class MCTSNode():
         # encoding results as a list of game results was not a great idea. However I do not want to change the code that expects that data format now
         # so fake out arrays like that, but limit the length somewhat...
         result = []
-        if np.sum(self.observedResults) > 50:
+        maxN = 40
+        if np.sum(self.observedResults) > maxN:
             norm = self.observedResults / np.sum(self.observedResults)
             for i in range(len(norm)):
-                result += [i] * int(norm[i] * 50)
+                result += [i] * int(norm[i] * maxN)
         else:
             for i in range(len(self.observedResults)):
                 result += [i] * int(self.observedResults[i])
@@ -422,6 +426,8 @@ class SelfPlayTree():
             node.removeVirtualLoss()
 
         for nidx, (node, move) in enumerate(nodes):
+            assert node.isExpanded, "Only expanded nodes should be reported?!"
+
             iPolicy = (node.rawPriors, node.generics)
             policyUUID = node.networkId
 
@@ -537,6 +543,44 @@ class SelfPlayTree():
     def hasOpenGames(self):
         return self.countPendingGames() > 0
 
+    def rejectEvalsForNetwork(self, evalResults, latestNetwork):
+        rejectedPackages = 0
+        for uuid in list(dict.keys(evalResults)):
+            if not (uuid in self.pendingEvalIds):
+                continue
+            
+            results, network = evalResults[uuid]
+
+            if network != latestNetwork:
+                self.pendingEvalIds.remove(uuid)
+                del evalResults[uuid]
+
+                package = []
+
+                for idx, (policy, generics) in enumerate(results):
+                    evalId = (uuid, idx)
+                    node, paths = self.pendingEvals[evalId]
+                    package.append(node.state)
+
+                packageId = self.evalAccess.requestEvaluation(package)
+                self.pendingEvalIds.add(packageId)
+
+                logMsg("!!!!!!!!!! Got network %s but expected %s on package %s. Rewriting to package %s" % (network, latestNetwork, uuid, packageId))
+
+                for idx, (policy, generics) in enumerate(results):
+                    oldEvalId = (uuid, idx)
+                    newEvalId = (packageId, idx)
+                    node, paths = self.pendingEvals[oldEvalId]
+
+                    self.pendingEvals[newEvalId] = self.pendingEvals[oldEvalId]
+                    self.pendingEvalsInverse[node.state] = newEvalId
+
+                    del self.pendingEvals[oldEvalId]
+
+                rejectedPackages += 1
+
+        return rejectedPackages
+
     def continueGames(self, evalResults):
         self.incPackageSizes()
 
@@ -587,6 +631,8 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.currentTree = self.newSelfPlayTree()
         self.seenNetworks = set()
 
+        self.lastestNetwork = None
+
     def newSelfPlayTree(self):
         return SelfPlayTree(self.initialState, self.maxPackageSize, self.maxPendingPackages,\
                     self.evalAccess, self.cpuct, self.fpu, self.drawValue)
@@ -606,11 +652,50 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         while len(newReports) == 0:
             self.currentTree.beginGames()
             evalResults = dict()
+
+            newIteration = False
+
             while len(evalResults) == 0:
                 evalResults = self.evalAccess.pollEvaluationResults()
+
+                for uuid in evalResults:
+                    results, network = evalResults[uuid]
+                    if network is not None and not (network in self.seenNetworks):
+                        self.seenNetworks.add(network)
+                        self.lastestNetwork = network
+                        newIteration = True
+
+                rejects = 0
+                rejects += self.currentTree.rejectEvalsForNetwork(evalResults, self.lastestNetwork)
+                for prevTree in self.prevTrees:
+                    rejects += prevTree.rejectEvalsForNetwork(evalResults, self.lastestNetwork)
+
+                if rejects > 0:
+                    logMsg("!!!!!!!!!!!!!!!!!!! %i packages were rejected due to outdated networks used!" % rejects)
+
+            if newIteration:
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+                logMsg("======================= Detected a new iteration! =======================")
+                logMsg("=========================================================================")
+                logMsg("=========================================================================")
+                logMsg("Known networks: ", self.seenNetworks)
+                logMsg("Active network: %s" % self.lastestNetwork)
+                self.currentTree.allowNewGames = False
+                self.prevTrees.append(self.currentTree)
+                if len(self.prevTrees) > 1:
+                    logMsg("WARN: there are multiple prev trees: %i" % len(self.prevTrees))
+                self.currentTree = self.newSelfPlayTree()
+
             self.currentTree.continueGames(evalResults)
 
             newReports += self.currentTree.pollReports()
+
+            for r in newReports:
+                if self.lastestNetwork is not None and r["policyUUID"] != self.lastestNetwork:
+                    print("Bad policy in currentTree: %s, expected %s" % (r["policyUUID"], self.lastestNetwork))
+                    print(str(self.initialState.load(r["state"])))
+                    assert False
 
             for prevTree in self.prevTrees:
                 prevTree.continueGames(evalResults)
@@ -632,28 +717,13 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                     gsum += pt.countPendingGames()
                 logMsg("Previous trees are still playing out %i games!" % gsum)
 
-            newIteration = False
-            for uuid in evalResults:
-                results, network = evalResults[uuid]
-                if network is not None and not (network in self.seenNetworks):
-                    self.seenNetworks.add(network)
-                    newIteration = True
-            
-            print(self.seenNetworks)
 
-            if newIteration:
-                logMsg("=========================================================================")
-                logMsg("=========================================================================")
-                logMsg("======================= Detected a new iteration! =======================")
-                logMsg("=========================================================================")
-                logMsg("=========================================================================")
-                logMsg("Known networks: ", self.seenNetworks)
-                self.currentTree.allowNewGames = False
-                self.prevTrees.append(self.currentTree)
-                if len(self.prevTrees) > 1:
-                    logMsg("WARN: there are multiple prev trees: %i" % len(self.prevTrees))
-                self.currentTree = self.newSelfPlayTree()
+            preFilterCnt = len(newReports)
+            newReports = list(filter(lambda x: self.lastestNetwork is None or self.lastestNetwork == x["policyUUID"], newReports))
+            postFilterCnt = len(newReports)
 
+            if preFilterCnt != postFilterCnt:
+                logMsg("!!!!!!!!!!!!!!!!!!!!!!!!! Filtered old network from reports: %i" % (preFilterCnt - postFilterCnt))
 
         self.gameReporter.reportGame(newReports)
 

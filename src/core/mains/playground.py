@@ -17,6 +17,8 @@ from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
 from core.training.StreamTrainingWorker import SlowWindowSizeManager
 
+from impls.selfplay.TreeSelfPlay import MCTSNode
+
 import bson
 import uuid
 
@@ -162,9 +164,18 @@ def postgresTest():
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    foobar = encodeToBson(np.random.dirichlet([0.9] * 3))
-    print(foobar)
+    # foobar = encodeToBson(np.random.dirichlet([0.9] * 3))
+    # print(foobar)
 
+    game = getRandomGame()
+
+    node = MCTSNode(game)
+    node.nodes[42] = "foo"
+
+    node2 = MCTSNode(game)
+    # node2.nodes[42] = "bar"
+    print(node.nodes[42])
+    print(node2.nodes)
 
     # game = getRandomGame()
 

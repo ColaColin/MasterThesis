@@ -74,7 +74,7 @@ class EvaluationWorker():
             rpack["id"] = workId
             rpack["data"] = result
 
-            logMsg("Completed work package %s in %.2fs" % (workId, (time.monotonic() - startTime)))
+            logMsg("Completed work package %s in %.2fs using network %s" % (workId, (time.monotonic() - startTime), result["network"]))
 
             self.resultsQueue.append(rpack)
             del self.workQueue[0]
