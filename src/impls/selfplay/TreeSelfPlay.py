@@ -607,6 +607,7 @@ class SelfPlayTree():
 
     def rejectEvalsForNetwork(self, evalResults, latestNetwork):
         rejectedPackages = 0
+        acceptedEvals = 0
         for uuid in list(dict.keys(evalResults)):
             if not (uuid in self.pendingEvalIds):
                 continue
@@ -640,6 +641,10 @@ class SelfPlayTree():
                     del self.pendingEvals[oldEvalId]
 
                 rejectedPackages += 1
+            else:
+                acceptedEvals += len(results)
+
+        logMsg("Accepted evaluations of %i states" % acceptedEvals)
 
         return rejectedPackages
 
