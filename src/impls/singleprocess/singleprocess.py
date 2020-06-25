@@ -111,6 +111,7 @@ class NoopPolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
 
 class FilePolicyUpdater(PolicyUpdater, metaclass=abc.ABCMeta):
     def __init__(self, path):
+        logMsg("Using FilePolicyUpdater!");
         self.loadedUUID = None
         with open(path, "rb") as f:
             self.policyBytes = decodeFromBson(f.read())

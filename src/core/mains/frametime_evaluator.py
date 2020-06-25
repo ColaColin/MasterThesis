@@ -28,7 +28,7 @@ from core.mains.players_proxy import tryPlayersProxyProcess
 #make sure the gpu is 100% loaded by using enough worker threads!
 PROC_COUNT = 4
 BATCH_COUNT = 60
-MIN_TIME = 300
+MIN_TIME = 180
 
 def measureFrametime(configPath, idx, run):
     setproctitle.setproctitle("x0_fe_worker_" + str(idx))
@@ -43,21 +43,24 @@ def measureFrametime(configPath, idx, run):
 
     times = []
     exs = []
+    ns = []
 
     for _ in range(BATCH_COUNT):
-        tx, ex = worker.playBatch()
+        tx, ex, n = worker.playBatch()
         times.append(tx)
         exs.append(ex)
+        ns.append(n)
 
     while time.monotonic() - startTime < MIN_TIME:
-        tx, ex = worker.playBatch()
+        tx, ex, n = worker.playBatch()
         times.append(tx)
         exs.append(ex)
+        ns.append(n)
 
     if not None in exs:
         logMsg("Avg number of mcts nodes used by playBatch(): ", np.mean(exs))
 
-    return np.mean(times)
+    return np.mean(times), np.sum(ns)
 
 if __name__ == "__main__":
     setproctitle.setproctitle("x0_frametime_evaluator")
@@ -80,7 +83,7 @@ if __name__ == "__main__":
                 return nextWork[0]["run"], nextWork[0]["network"]
             time.sleep(15)
 
-    def getRunConfig(runId, networkFile):
+    def getRunConfig(runId, networkFile, isTreeSelfPlayAr):
         """
         returns a path to a temporary file, which contains the run config, modified to load the network from the given path,
         and to use a noop game reporter.
@@ -108,13 +111,35 @@ if __name__ == "__main__":
         editConfig[plkey]["path"] = networkFile
 
         editConfig["worker"]["gameReporter"] = "$" + grkey
-        editConfig["worker"]["policyUpdater"] = "$" + plkey
 
         ff = tempfile.NamedTemporaryFile(suffix=".yaml", mode="w+")
+
+        if "evalAccess" in editConfig["worker"]:
+            # TreeSelfPlay, force local evaluation using 4 workers.
+            lcKey = "localEvalAccessFrametimeMeasurement"
+            editConfig[lcKey] = dict()
+            editConfig[lcKey]["name"] = "LocalEvaluationAccess"
+            editConfig[lcKey]["workerN"] = PROC_COUNT
+            editConfig[lcKey]["forceRun"] = runId
+            editConfig[lcKey]["forceCfg"] = ff.name
+            editConfig["worker"]["evalAccess"] = "$" + lcKey
+            
+            if editConfig["worker"]["maxPendingPackages"] < PROC_COUNT * 2:
+                editConfig["worker"]["maxPendingPackages"] = PROC_COUNT * 2
+
+            editConfig["evalWorker"]["policyUpdater"] = "$" + plkey
+            editConfig["evalWorker"]["isFrameTimeTest"] = True
+
+            editConfig["mcts"]["expansions"] = 343
+
+            isTreeSelfPlayAr.append(True)
+        else:
+            editConfig["worker"]["policyUpdater"] = "$" + plkey
+
         yaml.dump(editConfig, ff)
         ff.flush()
 
-        #logMsg("Using tempfile for configuration:", ff.name)
+        logMsg("Using tempfile for configuration:", ff.name)
 
         return ff
 
@@ -136,9 +161,9 @@ if __name__ == "__main__":
         postJson(commandHost + "/api/frametimes/" + network_id, secret, result)
     
     while True:
-        pool = mp.Pool(processes=PROC_COUNT)
-
         run, network = getNextWork()
+
+        pool = mp.Pool(processes=PROC_COUNT)
 
         logMsg("Next work: run=%s, network=%s" % (run, network))
 
@@ -149,23 +174,45 @@ if __name__ == "__main__":
         logMsg("players proxy with specific network should be running now!")
 
         callResults = []
+        genCounts = []
 
         with getNetworkFile(network) as networkFile:
-            with getRunConfig(run, networkFile.name) as config:
-                for idx in range(PROC_COUNT):
-                    callResults.append(pool.apply_async(measureFrametime, (config.name, idx, run)))
-                callResults = list(map(lambda x: 1000 / x.get(), callResults))
+            isTreeSelfPlayAr = []
+            with getRunConfig(run, networkFile.name, isTreeSelfPlayAr) as config:
+                isTreeSelfPlay = len(isTreeSelfPlayAr) > 0
+
+                startTime = time.monotonic()
+
+                if isTreeSelfPlay:
+                    logMsg("Frametime measurement for tree self play!")
+                    callResults.append(pool.apply_async(measureFrametime, (config.name, 0, run)))
+                else:
+                    logMsg("Frametime measurement for normal play!")
+                    for idx in range(PROC_COUNT):
+                        callResults.append(pool.apply_async(measureFrametime, (config.name, idx, run)))
+                
+                plainResults = list(map(lambda x: x.get(), callResults))
+
+                finishTime = time.monotonic()
+
+                genCounts = list(map(lambda x: x[1], plainResults))
+                callResults = list(map(lambda x: 1000 / x[0], plainResults))
 
         frametime = 1000 / sum(callResults)
 
-        logMsg("Work completed, measured frametime of %s for network %s" % (frametime, network))
+        workTime = (finishTime - startTime) * 1000
+        ftByGenCount =  workTime / np.sum(genCounts)
 
-        submitResult(frametime, network)
+        logMsg("Work completed, measured frametime of %s for network %s. Generated %i examples in %.2f seconds. frametime by generation count is thus %.2f!" % (frametime, network, np.sum(genCounts), (finishTime - startTime), ftByGenCount))
+
+        submitResult(ftByGenCount, network)
 
         time.sleep(5)
 
         pool.terminate()
         proc.wait()
+
+        exit(0)
 
 
 

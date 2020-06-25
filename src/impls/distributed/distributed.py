@@ -81,6 +81,7 @@ class DistributedNetworkUpdater2(PolicyUpdater, metaclass=abc.ABCMeta):
     """
 
     def __init__(self, storage):
+        logMsg("Using DistributedNetworkUpdater2!")
         self.lastNetworkCheck = -999
         self.checkInterval = 4
         self.storage = storage

@@ -120,7 +120,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.microsPerMovePlayedHistory.append(usTime)
         self.handleSpeedStats()
 
-        return (usTime / 1000.0), None
+        return (usTime / 1000.0), None, len(self.open)
 
     def addTrackingData(self, iteratedPolicy):
         for idx, game in enumerate(self.open):

@@ -18,7 +18,7 @@ class EvaluationWorker():
     pushes policy iterations back to that server.
     """
 
-    def __init__(self, initialState, policy, policyIterator, policyUpdater):
+    def __init__(self, initialState, policy, policyIterator, policyUpdater, isFrameTimeTest = False):
         self.initialState = initialState
         self.policy = policy
         self.policyIterator = policyIterator
@@ -27,6 +27,8 @@ class EvaluationWorker():
         self.resultsQueue = []
 
         self.initialPolicyID = self.policy.getUUID()
+
+        self.isFrameTimeTest = isFrameTimeTest
 
         self.command = sys.argv[sys.argv.index("--command")+1].replace("https", "http")
         self.command += ":4242"
@@ -65,7 +67,7 @@ class EvaluationWorker():
  
             result = dict()
             result["iterations"] = iteratedPolicy
-            if self.initialPolicyID != self.policy.getUUID():
+            if self.initialPolicyID != self.policy.getUUID() and not self.isFrameTimeTest:
                 result["network"] = self.policy.getUUID()
             else:
                 result["network"] = None

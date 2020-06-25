@@ -126,7 +126,7 @@ app.use("/results/", (req, res) => {
 
 setInterval(() => {
 
-    const FAIL_TIME = 10;
+    const FAIL_TIME = 60;
 
     for (const activeWorkKey of Object.keys(checkedOutWork)) {
         const time = checkedOutWork[activeWorkKey].timestamp;

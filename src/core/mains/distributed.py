@@ -48,15 +48,19 @@ if __name__ == "__main__":
 
     runConfig = requestJson(commandHost + "/api/runs/" + run, secret)
 
-    cfgPath = os.path.join(os.getcwd(), "downloaded_config.yaml")
-
-    with open(cfgPath, "w") as f:
-        f.write(runConfig["config"])
-    
-    logMsg("Downloaded configuration to", cfgPath)
-    logMsg("Running configuration")
+    if "--fconfig" in sys.argv:
+        # meant for frametime evaluator, not for general use.
+        cfgPath = sys.argv[sys.argv.index("--fconfig") + 1]
+        logMsg("Forced to use local file configuration %s" % cfgPath)
+    else:
+        cfgPath = os.path.join(os.getcwd(), "downloaded_config.yaml")
+        with open(cfgPath, "w") as f:
+            f.write(runConfig["config"])
+        logMsg("Downloaded configuration to", cfgPath)
+        logMsg("Running configuration")
 
     core = mlConfigBasedMain(cfgPath)
+
     if "--training" in sys.argv:
         setproctitle.setproctitle("x0_trainer_" + runConfig["name"])
         core.trainer(recursive=True).main()

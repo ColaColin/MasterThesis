@@ -47,7 +47,7 @@ class RemoteEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
         hasArgs = "--command" in sys.argv
 
         if not hasArgs:
-            raise Exception("You need to provide arguments for LocalEvaluationAccess: --command <command server host>!")
+            raise Exception("You need to provide arguments for RemoteEvaluationAccess: --command <command server host>!")
 
         self.evalHost = sys.argv[sys.argv.index("--command")+1].replace("https", "http")
         self.evalHost += ":4242"
@@ -78,8 +78,9 @@ class RemoteEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
 class LocalEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
     """
     Run a local evaluation server and a number of local EvaluationWorkers. 
+    forceRun and forceCfg are meant to be used by the frametime evaluator code only.
     """
-    def __init__(self, workerN=1):
+    def __init__(self, workerN=1, forceRun=None, forceCfg=None):
         logMsg("Starting local eval_manager!")
         subprocess.Popen(["node", "eval_manager/server.js"], preexec_fn = set_pdeathsig(signal.SIGTERM))
         hasArgs = "--command" in sys.argv
@@ -89,13 +90,20 @@ class LocalEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
 
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
         self.secret = sys.argv[sys.argv.index("--secret")+1]
-        self.run = sys.argv[sys.argv.index("--run")+1]
+        if forceRun is not None:
+            self.run = forceRun
+            logMsg("LocalEvaluationAccess is forced to use run %s" % forceRun)
+        else:
+            self.run = sys.argv[sys.argv.index("--run")+1]
 
         self.evalHost = "http://127.0.0.1:4242"
 
         for w in range(workerN):
             logMsg("Starting local worker %i!" % (w + 1))
-            subprocess.Popen(["python", "-m", "core.mains.distributed", "--command", self.commandHost, "--secret", self.secret, "--run", self.run, "--evalserver", self.evalHost, "--eval", socket.gethostname(), "--windex", str(w+1)], preexec_fn = set_pdeathsig(signal.SIGTERM))
+            wparams = ["python", "-m", "core.mains.distributed", "--command", self.commandHost, "--secret", self.secret, "--run", self.run, "--evalserver", self.evalHost, "--eval", socket.gethostname(), "--windex", str(w+1)]
+            if forceCfg is not None:
+                wparams += ["--fconfig", forceCfg]
+            subprocess.Popen(wparams, preexec_fn = set_pdeathsig(signal.SIGTERM))
 
         time.sleep(3)
 
@@ -212,6 +220,17 @@ class MCTSNode():
         self.observedResults = np.zeros(self.state.getPlayerCount() + 1)
 
         self.terminalResult = None
+
+        self.reportCount = 0
+
+    def getChildren(self):
+        result = dict()
+        if self.legalMoveKeys is not None:
+            for mkey in self.legalMoveKeys:
+                targetState = self.state.playMove(mkey)
+                if targetState in self.nodes:
+                    result[mkey] = self.nodes[targetState]
+        return result
 
     def _getVirtualLossForEdgeTarget(self, moveKey):
         targetState = self.state.playMove(moveKey)
@@ -436,9 +455,50 @@ class SelfPlayTree():
                 nextPolicy = nodes[nidx + 1][0].rawPriors
             
             record = packageReport(node.state, iPolicy, node.getWinnerArray(), nextPolicy, policyUUID)
+            node.reportCount += 1
             self.pendingReports.append(record)
 
         self.pendingReports[-1]["final"] = True
+
+    def printReportCountStats(self):
+        sumReports = 0
+        numUnreported = 0
+        numReported = 0
+        numNodes = 0
+
+        seenNodes = set()
+
+        # a node that is not expanded and not terminal, so there should be games waiting for it.
+        activeNodes = 0
+
+        def analyze(node):
+            nonlocal sumReports
+            nonlocal numReported
+            nonlocal numUnreported
+            nonlocal numNodes
+            nonlocal seenNodes
+            nonlocal activeNodes
+
+            seenNodes.add(node.state)
+
+            if node.isExpanded:
+                numNodes += 1
+                if node.reportCount == 0:
+                    numUnreported += 1
+                else:
+                    sumReports += node.reportCount
+                    numReported += 1
+            elif not node.state.hasEnded():
+                activeNodes += 1
+                
+            children = list(dict.values(node.getChildren()))
+            for child in children:
+                if not (child.state in seenNodes):
+                    analyze(child)
+        
+        analyze(self.root)
+
+        print("\nThere are %i nodes with %i reports\n %i nodes have not made any report yet.\nThe average of reports for reported nodes is %.2f\nActive nodes: %i\n" % (numNodes, sumReports, numUnreported, sumReports / numReported, activeNodes))
 
     def pollReports(self):
         ret = self.pendingReports
@@ -497,6 +557,7 @@ class SelfPlayTree():
 
             if len(self.newPendings) > 0:
                 if len(self.pendingEvalIds) == 0:
+                    logMsg("Warning: Submitting a package with only %i examples in it, as there is nothing else to do anymore!" % len(self.newPendings))
                     self.queuePendings(self.newPendings)
                     self.newPendings = dict()
                 else:
@@ -645,6 +706,7 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         pass
 
     def playBatch(self):
+
         newReports = []
 
         startTime = time.monotonic_ns()
@@ -717,7 +779,6 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                     gsum += pt.countPendingGames()
                 logMsg("Previous trees are still playing out %i games!" % gsum)
 
-
             preFilterCnt = len(newReports)
             newReports = list(filter(lambda x: self.lastestNetwork is None or self.lastestNetwork == x["policyUUID"], newReports))
             postFilterCnt = len(newReports)
@@ -727,6 +788,16 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         self.gameReporter.reportGame(newReports)
 
-        dt = (time.monotonic_ns() - startTime) / 1000000.0
+        batchTime = time.monotonic_ns()
+        dt = (batchTime - startTime) / 1000000.0
 
-        return (dt / len(newReports)), None
+        logMsg("Completed a batch, yielded %i new reports in %.2fms" % (len(newReports), dt))
+
+        print("Current tree stats")
+        self.currentTree.printReportCountStats()
+
+        for prevTree in self.prevTrees:
+            print("Previous tree stats")
+            prevTree.printReportCountStats()
+
+        return (dt / len(newReports)), None, len(newReports)

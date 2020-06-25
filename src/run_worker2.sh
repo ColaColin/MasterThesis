@@ -5,7 +5,7 @@
 
 # Use this as the startup script on vast.ai:
 
-# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid>
+# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid> <normal|tree>
 
 NET_DIR=/tmp/x0_networks
 CHECK_FILE=/workspace/installed.flag
@@ -65,6 +65,10 @@ if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080 Ti'; then
   MAX_PER_GPU=5
 fi
 
+if [ $4 == "tree"]; then
+  MAX_BY_GPU=$((MAX_BY_GPU - 1))
+fi
+
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 MAX_BY_GPU=$((MAX_PER_GPU * GPUC))
 
@@ -76,8 +80,16 @@ nvidia-smi -l &>> /workspace/gpu_load.log &
 
 for ((i=1; i <= $WORKERS; i++))
 do
-    echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
-    python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
+    if [ $4 == "tree"]; then
+      echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --eval $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
+      python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --eval $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
+    fi
+    
+    if [ $4 == "normal"]; then
+      echo python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i '&>>' /workspace/worker_$i.log '&'
+      python -u -m core.mains.distributed --command $1 --secret $2 --run $3 --worker $VAST_CONTAINERLABEL --windex $i &>> /workspace/worker_$i.log &
+    fi
+
     sleep 1
 done
 
