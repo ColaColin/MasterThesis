@@ -10,6 +10,7 @@ from core.command.runsha import RunShaResource
 from core.command.insight import InsightResource
 from core.command.frametime import FrametimeResource
 from core.command.league import LeagueResource, BestPlayerResource, NetPlayersResource
+from core.command.stats import RunIterationEvalsCounts
 
 import psycopg2
 from psycopg2 import pool
@@ -82,6 +83,9 @@ def defineApp(config):
 
         netPlayers = NetPlayersResource(pool)
         app.add_route("/api/netplayers/{net_id}", netPlayers)
+
+        iterEvals = RunIterationEvalsCounts(pool)
+        app.add_route("/api/evalscnt/{run_id}", iterEvals)
 
         costRes = CostResource(pool)
         app.add_route("/costs/{runId}", costRes)

@@ -37,6 +37,10 @@ class EvaluationWorker():
         if "--evalserver" in sys.argv:
             self.command = sys.argv[sys.argv.index("--evalserver")+1]
 
+        self.workerName = "unknown"
+        if "--eval" in sys.argv:
+            self.workerName = sys.argv[sys.argv.index("--eval")+1]
+
         logMsg("Started evaluation worker, talking to eval server on %s" % self.command)
 
     def main(self):
@@ -71,7 +75,8 @@ class EvaluationWorker():
                 result["network"] = self.policy.getUUID()
             else:
                 result["network"] = None
-            
+            result["workerName"] = self.workerName
+
             rpack = dict()
             rpack["id"] = workId
             rpack["data"] = result

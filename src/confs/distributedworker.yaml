@@ -1,6 +1,7 @@
 reporter:
   name: DistributedReporter
   packageSize: 2048
+  threads: 2
 
 updater:
   name: DistributedNetworkUpdater2
@@ -87,6 +88,8 @@ worker:
   initialState: $mnk
   maxPackageSize: 128
   maxPendingPackages: 32
+  maxNodeAge: 3
+  nodeRenewP: 0.01
   gameReporter: $reporter
   evalAccess: $fakeEvalAccess
   cpuct: 2

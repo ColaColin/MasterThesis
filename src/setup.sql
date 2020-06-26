@@ -68,6 +68,16 @@ create table run_iteration_stats (
     primary key (run, iteration)
 );
 
+create table run_iteration_evals (
+    run uuid references runs (id) on delete cascade not null,
+    iteration integer,
+
+    evals integer not null,
+
+    primary key (run, iteration)
+);
+
+
 create table league_players (
     id uuid primary key,
     run uuid references runs (id) on delete cascade not null,

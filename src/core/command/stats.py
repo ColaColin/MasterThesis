@@ -1,6 +1,57 @@
 import falcon
 import json
 
+class RunIterationEvalsCounts():
+    def __init__(self, pool):
+        self.pool = pool
+
+    def on_get(self, req, resp, run_id):
+        if run_id is None:
+            raise falcon.HTTPError(falcon.HTTP_400, "Missing run id")
+
+        try:
+            con = self.pool.getconn()
+            cursor = con.cursor()
+            cursor.execute("SELECT run, iteration, evals where run = %s", (run_id, ));
+            rows = cursor.fetchall();
+
+            result = []
+
+            for row in rows:
+                result.append({
+                    "run": row[0],
+                    "iteration": row[1],
+                    "evals": row[2]
+                })
+
+            resp.media = result
+
+            resp.status = falcon.HTTP_200
+
+            return result
+        finally:
+            if cursor:
+                cursor.close()
+            self.pool.putconn(con)
+
+    def on_post(self, req, resp, run_id):
+        if run_id is None:
+            raise falcon.HTTPError(falcon.HTTP_400, "Missing run id")
+
+        result = req.media
+        iteration = result["iteration"]
+        evals = result["evals"]
+        try:
+            con = self.pool.getconn()
+            cursor = con.cursor()
+            cursor.execute("insert into run_iteration_evals (run, iteration, evals) VALUES (%s, %s, %s)", (run_id, iteration, evals))
+            con.commit()
+            resp.status = falcon.HTTP_200
+        finally:
+            if cursor:
+                cursor.close()
+            self.pool.putconn(con)
+
 class StatsResource():
 
     def __init__(self, pool):
