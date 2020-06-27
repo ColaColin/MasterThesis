@@ -66,7 +66,7 @@ if nvidia-smi --query-gpu=name --format=csv,noheader | grep -q '2080 Ti'; then
 fi
 
 if [[ $4 == "tree" ]]; then
-  MAX_PER_GPU=$((MAX_PER_GPU - 1))
+  MAX_PER_GPU=2
 fi
 
 GPUC=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)

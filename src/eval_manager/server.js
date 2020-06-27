@@ -47,14 +47,14 @@ app.use(function(req, res, next){
     }));
   });
 
-app.post("/queue", (req, res) => {
-    const newId = uuid.v4()
+app.post("/queue/:newId", (req, res) => {
+    // id of the work package is decided by the requestor. They must use a v4 uuid. That makes the requestor code easier.
+    const newId = req.params.newId
     openWork[newId] = req.body
     workAge[newId] = Date.now()
 
     console.log(new Date(), "Queue work", newId, `Now pending ${Object.keys(openWork).length} work items`);
-
-    res.json(newId);
+    res.sendStatus(200)
 });
 
 app.get("/queue", (req, res) => {

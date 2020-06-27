@@ -12,6 +12,8 @@ import time
 
 import sys
 
+import numpy as np
+
 class EvaluationWorker():
     """
     A worker that polls for packages of game states to be fetched from the evalManager server and 
@@ -30,7 +32,7 @@ class EvaluationWorker():
 
         self.isFrameTimeTest = isFrameTimeTest
 
-        self.command = sys.argv[sys.argv.index("--command")+1].replace("https", "http")
+        self.command = sys.argv[sys.argv.index("--command")+1].replace("https", "http").replace(":8042", "")
         self.command += ":4242"
 
         # can be used in case the eval server is somewhere else. That is the case in frametime evaluation.
@@ -42,6 +44,8 @@ class EvaluationWorker():
             self.workerName = sys.argv[sys.argv.index("--eval")+1]
 
         logMsg("Started evaluation worker, talking to eval server on %s" % self.command)
+
+        self.iterateTimes = [1]
 
     def main(self):
         setLoggingEnabled(True)
@@ -56,7 +60,8 @@ class EvaluationWorker():
 
         while True:
             while len(self.workQueue) == 0:
-                time.sleep(0.5)
+                logMsg("I have no work!")
+                time.sleep(0.05)
 
             self.policy = self.policyUpdater.update(self.policy)
 
@@ -67,8 +72,13 @@ class EvaluationWorker():
             games = nextWork["work"]
             workId = nextWork["id"]
 
+            startIterate = time.monotonic()
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, games)
- 
+            self.iterateTimes.append(time.monotonic() - startIterate)
+
+            if len(self.iterateTimes) > 20:
+                self.iterateTimes = self.iterateTimes[-20:]
+
             result = dict()
             result["iterations"] = iteratedPolicy
             if self.initialPolicyID != self.policy.getUUID() and not self.isFrameTimeTest:
@@ -81,7 +91,7 @@ class EvaluationWorker():
             rpack["id"] = workId
             rpack["data"] = result
 
-            logMsg("Completed work package %s in %.2fs using network %s" % (workId, (time.monotonic() - startTime), result["network"]))
+            logMsg("Completed work package %s in %.2fs using network %s. Average completion time is now %.2f" % (workId, (time.monotonic() - startTime), result["network"], np.mean(self.iterateTimes)))
 
             self.resultsQueue.append(rpack)
             del self.workQueue[0]
@@ -89,10 +99,14 @@ class EvaluationWorker():
 
     def pollWork(self):
         logMsg("Started work poll thread")
+        lastSuccess = time.monotonic()
 
         while True:
-            while len(self.workQueue) > 1:
-                time.sleep(0.1 + random.random() * 0.2)
+             
+            while (len(self.workQueue) == 1 and (time.monotonic() - lastSuccess) > np.mean(self.iterateTimes) * 0.8) or len(self.workQueue) > 1:
+                time.sleep(0.05)
+
+            print("wqueue length", len(self.workQueue), (time.monotonic() - lastSuccess) > np.mean(self.iterateTimes) * 0.8)
 
             workList = requestJson(self.command + "/queue", "")
             if len(workList) > 0:
@@ -102,7 +116,7 @@ class EvaluationWorker():
                 except:
                     # somebody else took the work before us
                     logMsg("Failed to checkout a task %s" % pickWork)
-                    time.sleep(random.random() * 0.5)
+                    time.sleep(0.3 + random.random() * 0.2)
                     continue
 
                 # decodedWork should be a list of game.store(), so load them via game.load()
@@ -114,7 +128,9 @@ class EvaluationWorker():
                 dwork["work"] = games
                 dwork["id"] = pickWork
                 self.workQueue.append(dwork)
+                lastSuccess = time.monotonic()
             else:
+                logMsg("No work found on the server :(")
                 time.sleep(0.5)
 
     def pushResults(self):
