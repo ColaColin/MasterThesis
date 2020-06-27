@@ -47,6 +47,8 @@ class EvaluationWorker():
 
         self.iterateTimes = [1]
 
+        self.lastIterationCompleted = time.monotonic()
+
     def main(self):
         setLoggingEnabled(True)
 
@@ -72,9 +74,9 @@ class EvaluationWorker():
             games = nextWork["work"]
             workId = nextWork["id"]
 
-            startIterate = time.monotonic()
+            self.lastIterationCompleted = time.monotonic()
             iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, games)
-            self.iterateTimes.append(time.monotonic() - startIterate)
+            self.iterateTimes.append(time.monotonic() - self.lastIterationCompleted)
 
             if len(self.iterateTimes) > 20:
                 self.iterateTimes = self.iterateTimes[-20:]
@@ -103,10 +105,10 @@ class EvaluationWorker():
 
         while True:
              
-            while (len(self.workQueue) == 1 and (time.monotonic() - lastSuccess) > np.mean(self.iterateTimes) * 0.8) or len(self.workQueue) > 1:
+            while (len(self.workQueue) == 1 and (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8) or len(self.workQueue) > 1:
                 time.sleep(0.05)
 
-            print("wqueue length", len(self.workQueue), (time.monotonic() - lastSuccess) > np.mean(self.iterateTimes) * 0.8)
+            print("wqueue length", len(self.workQueue), (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8)
 
             workList = requestJson(self.command + "/queue", "")
             if len(workList) > 0:
