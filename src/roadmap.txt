@@ -679,12 +679,14 @@ WK 26
                -> it first has to play the "main games", once they are mostly done it plays variations, which only discover ~3% new positions per game.
                [X] do not report states from games that have no encountered even a single new position!
                [X] double cpuct for more exploration?
-          [ ] requestEvaluations communications should be in an extra thread, so it does not block the self play tree from being worked through
-          [ ] why is evals higher than it should be?!
+          [X] requestEvaluations communications should be in an extra thread, so it does not block the self play tree from being worked through
+          [X] why is evals higher than it should be?!
                -> when the network changes and it only reports results from the most recent network, that is bad, because it basically throws away all the work done on unfinished games...
                     [X] if a report is completely new, just accept it, too. That is how the other self play implementation act.
           [X] cythonize tree self play, it appears to be cpu bound, cannot keep up with demand for work packages.
           [X] does it really always pick the best move according to mcts when it encounters a completely new node for the first time?
+          [ ] add option to not reset visit counts and values when resetting the priors.
+          
 WK 28
      [ ] continue play-as-tree
      [ ] writing goal: Complete stuff about the hyperparameter search

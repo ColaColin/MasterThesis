@@ -709,7 +709,7 @@ class SelfPlayTree():
         return len(self.newPendings) < self.currentMaxPackageSize and self.countPendingGames() < self.currentMaxPackageSize * self.currentMaxPendingPackages
 
     def handleNodeRenews(self, passedNodes):
-        if self.canSpawnMoreGames():
+        if self.nodeRenewP > 0 and self.canSpawnMoreGames():
             currentIteration = len(self.networkIters)
             for node, move in passedNodes:
                 if node.isExpanded and node.networkIteration < currentIteration and np.random.random() < self.nodeRenewP and not (node.state in self.newPendings) and not (node.state in self.pendingReevals):
