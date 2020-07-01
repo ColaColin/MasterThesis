@@ -74,18 +74,6 @@ Sylvain Gelly, Yizao Wang, Olivier Teytaud, Modification~Uct Patterns, and
 \newblock Modification of uct with patterns in monte-carlo go.
 \newblock 2006.
 
-\bibitem{howard2019searching}
-Andrew Howard, Mark Sandler, Grace Chu, Liang-Chieh Chen, Bo~Chen, Mingxing
-  Tan, Weijun Wang, Yukun Zhu, Ruoming Pang, Vijay Vasudevan, et~al.
-\newblock Searching for mobilenetv3.
-\newblock {\em arXiv preprint arXiv:1905.02244}, 2019.
-
-\bibitem{DBLP:journals/corr/abs-1810-12348}
-Jie Hu, Li~Shen, Samuel Albanie, Gang Sun, and Andrea Vedaldi.
-\newblock Gather-excite: Exploiting feature context in convolutional neural
-  networks.
-\newblock {\em CoRR}, abs/1810.12348, 2018.
-
 \bibitem{hu2018squeeze}
 Jie Hu, Li~Shen, and Gang Sun.
 \newblock Squeeze-and-excitation networks.
@@ -168,6 +156,11 @@ Leslie~N Smith.
 David~J Wu.
 \newblock Accelerating self-play learning in go.
 \newblock {\em arXiv preprint arXiv:1902.10565}, 2019.
+
+\bibitem{yao1999evolving}
+Xin Yao.
+\newblock Evolving artificial neural networks.
+\newblock {\em Proceedings of the IEEE}, 87(9):1423--1447, 1999.
 
 \bibitem{oracledevs6}
 Anthony Young.

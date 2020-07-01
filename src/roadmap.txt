@@ -671,7 +671,7 @@ WK 25
 
      [~] writing goal: Complete stuff about the extended run
 WK 26
-     [ ] play games as mcts-like-trees
+     [X] play games as mcts-like-trees
           [~] estimate cost by recording number of positions searched by MCTS, then multiply that with cost of MCTS per position
           [X] do a slow tree-takeover between iterations? Ergo randomly re-evaluate nodes when they are played again, but not all at the same time. Keep the tree big that way?
           [-] reports should contain the name of the original worker that did the evaluation -> this won' help with command, it is too stupid...
@@ -685,26 +685,29 @@ WK 26
                     [X] if a report is completely new, just accept it, too. That is how the other self play implementation act.
           [X] cythonize tree self play, it appears to be cpu bound, cannot keep up with demand for work packages.
           [X] does it really always pick the best move according to mcts when it encounters a completely new node for the first time?
-          [ ] add option to not reset visit counts and values when resetting the priors.
+          [-] add option to not reset visit counts and values when resetting the priors.
           
-WK 28
+WK 27
      [ ] continue play-as-tree
-     [ ] writing goal: Complete stuff about the hyperparameter search
-WK 29
-     [ ] reuse internal network features
+     [X] writing goal: Complete stuff about supervised training
+     [ ] Writing goal: Players league failure...
+WK 28
+     [ ] reuse internal network features (of a smaller, fixed, network?!)
      [ ] writing goal: Complete stuff about the tree-game-playing
-WK 30
+WK 29
+     [ ] more work on internal network features
      [ ] document the code
+WK 30: 
      [ ] writing goal: Complete stuff about the internal network features
-WK 31: 
+     [ ] writing goal: conclusions
+WK 31:
      [ ] writing goal: Complete writing
      [ ] prepare presentation
 WK 32:
-     [ ] writing goal: conclusions
      [ ] hold presentation
 WK 33:
      [ ] buffer
-     
+
 WK 34: deadline on Thursday
 
      Skip it?:

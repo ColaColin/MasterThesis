@@ -35,6 +35,14 @@ import sys
 
 from torch.nn.utils.clip_grad import clip_grad_norm_
 
+# helper function to unpack data that is used to encode the policy as bytes.
+def unpackTorchNetwork(packed):
+    ublen = packed[0]
+    uuidBytes = packed[1:ublen+1]
+    modelBuffer = io.BytesIO(bytes(packed[ublen+1:]))
+
+    return bytesToString(uuidBytes), torch.load(modelBuffer, map_location=torch.device('cpu'))
+
 # SELayer was taken from https://github.com/moskomule/senet.pytorch/blob/9d279eccb5a0ca6cb09ad1053b5f971656b801de/senet/se_module.py
 class SELayer(nn.Module):
     def __init__(self, channel, reduction=16):
@@ -107,12 +115,15 @@ class ResBlock(nn.Module):
         return out
 
 class ResCNN(nn.Module):
-    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features, blocks, moveSize, winSize, extraHeadFilters, mode="plain", predictReply=False):
+    def __init__(self, inWidth, inHeight, inDepth, baseKernelSize, baseFeatures, features,\
+            blocks, moveSize, winSize, extraHeadFilters, mode="plain", predictReply=False, outputExtra=None):
         super(ResCNN, self).__init__()
 
         paddingSize = 1 if baseKernelSize > 2 else 0
 
         self.predictReply = predictReply
+
+        self.outputExtra = outputExtra
 
         self.baseConv = nn.Conv2d(inDepth, baseFeatures, baseKernelSize, padding=paddingSize)
         self.baseBn = nn.BatchNorm2d(baseFeatures)
@@ -178,6 +189,9 @@ class ResCNN(nn.Module):
             moveX = self.moveHeadConv(x)
             winX = self.valueHeadConv(x)
 
+            headMove = moveX
+            headWin = winX
+
             moveX = moveX.view(moveX.size(0), -1)
             winX = winX.view(winX.size(0), -1)
 
@@ -189,7 +203,15 @@ class ResCNN(nn.Module):
                 replyP = None
 
             winP = self.lsoftmax(self.winHead(winX))
-            return moveP, winP, replyP
+
+            if self.outputExtra is None:
+                return moveP, winP, replyP
+            elif self.outputExtra == "winhead":
+                return moveP, winP, replyP, headWin
+            elif self.outputExtra == "movehead":
+                return moveP, winP, replyP, headMove
+            else:
+                assert False, "Unknown outputExtra: " + self.outputExtra
         
 def gameResultsToAbsoluteWinTensor(wins, playerCount):
     result = np.zeros(playerCount, dtype=np.float32)
@@ -667,13 +689,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         return mls, wls, rls
 
     def load(self, packed):
-        ublen = packed[0]
-        uuidBytes = packed[1:ublen+1]
-        modelBuffer = io.BytesIO(bytes(packed[ublen+1:]))
+        uuid, stateDict = unpackTorchNetwork(packed)
 
-        self.uuid = bytesToString(uuidBytes)
+        self.uuid = uuid
 
-        self.net.load_state_dict(torch.load(modelBuffer, map_location=torch.device('cpu')))
+        self.net.load_state_dict(stateDict)
         self.net = self.net.to(self.device)
 
         self.net.train(False)

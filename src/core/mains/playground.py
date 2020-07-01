@@ -19,6 +19,10 @@ from core.training.StreamTrainingWorker import SlowWindowSizeManager
 
 from impls.selfplay.TreeSelfPlay import MCTSNode
 
+from impls.polices.pytorch.policy import ResCNN
+import pytorch_model_summary as pms
+
+
 import bson
 import uuid
 
@@ -174,21 +178,25 @@ def postgresTest():
         print("Uh oh, can't connect. Invalid dbname, user or password?")
         print(e)
 
+import torch
 
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    genStart = time.monotonic()
-    package = [makeReport() for _ in range(2048)]
-    genFinished = time.monotonic()
+    net = ResCNN(6, 7, 1, 3, 128, 64, 2, 7, 3, 3, mode="sq")
+    print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
 
-    print("Generated package in %.4f" % (genFinished - genStart))
+    # genStart = time.monotonic()
+    # package = [makeReport() for _ in range(2048)]
+    # genFinished = time.monotonic()
 
-    encStart = time.monotonic()
-    encoded = pickle.dump(package, open("save.p", "wb"))
-    encFinished = time.monotonic()
+    # print("Generated package in %.4f" % (genFinished - genStart))
 
-    print("Encoded package in %.4f" % (encFinished - encStart))
+    # encStart = time.monotonic()
+    # encoded = pickle.dump(package, open("save.p", "wb"))
+    # encFinished = time.monotonic()
+
+    # print("Encoded package in %.4f" % (encFinished - encStart))
 
     # foobar = encodeToBson(np.random.dirichlet([0.9] * 3))
     # print(foobar)
