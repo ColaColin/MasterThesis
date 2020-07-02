@@ -613,7 +613,7 @@ WK 25
           -> so how well do the selected parameters do vs the standard extended parameters in pure MCTS accuracy using the same network?
                -> write code to compare different parametersets on the same network and evaluation set. Compare best found players vs "extended" player
                     -> Then do a hyperparameter search in this way via bayesian optimization (could do the entire thing in a hyperopt script, just use best found players and extended as initial points?!)
-                    on run: https://x0.cclausen.eu/#runs/list/325d9f51-97d2-48ab-8999-25f2583979ba
+                    on run: fpu
                     [X] run on an early network, e.g. iteration 1
                acc      | cpuct     | drawValue | fpu
 |  1        |  0.7415   |  0.5328   |  0.8753   |  0.9912   | <<<<<<< best league player
@@ -700,8 +700,8 @@ WK 29
 WK 30: 
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
+     [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp
 WK 31:
-     [ ] writing goal: Complete writing
      [ ] prepare presentation
 WK 32:
      [ ] hold presentation

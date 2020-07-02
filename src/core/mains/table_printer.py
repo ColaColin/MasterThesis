@@ -137,27 +137,27 @@ import numpy as np
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/playout_caps.eps"
 
-plot_name = "Squeeze and Excite ResNet"
-groups = {
-    "base": {
-        "color": (0,0,1),
-        "runs": [
-            "12c31999-e8a9-4a52-b017-796e64b05f8a",
-            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
-            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
-            "bdf69def-4476-43fc-934d-115a7d895d6e",
-            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
-        ],
-        "onlyMean": True
-    },
-    "Squeeze and Excite": {
-        "color": (1,0,0),
-        "runs": [
-            "f64aae6e-f094-47b5-aa0c-1201b324e939"
-        ]
-    },
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/sqnet.eps"
+# plot_name = "Squeeze and Excite ResNet"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "Squeeze and Excite": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "f64aae6e-f094-47b5-aa0c-1201b324e939"
+#         ]
+#     },
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/sqnet.eps"
 
 
 # plot_name = "Hyperparameter comparison"
@@ -216,6 +216,62 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/sqnet.eps"
 #     "extra": "diversity"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/player_evolution_low_diversity.eps"
+
+# plot_name = "Player evolution of key parameters"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "evolve cpuct, fpu, drawValue": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "325d9f51-97d2-48ab-8999-25f2583979ba"
+#         ]
+#     },
+#     "evolve kldgain": {
+#         "color": (0, 0, 1),
+#         "runs": [
+#             "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_results.eps"
+
+plot_name = "Player evolution of key parameters and training data diversity"
+groups = {
+    "extended": {
+        "color": (1,0,0),
+        "runs": [
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+        ]
+    },
+    "evolve cpuct, fpu, drawValue": {
+        "color": (0, 1, 0),
+        "runs": [
+            "325d9f51-97d2-48ab-8999-25f2583979ba"
+        ]
+    },
+    "evolve kldgain": {
+        "color": (0, 0, 1),
+        "runs": [
+            "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
+        ]
+    },
+    "extra": "diversity"
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_low_diversity.eps"
+
 
 # up to what hour of cost to display data
 cutRight = 40

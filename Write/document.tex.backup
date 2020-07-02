@@ -746,16 +746,185 @@ $N_i(0,1)$ is the same, but a new value is randomly picked for every hyperparame
 There are many hyperparameters in AlphaZero, but it is unclear which ones might be best optimized by evolutionary self-play. Only parameters that can be changed easily during a training run can be considered, so mainly parameters that control the behavior of the MCTS search.
 First candidates are parameters such as cpuct, fpu and drawValue, as described in table \ref{t:hyperparameters} on page \pageref{t:hyperparameters}.
 
+An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}]. 
 
+For this purpose, the self-play-workers are changed to work in steps of adding $50$ nodes to the current batch of trees,
+then checking for each game if the kldgain is high enough to continue adding nodes or if the move in that game should be played with the current number of nodes.
+Specifically, the Kullback-Leibler divergence is calculated between the previous output of the MCTS search and the new output of the MCTS search, which has $50$ additional nodes added to it.
+If the binary logarithm of the Kullback-Leibler divergence is above a threshold, another $50$ nodes will be added to the MCTS. The player evolution is tasked with finding a good value for the threshold.
+
+To limit the maximum number of nodes, a ''clock`` is implemented, where for each game each player starts with a budget of $4650$ allowed node evaluations and gets an additional $50$ each turn.
+For a game of average length this will play out around $350$ node evaluations per move, which is the same as without this extension. If a player is out of node evaluations, they will play with only $50$ nodes per MTCS for the rest of the game.
+
+\subsubsection{Experiments}
+
+I implemented the evolution approach and ran initial experiments, one evolving cpuct, fpu and drawValue, the other the Kullback-Leibler divergence threshold for play with a dynamic number of MCTS nodes.
+Results can be seen in figure \ref{fig:evolve_results}. Neither approach produces promising results.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{evolve_results}
+\caption{Initial results of evolving hyperparameters.}
+\label{fig:evolve_results}
+\end{figure}
+
+One potential issue can be seen for the evolution of the MCTS hyperparameters in figure \ref{fig:evolve_low_diversity}, which shows a substantial drop in game play diversity when evolving those parameters.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{evolve_low_diversity}
+\caption{Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. }
+\label{fig:evolve_low_diversity}
+\end{figure}
+
+\subsubsection{Requirements for evolution to succeed}
+
+The weak results of the first experiments with evolving players do not show good results. This raises the question of what conditions have to be fulfilled to improve training efficiency with the evolutionary process.
+A few key points can be established, that need to be verified:
 
 \begin{itemize}
- \item Show single run results of basic hyperparameter sets that were proposed before: Results are bad. Why could that be?
- \item Does the implemented evolution reliably pick out stronger players? Show results on the inversion-hyperparameter. Clearly the evolution does pick "winners".
- \item Does a winning player correspond to high accuracy according to the solver? Show investigation of this via bayesian opt for accuracy vs extended hyperparams vs best players.
- \item Additional issue: Game variance drops drastically.
- \item Conclusion: While the evolution concept produces hyperparams that clearly win more games against other players playing ''on the same level``, they fail to produce better exploration, likely evolving to win games using the same network
- only optimizes to exploit some mistakes at that level more, without finding ways to go beyond that.
- \end{itemize}
+ \item The player league needs to be able to pick players that actually maximize playing strength.
+ \item Players that win a lot of games against other players should correspond to players that produce a high accuracy of play compared to the Connect 4 solver.
+\end{itemize}
+
+To investigate if the player evolution is able to find ''strong`` players I have done tests with another hyperparameter, which was designed only for this purporse, the inversion-hyperparameter $\mathbf{I}$.
+$\mathbf{I}$ modifies the move distribution found by MCTS. 
+
+If $m$ is the vector that represents the move distribution produces by MCTS, then the new move distribution is calculated by the inversion parameter as shown in formula \ref{eq:inverted_mtcs}.
+In words, the inversion parameter controls a linear interpolation between the original move distribution and a vector that is one minus the original move distribution. Therefore, when $\mathbf{I}$ is $1$, the MCTS will produce results which put most weight on moves that originally
+were considered to be the worst moves, while the best moves will receive the lowest weight. It is clear, that $\mathbf{I}$ should be $0$, to not disturb the MCTS results at all.
+
+\begin{equation}
+ m_\text{inverted} = \mathbf{I}((1 - m) / \sum(1 - m)) + (1 - \mathbf{I}) m \label{eq:inverted_mtcs}
+\end{equation}
+
+As a first test of the players league evolution concept, it is tested how well this parameter is optimized towards zero. For this runs of $10$ player generations are done, evolving $\mathbf{I}$ in the range between $0$ and $1$.
+Table \ref{t:inversion_results} shows the development of the average players over generation $3$ to $10$, as a mean of $3$ runs. Earlier generations were not recorded, because only generations after network iteration $1$ are stored.
+To gain further insight into how strong the optimization is in face of reduced impact of the parameter, two more sets of $3$ runs were made, were the inversion was only applied at random with a probability $p$. $p$ was chosen to be $0.25$ and $0.05$, so in the most extreme case,
+only $1$ in $20$ moves would be affected.
+
+The results clearly show, that the evolution of players works and can pick parameters that play stronger, even in face of a lower influence of the hyperparameter on game results, such as with $p = 0.25$ or even $p = 0.05$.
+Full training runs typically go for $30$ to $50$ generations, so they have even more generation to optimize parameters.
+
+\begin{table} [H]
+ \centering
+  \begin{tabular}{ l | c c c }
+  Generation & $\mathbf{I}$, $p = 1$ & $\mathbf{I}$, $p = 0.25$ & $\mathbf{I}$, $p = 0.05$ \\
+  \hline
+  3 & $0.149$ & $0.269$ & $0.446$ \\
+  4 & $0.084$ & $0.217$ & $0.380$ \\
+  5 & $0.071$ & $0.172$ & $0.383$ \\
+  6 & $0.052$ & $0.150$ & $0.307$ \\
+  7 & $0.047$ & $0.109$ & $0.290$ \\
+  8 & $0.038$ & $0.106$ & $0.244$ \\
+  9 & $0.029$ & $0.091$ & $0.243$ \\
+  10 & $0.027$ & $0.085$ & $0.248$ \\
+  \end{tabular}
+  \caption{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf{I}$ is reduced substantially over the generations.}
+  \label{t:inversion_results}
+\end{table}
+
+
+After establishing, that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
+
+For this purpose I will compare three sets of MCTS hyperparameters: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
+directly towards maximum accuracy compared to the solver. This is different from the bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
+the accuracy.
+
+The three hyperparameter sets are compared on a random network, a network after a single training iteration and the best network of the training run. Results can be seen in table \ref{t:hyperparam_accuracy}. The random network has no evolved
+parameter set, as evolved parameter sets are only generated while also training a network.
+
+\begin{table} [H]
+ \centering
+
+  \begin{tabular}{ l  c c c c }
+  \multicolumn{5}{c}{\textbf{Random network}} \\
+  Parameter Set & Accuracy & cpuct & drawValue & fpu \\
+  \hline
+  Evolved Player & - & - & - & - \\
+  Baseline & $0.6227$ & $1.545$ & $0.6913$ & $0.8545$ \\
+  Bayesian Opt. & $0.6712$ & $0.08295$ & $0.106$ & $0.9995$ \\
+  \end{tabular}
+ 
+ \begin{tabular}{ l c c c c }
+ \\
+  \multicolumn{5}{c}{\textbf{Network iteration 1}} \\
+  Parameter Set & Accuracy & cpuct & drawValue & fpu \\
+  \hline
+  Evolved Player & $0.7415$ & $0.5328$ & $0.8753$ & $0.9912$ \\
+  Baseline & $0.7512$ & $1.545$ & $0.6913$ & $0.8545$ \\
+  Bayesian Opt. & $0.7613$ & $0.8162$ & $1.0$ & $0.5255$ \\
+  \end{tabular}
+  
+ \begin{tabular}{ l c c c c }
+ \\
+  \multicolumn{5}{c}{\textbf{Best network iteration}} \\
+  Parameter Set & Accuracy & cpuct & drawValue & fpu \\
+  \hline
+  Evolved Player & $0.9068$ & $0.2925$ & $0.4728$ & $0.1411$ \\
+  Baseline & $0.906$ & $1.545$ & $0.6913$ & $0.8545$ \\
+  Bayesian Opt. & $0.9117$ & $0.9045$ & $0.4498$ & $0.000977$ \\
+  \end{tabular}
+  
+  \caption{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.}
+  \label{t:hyperparam_accuracy}
+\end{table}
+
+These results provide multiple interesting insights:
+
+\begin{itemize}
+ \item Once the training run has reached the best network, the evolved player has found a parameter set, which performs equally good to the baseline parameters, however it starts weaker.
+ \item Neither the baseline nor the evolved player reach the performance of a hyperparameter set only optimized to reach highest accuracy.
+ \item The optimized parameter set shows how different hyperparameters are good for different phases of the training. Especially the fpu changes drastically, from the maximum possible value of $1$ to the minimum possible value of $0$. It seems
+ setting cpuct low, but fpu high is an efficient way to explore with a random network. Similarly, the drawValue also starts at a higher value and is reduced later in the training run. The evolved player does capture both of these developments over the run,
+ reducing the drawValue and the fpu once the best network is generated. Evolution however prefers lower cpuct values.
+\end{itemize}
+
+
+Lastly the three hyperparameter sets are compared in matches of $1000$ games against each other, to determine which sets actually win the most games when playing against each other using the same network. Games are played by picking a move according
+to the probability distribution produced by MCTS at random.
+For the evolution approach to actually improve learning efficiency, a player that wins most games should be the same as a player with a high MCTS accuracy, or else the winrate of the hyperparameters is not a good proxy for faster training progress.
+Table \ref{t:hyperparam_games} shows the results of the matches between the different hyperparameter sets.
+
+\begin{table} [H]
+ \centering
+
+  \begin{tabular}{ c c }
+  \multicolumn{2}{c}{\textbf{Random network}} \\
+	      VS & Baseline  \\
+  \hline
+  Bayesian Opt. & $625W, 360L, 15D$
+  \end{tabular}
+ 
+  \begin{tabular}{ c c c c }
+  \\
+  \multicolumn{4}{c}{\textbf{Network iteration 1}} \\
+	      VS & Bayesian Opt. & Baseline & Evolved Player  \\
+  \hline
+  Bayesian Opt. & - & 581W, 366L, 53D & 380W, 526L, 94D \\
+  Baseline &  366W, 581L, 53D & - & 291W, 665L, 44D \\
+  Evolved Player & 526W, 380L, 94D & 665W, 291W, 44D & - \\
+  \end{tabular}
+  
+  \begin{tabular}{ c c c c }
+  \\
+  \multicolumn{4}{c}{\textbf{Best network iteration}} \\
+	      VS & Bayesian Opt. & Baseline & Evolved Player  \\
+  \hline
+  Bayesian Opt. & - & 590W, 238L, 172D  & 388W, 422L, 190D \\
+  Baseline & 238W, 590L, 172D & - & 155W, 557L, 288D  \\
+  Evolved Player & 442W, 388L, 190D & 557W, 155L, 288D & - \\
+  \end{tabular}
+  
+  \caption{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.}
+  \label{t:hyperparam_games}
+\end{table}
+
+The high win rate of the evolved player shows, that the hyperparameter optimization has achieved, what its optimization goal requires: Win more games. It appears this is not necessarily the same, as playing in such a way as to play correct according to the Connect 4 solver,
+and is also not generally helpful to speed up the training processes.
+
+Most likely this is the core reason why, the evolution approach does not help efficiency: The winrate of hyperparameters in playing against each other using the same network is not a good proxy for learning progress of AlphaZero.
+Still, the evolution of hyperparameters by using self-play clearly works, so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
 
 
 
