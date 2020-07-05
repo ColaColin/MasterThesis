@@ -193,7 +193,7 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         gameBatch = self.games[batchId]
         for idx, result in enumerate(results):
             gameState = gameBatch[idx]
-            self.pendingGames.remove(gameState)
+            self.pendingGames.discard(gameState)
             self.cache[gameState] = result
 
     def receiveGameEvals(self):
