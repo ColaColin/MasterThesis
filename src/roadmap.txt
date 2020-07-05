@@ -688,25 +688,32 @@ WK 26
           [-] add option to not reset visit counts and values when resetting the priors.
           
 WK 27
-     [ ] continue play-as-tree
+     [~] continue play-as-tree
+          -> implement base version that does not use the tree, but uses the node service thing to see how much faster a normal run is with the caching, just to show just how bad play-as-tree is
+          -> enhance that version to restart games at "importortant points" and see if that changes anything...
      [X] writing goal: Complete stuff about supervised training
-     [ ] Writing goal: Players league failure...
+     [X] Writing goal: Players league failure...
 WK 28
+     [ ] continue play-as-tree
+          [X] implement base version that does not use the tree, but uses the node service thing to see how much faster a normal run is with the caching, just to show just how bad play-as-tree is
+               [ ] do full test
+          [ ] enhance that version to restart games at "important points" and see if that changes anything...
+          [ ] update frametime evaluator to run the eval worker at 100% and measure how many evals are possible to be able to get the training cost...
+     [ ] novelty search idea, maybe for the player league?
+WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
      [ ] writing goal: Complete stuff about the tree-game-playing
-WK 29
+WK 30: 
      [ ] more work on internal network features
      [ ] document the code
-WK 30: 
+WK 31:
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
      [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp
-WK 31:
-     [ ] prepare presentation
 WK 32:
-     [ ] hold presentation
+     [ ] prepare presentation
 WK 33:
-     [ ] buffer
+     [ ] hold presentation
 
 WK 34: deadline on Thursday
 
