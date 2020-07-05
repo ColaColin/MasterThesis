@@ -38,6 +38,9 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         # UUID -> ID of the game batch in self.games
         self.pendingEvals = dict()
     
+        # set of positions that are already pending for evaluation
+        self.pendingGames = set()
+
         # state -> MCTS result for that state, if known
         self.cache = dict()
 
@@ -68,6 +71,8 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
 
     def requestEvaluationForBatch(self, batchId):
         self.numPositionEvalsRequested += len(self.games[batchId])
+        for game in self.games[batchId]:
+            self.pendingGames.add(game)
         newPackageId = self.evalAccess.requestEvaluation(self.games[batchId])
         self.pendingEvals[newPackageId] = batchId
         return newPackageId
@@ -108,12 +113,18 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         # once all positions in a batch need an evaluation, request it
         batch = self.games[bindex]
 
+        blocked = False
+
         for gidx in range(len((batch))):
             agame = batch[gidx]
 
             while True:
                 batch[gidx] = agame
-                if agame.hasEnded():
+                if agame in self.pendingGames:
+                    # this batch cannot continue, until some other batch is finished...
+                    blocked = True
+                    break
+                elif agame.hasEnded():
                     self.finalizeGame(bindex, gidx)
                     agame = self.initialState
                 elif agame in self.cache:
@@ -125,8 +136,11 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
                     # this index now needs an evaluation to continue!
                     break
 
-        newPackageId = self.requestEvaluationForBatch(bindex)
-        logMsg("Requested evaluation of batch %i with id %s" % (bindex, newPackageId))
+        if not blocked:
+            newPackageId = self.requestEvaluationForBatch(bindex)
+            logMsg("Requested evaluation of batch %i with id %s" % (bindex, newPackageId))
+        else:
+            logMsg("Batch %i is blocked" % bindex)
 
     def addTrackingData(self, game, iteratedPolicy, batchIndex, gameIndex):
         self.histories[batchIndex][gameIndex].append([game, iteratedPolicy])
@@ -179,6 +193,7 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         gameBatch = self.games[batchId]
         for idx, result in enumerate(results):
             gameState = gameBatch[idx]
+            self.pendingGames.remove(gameState)
             self.cache[gameState] = result
 
     def receiveGameEvals(self):

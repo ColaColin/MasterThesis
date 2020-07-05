@@ -690,6 +690,7 @@ WK 26
 WK 27
      [~] continue play-as-tree
           -> implement base version that does not use the tree, but uses the node service thing to see how much faster a normal run is with the caching, just to show just how bad play-as-tree is
+               -> duplicate evaluations still happen in case one batch contains the same position multiple times...
           -> enhance that version to restart games at "importortant points" and see if that changes anything...
      [X] writing goal: Complete stuff about supervised training
      [X] Writing goal: Players league failure...
@@ -699,7 +700,7 @@ WK 28
                [ ] do full test
           [ ] enhance that version to restart games at "important points" and see if that changes anything...
           [ ] update frametime evaluator to run the eval worker at 100% and measure how many evals are possible to be able to get the training cost...
-     [ ] novelty search idea, maybe for the player league?
+     [ ] league novelty search idea, maybe for the player league?
 WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
      [ ] writing goal: Complete stuff about the tree-game-playing
