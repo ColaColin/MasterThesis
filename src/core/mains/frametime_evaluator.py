@@ -210,8 +210,6 @@ if __name__ == "__main__":
         pool.terminate()
         proc.wait()
 
-        exit(0)
-
 
 
 

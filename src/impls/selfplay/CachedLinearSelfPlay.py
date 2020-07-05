@@ -86,7 +86,8 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
             else:
                 acceptedEvals += 1
 
-        logMsg("Accepted evaluation of %i batches!" % acceptedEvals)
+        if acceptedEvals > 0:
+            logMsg("Accepted evaluation of %i batches!" % acceptedEvals)
 
     def main(self):
         while True:
