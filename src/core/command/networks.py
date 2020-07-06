@@ -85,7 +85,7 @@ class CostResource():
             else:
                 stateCounts.append(numPackagesPreNetworks)
                 for row in rows:
-                    costs.append(row[0])
+                    stateCounts.append(row[0])
 
             result = []
             costSum = numPackagesPreNetworks * rows[0][4]
