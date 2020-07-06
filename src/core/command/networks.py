@@ -71,7 +71,7 @@ class CostResource():
             cursor = con.cursor()
             cursor.execute("SELECT evals from run_iteration_evals where run = %s order by iteration asc", (runId, ));
             erows = cursor.fetchall()
-            erows = map(lambda x: x[0], erows)
+            erows = list(map(lambda x: x[0], erows))
             cursor.close()
 
             cursor = con.cursor()
