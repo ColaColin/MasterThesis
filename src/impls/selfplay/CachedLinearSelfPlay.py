@@ -35,9 +35,11 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
             for _ in range(batchSize):
                 self.histories[i].append([])
 
-        # UUID -> ID of the game batch in self.games
+        # UUID -> list of game states that will be evaluated
         self.pendingEvals = dict()
-    
+        # set of game states to be evaluated at the next opportunity
+        self.requestEvals = set()
+
         # set of positions that are already pending for evaluation
         self.pendingGames = set()
 
@@ -69,24 +71,17 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
 
                 self.reportEvaluationNumber()
 
-    def requestEvaluationForBatch(self, batchId):
-        self.numPositionEvalsRequested += len(self.games[batchId])
-        for game in self.games[batchId]:
-            self.pendingGames.add(game)
-        newPackageId = self.evalAccess.requestEvaluation(self.games[batchId])
-        self.pendingEvals[newPackageId] = batchId
-        return newPackageId
-
     def checkForRejectEvals(self, evalResults):
         acceptedEvals = 0
         for uuid in list(dict.keys(evalResults)):
             results, network, workerName = evalResults[uuid]
             if network != self.currentNetwork:
-                gamesId = self.pendingEvals[uuid]
+                gamePackage = self.pendingEvals[uuid]
                 del self.pendingEvals[uuid]
                 del evalResults[uuid]
 
-                newPackageId = self.requestEvaluationForBatch(gamesId)
+                newPackageId = self.evalAccess.requestEvaluation(gamePackage)
+                self.pendingEvals[newPackageId] = gamePackage
                 logMsg("!!!!!!!!!! Got network %s but expected %s on package %s from worker %s. Rewriting to package %s" % (network, self.currentNetwork, uuid, workerName, newPackageId))
             else:
                 acceptedEvals += 1
@@ -102,18 +97,22 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         pass
 
     def playOpenGames(self):
-        # walk over all the active batches that are not waiting for an evaluation and play them out, so they need an evaluation  
-        pendingIdx = set(dict.values(self.pendingEvals))
         for batchIndex in range(len(self.games)):
-            if not (batchIndex in pendingIdx):
-                self.playOnBatch(batchIndex)
+            self.playOnBatch(batchIndex)
+
+    def requestEvaluations(self):
+        while (len(self.pendingEvals) == 0 and len(self.requestEvals) > 0) or len(self.requestEvals) >= self.batchSize:
+            nextBatch = list(self.requestEvals)[:self.batchSize]
+            newPackageId = self.evalAccess.requestEvaluation(nextBatch)
+            self.pendingEvals[newPackageId] = nextBatch
+            for game in nextBatch:
+                self.pendingGames.add(game)
+                self.requestEvals.remove(game)
 
     def playOnBatch(self, bindex):
         # play a batch until all positions in it are not known in the cache. If a game ends, report the game and replace it with a new one.
         # once all positions in a batch need an evaluation, request it
         batch = self.games[bindex]
-
-        blocked = False
 
         for gidx in range(len((batch))):
             agame = batch[gidx]
@@ -121,8 +120,7 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
             while True:
                 batch[gidx] = agame
                 if agame in self.pendingGames:
-                    # this batch cannot continue, until some other batch is finished...
-                    blocked = True
+                    # cannot continue this game at this time, it is already pending for an evaluation.
                     break
                 elif agame.hasEnded():
                     self.finalizeGame(bindex, gidx)
@@ -133,14 +131,10 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
                     moveToPlay = self.moveDecider.decideMove(agame, iteratedPolicy[0], iteratedPolicy[1])
                     agame = agame.playMove(moveToPlay)
                 else:
-                    # this index now needs an evaluation to continue!
+                    self.requestEvals.add(agame)
                     break
 
-        if not blocked:
-            newPackageId = self.requestEvaluationForBatch(bindex)
-            logMsg("Requested evaluation of batch %i with id %s" % (bindex, newPackageId))
-        else:
-            logMsg("Batch %i is blocked" % bindex)
+        self.requestEvaluations()
 
     def addTrackingData(self, game, iteratedPolicy, batchIndex, gameIndex):
         self.histories[batchIndex][gameIndex].append([game, iteratedPolicy])
@@ -187,12 +181,11 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
             reports[-1]["final"] = True
             self.gameReporter.reportGame(reports)
 
-    def addResultsToCache(self, batchId, evalResult):
+    def addResultsToCache(self, games, evalResult):
         results, network, workerName = evalResult
         assert network == self.currentNetwork
-        gameBatch = self.games[batchId]
         for idx, result in enumerate(results):
-            gameState = gameBatch[idx]
+            gameState = games[idx]
             self.pendingGames.discard(gameState)
             self.cache[gameState] = result
 
@@ -205,11 +198,9 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         
         for uuid in evalResults:
             if uuid in self.pendingEvals:
-                batchId = self.pendingEvals[uuid]
+                evalGames = self.pendingEvals[uuid]
                 del self.pendingEvals[uuid]
-                self.addResultsToCache(batchId, evalResults[uuid])
-                logMsg("Continue to play batch %i after receiving package %s" % (batchId, uuid))
-                self.playOnBatch(batchId)
+                self.addResultsToCache(evalGames, evalResults[uuid])
             else:
                 logMsg("Received evaluation of unknown UUID!", uuid)
 
@@ -218,6 +209,7 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.receiveGameEvals()
 
         # not meant to be used for frametime evaluations
+        #frametime is evaluated instead on the evluation worker.
         return 0, None, 0
         
 

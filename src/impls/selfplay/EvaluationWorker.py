@@ -103,6 +103,8 @@ class EvaluationWorker():
         logMsg("Started work poll thread")
         lastSuccess = time.monotonic()
 
+        printNoWork = True
+
         while True:
              
             while (len(self.workQueue) == 1 and (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8) or len(self.workQueue) > 1:
@@ -125,6 +127,8 @@ class EvaluationWorker():
                 decodedWork = decodeFromBson(myWork)
                 games = [self.initialState.load(w) for w in decodedWork]
 
+                printNoWork = True
+
                 logMsg("Got work: %i game states" % len(games))
                 dwork = dict()
                 dwork["work"] = games
@@ -132,7 +136,9 @@ class EvaluationWorker():
                 self.workQueue.append(dwork)
                 lastSuccess = time.monotonic()
             else:
-                logMsg("No work found on the server :(")
+                if printNoWork:
+                    logMsg("No work found on the server, will keep trying...")
+                    printNoWork = False
                 time.sleep(0.5)
 
     def pushResults(self):
