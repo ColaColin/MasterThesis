@@ -134,6 +134,7 @@ function CommandPageModel() {
 
     self.selectedRun = ko.observable(null);
     self.runList = ko.observable([]);
+    self.evalCountsList = ko.observable([]);
     self.networkList = ko.observable([]);
     self.statesList = ko.observable([]);
     self.statsList = ko.observable([]);
@@ -376,6 +377,9 @@ function CommandPageModel() {
     self.runCost = ko.computed(() => {
         const nets = self.networkList().slice();
         const states = self.statesCountByNetwork();
+        const evalCounts = (self.evalCountsList() || []).map(x => x["evals"]);
+
+        console.log(evalCounts);
 
         // iteration -> cost
         const result = {};
@@ -388,17 +392,17 @@ function CommandPageModel() {
             return a.iteration - b.iteration;
         });
 
-        let cost = nets[0].frametime * states["initial"];
+        let cost = nets[0].frametime * (evalCounts.length > 0 ? evalCounts[0] : states["initial"]);
 
         result[0] = formatTimeCost(cost);
 
         for (let i = 0; i < nets.length; i++) {
             const net = nets[i];
-            if (net.frametime == null) {
+            if (net.frametime == null || evalCounts.length <= i + 1) {
                 break;
             }
 
-            cost += net.frametime * states[net.id];
+            cost += net.frametime * (evalCounts.length > 0 ? evalCounts[i+1] : states[net.id]);
             result[i + 1] = formatTimeCost(cost);
         }
 
@@ -441,6 +445,18 @@ function CommandPageModel() {
                 return b.iteration - a.iteration;
             });
             self.statsList(pulled);
+        }
+
+        let evalCounts = await self.authFetch("/api/evalscnt/" + forRunId, {
+            method: "GET"
+        });
+
+        if (stats.ok) {
+            let pulled = await evalCounts.json()
+            pulled.sort((a, b) => {
+                return a.iteration - b.iteration;
+            });
+            self.evalCountsList(pulled);
         }
     };
 

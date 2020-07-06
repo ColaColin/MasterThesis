@@ -112,25 +112,51 @@ if __name__ == "__main__":
 
         editConfig["worker"]["gameReporter"] = "$" + grkey
 
+        mdkey = "moveDeciderTEMPTEMP123"
+        editConfig[mdkey] = dict()
+        editConfig[mdkey]["name"] = "TemperatureMoveDecider"
+        editConfig[mdkey]["explorationPlyCount"] = 30
+
         ff = tempfile.NamedTemporaryFile(suffix=".yaml", mode="w+")
 
         if "evalAccess" in editConfig["worker"]:
-            # TreeSelfPlay, force local evaluation using 4 workers.
-            lcKey = "localEvalAccessFrametimeMeasurement"
-            editConfig[lcKey] = dict()
-            editConfig[lcKey]["name"] = "LocalEvaluationAccess"
-            editConfig[lcKey]["workerN"] = PROC_COUNT
-            editConfig[lcKey]["forceRun"] = runId
-            editConfig[lcKey]["forceCfg"] = ff.name
-            editConfig["worker"]["evalAccess"] = "$" + lcKey
+            # for any form of eval access self play,
+            # rewrite the config to use a normal self play worker, it doesn't really matter what code does the evaluation...
+
+            # lcKey = "localEvalAccessFrametimeMeasurement"
+            # editConfig[lcKey] = dict()
+            # editConfig[lcKey]["name"] = "LocalEvaluationAccess"
+            # editConfig[lcKey]["workerN"] = PROC_COUNT
+            # editConfig[lcKey]["forceRun"] = runId
+            # editConfig[lcKey]["forceCfg"] = ff.name
+            # editConfig["worker"]["evalAccess"] = "$" + lcKey
             
-            if editConfig["worker"]["maxPendingPackages"] < PROC_COUNT * 2:
-                editConfig["worker"]["maxPendingPackages"] = PROC_COUNT * 2
+            # if editConfig["worker"]["maxPendingPackages"] < PROC_COUNT * 2:
+            #     editConfig["worker"]["maxPendingPackages"] = PROC_COUNT * 2
 
-            editConfig["evalWorker"]["policyUpdater"] = "$" + plkey
-            editConfig["evalWorker"]["isFrameTimeTest"] = True
+            # editConfig["evalWorker"]["policyUpdater"] = "$" + plkey
+            # editConfig["evalWorker"]["isFrameTimeTest"] = True
 
-            isTreeSelfPlayAr.append(True)
+            # isTreeSelfPlayAr.append(True)
+
+            prevWorker = editConfig["worker"]
+            evalWorker = editConfig["evalWorker"]
+
+            nWorker = dict()
+            nWorker["name"] = "LinearSelfPlayWorker"
+            nWorker["initialState"] = prevWorker["initialState"]
+            nWorker["policy"] = evalWorker["policy"]
+            nWorker["policyIterator"] = evalWorker["policyIterator"]
+            if "maxPackageSize" in prevWorker:
+                nWorker["gameCount"] = prevWorker["maxPackageSize"]
+            else:
+                nWorker["gameCount"] = prevWorker["batchSize"]
+            nWorker["moveDecider"] = "$" + mdkey
+            nWorker["gameReporter"] = prevWorker["gameReporter"]
+            nWorker["policyUpdater"] = "$" + plkey
+
+            editConfig["worker"] = nWorker
+
         else:
             editConfig["worker"]["policyUpdater"] = "$" + plkey
 
@@ -181,13 +207,8 @@ if __name__ == "__main__":
 
                 startTime = time.monotonic()
 
-                if isTreeSelfPlay:
-                    logMsg("Frametime measurement for tree self play!")
-                    callResults.append(pool.apply_async(measureFrametime, (config.name, 0, run)))
-                else:
-                    logMsg("Frametime measurement for normal play!")
-                    for idx in range(PROC_COUNT):
-                        callResults.append(pool.apply_async(measureFrametime, (config.name, idx, run)))
+                for idx in range(PROC_COUNT):
+                    callResults.append(pool.apply_async(measureFrametime, (config.name, idx, run)))
                 
                 plainResults = list(map(lambda x: x.get(), callResults))
 

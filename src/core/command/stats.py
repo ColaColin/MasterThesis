@@ -12,7 +12,7 @@ class RunIterationEvalsCounts():
         try:
             con = self.pool.getconn()
             cursor = con.cursor()
-            cursor.execute("SELECT run, iteration, evals where run = %s", (run_id, ));
+            cursor.execute("SELECT run, iteration, evals from run_iteration_evals where run = %s", (run_id, ));
             rows = cursor.fetchall();
 
             result = []

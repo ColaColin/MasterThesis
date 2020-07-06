@@ -69,21 +69,37 @@ class CostResource():
             cursor.close()
 
             cursor = con.cursor()
+            cursor.execute("SELECT evals from run_iteration_evals where run = %s order by iteration asc", (runId, ));
+            erows = cursor.fetchall()
+            erows = map(lambda x: x[0], erows)
+            corsur.close()
+
+            cursor = con.cursor()
             cursor.execute("select sum(package_size), acc_network_moves, acc_network_wins, acc_mcts_moves, frametime from networks n, states s where n.id = s.network and n.run = %s group by acc_network_moves, acc_network_wins, acc_mcts_moves, frametime, n.creation order by n.creation", (runId, ));
             rows = cursor.fetchall()
 
+            stateCounts = []
+            if len(erows) > 0:
+                for erow in enumerate(erows):
+                    stateCounts.append(erow)
+            else:
+                stateCounts.append(numPackagesPreNetworks)
+                for row in rows:
+                    costs.append(row[0])
+
             result = []
             costSum = numPackagesPreNetworks * rows[0][4]
-            for row in rows:
-                foo = dict()
-                foo["frames"] = row[0]
-                foo["acc_network_moves"] = row[1]
-                foo["acc_network_wins"] = row[2]
-                foo["acc_mcts_moves"] = row[3]
-                foo["frametime"] = row[4]
-                costSum += row[4] * row[0]
-                foo["cost"] = costSum / 1000 / 3600
-                result.append(foo)
+            for ridx, row in enumerate(rows):
+                if ridx < len(erows):
+                    foo = dict()
+                    foo["frames"] = erows[ridx]
+                    foo["acc_network_moves"] = row[1]
+                    foo["acc_network_wins"] = row[2]
+                    foo["acc_mcts_moves"] = row[3]
+                    foo["frametime"] = row[4]
+                    costSum += row[4] * erows[ridx]
+                    foo["cost"] = costSum / 1000 / 3600
+                    result.append(foo)
             
             resp.media = result                
             resp.status = falcon.HTTP_200

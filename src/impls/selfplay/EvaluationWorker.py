@@ -51,6 +51,33 @@ class EvaluationWorker():
 
         self.printNoWork = True
 
+    def doEvaluation(self, nextWorker):
+        startTime = time.monotonic()
+        games = nextWork["work"]
+        workId = nextWork["id"]
+
+        self.lastIterationCompleted = time.monotonic()
+        iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, games)
+        self.iterateTimes.append(time.monotonic() - self.lastIterationCompleted)
+
+        if len(self.iterateTimes) > 20:
+            self.iterateTimes = self.iterateTimes[-20:]
+
+        result = dict()
+        result["iterations"] = iteratedPolicy
+        if self.initialPolicyID != self.policy.getUUID() and not self.isFrameTimeTest:
+            result["network"] = self.policy.getUUID()
+        else:
+            result["network"] = None
+        result["workerName"] = self.workerName
+
+        rpack = dict()
+        rpack["id"] = workId
+        rpack["data"] = result
+
+        logMsg("Completed work package %s in %.2fs using network %s. Average completion time is now %.2f" % (workId, (time.monotonic() - startTime), result["network"], np.mean(self.iterateTimes)))
+        return rpack
+
     def main(self):
         setLoggingEnabled(True)
 
@@ -75,37 +102,11 @@ class EvaluationWorker():
 
             self.policy = self.policyUpdater.update(self.policy)
 
-            startTime = time.monotonic()
-
             nextWork = self.workQueue[0]
-
-            games = nextWork["work"]
-            workId = nextWork["id"]
-
-            self.lastIterationCompleted = time.monotonic()
-            iteratedPolicy = self.policyIterator.iteratePolicy(self.policy, games)
-            self.iterateTimes.append(time.monotonic() - self.lastIterationCompleted)
-
-            if len(self.iterateTimes) > 20:
-                self.iterateTimes = self.iterateTimes[-20:]
-
-            result = dict()
-            result["iterations"] = iteratedPolicy
-            if self.initialPolicyID != self.policy.getUUID() and not self.isFrameTimeTest:
-                result["network"] = self.policy.getUUID()
-            else:
-                result["network"] = None
-            result["workerName"] = self.workerName
-
-            rpack = dict()
-            rpack["id"] = workId
-            rpack["data"] = result
-
-            logMsg("Completed work package %s in %.2fs using network %s. Average completion time is now %.2f" % (workId, (time.monotonic() - startTime), result["network"], np.mean(self.iterateTimes)))
+            rpack = self.doEvaluation(nextWork)
 
             self.resultsQueue.append(rpack)
             del self.workQueue[0]
-
 
     def pollWork(self):
         logMsg("Started work poll thread")
