@@ -89,6 +89,8 @@ class CostResource():
                     stateCounts.append(row[0])
 
             result = []
+            print("A", stateCounts)
+            print("B", rows[0][4])
             costSum = stateCounts[0] * rows[0][4]
             for ridx, row in enumerate(rows):
                 if ridx + 1 < len(stateCounts):
