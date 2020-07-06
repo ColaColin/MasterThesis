@@ -79,7 +79,8 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
                 gamePackage = self.pendingEvals[uuid]
                 del self.pendingEvals[uuid]
                 del evalResults[uuid]
-
+                
+                self.numPositionEvalsRequested += len(gamePackage)
                 newPackageId = self.evalAccess.requestEvaluation(gamePackage)
                 self.pendingEvals[newPackageId] = gamePackage
                 logMsg("!!!!!!!!!! Got network %s but expected %s on package %s from worker %s. Rewriting to package %s" % (network, self.currentNetwork, uuid, workerName, newPackageId))
@@ -103,6 +104,7 @@ class CachedLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
     def requestEvaluations(self):
         while (len(self.pendingEvals) == 0 and len(self.requestEvals) > 0) or len(self.requestEvals) >= self.batchSize:
             nextBatch = list(self.requestEvals)[:self.batchSize]
+            self.numPositionEvalsRequested += len(nextBatch)
             newPackageId = self.evalAccess.requestEvaluation(nextBatch)
             self.pendingEvals[newPackageId] = nextBatch
             for game in nextBatch:
