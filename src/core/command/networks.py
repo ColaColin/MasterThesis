@@ -62,11 +62,7 @@ class CostResource():
         try:
             con = self.pool.getconn()
 
-            cursor = con.cursor()
-            cursor.execute("select sum(package_size) from states where network is null and run = %s", (runId, ))
-            nrows = cursor.fetchall()
-            numPackagesPreNetworks = nrows[0][0]
-            cursor.close()
+
 
             cursor = con.cursor()
             cursor.execute("SELECT evals from run_iteration_evals where run = %s order by iteration asc", (runId, ));
@@ -83,21 +79,26 @@ class CostResource():
                 for erow in enumerate(erows):
                     stateCounts.append(erow)
             else:
+                cursor.close()
+                cursor = con.cursor()
+                cursor.execute("select sum(package_size) from states where network is null and run = %s", (runId, ))
+                nrows = cursor.fetchall()
+                numPackagesPreNetworks = nrows[0][0]
                 stateCounts.append(numPackagesPreNetworks)
                 for row in rows:
                     stateCounts.append(row[0])
 
             result = []
-            costSum = numPackagesPreNetworks * rows[0][4]
+            costSum = stateCounts * rows[0][4]
             for ridx, row in enumerate(rows):
-                if ridx < len(stateCounts):
+                if ridx + 1 < len(stateCounts):
                     foo = dict()
                     foo["frames"] = stateCounts[ridx]
                     foo["acc_network_moves"] = row[1]
                     foo["acc_network_wins"] = row[2]
                     foo["acc_mcts_moves"] = row[3]
                     foo["frametime"] = row[4]
-                    costSum += row[4] * stateCounts[ridx]
+                    costSum += row[4] * stateCounts[ridx + 1]
                     foo["cost"] = costSum / 1000 / 3600
                     result.append(foo)
             
