@@ -398,7 +398,7 @@ function CommandPageModel() {
 
         for (let i = 0; i < nets.length; i++) {
             const net = nets[i];
-            if (net.frametime == null || evalCounts.length <= i + 1) {
+            if (net.frametime == null || (evalCounts.length > 0 && evalCounts.length <= i + 1)) {
                 break;
             }
 

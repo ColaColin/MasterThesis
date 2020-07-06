@@ -90,14 +90,14 @@ class CostResource():
             result = []
             costSum = numPackagesPreNetworks * rows[0][4]
             for ridx, row in enumerate(rows):
-                if ridx < len(erows):
+                if ridx < len(stateCounts):
                     foo = dict()
-                    foo["frames"] = erows[ridx]
+                    foo["frames"] = stateCounts[ridx]
                     foo["acc_network_moves"] = row[1]
                     foo["acc_network_wins"] = row[2]
                     foo["acc_mcts_moves"] = row[3]
                     foo["frametime"] = row[4]
-                    costSum += row[4] * erows[ridx]
+                    costSum += row[4] * stateCounts[ridx]
                     foo["cost"] = costSum / 1000 / 3600
                     result.append(foo)
             
