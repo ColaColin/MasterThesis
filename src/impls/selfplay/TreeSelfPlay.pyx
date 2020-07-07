@@ -120,6 +120,8 @@ class LocalEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
         subprocess.Popen(["node", "eval_manager/server.js"], preexec_fn = set_pdeathsig(signal.SIGTERM))
         hasArgs = "--command" in sys.argv
 
+        time.sleep(1)
+
         if not hasArgs:
             raise Exception("You need to provide arguments for LocalEvaluationAccess: --command <command server host>!")
 
@@ -140,6 +142,7 @@ class LocalEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
             if forceCfg is not None:
                 wparams += ["--fconfig", forceCfg]
             subprocess.Popen(wparams, preexec_fn = set_pdeathsig(signal.SIGTERM))
+            time.sleep(1)
 
         self.pool = mp.Pool(processes=2)
 

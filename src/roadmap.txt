@@ -703,6 +703,14 @@ WK 28
                [X] update command: webpage needs to call an extra api to check for eval counts (if any) and use them for the cost
                [X] verify both of the above really work by doing a diagram of a run like this.
           [ ] enhance that version to restart games at "important points" and see if that changes anything...
+               -> play without exploration via temperature (actually just use the given move decider, which will then typically be configured to be 0 temp?! or maybe with temp only for the first 4 moves)
+               -> instead the loser goes back, picks 3 positions to try and improve by picking another move (which has never been picked with the current network!), add these 3 games to the list of games to be played.
+                    -> possible picks:
+                         -> positions with the best move never tried, i.e. the positions where the best move never tried has the lowest prior distance to the move played
+                         -> position with the greatest loss in win probability
+               -> then add those 2 positions to the list of game positions to be played out
+               -> once there are enough active games (i.e. 50x256), only replace one game with one retry, so the number of games stops exploding.
+
      [ ] league novelty search idea, maybe for the player league?
 WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)

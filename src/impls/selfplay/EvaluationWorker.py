@@ -117,7 +117,7 @@ class EvaluationWorker():
             while (len(self.workQueue) == 1 and (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8) or len(self.workQueue) > 1:
                 time.sleep(0.05)
 
-            print("wqueue length", len(self.workQueue), (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8)
+            #print("wqueue length", len(self.workQueue), (time.monotonic() - max(lastSuccess, self.lastIterationCompleted)) > np.mean(self.iterateTimes) * 0.8)
 
             workList = requestJson(self.command + "/queue", "")
             if len(workList) > 0:

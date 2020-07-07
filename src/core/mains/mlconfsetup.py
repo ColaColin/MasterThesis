@@ -24,6 +24,7 @@ from impls.selfplay.PlayersSelfplay import LeagueSelfPlayerWorker, FixedPlayerAc
 from impls.selfplay.TreeSelfPlay import TreeSelfPlayWorker, FakeEvaluationAccess, LocalEvaluationAccess, RemoteEvaluationAccess
 from impls.selfplay.EvaluationWorker import EvaluationWorker
 from impls.selfplay.CachedLinearSelfPlay import CachedLinearSelfPlay
+from impls.selfplay.CachedNonLinearPlay import CachedNonLinearSelfPlay
 from core.command.leagues import EloGaussServerLeague
 
 import sys
@@ -34,6 +35,7 @@ registered = False
 def registerClasses():
     global registered
     if not registered:
+        mlconfig.register(CachedNonLinearSelfPlay)
         mlconfig.register(CachedLinearSelfPlay)
         mlconfig.register(RemoteEvaluationAccess)
         mlconfig.register(EvaluationWorker)
