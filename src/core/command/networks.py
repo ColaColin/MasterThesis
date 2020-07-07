@@ -88,15 +88,16 @@ class CostResource():
 
             result = []
             costSum = stateCounts[0] * rows[0][4]
+            stateCounts = stateCounts[1:]
             for ridx, row in enumerate(rows):
-                if ridx + 1 < len(stateCounts):
+                if ridx < len(stateCounts):
                     foo = dict()
                     foo["frames"] = stateCounts[ridx]
                     foo["acc_network_moves"] = row[1]
                     foo["acc_network_wins"] = row[2]
                     foo["acc_mcts_moves"] = row[3]
                     foo["frametime"] = row[4]
-                    costSum += row[4] * stateCounts[ridx + 1]
+                    costSum += row[4] * stateCounts[ridx]
                     foo["cost"] = costSum / 1000 / 3600
                     result.append(foo)
             
