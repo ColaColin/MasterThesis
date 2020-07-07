@@ -701,7 +701,7 @@ WK 28
           [X] update frametime evaluator to run the eval worker at 100% and measure how many evals are possible to be able to get the training cost...               
                [X] test it works
                [X] update command: webpage needs to call an extra api to check for eval counts (if any) and use them for the cost
-               [ ] verify both of the above really work by doing a diagram of a run like this.
+               [X] verify both of the above really work by doing a diagram of a run like this.
           [ ] enhance that version to restart games at "important points" and see if that changes anything...
      [ ] league novelty search idea, maybe for the player league?
 WK 29
@@ -711,6 +711,7 @@ WK 30:
      [ ] more work on internal network features
      [ ] document the code
 WK 31:
+     [ ] No more I in the text, Table, Figure with capital letters!
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
      [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp

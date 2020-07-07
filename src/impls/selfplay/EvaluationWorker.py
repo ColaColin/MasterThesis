@@ -51,7 +51,7 @@ class EvaluationWorker():
 
         self.printNoWork = True
 
-    def doEvaluation(self, nextWorker):
+    def doEvaluation(self, nextWork):
         startTime = time.monotonic()
         games = nextWork["work"]
         workId = nextWork["id"]

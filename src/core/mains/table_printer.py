@@ -244,7 +244,35 @@ import numpy as np
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_results.eps"
 
-plot_name = "Player evolution of key parameters and training data diversity"
+# plot_name = "Player evolution of key parameters and training data diversity"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "evolve cpuct, fpu, drawValue": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "325d9f51-97d2-48ab-8999-25f2583979ba"
+#         ]
+#     },
+#     "evolve kldgain": {
+#         "color": (0, 0, 1),
+#         "runs": [
+#             "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
+#         ]
+#     },
+#     "extra": "diversity"
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_low_diversity.eps"
+
+plot_name = "More efficient implementation: Caching all MCTS results."
 groups = {
     "extended": {
         "color": (1,0,0),
@@ -256,22 +284,15 @@ groups = {
             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
         ]
     },
-    "evolve cpuct, fpu, drawValue": {
+    "cached MCTS": {
         "color": (0, 1, 0),
         "runs": [
-            "325d9f51-97d2-48ab-8999-25f2583979ba"
+            "d91dbba7-4363-4779-8a86-7a127977d9e4",
+            "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
         ]
-    },
-    "evolve kldgain": {
-        "color": (0, 0, 1),
-        "runs": [
-            "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
-        ]
-    },
-    "extra": "diversity"
+    }
 }
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_low_diversity.eps"
-
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/cache_play.eps"
 
 # up to what hour of cost to display data
 cutRight = 40
