@@ -62,8 +62,6 @@ class CostResource():
         try:
             con = self.pool.getconn()
 
-
-
             cursor = con.cursor()
             cursor.execute("SELECT evals from run_iteration_evals where run = %s order by iteration asc", (runId, ));
             erows = cursor.fetchall()
@@ -76,7 +74,7 @@ class CostResource():
 
             stateCounts = []
             if len(erows) > 0:
-                for erow in enumerate(erows):
+                for erow in erows:
                     stateCounts.append(erow)
             else:
                 cursor.close()
