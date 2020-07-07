@@ -746,7 +746,7 @@ $N_i(0,1)$ is the same, but a new value is randomly picked for every hyperparame
 There are many hyperparameters in AlphaZero, but it is unclear which ones might be best optimized by evolutionary self-play. Only parameters that can be changed easily during a training run can be considered, so mainly parameters that control the behavior of the MCTS search.
 First candidates are parameters such as cpuct, fpu and drawValue, as described in table \ref{t:hyperparameters} on page \pageref{t:hyperparameters}.
 
-An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}]. 
+An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}. 
 
 For this purpose, the self-play-workers are changed to work in steps of adding $50$ nodes to the current batch of trees,
 then checking for each game if the kldgain is high enough to continue adding nodes or if the move in that game should be played with the current number of nodes.
@@ -825,7 +825,7 @@ Full training runs typically go for $30$ to $50$ generations, so they have even 
 \end{table}
 
 
-After establishing, that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
+After establishing that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
 
 For this purpose I will compare three sets of MCTS hyperparameters: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
 directly towards maximum accuracy compared to the solver. This is different from the bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
