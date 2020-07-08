@@ -83,6 +83,7 @@ class CachedNonLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
                 logMsg("=======================================================")
                 logMsg("A new iteration has begun, cleared the cache! Successful retries: %.2f%%" % (100 * (self.foundRetry / (self.foundRetry + self.foundNoRetry))))
                 logMsg("Retry at turn %.2f +/- %.2f" % (np.mean(self.retryTurns), np.std(self.retryTurns)))
+                logMsg("Network now is %s" % self.currentNetwork)
                 logMsg("=======================================================")
                 logMsg("=======================================================")
 
