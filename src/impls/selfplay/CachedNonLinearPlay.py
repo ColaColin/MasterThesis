@@ -272,7 +272,7 @@ class CachedNonLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
 
                         else:
                             self.foundNoRetry += 1
-                            logMsg("No retry points were generated!")
+                            #logMsg("No retry points were generated!")
                             agame = self.initialState
                             ahistory = []
                     else:
