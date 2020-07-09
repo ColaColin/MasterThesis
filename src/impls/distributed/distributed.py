@@ -21,7 +21,7 @@ import multiprocessing as mp
 
 def reportFinishedPackage(commandHost, workerName, run, secret, pending):
     reportId = postBytes(commandHost + "/api/state/" + workerName + "/" + run, secret, encodeToBson(pending), expectResponse=True)
-    print("Reported ", len(pending), "states to the server, they were assigned report id ", reportId)
+    #logMsg("Reported ", len(pending), "states to the server, they were assigned report id ", reportId)
 
 class DistributedReporter(GameReporter, metaclass=abc.ABCMeta):
     def __init__(self, packageSize = 1000, threads=0):

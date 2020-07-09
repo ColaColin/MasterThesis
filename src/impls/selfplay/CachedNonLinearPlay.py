@@ -74,8 +74,9 @@ class CachedNonLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
     def checkForNewIteration(self, evalResults):
         for uuid in evalResults:
             results, networkSeen, workerName = evalResults[uuid]
-            if networkSeen is not None and not (networkSeen in self.seenNetworks):
+            if not (networkSeen is None) and not (networkSeen in self.seenNetworks):
                 self.seenNetworks.add(networkSeen)
+                logMsg("seen nets is after", self.seenNetworks)
                 self.currentNetwork = networkSeen
                 self.cache = dict()
                 self.playedMoves = set()
@@ -109,7 +110,7 @@ class CachedNonLinearSelfPlay(SelfPlayWorker, metaclass=abc.ABCMeta):
             else:
                 acceptedEvals += 1
 
-        if acceptedEvals > 0:
+        if acceptedEvals > 0 and False:
             logMsg("Accepted evaluation of %i batches!" % acceptedEvals)
 
     def main(self):
