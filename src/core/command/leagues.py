@@ -38,6 +38,330 @@ class ServerLeague(metaclass=abc.ABCMeta):
         (player1Id, player2Id, result (1 is p1 wins, 0 is p2 wins, 0.5 is draw), ratingChange, timestamp)
         """
 
+
+class PointsGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
+    """
+    Wait for reports on points and do Gaussian mutations
+    """
+    def __init__(self, parameters, generationPoints, populationSize, mutateTopN, mutateCount, fixedParameters=None, restrictMutations=True):
+        self.parameters = parameters
+        self.generationPoints = generationPoints
+        self.populationSize = populationSize
+        self.mutateTopN = mutateTopN
+        self.mutateCount = mutateCount
+        self.fixedParameters = fixedParameters
+        self.restrictMutations = restrictMutations
+        
+        self.loadedPlayers = False
+        # shape: [id, points, params, params-stddev, generation]
+        self.players = []
+
+        # caching sets to reduce number of database queries
+        self.existingPlayers = set()
+        self.networkKnowledge = dict()
+
+        self.currentGeneration = 1
+
+        self.currentGenerationPoints = 0
+
+    def getMatchHistory(self, pool, runId):
+        return []
+
+    def loadPlayers(self, pool, runId):
+        if not self.loadedPlayers:
+            self.loadedPlayers = True
+
+            try:
+                con = pool.getconn()
+                cursor = con.cursor()
+
+                cursor.execute("SELECT id, run, rating, parameter_vals, parameter_stddevs, generation from league_players where run = %s", (runId, ))
+                rows = cursor.fetchall()
+
+                for row in rows:
+                    self.players.append([row[0], row[2], json.loads(row[3]), json.loads(row[4]), row[5]])
+                    if row[5] > self.currentGeneration:
+                        self.currentGeneration = row[5]
+
+            finally:
+                if cursor:
+                    cursor.close()
+                pool.putconn(con)
+
+            logMsg("Loaded existing %i players for run %s" % (len(self.players), runId))
+
+            if len(self.players) == 0:
+                # no players in the db -> init first generation of players
+                self.initPlayers()
+                self.persistPlayers(pool, runId)
+
+                logMsg("Initialized %i players for run %s" % (len(self.players), runId))
+
+        self.sortPlayers()
+
+    def persistPlayers(self, pool, runId):
+        for p in self.players:
+            self.persistPlayer(pool, p, runId)
+
+    def updatePlayers(self, pool, runId, players):
+        """
+        assumes the players already exist!
+        """
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+
+            for player in players:
+                cursor.execute("update league_players set rating = %s where id = %s", (player[1], player[0]))
+                if cursor:
+                    cursor.close()
+                cursor = con.cursor()
+
+            con.commit()
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
+
+    def persistPlayer(self, pool, player, runId):
+        try:
+            con = pool.getconn()
+            cursor = con.cursor()
+
+            if not (player[0] in self.existingPlayers):
+                cursor.execute("SELECT id from league_players where id = %s", (player[0],))
+                alreadyExists = len(cursor.fetchall()) > 0
+                cursor.close()
+                cursor = con.cursor()
+                if alreadyExists:
+                    self.existingPlayers.add(player[0])
+            else:
+                alreadyExists = True
+
+            if not alreadyExists:
+                cursor.execute("insert into league_players (id, run, rating, parameter_vals, parameter_stddevs, generation) VALUES (%s, %s, %s, %s, %s, %s)",\
+                    (player[0], runId, player[1], json.dumps(player[2]), json.dumps(player[3]), player[4]))
+            else:
+                cursor.execute("update league_players set rating = %s where id = %s", (player[1], player[0]))
+            con.commit()
+            self.existingPlayers.add(player[0])
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
+
+    def sortPlayers(self):
+        self.players.sort(key=lambda x: x[1], reverse=True)
+
+    def addDefaultsToParamsDict(self, pDict):
+        newDict = dict(pDict)
+        for k in self.fixedParameters:
+            if k != "name":
+                newDict[k] = self.fixedParameters[k]
+        return newDict
+
+    def newPlayer(self):
+        playerId = str(uuid.uuid4())
+        playerRating = 0
+
+        playerParameters = dict()
+        playerStddevs = dict()
+        for k in self.parameters:
+            if isinstance(self.parameters[k], list):
+                minimum = self.parameters[k][0]
+                maximum = self.parameters[k][1]
+                diff = maximum - minimum
+                dr = random.random() * diff
+                playerParameters[k] = minimum + dr
+
+                halfDiff = diff / 2
+                stddev = random.random() * halfDiff
+                playerStddevs[k] = stddev
+            
+            elif isinstance(self.parameters[k], dict):
+                length = self.parameters[k]["length"]
+                rangx = self.parameters[k]["range"]
+                minimum = rangx[0]
+                maximum = rangx[1]
+                diff = maximum - minimum
+                vector = [0] * length
+                stddevs = [0] * length
+                for vi in range(length):
+                    vector[vi] = minimum + random.random() * diff
+                    stddevs[vi] = random.random() * diff * 0.5
+                playerParameters[k] = vector
+                playerStddevs[k] = stddevs
+
+        return [playerId, playerRating, self.addDefaultsToParamsDict(playerParameters), playerStddevs, self.currentGeneration]
+
+    def mutatePlayer(self, player):
+        playerId = str(uuid.uuid4())
+        playerRating = player[1]
+
+        currentParameters = player[2]
+        currentStddevs = player[3]
+
+        playerParameters = dict()
+        playerStddevs = dict()
+
+        parameterNum = 0
+        for k in self.parameters:
+            if isinstance(self.parameters[k], list):
+                parameterNum += 1
+            elif isinstance(self.parameters[k], dict):
+                parameterNum += self.parameters[k]["length"]
+
+        r = 1 / ((2 * (parameterNum ** 0.5)) ** 0.5)
+        r1 = 1 / ((2 * parameterNum) ** 0.5)
+
+        globalFactor = np.random.normal()
+
+        for k in self.parameters:
+            if isinstance(self.parameters[k], list):
+                minimum = self.parameters[k][0]
+                maximum = self.parameters[k][1]
+
+                curVal = currentParameters[k]
+                curStddev = currentStddevs[k]
+
+                nextStddev = curStddev * math.exp(r1 * globalFactor + r * np.random.normal())
+                nextVal = curVal + nextStddev * np.random.normal()
+                
+                if self.restrictMutations:
+                    nextVal = limitByRollover(nextVal, minimum, maximum)
+                
+                playerParameters[k] = nextVal
+                playerStddevs[k] = nextStddev
+            
+            elif isinstance(self.parameters[k], dict):
+                length = self.parameters[k]["length"]
+                rangx = self.parameters[k]["range"]
+                minimum = rangx[0]
+                maximum = rangx[1]
+
+                for vi in range(length):
+                    curVal = currentParameters[k][vi]
+                    curStddev = currentStddevs[k][vi]
+
+                    nextStddev = curStddev * math.exp(r1 * globalFactor + r * np.random.normal())
+                    nextVal = curVal + nextStddev * np.random.normal()
+
+                    if self.restrictMutations:
+                        nextVal = limitByRollover(nextVal, minimum, maximum)
+
+                    playerParameters[k][vi] = nextVal
+                    playerStddevs[k][vi] = nextStddev
+
+        return [playerId, playerRating, self.addDefaultsToParamsDict(playerParameters), playerStddevs, self.currentGeneration]
+
+    def initPlayers(self):
+        for _ in range(self.populationSize):
+            self.players.append(self.newPlayer())
+        self.sortPlayers()
+
+    def storeGeneration(self, pool, runId):
+        # store the current top 50 for the latest generation to be used later for evaluation purposes
+        # as in "these were the best players of this generation"
+        try:
+            con = pool.getconn()
+
+            # first figure out the current network in use
+            cursor = con.cursor()
+            cursor.execute("SELECT id from networks where run = %s order by creation desc limit 1", (runId, ))
+            networkRows = cursor.fetchall()
+            if len(networkRows) > 0:
+                currentNetwork = networkRows[0][0]
+            else:
+                currentNetwork = None
+            cursor.close()
+
+            # no need to store generations for the random initial network
+            # it never gets evaluated anyway.
+            if currentNetwork is not None:
+                cursor = con.cursor()
+                valLists = []
+                for player in self.players[:self.populationSize]:
+                    valLists.append([player[0], self.currentGeneration, currentNetwork, player[1]])
+
+                qList = mkQMarkListsFor(valLists)
+                valFlat = flatten(valLists)
+
+                iSql = "insert into league_players_snapshot (id, generation, network, rating) VALUES " + qList
+
+                cursor.execute(iSql, valFlat)
+                con.commit()                
+        finally:
+            if cursor:
+                cursor.close()
+            pool.putconn(con)
+
+    def handleGenerations(self, pool, runId):
+        if self.currentGenerationPoints > self.generationPoints:
+            self.storeGeneration(pool, runId)
+
+            self.currentGeneration += 1
+            self.currentGenerationPoints = 0
+
+            newPlayers = []
+            for mi in range(self.mutateTopN):
+                for _ in range(self.mutateCount):
+                    nplayer = self.mutatePlayer(self.players[mi])
+                    newPlayers.append(nplayer)
+                    self.persistPlayer(pool, nplayer, runId)
+
+            self.players += newPlayers
+            self.sortPlayers()
+            logMsg("Next generation has begun, now there are %i players!" % len(self.players))
+
+    def getPlayers(self, pool, runId):
+        """
+        return a list of players, sorted by ranking, a player is a tuple:
+        (player-id, player-rating, player-parameters, player-stats)
+        """
+        self.loadPlayers(pool, runId)
+        self.getMatchHistory(pool, runId)
+
+        result = list(map(lambda x: (x[0], x[1], x[2], [0,0,0], x[4]), self.players[:self.populationSize * 2]))
+
+        return result
+
+    def reportResultBatch(self, rList, pool, runId):
+        """
+        give two player ids, and either player1 id, player2id or None for a draw.
+        Update ratings and possibly mutate players as a response.
+
+        rList is a list of tuples (p1, p2, winner, policyUUID, runId)
+
+        This implementation uses the winner-entry as a number that represents the points to assign to p1
+        """
+
+        pDict = dict()
+        for p in self.players:
+            pDict[p[0]] = p
+
+        persistsPlayers = set()
+
+        for r in rList:
+            assignTarget = r[0]
+            points = r[2]
+
+            assignObject = pDict[assignTarget]
+            assignObject[1] += points
+
+            if assignObject[4] == self.currentGeneration:
+                self.currentGenerationPoints += points
+
+            persistsPlayers.add(assignTarget)
+
+        logMsg("Current generation: %i points out of %i" % (self.currentGenerationPoints, self.generationPoints))
+
+        self.updatePlayers(pool, runId, list(map(lambda x: pDict[x], persistsPlayers)))
+
+        self.handleGenerations(pool, runId)
+
+        self.sortPlayers()
+
+
 def mkQMarkListsFor(qLsts):
     result = []
     for qLst in qLsts:

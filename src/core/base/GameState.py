@@ -130,6 +130,12 @@ class GameState(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def md5(self):
+        """
+        md5 of the state, only consider game play relevant information.
+        """
+
+    @abc.abstractmethod
     def prettyString(self, networkMoves, networkWins, iteratedMoves, observedWins):
         """
         Produce a human readable string that includes the network output and iterated move output in some way that makes sense for the game.

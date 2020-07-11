@@ -25,7 +25,7 @@ from impls.selfplay.TreeSelfPlay import TreeSelfPlayWorker, FakeEvaluationAccess
 from impls.selfplay.EvaluationWorker import EvaluationWorker
 from impls.selfplay.CachedLinearSelfPlay import CachedLinearSelfPlay
 from impls.selfplay.CachedNonLinearPlay import CachedNonLinearSelfPlay
-from core.command.leagues import EloGaussServerLeague
+from core.command.leagues import EloGaussServerLeague, PointsGaussServerLeague
 
 import sys
 from utils.prints import logMsg, setLoggingEnabled
@@ -43,6 +43,7 @@ def registerClasses():
         mlconfig.register(FakeEvaluationAccess)
         mlconfig.register(TreeSelfPlayWorker)
         mlconfig.register(LearntThinkDecider)
+        mlconfig.register(PointsGaussServerLeague)
         mlconfig.register(EloGaussServerLeague)
         mlconfig.register(LeaguePlayerAccess)
         mlconfig.register(FixedPlayerAccess)

@@ -11,6 +11,8 @@ import abc
 
 import numpy as np
 
+import hashlib
+
 cdef struct MNK_c:
     unsigned char m
     unsigned char n
@@ -409,6 +411,15 @@ class MNKGameState(GameState, metaclass=abc.ABCMeta):
             result[16 + idx] = self._data._getBoardByte(idx)
         
         return result
+
+    def md5(self):
+        cdef int fsize = self._data.getM() * self._data.getN()
+        binput = b''
+        for idx in range(fsize):
+            binput += bytes([self._data._getBoardByte(idx)])
+        msum = hashlib.md5()
+        msum.update(binput)
+        return msum.hexdigest()
 
     def load(self, encoded):
         cdef unsigned char m = encoded[0]

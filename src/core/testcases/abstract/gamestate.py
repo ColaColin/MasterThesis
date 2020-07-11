@@ -153,6 +153,13 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         self.assertNotEqual(hash(gameA), hash(gameC), "hash(gameA) != hash(gameC)")
         self.assertNotEqual(hash(gameB), hash(gameC), "hash(gameB) != hash(gameC)")
 
+    def test_md5Match(self):
+        gameA, gameB, gameC = self.generateEq3Games()
+
+        self.assertEqual(gameA.md5(), gameB.md5(), "gameA.md5() == gameB.md5()")
+        self.assertNotEqual(gameA.md5(), gameC.md5(), "gameA.md5() != gameC.md5()")
+        self.assertNotEqual(gameB.md5(), gameC.md5(), "gameB.md5() != gameC.md5()")
+
     def playRandomGame(self, idx):
         game = self.subject
         results = []
@@ -217,6 +224,54 @@ class TestGameStateSanity(metaclass=abc.ABCMeta):
         self.assertTrue(uniqueHashes <= uniqueStates)
         self.assertTrue(result < 0.2)
         self.assertTrue(worstLen < 17)
+
+    def test_md5Properties(self):
+        """
+        When playing random games there should be less than 0% hash collisions with md5
+        """
+        prntVerbose = ('-v' in sys.argv) or ('--verbose' in sys.argv)
+        setLoggingEnabled(prntVerbose)
+
+        numTestGames = 250
+        states = map(lambda x: self.playRandomGame(x), range(numTestGames))
+        statesByHash = dict()
+        uniqueStates = 0
+        oCnt = 0
+        allStates = []
+        worstLen = 0
+        worstHashValue = 0
+        for ss in states:
+            for s in ss:
+                allStates.append(s)
+                oCnt += 1
+                h = s.md5()
+                if not h in statesByHash:
+                    statesByHash[h] = [s]
+                    uniqueStates += 1
+                else:
+                    isKnownState = len(list(filter(lambda x: x == s, statesByHash[h]))) > 0
+                    if not isKnownState:
+                        statesByHash[h].append(s)
+                        if len(statesByHash[h]) > worstLen:
+                            worstLen = len(statesByHash[h])
+                            worstHashValue = h
+                        uniqueStates += 1
+
+        for aIdx in range(len(allStates)):
+            for bIdx in range(aIdx+1, len(allStates)):
+                a = allStates[aIdx]
+                b = allStates[bIdx]
+                if a == b:
+                    self.assertEqual(hash(a), hash(b), "Equality must imply equal hash values")
+
+        uniqueHashes = len(statesByHash)
+        dupes = uniqueStates - uniqueHashes
+        result = dupes / float(uniqueStates)
+
+        logMsg("\nFound ", uniqueHashes, "unique md5s for", uniqueStates, "unique states. Overall ", oCnt, "moves played! Worst hash has", worstLen, "collisions, it is the hash number", worstHashValue)
+        self.assertTrue(uniqueHashes <= uniqueStates)
+        self.assertEqual(result, 0)
+        self.assertTrue(worstLen < 3)
 
     def test_storeLoad(self):
         """

@@ -64,6 +64,14 @@ class TestCountGame(GameState, metaclass=abc.ABCMeta):
     def getPlayerCount(self):
         return self.playersCount
 
+    def md5(self):
+        result = 0
+        mul = 1
+        for i in range(self.playersCount):
+            result += self.playersProgress[i+1] * mul
+            mul *= 100
+        return result
+
     def getMoveCount(self):
         """
         more moves than legal moves, just to test mcts behaved well with that

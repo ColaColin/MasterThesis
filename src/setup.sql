@@ -1,5 +1,6 @@
 -- run this to setup or reset the database to have all the tables needed
 
+drop table if exists run_iteration_evals cascade;
 drop table if exists run_iteration_stats cascade;
 drop view if exists runs_info cascade;
 drop table if exists states cascade;

@@ -63,9 +63,9 @@ class PlayerAccess(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId):
+    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId, stateHashes):
         """
-        give two player ids, and either player1 id, player2id or None for a draw.    
+        give two player ids, and either player1 id, player2id or None for a draw. Additionally provide a list of md5 hashes of the game positions.    
         """
 
 class PlayerThinkDecider(metaclass=abc.ABCMeta):
@@ -170,7 +170,7 @@ class FixedPlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
     def getNextMatch(self, runId):
         return (("p1", self.parameters), ("p2", self.parameters))
 
-    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId):
+    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId, stateHashes):
         pass
 
 class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
@@ -184,7 +184,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         --run <run-uuid>
     """
 
-    def __init__(self, activePopulation = 50, matchmaking="bias"):
+    def __init__(self, activePopulation = 50, matchmaking="bias", reportNovelty = False):
         hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
@@ -193,6 +193,11 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         self.activePopulation = activePopulation
         self.secret = sys.argv[sys.argv.index("--secret")+1]
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
+
+        self.noveltyHost = sys.argv[sys.argv.index("--command")+1].replace("https", "http").replace(":8042", "")
+        self.noveltyHost += ":2142"
+
+        self.reportNovelty = reportNovelty
 
         self.matchmaking = matchmaking
 
@@ -228,10 +233,16 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
                     rDict["p2"] = report[1]
                     rDict["winner"] = report[2]
                     rDict["policy"] = report[3]
+                    if self.reportNovelty:
+                        rDict["hashes"] = report[4]
                     pendingReportDicts.append(rDict)
                 if len(pendingReportDicts) > 0:
-                    # call the players_proxy to reduce the number of http requests to the actual command server
-                    postJson("http://127.0.0.1:1337/players/" + self.run, self.secret, pendingReportDicts)
+                    if self.reportNovelty:
+                        nurl = self.noveltyHost + "/report/" + self.run
+                        postJson(nurl, self.secret, pendingReportDicts)
+                    else:
+                        # call the players_proxy to reduce the number of http requests to the actual command server
+                        postJson("http://127.0.0.1:1337/players/" + self.run, self.secret, pendingReportDicts)
 
                 # call the players_proxy to reduce the number of http requests to the actual command server
                 self.playerList = requestJson("http://127.0.0.1:1337/players/" + self.run, self.secret)
@@ -294,9 +305,9 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         result = ((lst[p1Idx][0], lst[p1Idx][2]), (lst[p2Idx][0], lst[p2Idx][2]))
         return result
 
-    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId):
+    def reportResult(self, p1Id, p2Id, winnerId, policyUUID, runId, stateHashes):
         self.run = runId
-        self.pendingReports.append((p1Id, p2Id, winnerId, policyUUID))
+        self.pendingReports.append((p1Id, p2Id, winnerId, policyUUID, stateHashes))
 
 # this self play worker is not supported to be used in local self play!
 class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
@@ -417,8 +428,10 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 winnerId = finishedMatch[0][0]
             if winnerNumber == 2:
                 winnerId = finishedMatch[1][0]
-            self.playerAccess.reportResult(finishedMatch[0][0], finishedMatch[1][0], winnerId, self.policy.getUUID(), self.runId)
-            self.handleReportFor(gidx, nextGame)
+
+            md5hashes = self.handleReportFor(gidx, nextGame)                
+            self.playerAccess.reportResult(finishedMatch[0][0], finishedMatch[1][0], winnerId, self.policy.getUUID(), self.runId, md5hashes)
+            
 
             nextGame = self.initialState
             self.matches[gidx] = self.playerAccess.getNextMatch(self.runId)
@@ -513,6 +526,8 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
     def handleReportFor(self, idx, finalState):
         reports = []
 
+        md5s = []
+
         trackList = self.tracking[idx]
 
         if len(trackList) == 0:
@@ -525,6 +540,9 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         for ti in range(len(trackList)):
             state, iPolicy, numIterations, remIterations = trackList[ti]
+
+            md5s.append(state.md5())
+
             # do not learn from terminal states, there is no move that can be made on them
             assert not state.hasEnded()
             record = dict()
@@ -559,3 +577,5 @@ class LeagueSelfPlayerWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         if len(reports) > 0:
             reports[len(reports) - 1]["final"] = True
             self.gameReporter.reportGame(reports)
+
+        return md5s
