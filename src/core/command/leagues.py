@@ -346,10 +346,12 @@ class PointsGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
             points = r[2]
 
             assignObject = pDict[assignTarget]
-            assignObject[1] += points
+            
 
             if assignObject[4] == self.currentGeneration:
                 self.currentGenerationPoints += points
+                # only players of the current generation are awarded points, so older generations fall out of favor quickly.
+                assignObject[1] += points
 
             persistsPlayers.add(assignTarget)
 

@@ -711,7 +711,8 @@ WK 28
                -> then add those 2 positions to the list of game positions to be played out
                -> once there are enough active games (i.e. 50x256), only replace one game with one retry, so the number of games stops exploding.
 
-     [ ] league novelty search idea, maybe for the player league?
+     [X] league novelty search idea, maybe for the player league?
+          [ ] test and evaluate results
 WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
      [ ] writing goal: Complete stuff about the tree-game-playing
