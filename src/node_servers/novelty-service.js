@@ -29,9 +29,19 @@ function processReport(runId, report) {
         }
     }
 
-    if (report.winner != null) { // null -> draw
+    if (report.rewardOnlyWinners) {
+        if (report.winner != null) { // null -> draw
+            pendingPoints.push({
+                playerA: report.winner,
+                playerB: report.winner,
+                points: newPositions / 2,
+                run: runId
+            });
+        }
+    } else {
         pendingPoints.push({
-            player: report.winner,
+            playerA: report.p1,
+            playerB: report.p2,
             points: newPositions,
             run: runId
         });
@@ -70,8 +80,8 @@ setInterval(() => {
             request.post("http://127.0.0.1:8042/api/league/reports/" + run, {
                 json: runWork.map(x => {
                     return {
-                        "p1": x.player,
-                        "p2": x.player,
+                        "p1": x.playerA,
+                        "p2": x.playerB,
                         "winner": x.points,
                         "run": run,
                         "policy": "FOOBAR"

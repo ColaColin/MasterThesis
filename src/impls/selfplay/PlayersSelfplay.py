@@ -184,7 +184,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         --run <run-uuid>
     """
 
-    def __init__(self, activePopulation = 50, matchmaking="bias", reportNovelty = False):
+    def __init__(self, activePopulation = 50, matchmaking="bias", reportNovelty = False, rewardOnlyWinners = True):
         hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
@@ -198,6 +198,8 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
         self.noveltyHost += ":2142"
 
         self.reportNovelty = reportNovelty
+
+        self.rewardOnlyWinners = rewardOnlyWinners
 
         self.matchmaking = matchmaking
 
@@ -235,6 +237,7 @@ class LeaguePlayerAccess(PlayerAccess, metaclass=abc.ABCMeta):
                     rDict["policy"] = report[3]
                     if self.reportNovelty:
                         rDict["hashes"] = report[4]
+                        rDict["rewardOnlyWinners"] = self.rewardOnlyWinners
                     pendingReportDicts.append(rDict)
                 if len(pendingReportDicts) > 0:
                     if self.reportNovelty:

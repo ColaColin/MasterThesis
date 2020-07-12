@@ -342,18 +342,24 @@ class PointsGaussServerLeague(ServerLeague, metaclass=abc.ABCMeta):
         persistsPlayers = set()
 
         for r in rList:
-            assignTarget = r[0]
+            pA = r[0]
+            pB = r[1]
             points = r[2]
 
-            assignObject = pDict[assignTarget]
-            
+            assignObjectA = pDict[pA]
+            assignObjectB = pDict[pB]
 
-            if assignObject[4] == self.currentGeneration:
+            # only players of the current generation are awarded points, so older generations fall out of favor quickly.
+            if assignObjectA[4] == self.currentGeneration:
                 self.currentGenerationPoints += points
-                # only players of the current generation are awarded points, so older generations fall out of favor quickly.
-                assignObject[1] += points
+                assignObjectA[1] += points
 
-            persistsPlayers.add(assignTarget)
+            if assignObjectB[4] == self.currentGeneration:
+                self.currentGenerationPoints += points
+                assignObjectB[1] += points
+
+            persistsPlayers.add(pA)
+            persistsPlayers.add(pB)
 
         logMsg("Current generation: %i points out of %i" % (self.currentGenerationPoints, self.generationPoints))
 
