@@ -695,14 +695,14 @@ WK 27
      [X] writing goal: Complete stuff about supervised training
      [X] Writing goal: Players league failure...
 WK 28
-     [ ] continue play-as-tree
+     [~] continue play-as-tree
           [X] implement base version that does not use the tree, but uses the node service thing to see how much faster a normal run is with the caching, just to show just how bad play-as-tree is
                [X] do full test
           [X] update frametime evaluator to run the eval worker at 100% and measure how many evals are possible to be able to get the training cost...               
                [X] test it works
                [X] update command: webpage needs to call an extra api to check for eval counts (if any) and use them for the cost
                [X] verify both of the above really work by doing a diagram of a run like this.
-          [ ] enhance that version to restart games at "important points" and see if that changes anything...
+          [~] enhance that version to restart games at "important points" and see if that changes anything...
                -> play without exploration via temperature (actually just use the given move decider, which will then typically be configured to be 0 temp?! or maybe with temp only for the first 4 moves)
                -> instead the loser goes back, picks 3 positions to try and improve by picking another move (which has never been picked with the current network!), add these 3 games to the list of games to be played.
                     -> possible picks:
@@ -713,8 +713,16 @@ WK 28
 
      [X] league novelty search idea, maybe for the player league?
           [ ] test and evaluate results
+               -> only giving points to the winner is mostly just again pushing parameters to win games...
+                    -> could test that with another round of 1k games?
+
 WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
+          [ ] implement using a small network whose features are used as one feature layer of the last conv layers in the big network
+          [ ] also allow to include future moves into this.
+          [ ] see where it goes
+          [ ] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
+               -> as a "yeah this is why it does not work" or "yeah this is why it works"... xD
      [ ] writing goal: Complete stuff about the tree-game-playing
 WK 30: 
      [ ] more work on internal network features

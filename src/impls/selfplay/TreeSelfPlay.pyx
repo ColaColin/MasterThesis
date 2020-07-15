@@ -12,6 +12,8 @@ from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
 import numpy as np
 
+import json
+
 import time
 
 import subprocess
@@ -375,6 +377,65 @@ class MCTSNode():
         self.reportCount = 0
         self.isExpanded = 1
 
+    def exportNode(self, forNetwork, cnt=[0], path = None):
+        """
+        returns a structure that represents the tree.
+        node: {
+            state: str(state),
+            edgeVisists: number[],
+            edgeValues: number[],
+            edgePriors: number[],
+            virtualLosses: number,
+            reportCount: number,
+            children: node[]
+        }
+
+        only will include nodes that are expanded with the given network.
+        """
+
+        myPath = path
+        if myPath is None:
+            myPath = [self.state]
+
+        if len(set(myPath)) < len(myPath):
+            print("Cycle detected!")
+            for mp in myPath:
+                print(str(mp))
+            print("======")
+            assert False
+
+        cnt[0] += 1
+        if cnt[0] % 100000 == 0:
+            print("Exporting node", cnt[0])
+
+        if not self.isExpanded or self.networkId != forNetwork:
+            return None
+
+        # limit the size of the output by only exporting up to a certain depth
+        if len(myPath) > 8:
+            return None
+
+        if np.sum(self.edgeTotalValues) == 0:
+            return None
+
+        result = dict()
+
+        result["state"] = str(self.state)
+        result["edgeVisits"] = self.edgeVisits.tolist()
+        result["edgeValues"] = self.edgeTotalValues.tolist()
+        result["virtualLosses"] = self.virtualLosses
+        result["reportCount"] = self.reportCount
+
+        children = []
+
+        for child in dict.values(self.getChildren()):
+            children.append(child.exportNode(forNetwork, cnt, myPath + [child.state]))
+
+        children = list(filter(lambda x: x is not None, children))
+
+        result["children"] = children
+
+        return result
 
     def resetPriors(self, movePriors, generics, networkId, networkIteration, workerName):
         self.rawPriors = movePriors
@@ -544,6 +605,12 @@ class SelfPlayTree():
         self.pendingReevals = set()
 
         self.pendingGames = 0
+
+    def exportTree(self, forNetwork):
+        logMsg("Beginning to exporting MCTS tree with %i nodes!" % len(self.root.nodes))
+        exportedStructure = self.root.exportNode(forNetwork)
+        logMsg("Completed export!")
+        return json.dumps(exportedStructure)
 
     def backup(self, nodes, finalNode):
         """
@@ -876,7 +943,7 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.drawValue = drawValue
 
         self.seenNetworks = set()
-        self.lastestNetwork = None
+        self.latestNetwork = None
         self.networkIterations = dict()
 
         self.commandHost = sys.argv[sys.argv.index("--command")+1]
@@ -909,6 +976,7 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             evalResults = dict()
 
             newIteration = False
+            prevNetwork = None
 
             while len(evalResults) == 0:
                 self.currentTree.beginGames()
@@ -918,24 +986,29 @@ class TreeSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                     results, network, workerName = evalResults[uuid]
                     if network is not None and not (network in self.seenNetworks):
                         self.seenNetworks.add(network)
-                        self.lastestNetwork = network
+                        prevNetwork = self.latestNetwork
+                        self.latestNetwork = network
                         self.networkIterations[network] = len(self.seenNetworks)
                         newIteration = True
 
                 rejects = 0
-                rejects += self.currentTree.rejectEvalsForNetwork(evalResults, self.lastestNetwork)
+                rejects += self.currentTree.rejectEvalsForNetwork(evalResults, self.latestNetwork)
 
                 if rejects > 0:
                     logMsg("!!!!!!!!!!!!!!!!!!! %i packages were rejected due to outdated networks used!" % rejects)
 
             if newIteration:
+                # exportedTree = self.currentTree.exportTree(prevNetwork)
+                # with open("/ImbaKeks/export_mcts.json", "w") as f:
+                #     f.write(exportedTree)
+
                 logMsg("=========================================================================")
                 logMsg("=========================================================================")
                 logMsg("==================== Detected a new iteration: %i!=======================" % (len(self.seenNetworks) + 1))
                 logMsg("=========================================================================")
                 logMsg("=========================================================================")
                 logMsg("Known networks: ", self.seenNetworks)
-                logMsg("Active network: %s" % self.lastestNetwork)
+                logMsg("Active network: %s" % self.latestNetwork)
                 # logMsg("Stats of the iteration tree")
                 # self.currentTree.printReportCountStats()
                 logMsg("Unreported games played: %i" % self.currentTree.numUnreportedGamesPlayed)
