@@ -746,7 +746,7 @@ $N_i(0,1)$ is the same, but a new value is randomly picked for every hyperparame
 There are many hyperparameters in AlphaZero, but it is unclear which ones might be best optimized by evolutionary self-play. Only parameters that can be changed easily during a training run can be considered, so mainly parameters that control the behavior of the MCTS search.
 First candidates are parameters such as cpuct, fpu and drawValue, as described in table \ref{t:hyperparameters} on page \pageref{t:hyperparameters}.
 
-An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}]. 
+An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}. 
 
 For this purpose, the self-play-workers are changed to work in steps of adding $50$ nodes to the current batch of trees,
 then checking for each game if the kldgain is high enough to continue adding nodes or if the move in that game should be played with the current number of nodes.
@@ -825,7 +825,7 @@ Full training runs typically go for $30$ to $50$ generations, so they have even 
 \end{table}
 
 
-After establishing, that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
+After establishing that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
 
 For this purpose I will compare three sets of MCTS hyperparameters: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
 directly towards maximum accuracy compared to the solver. This is different from the bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
@@ -901,9 +901,9 @@ Table \ref{t:hyperparam_games} shows the results of the matches between the diff
   \multicolumn{4}{c}{\textbf{Network iteration 1}} \\
 	      VS & Bayesian Opt. & Baseline & Evolved Player  \\
   \hline
-  Bayesian Opt. & - & 581W, 366L, 53D & 380W, 526L, 94D \\
-  Baseline &  366W, 581L, 53D & - & 291W, 665L, 44D \\
-  Evolved Player & 526W, 380L, 94D & 665W, 291W, 44D & - \\
+  Bayesian Opt. & - & $581W, 366L, 53D$ & $380W, 526L, 94D$ \\
+  Baseline &  $366W, 581L, 53D$ & - & $291W, 665L, 44D$ \\
+  Evolved Player & $526W, 380L, 94D$ & $665W, 291W, 44D$ & - \\
   \end{tabular}
   
   \begin{tabular}{ c c c c }
@@ -911,9 +911,9 @@ Table \ref{t:hyperparam_games} shows the results of the matches between the diff
   \multicolumn{4}{c}{\textbf{Best network iteration}} \\
 	      VS & Bayesian Opt. & Baseline & Evolved Player  \\
   \hline
-  Bayesian Opt. & - & 590W, 238L, 172D  & 388W, 422L, 190D \\
-  Baseline & 238W, 590L, 172D & - & 155W, 557L, 288D  \\
-  Evolved Player & 442W, 388L, 190D & 557W, 155L, 288D & - \\
+  Bayesian Opt. & - & $590W, 238L, 172D$  & $388W, 422L, 190D$ \\
+  Baseline & $238W, 590L, 172D$ & - & $155W, 557L, 288D$  \\
+  Evolved Player & $442W, 388L, 190D$ & $557W, 155L, 288D$ & - \\
   \end{tabular}
   
   \caption{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.}
@@ -924,12 +924,107 @@ The high win rate of the evolved player shows, that the hyperparameter optimizat
 and is also not generally helpful to speed up the training processes.
 
 Most likely this is the core reason why, the evolution approach does not help efficiency: The winrate of hyperparameters in playing against each other using the same network is not a good proxy for learning progress of AlphaZero.
-Still, the evolution of hyperparameters by using self-play clearly works, so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
+The evolution of hyperparameters by using self-play clearly works, so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
 
 
 
 
 \subsection{Playing games as trees}
+
+The standard AlphaZero implementation explores new possible moves mainly by the randomization of moves, according to the policy found by MCTS.
+This thesis investigates an alternative scheme of exploration, by instead playing out games in a tree like structure.
+
+A first option to do this involves to reset games to a position in which the losing player likely made a mistake and try out a different move.
+
+Another option is to abondon the idea of playing independent games to explore entirely and instead focus on playing one large MCTS-tree, which explores the current space of gameplay possibilities by the MCTS rules.
+
+\subsubsection{Implementation}
+
+To better control the games played, all games are played out on a single machine. To still scale to many GPUs, a MCTS evaluation service is created. The one machine playing the games queues position to be evaluated and waits for
+the results to return. To fully uitilize a lot of GPUs, many thousands of games are played concurrently. The machine playing the games caches the MCTS search results for positions and only queues every position once per network iteration. This 
+way of implementing AlphaZero increases the efficiency of GPU usage, as it prevents duplicate MCTS on common game positions. It is however only an implementation detail and cannot be considered an improvement to the algorithm.
+This also changes the way the training costs are measured, to simplify the measurement of the time to play a single move, the costs are measured in the MCTS evaluation service, so the cost is calculated as the number of requested evaluation multiplied
+by the cost to do a single evaluation on the ''standard`` machine.
+
+Since this different implementation is more efficient compared to the standard baseline normal training runs are done using the MCTS evaluation service with no further changes in the algorithm to establish a new baseline.
+Any algorithmic improvements which need the MCTS evaluation service are compared against this new baseline.
+
+TODO show mcts evaluation service baseline results here.
+
+\subsubsection{Resetting games to a position before a likely mistake}
+
+The idea investigated here is to explore by trying out to play another move in a position that might have been the reason a game was lost.
+
+Randomized play is reduced to the first $16$ turns of a game, down from $30$, to focus exploration on the novel way investigated here.
+Instead of relying on randomized moves to explore, once a game is completed it is reset to an earlier position and replayed with a different choice of moves from there. This choice of moves is intended to be done in a way that explores new possibilities.
+
+The suggested way to chose a new move is to first search the position in which the predicted chance to win of the losing player dropped the most compared to before the latest move was made. For this the position value prediction of the network is used. 
+This should indicate a position in which a likely bad move was played.
+
+From one position earlier, before the network value evaluation dropped, restart a new game and let the losing player pick the best move in the position that has not been played yet.
+This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that might represent better play.
+
+Figure \ref{fig:winp_tree} shows results of this idea. The results are not good, it appears the randomized moves are substantially better at exploration, with game diversity drastically reduced when exploring by retrying a different move in a critical position.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{winp_tree}
+\caption{Retrying a different move  in a critical position to explore does not appear to work.}
+\label{fig:winp_tree}
+\end{figure}
+
+TODO maybe do another run with the exploration set back to up to turn 30?!
+
+\subsubsection{Explore the game tree in the same fashion as MCTS}
+
+The exploration-exploitation dilemma faced by AlphaZero self-play is the same one that MCTS aims to solve. It might thus make sense to explore the game tree by MCTS instead of randomized self-play.
+Specifically this thesis proposes to create a tree of game position, by MCTS rules, to generate example games and game results. Since AlphaZero needs to scale to many distributed machines, virtual losses \cite{chaslot2008parallel} are used to play out many games 
+using the same MCTS tree. This should not be confused with the MCTS used to evaluate single game positions. That per-position MCTS is still used to evaluate positions, effectively stacking two MCTS searches into each other. The one big MCTS that generates training data
+and replaces randomized self-play uses the per-position MCTS as position evaluations, just like the per-position MCTS uses the neural network.
+
+A virtual loss is given to every node visited, pushing following games to investigate other nodes if too many such losses push down the value of a node in the search tree.
+Every game played represents one thread walking down the tree, adding virtual losses to visited nodes. Unlike in AlphaZero MCTS, games have to be played out to a final result before backpropagation can occur. 
+
+To fully utilize ten or more GPUs, thousands of games have to be played in parallel. This might prove a challenge to 
+the virtual loss concept, as the original paper proposing virtual losses tested with only up to $16$ threads, whereas in this case thousands will be necessary.
+
+Another challenge is the exchange of the network once a new network has been trained. This makes it necessary to reevaluate all positions in the tree. If one is not careful, this can substantially increase the training cost,
+as lots of positions have to be evaluated every time a new network is trained before any new game results can be reported, since games have to all start from the first turn again. A game can only be reported once it has been played through fully,
+so if a game is half completed when a new network is created there is the choice between throwing away the game, since it is based on an old network, or accepting the game reports into the training data anyway. 
+
+Throwing away the MCTS tree when a new network 
+is completed would implement throwing away the half finished games, which is too expensive.
+Even after a new network has been trained, games that finish with positions only evaluated by the previous network are still reported. Instead of throwing away the MCTS tree, nodes are only reevaluated as they are encountered again,
+with currently running games untouched.
+
+This is similar to how normal AlphaZero might report some game states to the training server that use an older network due to the distributed nature of the workers.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{mcts_tree_explore}
+\caption{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.}
+\label{fig:mcts_tree_explore}
+\end{figure}
+
+
+
+
+\begin{itemize}
+  \item First idea: restart at position that had the highest drop in expected win change, play the best not-yet-played move in that position
+ \item -> does not help, game diversity is also extremely low.
+ \item -> conclusion: Keeping the game diversity up is extremely important, and none of these exploration schemes do that. The original idea was to get better position evaluations of early game positions, but deduplication basically does that, too. With MCTS-caching it even 
+ does that at no extra GPU cost.
+
+ \item Another idea: Meta-MCTS basically. instead of playing games with random-exploration, play games as one large MCTS tree
+ \item Implementation issues: 1. the tree has to exist on a single machine, so use a MCTS-evaluation service. 2. What to do on a new iteration? The tree needs to be rebuild since the node-priors change! 
+  3. Measure training cost as product of number of evaluations and evaluation cost, do not run the worker for a short time.
+ \item result: Pretty disappointing
+ \item show that the result is even much worse when considering that the cache-mcts-results with plain old random exploration is in fact a faster implementation than the normal one.
+ \item likely issue: Exploration is actually a lot less aggressive. Show attempts with increased cpuct -> does not help.
+\end{itemize}
+
+
+
 
 TODO actually, play them as a MCTS-tree instead. Preferably a single one using a different mode of distribution.
 TODO or still additionally try out the idea below, playing as MCTS-trees is not working out.

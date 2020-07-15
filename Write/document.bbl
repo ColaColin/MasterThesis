@@ -68,6 +68,12 @@ Bernd Brügmann.
 \newblock Monte carlo go.
 \newblock 1993.
 
+\bibitem{chaslot2008parallel}
+Guillaume MJ-B Chaslot, Mark~HM Winands, and H~Jaap van Den~Herik.
+\newblock Parallel monte-carlo tree search.
+\newblock In {\em International Conference on Computers and Games}, pages
+  60--71. Springer, 2008.
+
 \bibitem{gelly2006modification}
 Sylvain Gelly, Yizao Wang, Olivier Teytaud, Modification~Uct Patterns, and
   Projet Tao.
