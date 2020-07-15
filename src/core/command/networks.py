@@ -179,11 +179,11 @@ class NetworksResource():
                 con = self.pool.getconn()
                 cursor = con.cursor()
 
-                cursor.execute("select id from networks where id = %s", (network_id, ))
-                rows = cursor.fetchall()
+                # cursor.execute("select id from networks where id = %s", (network_id, ))
+                # rows = cursor.fetchall()
 
-                if len(rows) == 0:
-                    raise falcon.HTTPError(falcon.HTTP_200, "bad network id")
+                # if len(rows) == 0:
+                #     raise falcon.HTTPError(falcon.HTTP_200, "bad network id")
                     
                 fpath = os.path.join(self.config["dataPath"], getUUIDPath(network_id))
 

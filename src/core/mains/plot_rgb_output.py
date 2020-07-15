@@ -34,7 +34,11 @@ def forwardGameState(net, game):
     with torch.no_grad():
         processed = net(tinput)
 
-    resultNumpy = processed[3].numpy().squeeze(0)
+    print(processed)
+
+    print(processed[0][0].numpy().tolist())
+
+    resultNumpy = processed[0].numpy().squeeze(0)
 
     print(resultNumpy.shape)
 
@@ -53,8 +57,8 @@ def forwardGameState(net, game):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
 
     ax1.imshow(resultNumpy[0,:,:])
-    ax2.imshow(resultNumpy[1,:,:])
-    ax3.imshow(resultNumpy[2,:,:])
+    # ax2.imshow(resultNumpy[1,:,:])
+    # ax3.imshow(resultNumpy[2,:,:])
 
     ax1.invert_yaxis()
     ax2.invert_yaxis()
@@ -65,16 +69,16 @@ def forwardGameState(net, game):
     plt.show()
 
 if __name__ == "__main__":
-   
-    networkID = "9e70ef9a-8d24-4626-92f5-59d4a504ae78"
+
+    networkID = "f7b37c26-9568-4789-a996-5d662000f91f"
  
     setproctitle.setproctitle("x0_plot_rgb")
     setLoggingEnabled(True)
 
     networks = NetworkApi(noRun=True)
 
-    # net = ResCNN(6, 7, 1, 3, 128, 32, 3, 7, 3, 3, mode="sq", outputExtra="movehead")
-    net = ResCNN(6, 7, 1, 3, 64, 16, 1, 7, 3, 8, mode="sq", outputExtra="winhead")
+    net = ResCNN(6, 7, 1, 3, 128, 32, 3, 7, 3, 1, mode="sq", outputExtra="bothhead")
+    # net = ResCNN(6, 7, 1, 3, 64, 16, 1, 7, 3, 8, mode="sq", outputExtra="bothhead")
     print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
 
     networkData = networks.downloadNetwork(networkID)

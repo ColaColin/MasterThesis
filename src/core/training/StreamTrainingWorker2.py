@@ -128,6 +128,8 @@ class StreamManagement():
         self.pendingCounter = 1
         self.currentMoveLoss = []
         self.currentWinLoss = []
+        self.currentWinFeatureLoss = []
+        self.currentMoveFeatureLoss = []
         self.currentReplyLoss = []
 
         self.iterationStartTime = 0
@@ -259,6 +261,12 @@ class StreamManagement():
                     if nextEvent[4] is not None:
                         self.currentReplyLoss += nextEvent[4]
 
+                    if nextEvent[5] is not None:
+                        self.currentWinFeatureLoss += nextEvent[5]
+                    
+                    if nextEvent[6] is not None:
+                        self.currentMoveFeatureLoss += nextEvent[6]
+
                 elif nextEvent[0] == "network":
                     # publish the network, which finishes the iteration
                     iteration = nextEvent[1]
@@ -267,10 +275,21 @@ class StreamManagement():
                     policyData = nextEvent[3]
 
                     logMsg("Iteration %i completed, frames processed: %i, of which were seen before: %i" % (iteration, self.trainFrameCount, self.dedupeFramesUsed))
+
+                    wflStr = ""
+                    mflStr = ""
+                    if len(self.currentWinFeatureLoss) > 0:
+                        wflStr += ", %.4f on win features" % np.mean(self.currentWinFeatureLoss)
+                    
+                    if len(self.currentMoveFeatureLoss) > 0:
+                        mflStr += ", %.4f on move features" % np.mean(self.currentMoveFeatureLoss)
+
+                    fflstr = wflStr + mflStr
+
                     if len(self.currentReplyLoss) > 0:
-                        logMsg("Iteration network loss: %.4f on moves, %.4f on outcome, %.4f on reply" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss), np.mean(self.currentReplyLoss)))
+                        logMsg(("Iteration network loss: %.4f on moves, %.4f on outcome, %.4f on reply" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss), np.mean(self.currentReplyLoss))) + fflstr)
                     else:
-                        logMsg("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss)))
+                        logMsg(("Iteration network loss: %.4f on moves, %.4f on outcome" % (np.mean(self.currentMoveLoss), np.mean(self.currentWinLoss))) + fflstr)
                     self.networks.uploadEncodedNetwork(newUUID, policyData)
 
                     self.clearWaitBuffer(iteration)
@@ -364,6 +383,8 @@ class StreamManagement():
             self.currentMoveLoss = []
             self.currentWinLoss = []
             self.currentReplyLoss = []
+            self.currentWinFeatureLoss = []
+            self.currentMoveFeatureLoss = []
             self.trainFrameCount = 0
             self.dedupeFramesUsed = 0
 
@@ -492,10 +513,12 @@ class StreamTrainingWorker2():
                     wls = []
                     mls = []
                     rls = None
+                    wfls = []
+                    mfls = []
                 else:
-                    mls, wls, rls = fitResult
+                    mls, wls, rls, wfls, mfls = fitResult
 
-                self.trainEventsQueue.put(("finish", nextWork[1], mls, wls, rls))
+                self.trainEventsQueue.put(("finish", nextWork[1], mls, wls, rls, wfls, mfls))
             elif nextWork[0] == "publish":
                 iteration = nextWork[1]
                 self.trainEventsQueue.put(("network", iteration, self.policy.getUUID(), encodeToBson(self.policy.store())))

@@ -272,6 +272,32 @@ import numpy as np
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_low_diversity.eps"
 
+
+# plot_name = "Evolving player parameters for novelty search only."
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "novelty search": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "f8830ef7-0e14-4e0d-ae29-87378daf5b5f",
+#             "d2e2917f-4ca3-4c13-89d0-ebdf2ca152e6",
+#             "037fa6cc-4975-459d-9a84-98ce9eb1342d"
+#         ]
+#     },
+#     "extra": "diversity"
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/pure_novelty_search.eps"
+
+
 # plot_name = "More efficient implementation: Caching all MCTS results."
 # groups = {
 #     "extended": {
@@ -316,25 +342,25 @@ import numpy as np
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/winp_tree.eps"
 
-plot_name = "Exploration by MCTS"
-groups = {
-    "cached MCTS baseline": {
-        "color": (1, 0, 0),
-        "runs": [
-            "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
-            "d91dbba7-4363-4779-8a86-7a127977d9e4",
-            "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
-        ]
-    },
-    "Exploration by MCTS, cpuct = 15": {
-        "color": (0, 1, 0),
-        "runs": [
-            "e5eb7ac2-3123-46bd-a79a-5026814a859c"
-        ]
-    },
-    "extra": "diversity"
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
+# plot_name = "Exploration by MCTS"
+# groups = {
+#     "cached MCTS baseline": {
+#         "color": (1, 0, 0),
+#         "runs": [
+#             "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
+#             "d91dbba7-4363-4779-8a86-7a127977d9e4",
+#             "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
+#         ]
+#     },
+#     "Exploration by MCTS, cpuct = 15": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "e5eb7ac2-3123-46bd-a79a-5026814a859c"
+#         ]
+#     },
+#     "extra": "diversity"
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
 
 
 # up to what hour of cost to display data

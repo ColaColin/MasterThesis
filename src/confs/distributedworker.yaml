@@ -83,6 +83,21 @@ evalWorker:
   policyIterator: $mcts
   policyUpdater: $updater
 
+feature_provider:
+  name: ResCNN
+  inWidth: 6
+  inHeight: 7
+  inDepth: 1
+  baseKernelSize: 3
+  baseFeatures: 128
+  features: 32
+  blocks: 3
+  moveSize: 7
+  winSize: 3
+  extraHeadFilters: 1
+  mode: sq
+  outputExtra: bothhead
+
 worker:
   name: TreeSelfPlayWorker
   initialState: $mnk

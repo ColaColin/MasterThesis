@@ -15,6 +15,12 @@ import datetime
 
 import random
 
+import torch
+from torch.autograd import Variable
+import sys
+from core.training.NetworkApi import NetworkApi
+from impls.polices.pytorch.policy import unpackTorchNetwork
+
 class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def decideMove(self, gameState, policyDistribution, extraStats):
@@ -23,7 +29,9 @@ class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
         """
 
 class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
-    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider, gameReporter, policyUpdater, capPolicyP = None, capPolicyIterator = None, capMoveDecider = None):
+    def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider,\
+            gameReporter, policyUpdater, capPolicyP = None, capPolicyIterator = None, capMoveDecider = None,\
+            featureProvider = None, featureNetworkID = None):
         """
         To use playout cap randomization (see arXiv:1902.10565v3), configure:
         capPolicyP: what fraction of the games should be capped (this is 1-p in the paper, I find that more easy to understand)
@@ -51,6 +59,39 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         if self.capPolicyP is not None:
             logMsg("Playout Cap Randomization is enabled, %i%% of moves will be played with a faster policy iterator and not recorded as training material to playout more games at little cost!" % (self.capPolicyP * 100))
+
+        self.featureProvider = featureProvider
+        # local feature networks are not supported, this always ends up loading via network.
+        self.featureNetworkID = featureNetworkID
+
+        if self.featureProvider is not None:
+            logMsg("Using a feature providing network to add additional features to training data!")
+            if self.featureNetworkID is not None:
+                logMsg("Loading feature network %s" % self.featureNetworkID)
+                networks = NetworkApi(noRun=True)
+                networkData = networks.downloadNetwork(self.featureNetworkID)
+                uuid, modelDict = unpackTorchNetwork(networkData)
+                self.featureProvider.load_state_dict(modelDict)
+
+                if torch.cuda.is_available():
+                    gpuCount = torch.cuda.device_count()
+                    device = "cuda"
+
+                    if "--windex" in sys.argv and gpuCount > 1:
+                        windex = int(sys.argv[sys.argv.index("--windex") + 1])
+                        gpuIndex = windex % gpuCount
+                        device = "cuda:" + str(gpuIndex)
+                        logMsg("Found multiple gpus with set windex, extended cuda device to %s" % device)
+
+                    self.device = torch.device(device)
+
+                    logMsg("Feature network will use the gpu!", self.device)
+                else:
+                    logMsg("No GPU is available, falling back to cpu!")
+                    self.device = torch.device("cpu")
+                
+                self.featureProvider = self.featureProvider.to(self.device)
+                self.featureProvider.train(False)
 
     def handleSpeedStats(self):
         if time.monotonic() - self.lastSpeedStatsPrint > 300:
@@ -145,6 +186,15 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         prevStateUUID = None
 
+        def getNextState(tlist, ti, offset):
+            # this only supports two player games!
+            if ti + offset * 2 >= len(tlist):
+                offset = 0
+            
+            state, iPolicy = tlist[ti + offset * 2]
+            return state
+
+
         for ti in range(len(trackList)):
             state, iPolicy = trackList[ti]
             # do not learn from terminal states, there is no move that can be made on them
@@ -162,6 +212,19 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             record["state"] = state.store()
             record["gamename"] = state.getGameName()
             record["creation"] = datetime.datetime.utcnow().timestamp()
+
+            if self.featureProvider is not None:
+                # theses only add the relevant state first, below they will be rewritten to the features from the feature providing network
+                record["winFeatures"] = getNextState(trackList, ti, 0)
+                record["winFeatures+1"] = getNextState(trackList, ti, 1)
+                record["winFeatures+2"] = getNextState(trackList, ti, 2)
+                record["winFeatures+3"] = getNextState(trackList, ti, 3)
+
+                record["moveFeatures"] = getNextState(trackList, ti, 0)
+                record["moveFeatures+1"] = getNextState(trackList, ti, 1)
+                record["moveFeatures+2"] = getNextState(trackList, ti, 2)
+                record["moveFeatures+3"] = getNextState(trackList, ti, 3)
+
             record["final"] = False
 
             # if the game is over after the current move is played, encode that as a uniform distribution over all moves
@@ -175,6 +238,51 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
             reports.append(record)
 
         self.tracking[idx] = None
+
+        if self.featureProvider is not None:
+            relevantPositions = set()
+
+            for r in reports:
+                relevantPositions.add(r["winFeatures"])
+                relevantPositions.add(r["winFeatures+1"])
+                relevantPositions.add(r["winFeatures+2"])
+                relevantPositions.add(r["winFeatures+3"])
+
+                relevantPositions.add(r["moveFeatures"])
+                relevantPositions.add(r["moveFeatures+1"])
+                relevantPositions.add(r["moveFeatures+2"])
+                relevantPositions.add(r["moveFeatures+3"])
+
+            rpositions = list(relevantPositions)
+
+            if len(rpositions) > 0:
+                winFeatures = dict()
+                moveFeatures = dict()
+
+                forwardShape = (len(rpositions), ) + rpositions[0].getDataShape()
+                featuresNetInput = torch.zeros(forwardShape)
+                npNetInput = featuresNetInput.numpy()
+                for gidx, g in enumerate(rpositions):
+                    g.encodeIntoTensor(npNetInput, gidx, False)
+
+                forwardInputGPU = Variable(featuresNetInput, requires_grad=False).to(self.device)
+                with torch.no_grad():
+                    mOut, wOut, rOut, winFeaturesOut, moveFeaturesOut = self.featureProvider(forwardInputGPU)  
+
+                for gidx, g in enumerate(rpositions):
+                    winFeatures[g] = winFeaturesOut[gidx]
+                    moveFeatures[g] = moveFeaturesOut[gidx]
+
+                for r in reports:
+                    r["winFeatures"] = winFeatures[r["winFeatures"]].cpu().numpy().flatten().tolist()
+                    r["winFeatures+1"] = winFeatures[r["winFeatures+1"]].cpu().numpy().flatten().tolist()
+                    r["winFeatures+2"] = winFeatures[r["winFeatures+2"]].cpu().numpy().flatten().tolist()
+                    r["winFeatures+3"] = winFeatures[r["winFeatures+3"]].cpu().numpy().flatten().tolist()
+
+                    r["moveFeatures"] = moveFeatures[r["moveFeatures"]].cpu().numpy().flatten().tolist()
+                    r["moveFeatures+1"] = moveFeatures[r["moveFeatures+1"]].cpu().numpy().flatten().tolist()
+                    r["moveFeatures+2"] = moveFeatures[r["moveFeatures+2"]].cpu().numpy().flatten().tolist()
+                    r["moveFeatures+3"] = moveFeatures[r["moveFeatures+3"]].cpu().numpy().flatten().tolist()
 
         if len(reports) > 0:
             reports[len(reports) - 1]["final"] = True

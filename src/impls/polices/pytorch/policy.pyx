@@ -210,6 +210,8 @@ class ResCNN(nn.Module):
                 return moveP, winP, replyP, headWin
             elif self.outputExtra == "movehead":
                 return moveP, winP, replyP, headMove
+            elif self.outputExtra == "bothhead":
+                return moveP, winP, replyP, headWin, headMove
             else:
                 assert False, "Unknown outputExtra: " + self.outputExtra
         
@@ -221,13 +223,27 @@ def gameResultsToAbsoluteWinTensor(wins, playerCount):
     return result
 
 class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
-    def __init__(self, device, gameCtor, gameParams, gameDims, targetReply):
+    def __init__(self, device, gameCtor, gameParams, gameDims, targetReply, useWinFeatures = -1, useMoveFeatures = -1):
         self.device = device
         self.gameCtor = gameCtor
         self.gameParams = gameParams
         self.protoState = None
         self.gameDims = gameDims
         self.targetReply = targetReply
+
+        self.useWinFeatures = useWinFeatures
+        self.useMoveFeatures = useMoveFeatures
+
+    def createFeatureTensor(self, frame, featureName):
+        wtf = frame[featureName]
+        ftensor = torch.zeros((1, len(wtf)))
+        cdef float [:, :] ftensornp = ftensor.numpy()
+        cdef int idx
+
+        for idx, f in enumerate(wtf):
+            ftensornp[0, idx] = f
+
+        return ftensor
 
     def prepareExample(self, frame):
         if self.protoState is None:
@@ -262,14 +278,29 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
 
         cdef float [:, :] replyTensor;
 
+        result = []
+
         if self.targetReply:
             outputReply = torch.zeros((1, self.protoState.getMoveCount()))
             replyTensor = outputReply.numpy()
             for idx, p in enumerate(frame["reply"]):
                 replyTensor[0, idx] = p
-            return [inputArray, outputMoves, outputWins, outputReply, hash(game)]
+            result += [inputArray, outputMoves, outputWins, outputReply, hash(game)]
         else:
-            return [inputArray, outputMoves, outputWins, hash(game)]
+            result += [inputArray, outputMoves, outputWins, hash(game)]
+
+        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+            featuresDicts = dict()
+            result.append(featuresDicts)
+
+            featureNames = ["winFeatures", "winFeatures+1", "winFeatures+2", "winFeatures+3",\
+                "moveFeatures", "moveFeatures+1", "moveFeatures+2", "moveFeatures+3"]
+
+            for fname in featureNames:
+                if fname in frame:
+                    featuresDicts[fname] = self.createFeatureTensor(frame, fname)
+        
+        return result
 
     def getHashForExample(self, example):
         if self.targetReply:
@@ -293,17 +324,46 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
             target[3] *= targetWeight
             target[3] += sourceWeight * source[3]
 
+        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+            ftdict = target[len(target)-1]
+            fsdict = source[len(source)-1]
+            for fname in dict.keys(ftdict):
+                ftdict[fname] *= targetWeight
+                ftdict[fname] += sourceWeight * fsdict[fname]
+
     def packageExamplesBatch(self, examples):
         # format is (inputs, movesOut, winsOut, examplesCount)[]
         random.shuffle(examples)
         inputs = torch.cat(list(map(lambda x: x[0], examples))).to(self.device)
         movesOut = torch.cat(list(map(lambda x: x[1], examples))).to(self.device)
         winsOut = torch.cat(list(map(lambda x: x[2], examples))).to(self.device)
+
+        result = []
+
         if self.targetReply:
             replyOut = torch.cat(list(map(lambda x: x[3], examples))).to(self.device)
-            return (inputs, movesOut, winsOut, replyOut, len(examples))
+            result += [inputs, movesOut, winsOut, replyOut, len(examples)]
         else:
-            return (inputs, movesOut, winsOut, len(examples))
+            result += [inputs, movesOut, winsOut, len(examples)]
+
+        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+            fidx = len(examples[0]) - 1
+            winFeaturesOut = [
+                torch.cat(list(map(lambda x: x[fidx]["winFeatures"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["winFeatures+1"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["winFeatures+2"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["winFeatures+3"], examples))).to(self.device)
+            ]
+            moveFeaturesOut = [
+                torch.cat(list(map(lambda x: x[fidx]["moveFeatures"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["moveFeatures+1"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["moveFeatures+2"], examples))).to(self.device),
+                torch.cat(list(map(lambda x: x[fidx]["moveFeatures+3"], examples))).to(self.device)
+            ]
+
+            result += [winFeaturesOut, moveFeaturesOut]
+
+        return result
     
 
 class LrStepSchedule(IterationCalculatedValue, metaclass=abc.ABCMeta):
@@ -381,12 +441,20 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     different network variants can be used with the network parameter:
     plain: "classical" AlphaZero resnet
     sq: AlphaZero, but with Squeeze Excite elements
+    useWinFeatures/useMoveFeatures: -1 to deactivate, 0 to only current turn, 1 to use next turn, 2 to use two next turns, 3 to use 3 next turns. Not above 3.
+    featuresWeight: training weight for the loss created from win/move features.
     """
 
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, \
             optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1, momentumDecider = None, \
-            networkMode="plain", replyWeight = 0):
+            networkMode="plain", replyWeight = 0,\
+            useWinFeatures = -1, useMoveFeatures = -1, featuresWeight = 0.01):
         self.batchSize = batchSize
+        
+        self.useWinFeatures = useWinFeatures
+        self.useMoveFeatures = useMoveFeatures
+        self.featuresWeight = featuresWeight
+
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
 
@@ -432,7 +500,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.lrDecider = lrDecider
         self.momentumDecider = momentumDecider
 
-        self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0)
+        self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
 
         self.initNetwork()
 
@@ -446,7 +514,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
             self.headKernel, self.headFilters, self.filters, self.blocks,\
             self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1, self.extraHeadFilters,\
-            mode=self.networkMode, predictReply=self.replyWeight > 0)
+            mode=self.networkMode, predictReply=self.replyWeight > 0, outputExtra="bothhead")
         self.net = self.net.to(self.device)
 
         # can't use mlconfig, as mlconfig has no access to self.net.parameters :(
@@ -476,7 +544,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def runNetwork(self, int thisBatchSize, asyncCall):
         with torch.no_grad():
             # TODO could probably form an extra net somehow that does not include the replyP head at all?!
-            moveP, winP, replyP = self.net(self.forwardInputGPU[:thisBatchSize])
+            packed = self.net(self.forwardInputGPU[:thisBatchSize])
+            if len(packed) > 3:
+                moveP, winP, replyP, e1, e2 = packed
+            else:
+                moveP, winP, replyP = packed
         
         if asyncCall is not None:
             asyncCall()
@@ -541,7 +613,6 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             for fr in fresult:
                 results.append(fr)
         return results
-        
 
     def getUUID(self):
         return self.uuid
@@ -584,7 +655,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         return self.packer.packageExamplesBatch(examples)
 
     def getExamplePrepareObject(self):
-        return PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0)
+        return PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
 
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         self.uuid = str(uuid.uuid4())
@@ -610,6 +681,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         cdef float wOpp = self.replyWeight
 
+        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+            winFeatures = data[len(data)-2]
+            moveFeatures = data[len(data)-1]
+            data = data[:len(data)-2]
+
         if self.replyWeight > 0:
             nIn, mT, wT, rT, examplesCount = data
         else:
@@ -621,6 +697,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         mls = []
         wls = []
         rls = []
+
+        wflosses = []
+        mflosses = []
 
         for bi in range(batchNum):
             batchStart = bi*sbatchSize
@@ -634,9 +713,19 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             if wOpp > 0:
                 yR = rT[batchStart:batchEnd]
 
+            wfs = []
+            if self.useWinFeatures > -1:
+                for wf0 in winFeatures[0:self.useWinFeatures+1]:
+                    wfs.append(wf0[batchStart:batchEnd])
+
+            mfs = []
+            if self.useMoveFeatures > -1:
+                for mf0 in moveFeatures[0:self.useMoveFeatures+1]:
+                    mfs.append(mf0[batchStart:batchEnd])
+
             self.optimizer.zero_grad()
 
-            mO, wO, rO = self.net(x)
+            mO, wO, rO, headWin, headMove = self.net(x)
 
             mLoss = -torch.sum(mO * yM) / thisBatchSize
             wLoss = -torch.sum(wO * yW) / thisBatchSize
@@ -646,6 +735,17 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
             if wOpp > 0:
                 rLoss = -torch.sum(rO * yR) / thisBatchSize
                 loss += wOpp * rLoss 
+
+            mseLoss = nn.MSELoss()
+            for widx, wf in enumerate(wfs):
+                wfloss = mseLoss(wf, headWin[:,widx,:, :].view(thisBatchSize, -1))
+                wflosses.append(wfloss.data.item())
+                loss += self.featuresWeight * wfloss
+
+            for midx, mf in enumerate(mfs):
+                mfloss = mseLoss(mf, headMove[:,midx,:,:].view(thisBatchSize, -1))
+                mflosses.append(mfloss.data.item())
+                loss += self.featuresWeight * mfloss
 
             loss.backward()
 
@@ -686,7 +786,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         self.net.train(False)
 
-        return mls, wls, rls
+        return mls, wls, rls, wflosses, mflosses
 
     def load(self, packed):
         uuid, stateDict = unpackTorchNetwork(packed)

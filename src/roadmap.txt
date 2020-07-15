@@ -718,8 +718,8 @@ WK 28
 
 WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
-          [ ] implement using a small network whose features are used as one feature layer of the last conv layers in the big network
-          [ ] also allow to include future moves into this.
+          [X] implement using a small network whose features are used as one feature layer of the last conv layers in the big network
+          [X] also allow to include future moves into this.
           [ ] see where it goes
           [ ] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
                -> as a "yeah this is why it does not work" or "yeah this is why it works"... xD
