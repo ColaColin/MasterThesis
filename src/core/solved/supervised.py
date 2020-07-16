@@ -54,7 +54,7 @@ from impls.selfplay.LinearSelfPlay import fillRecordForFeatures
 #   useWinFeatures: -1
 #   useMoveFeatures: -1
 #   featuresWeight: 0.001
-[2020-07-16T18:59:10.090574+02:00] 
+# [2020-07-16T18:59:10.090574+02:00] 
 # Training set size | moves %         |  wins % 
 # ------------------+---------+---------
 #              8000 |  76.16 +/- 1.50 |  71.06 +/- 1.37  <<< best
