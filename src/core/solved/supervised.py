@@ -54,7 +54,10 @@ from impls.selfplay.LinearSelfPlay import fillRecordForFeatures
 #   useWinFeatures: -1
 #   useMoveFeatures: -1
 #   featuresWeight: 0.001
-
+[2020-07-16T18:59:10.090574+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  76.16 +/- 1.50 |  71.06 +/- 1.37  <<< best
 
 
 class SupervisedNetworkTrainer():
@@ -282,7 +285,7 @@ class SupervisedNetworkTrainer():
                 bestScore = score
                 bestIndex = i
 
-        finalResultTxt =  "\nTraining set size | moves %       |  wins % \n"
+        finalResultTxt =  "\nTraining set size | moves %         |  wins % \n"
         finalResultTxt += "------------------+---------+---------\n"
         for i in range(len(self.trainingResults)):
             finalResultTxt += "%17d |  %.2f +/- %.2f |  %.2f +/- %.2f " % self.trainingResults[i]
