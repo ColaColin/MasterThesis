@@ -11,6 +11,15 @@ import random
 import numpy as np
 import math
 
+import torch
+from torch.autograd import Variable
+import sys
+from impls.polices.pytorch.policy import unpackTorchNetwork
+
+from utils.bsonHelp.bsonHelp import decodeFromBson
+
+from impls.selfplay.LinearSelfPlay import fillRecordForFeatures
+
 # Training set size | moves % | wins % 
 # ------------------+---------+---------
 #             10000 |  65.28  |  37.04  
@@ -18,13 +27,77 @@ import math
 #             30000 |  74.02  |  40.99  
 #             40000 |  76.50  |  39.39   <<< best
 
+
+# no extra features
+# [2020-07-16T18:20:18.087355+02:00] 
+# Training set size | moves % | wins % 
+# ------------------+---------+---------
+#              8000 |  75.76  |  70.72   <<< best
+
+#   useWinFeatures: 0
+#   useMoveFeatures: 0
+#   featuresWeight: 0.01
+# [2020-07-16T18:34:54.154848+02:00] 
+# Training set size | moves % | wins % 
+# ------------------+---------+---------
+#              8000 |  75.12  |  70.48   <<< best
+
+#   useWinFeatures: 0
+#   useMoveFeatures: 0
+#   featuresWeight: 0.001
+# [2020-07-16T18:43:11.856511+02:00] 
+# Training set size | moves % | wins % 
+# ------------------+---------+---------
+#              8000 |  75.20  |  70.90   <<< best
+
+
+#   useWinFeatures: -1
+#   useMoveFeatures: -1
+#   featuresWeight: 0.001
+
+
+
 class SupervisedNetworkTrainer():
-    def __init__(self, datasetFile, initialGame, policy, windowSizeSplits, trainingRuns, workingDirectory, testSamples, validationSamples, batchSize, lrStart, lrPatience):
+    def __init__(self, datasetFile, initialGame, policy, windowSizeSplits, trainingRuns, workingDirectory, testSamples, validationSamples, batchSize, lrStart, lrPatience, featureProvider=None, featureNetwork=None):
         logMsg("Starting to initialize supervised training")
+
+        self.featureProvider = featureProvider
+        self.featureNetwork = featureNetwork
+
+        if self.featureProvider is not None:
+            logMsg("Using feature provider network!")
+            if self.featureNetwork is not None:
+                with open(self.featureNetwork, "rb") as f:
+                    networkData = decodeFromBson(f.read())
+                    uuid, modelDict = unpackTorchNetwork(networkData)
+                    self.featureProvider.load_state_dict(modelDict)
+                    logMsg("Loaded feature network %s" % uuid)
+
+            if torch.cuda.is_available():
+                gpuCount = torch.cuda.device_count()
+                device = "cuda"
+
+                if "--windex" in sys.argv and gpuCount > 1:
+                    windex = int(sys.argv[sys.argv.index("--windex") + 1])
+                    gpuIndex = windex % gpuCount
+                    device = "cuda:" + str(gpuIndex)
+                    logMsg("Found multiple gpus with set windex, extended cuda device to %s" % device)
+
+                self.device = torch.device(device)
+
+                logMsg("Feature network will use the gpu!", self.device)
+            else:
+                logMsg("No GPU is available, falling back to cpu!")
+                self.device = torch.device("cpu")
+            
+            self.featureProvider = self.featureProvider.to(self.device)
+            self.featureProvider.train(False)
 
         self.examples = loadExamples2(initialGame, datasetFile)
         random.seed(42)
         random.shuffle(self.examples)
+
+        sawFutures = False
 
         self.records = []
         for lex in self.examples:
@@ -50,7 +123,30 @@ class SupervisedNetworkTrainer():
             
             record["knownResults"] = gresult
 
+            if len(lex) > 4 and self.featureProvider is not None:
+                if not sawFutures:
+                    sawFutures = True
+                    logMsg("Dataset contains future positions to create features from!")
+
+                record["winFeatures"] = lex[0]
+                record["winFeatures+1"] = lex[-1][0]
+                record["winFeatures+2"] = lex[-1][1]
+                record["winFeatures+3"] = lex[-1][2]
+
+                record["moveFeatures"] = lex[0]
+                record["moveFeatures+1"] = lex[-1][0]
+                record["moveFeatures+2"] = lex[-1][1]
+                record["moveFeatures+3"] = lex[-1][2]
+
             self.records.append(record)
+
+        if sawFutures:
+            logMsg("Creating extra features!")
+            bsize = 1024
+            for ix in range(0, len(self.records), bsize):
+                batch = self.records[ix:(ix+bsize)]
+                fillRecordForFeatures(self.featureProvider, batch, self.device)
+            logMsg("Extra features created!")
 
         self.initialGame = initialGame
         self.policy = policy
@@ -66,7 +162,6 @@ class SupervisedNetworkTrainer():
         self.trainingResults = []
 
         logMsg("Initialization completed")
-
 
     def doRun(self, workDir, trainingSet, validationSet, testSet):
         logMsg("Supervised training starts for %i training examples, validating on %i examples and testing on %i examples." % (len(trainingSet), len(validationSet), len(testSet)))
@@ -109,17 +204,27 @@ class SupervisedNetworkTrainer():
 
             moveLosses = []
             winLosses = []
+            wfLosses = []
+            mfLosses = []
 
             for batchIndex in range(numBatches):
                 batchData = trainingSet[batchIndex * self.batchSize : (batchIndex + 1) * self.batchSize]
-                mls, wls, rls = self.policy.fit(self.policy.quickPrepare(batchData), forceLr = curLr)
-                assert rls is None, "reply prediction is not supported in supervised training!"
+                mls, wls, rls, wfl, mfl = self.policy.fit(self.policy.quickPrepare(batchData), forceLr = curLr)
+                assert rls is None or len(rls) == 0, "reply prediction is not supported in supervised training!"
                 moveLosses += mls
                 winLosses += wls
+                wfLosses += wfl
+                mfLosses += mfl
 
             moveAccuarcy, winAccuracy = self.evaluateNetwork(validationSet)
 
-            logTxt("[Epoch %03d] with LR %0.4f, loss: moves %.5f, wins: %.5f; val: moves %.2f%%, wins: %.2f%%" % (epoch, curLr, np.mean(moveLosses), np.mean(winLosses),  moveAccuarcy, winAccuracy))
+            extrastr = ""
+            if len(wfLosses) > 0:
+                extrastr += ", win features %.5f," % np.mean(wfLosses)
+            if len(mfLosses) > 0:
+                extrastr += " move features %.5f" % np.mean(mfLosses)
+
+            logTxt(("[Epoch %03d] with LR %0.4f, loss: moves %.5f, wins: %.5f; val: moves %.2f%%, wins: %.2f%%" % (epoch, curLr, np.mean(moveLosses), np.mean(winLosses),  moveAccuarcy, winAccuracy)) + extrastr)
             validationScore = (moveAccuarcy + winAccuracy) / 2
 
             epochPath = os.path.join(workDir, "epoch_" + str(epoch) + ".npy")
@@ -166,7 +271,7 @@ class SupervisedNetworkTrainer():
                 mas.append(moveAccuracy)
                 was.append(winAccuracy)
 
-            self.trainingResults.append((trainSetSize, np.mean(mas), np.mean(was)))
+            self.trainingResults.append((trainSetSize, np.mean(mas), np.std(mas), np.mean(was), np.std(was)))
 
         bestIndex = -1
         bestScore = 0
@@ -177,10 +282,10 @@ class SupervisedNetworkTrainer():
                 bestScore = score
                 bestIndex = i
 
-        finalResultTxt =  "\nTraining set size | moves % | wins % \n"
+        finalResultTxt =  "\nTraining set size | moves %       |  wins % \n"
         finalResultTxt += "------------------+---------+---------\n"
         for i in range(len(self.trainingResults)):
-            finalResultTxt += "%17d |  %.2f  |  %.2f  " % self.trainingResults[i]
+            finalResultTxt += "%17d |  %.2f +/- %.2f |  %.2f +/- %.2f " % self.trainingResults[i]
             if i == bestIndex:
                 finalResultTxt += " <<< best\n"
             else:

@@ -28,6 +28,53 @@ class SelfPlayMoveDecider(metaclass=abc.ABCMeta):
         @return move to be played based on the gameState and the policy and extra stats found by the policy iterator.
         """
 
+
+def fillRecordForFeatures(featureProvider, reports, device):
+    relevantPositions = set()
+
+    for r in reports:
+        relevantPositions.add(r["winFeatures"])
+        relevantPositions.add(r["winFeatures+1"])
+        relevantPositions.add(r["winFeatures+2"])
+        relevantPositions.add(r["winFeatures+3"])
+
+        relevantPositions.add(r["moveFeatures"])
+        relevantPositions.add(r["moveFeatures+1"])
+        relevantPositions.add(r["moveFeatures+2"])
+        relevantPositions.add(r["moveFeatures+3"])
+
+    rpositions = list(relevantPositions)
+
+    if len(rpositions) > 0:
+        winFeatures = dict()
+        moveFeatures = dict()
+
+        forwardShape = (len(rpositions), ) + rpositions[0].getDataShape()
+        featuresNetInput = torch.zeros(forwardShape)
+        npNetInput = featuresNetInput.numpy()
+        for gidx, g in enumerate(rpositions):
+            g.encodeIntoTensor(npNetInput, gidx, False)
+
+        forwardInputGPU = Variable(featuresNetInput, requires_grad=False).to(device)
+        with torch.no_grad():
+            mOut, wOut, rOut, winFeaturesOut, moveFeaturesOut = featureProvider(forwardInputGPU)  
+
+        for gidx, g in enumerate(rpositions):
+            winFeatures[g] = winFeaturesOut[gidx]
+            moveFeatures[g] = moveFeaturesOut[gidx]
+
+        for r in reports:
+            r["winFeatures"] = winFeatures[r["winFeatures"]].cpu().numpy().flatten().tolist()
+            r["winFeatures+1"] = winFeatures[r["winFeatures+1"]].cpu().numpy().flatten().tolist()
+            r["winFeatures+2"] = winFeatures[r["winFeatures+2"]].cpu().numpy().flatten().tolist()
+            r["winFeatures+3"] = winFeatures[r["winFeatures+3"]].cpu().numpy().flatten().tolist()
+
+            r["moveFeatures"] = moveFeatures[r["moveFeatures"]].cpu().numpy().flatten().tolist()
+            r["moveFeatures+1"] = moveFeatures[r["moveFeatures+1"]].cpu().numpy().flatten().tolist()
+            r["moveFeatures+2"] = moveFeatures[r["moveFeatures+2"]].cpu().numpy().flatten().tolist()
+            r["moveFeatures+3"] = moveFeatures[r["moveFeatures+3"]].cpu().numpy().flatten().tolist()
+
+
 class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
     def __init__(self, initialState, policy, policyIterator, gameCount, moveDecider,\
             gameReporter, policyUpdater, capPolicyP = None, capPolicyIterator = None, capMoveDecider = None,\
@@ -73,25 +120,25 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 uuid, modelDict = unpackTorchNetwork(networkData)
                 self.featureProvider.load_state_dict(modelDict)
 
-                if torch.cuda.is_available():
-                    gpuCount = torch.cuda.device_count()
-                    device = "cuda"
+            if torch.cuda.is_available():
+                gpuCount = torch.cuda.device_count()
+                device = "cuda"
 
-                    if "--windex" in sys.argv and gpuCount > 1:
-                        windex = int(sys.argv[sys.argv.index("--windex") + 1])
-                        gpuIndex = windex % gpuCount
-                        device = "cuda:" + str(gpuIndex)
-                        logMsg("Found multiple gpus with set windex, extended cuda device to %s" % device)
+                if "--windex" in sys.argv and gpuCount > 1:
+                    windex = int(sys.argv[sys.argv.index("--windex") + 1])
+                    gpuIndex = windex % gpuCount
+                    device = "cuda:" + str(gpuIndex)
+                    logMsg("Found multiple gpus with set windex, extended cuda device to %s" % device)
 
-                    self.device = torch.device(device)
+                self.device = torch.device(device)
 
-                    logMsg("Feature network will use the gpu!", self.device)
-                else:
-                    logMsg("No GPU is available, falling back to cpu!")
-                    self.device = torch.device("cpu")
-                
-                self.featureProvider = self.featureProvider.to(self.device)
-                self.featureProvider.train(False)
+                logMsg("Feature network will use the gpu!", self.device)
+            else:
+                logMsg("No GPU is available, falling back to cpu!")
+                self.device = torch.device("cpu")
+            
+            self.featureProvider = self.featureProvider.to(self.device)
+            self.featureProvider.train(False)
 
     def handleSpeedStats(self):
         if time.monotonic() - self.lastSpeedStatsPrint > 300:
@@ -188,8 +235,10 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
 
         def getNextState(tlist, ti, offset):
             # this only supports two player games!
-            if ti + offset * 2 >= len(tlist):
-                offset = 0
+            while ti + offset * 2 >= len(tlist):
+                offset -= 1
+            
+            assert offset >= 0
             
             state, iPolicy = tlist[ti + offset * 2]
             return state
@@ -240,49 +289,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
         self.tracking[idx] = None
 
         if self.featureProvider is not None:
-            relevantPositions = set()
-
-            for r in reports:
-                relevantPositions.add(r["winFeatures"])
-                relevantPositions.add(r["winFeatures+1"])
-                relevantPositions.add(r["winFeatures+2"])
-                relevantPositions.add(r["winFeatures+3"])
-
-                relevantPositions.add(r["moveFeatures"])
-                relevantPositions.add(r["moveFeatures+1"])
-                relevantPositions.add(r["moveFeatures+2"])
-                relevantPositions.add(r["moveFeatures+3"])
-
-            rpositions = list(relevantPositions)
-
-            if len(rpositions) > 0:
-                winFeatures = dict()
-                moveFeatures = dict()
-
-                forwardShape = (len(rpositions), ) + rpositions[0].getDataShape()
-                featuresNetInput = torch.zeros(forwardShape)
-                npNetInput = featuresNetInput.numpy()
-                for gidx, g in enumerate(rpositions):
-                    g.encodeIntoTensor(npNetInput, gidx, False)
-
-                forwardInputGPU = Variable(featuresNetInput, requires_grad=False).to(self.device)
-                with torch.no_grad():
-                    mOut, wOut, rOut, winFeaturesOut, moveFeaturesOut = self.featureProvider(forwardInputGPU)  
-
-                for gidx, g in enumerate(rpositions):
-                    winFeatures[g] = winFeaturesOut[gidx]
-                    moveFeatures[g] = moveFeaturesOut[gidx]
-
-                for r in reports:
-                    r["winFeatures"] = winFeatures[r["winFeatures"]].cpu().numpy().flatten().tolist()
-                    r["winFeatures+1"] = winFeatures[r["winFeatures+1"]].cpu().numpy().flatten().tolist()
-                    r["winFeatures+2"] = winFeatures[r["winFeatures+2"]].cpu().numpy().flatten().tolist()
-                    r["winFeatures+3"] = winFeatures[r["winFeatures+3"]].cpu().numpy().flatten().tolist()
-
-                    r["moveFeatures"] = moveFeatures[r["moveFeatures"]].cpu().numpy().flatten().tolist()
-                    r["moveFeatures+1"] = moveFeatures[r["moveFeatures+1"]].cpu().numpy().flatten().tolist()
-                    r["moveFeatures+2"] = moveFeatures[r["moveFeatures+2"]].cpu().numpy().flatten().tolist()
-                    r["moveFeatures+3"] = moveFeatures[r["moveFeatures+3"]].cpu().numpy().flatten().tolist()
+            fillRecordForFeatures(self.featureProvider, reports, self.device)
 
         if len(reports) > 0:
             reports[len(reports) - 1]["final"] = True

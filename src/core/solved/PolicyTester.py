@@ -213,6 +213,9 @@ def loadExamples2(protoGame, datasetFile):
     - History of moves that were played to get to the state, i.e. a list of move indices.
     - List of move indices considered to be correct in the position
     - Final result of the game under perfect play: -1 loss for current player, 0 draw, 1 win for current player.
+
+    if the dataset includes the future of the test positions there is one more element:
+        an array of game state objects, representing the future positions meant for a feature network.
     """
     startLoad = time.monotonic()
     with open(datasetFile, "br") as f:
@@ -239,7 +242,15 @@ def loadExamples2(protoGame, datasetFile):
             offset += lnline
             offset += 1 # skips the linebreak in the file
             
-            [pos, optimals, result] = nline.split(b' ')
+            splitLine = nline.split(b' ')
+            if len(splitLine) == 3:
+                pos, optimals, result = splitLine
+                futures = []
+            else:
+                pos = splitLine[0]
+                optimals = splitLine[1]
+                result = splitLine[2]
+                futures = splitLine[3:]
 
             state = protoGame
             history = []
@@ -258,6 +269,16 @@ def loadExamples2(protoGame, datasetFile):
             # one less is a loss, one more is a win
             lineResult = (state, history, solution, result[0] - 49)
 
+            if len(futures) > 0:
+                futuresList = []
+                for fp in futures:
+                    state = protoGame
+                    for move in fp:
+                        m = move - 49
+                        state = state.playMove(m)
+                    futuresList.append(state)
+                lineResult += (futuresList, )
+
             resultList.append(lineResult)
 
     endLoad = time.monotonic()
@@ -273,9 +294,9 @@ class DatasetPolicyTester2():
 
         if preloaded is None:
             [self.states, self.histories, self.solutions, self.gresults] =\
-                list(zip(*loadExamples2(self.initialGameState, datasetFile)))
+                list(zip(*loadExamples2(self.initialGameState, datasetFile)))[:4]
         else:
-            [self.states, self.histories, self.solutions, self.gresults] = list(zip(*preloaded))
+            [self.states, self.histories, self.solutions, self.gresults] = list(zip(*preloaded))[:4]
 
     def main(self):
         startEval = time.monotonic()

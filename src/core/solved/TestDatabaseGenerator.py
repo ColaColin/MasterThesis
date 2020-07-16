@@ -170,7 +170,7 @@ def getGameResult(solution):
         bestResult = 1
     return bestResult
 
-def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, filterTrivial, framesPerGame):
+def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, filterTrivial, framesPerGame, storeFuture):
     initialState = constructor_for_class_name(gameCtor)(**gameCtorParams)
 
     solveCache = dict()
@@ -196,9 +196,8 @@ def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, fil
             optimals = getBestScoreKeys(solution)
             isSimple = len(state.getLegalMoves()) == len(optimals)
 
-            if not isSimple or not filterTrivial:
-                if not dedupe or wasMiss:
-                    gameExamples.append((state.store(), path.copy(), optimals, getGameResult(solution), ))
+            #if (not isSimple or not filterTrivial) and (not dedupe or wasMiss):
+            gameExamples.append((state.store(), path.copy(), optimals, getGameResult(solution), isSimple, wasMiss, [] ))
 
             moves = policy.decideMoves(state, solution, optimals)
             move = random.choice(moves)
@@ -206,11 +205,37 @@ def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, fil
             state = state.playMove(move)
             path.append(move)
         
-        if framesPerGame is None or framesPerGame >= len(gameExamples):
-            results += gameExamples;
+        def getNextState(glist, idx, offset):
+            while idx + offset * 2 >= len(glist):
+                offset -= 1
+            
+            assert offset >= 0
+
+            return glist[idx + offset * 2]
+
+        if storeFuture:
+            assert framesPerGame == 1, "storeFuture is only implemented for the framesPerGame == 1 case!"
+
+            candidateIndices = []
+            for idx, ge in enumerate(gameExamples):
+                if (not ge[4] or not filterTrivial) and (not dedupe or ge[5]):
+                    candidateIndices.append(idx)
+            
+            if len(candidateIndices) > 0:
+                chosenIndex = random.choice(candidateIndices)
+                present = gameExamples[chosenIndex]
+                future1 = getNextState(gameExamples, chosenIndex, 1)
+                future2 = getNextState(gameExamples, chosenIndex, 2)
+                future3 = getNextState(gameExamples, chosenIndex, 3)
+
+                results.append((present[0], present[1], present[2], present[3], present[4], present[5], [future1, future2, future3]))
         else:
-            random.shuffle(gameExamples)
-            results += gameExamples[:framesPerGame]
+            gameExamples = list(filter(lambda x: (not x[4] or not filterTrivial) and (not dedupe or x[5]), gameExamples))
+            if framesPerGame is None or framesPerGame >= len(gameExamples):
+                results += gameExamples;
+            else:
+                random.shuffle(gameExamples)
+                results += gameExamples[:framesPerGame]
 
         if len(results) > 100:
             outputQueue.put(results)
@@ -219,7 +244,7 @@ def playGames(outputQueue, gameCtor, gameCtorParams, solver, policy, dedupe, fil
 
 class TestDatabaseGenerator2():
 
-    def __init__(self, initialState, solver, databaseSize, outputFile, policy, dedupe, workers, filterTrivial, framesPerGame = None):
+    def __init__(self, initialState, solver, databaseSize, outputFile, policy, dedupe, workers, filterTrivial, framesPerGame = None, storeFuture = False):
         self.initialState = initialState
         self.solver = solver
         self.databaseSize = databaseSize
@@ -230,6 +255,9 @@ class TestDatabaseGenerator2():
         self.workers = workers
         self.workerprocs = []
         self.framesPerGame = framesPerGame
+        self.storeFuture = storeFuture
+
+        assert not self.storeFuture or self.framesPerGame == 1, "You cannot store future states when not using framesPerGame=1"
 
     def main(self, timeout = None):
         statesQueue = Queue(maxsize=50)
@@ -238,7 +266,7 @@ class TestDatabaseGenerator2():
         deadline = time.monotonic() + timeout
 
         for _ in range(self.workers):
-            proc = Process(target=playGames, args=(statesQueue, self.initialState.getGameConstructorName(), self.initialState.getGameConstructorParams(), self.solver, self.policy, self.dedupe, self.filterTrivial, self.framesPerGame))
+            proc = Process(target=playGames, args=(statesQueue, self.initialState.getGameConstructorName(), self.initialState.getGameConstructorParams(), self.solver, self.policy, self.dedupe, self.filterTrivial, self.framesPerGame, self.storeFuture))
             proc.daemon = True
             proc.start()
             self.workerprocs.append(proc)
@@ -260,12 +288,12 @@ class TestDatabaseGenerator2():
             except:
                 continue
 
-            for stateStore, path, optimals, gameResult in resultList:
+            for stateStore, path, optimals, gameResult, isSimple, isNew, futures in resultList:
                 state = self.initialState.load(stateStore)
 
                 if not self.dedupe or (not state in resultsSet):
                     if len(results) < self.databaseSize:
-                        results.append((path, optimals, gameResult))
+                        results.append((path, optimals, gameResult, futures))
                     else:
                         break
 
@@ -288,7 +316,7 @@ class TestDatabaseGenerator2():
         winMoves = 0
         lossMoves = 0
         drawMoves = 0
-        for p, optimals, gresult in results:
+        for p, optimals, gresult, futures in results:
             k = len(p)
             if not k in depthCounts:
                 depthCounts[k] = 0
@@ -321,12 +349,19 @@ class TestDatabaseGenerator2():
 
     def package(self):
         buffer = io.BytesIO()
-        for path, optimals, gresult in self.results:
+        for path, optimals, gresult, futures in self.results:
             buffer.write(bytes([49 + p for p in path]))
             buffer.write(bytes([32]))
             buffer.write(bytes([49 + o for o in optimals]))
             buffer.write(bytes([32]))
             buffer.write(bytes([49 + gresult]))
+
+            if len(futures) > 0:
+                for f in futures:
+                    fpath = f[1]
+                    buffer.write(bytes([32]))
+                    buffer.write(bytes([49 + p for p in fpath]))
+
             buffer.write(bytes([10]))
 
         bys = buffer.getvalue()
