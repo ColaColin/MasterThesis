@@ -21,7 +21,7 @@ main:
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /ImbaKeks/x0/supervised/future5
+  workingDirectory: /ImbaKeks/x0/supervised/future11
   testSamples: 1000
   validationSamples: 1000
   batchSize: 128
@@ -56,6 +56,6 @@ resnet:
   optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
-  useWinFeatures: 3
-  useMoveFeatures: 3
-  featuresWeight: 0.0001
+  useWinFeatures: 0
+  useMoveFeatures: 0
+  featuresWeight: 1

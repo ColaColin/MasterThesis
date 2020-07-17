@@ -60,6 +60,53 @@ from impls.selfplay.LinearSelfPlay import fillRecordForFeatures
 #              8000 |  76.16 +/- 1.50 |  71.06 +/- 1.37  <<< best
 
 
+#   useWinFeatures: 3
+#   useMoveFeatures: 3
+#   featuresWeight: 0.0001
+# [2020-07-16T19:10:09.426264+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  75.76 +/- 1.11 |  70.58 +/- 0.55  <<< best
+
+
+#   useWinFeatures: 3
+#   useMoveFeatures: 3
+#   featuresWeight: 0.1
+# [2020-07-16T19:23:39.398682+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  77.10 +/- 1.52 |  70.58 +/- 0.32  <<< best
+
+
+#   useWinFeatures: 3
+#   useMoveFeatures: 3
+#   featuresWeight: 1
+# [2020-07-16T19:34:06.262367+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  78.62 +/- 0.83 |  70.50 +/- 0.78  <<< best
+
+
+#   useWinFeatures: 3
+#   useMoveFeatures: 3
+#   featuresWeight: 10
+# [2020-07-16T19:44:14.155687+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  78.62 +/- 0.73 |  70.04 +/- 0.84  <<< best
+
+
+#   useWinFeatures: 0
+#   useMoveFeatures: 0
+#   featuresWeight: 1
+# [2020-07-16T19:52:57.325871+02:00] 
+# Training set size | moves %         |  wins % 
+# ------------------+---------+---------
+#              8000 |  80.38 +/- 0.71 |  71.80 +/- 0.53  <<< best
+
+
+
+
 class SupervisedNetworkTrainer():
     def __init__(self, datasetFile, initialGame, policy, windowSizeSplits, trainingRuns, workingDirectory, testSamples, validationSamples, batchSize, lrStart, lrPatience, featureProvider=None, featureNetwork=None):
         logMsg("Starting to initialize supervised training")
