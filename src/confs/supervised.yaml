@@ -16,14 +16,14 @@ feature_provider:
 
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: datasets/connect4/future_test.txt.zip
+  datasetFile: datasets/connect4/1M_future.txt.zip
   initialGame: $c4
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /ImbaKeks/x0/supervised/future11
-  testSamples: 1000
-  validationSamples: 1000
+  workingDirectory: /PwnKeks/x0/supervised/future1
+  testSamples: 100000
+  validationSamples: 100000
   batchSize: 128
   lrStart: 0.2
   lrPatience: 8
