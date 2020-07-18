@@ -932,11 +932,11 @@ The evolution of hyperparameters by using self-play clearly works, so future wor
 \subsection{Playing games as trees}
 
 The standard AlphaZero implementation explores new possible moves mainly by the randomization of moves, according to the policy found by MCTS.
-This thesis investigates an alternative scheme of exploration, by instead playing out games in a tree like structure.
+This thesis investigates an alternative scheme of exploration, by instead playing out games in a structure similar to a tree.
 
-A first option to do this involves to reset games to a position in which the losing player likely made a mistake and try out a different move.
+A first option to do this involves to reset games to a position in which the losing player likely made a mistake and try out a different move from that position.
 
-Another option is to abondon the idea of playing independent games to explore entirely and instead focus on playing one large MCTS-tree, which explores the current space of gameplay possibilities by the MCTS rules.
+Another option is to abondon the idea of playing independent games to explore entirely and instead focus on playing one large MCTS-tree, which explores the current space of gameplay possibilities by the MCTS algorithm.
 
 \subsubsection{Implementation}
 
@@ -1010,8 +1010,6 @@ Increasing game diversity stays out of reach entirely.
 \end{figure}
 
 
-
-TODO: So why does this work so badly? How does the MCTS tree look like? Capture the MCTS at the end of each iteration, only recording nodes with the current network. How does the tree look like? Can it be made visible somehow?
 
 TODO: also maybe talk about how this MCTS implementation has a rudementary handling of duplicate nodes, by keeping all nodes in a state -> node map.
 

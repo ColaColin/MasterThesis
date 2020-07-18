@@ -720,26 +720,51 @@ WK 29
      [ ] reuse internal network features (of a smaller, fixed, network?!)
           [X] implement using a small network whose features are used as one feature layer of the last conv layers in the big network
           [X] also allow to include future moves into this.
-          [ ] see where it goes
-          [ ] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
+          [X] see where it goes
+          [X] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
 
-wins: 3, moves: 3
-[2020-07-17T09:21:24.567521+02:00]
-Training set size | moves %         |  wins %
-------------------+---------+---------
-           800000 |  96.66 +/- 0.06 |  84.49 +/- 0.05  <<< best
 
-wins: 0, moves: 0
-[2020-07-17T11:56:29.885481+02:00] 
-Training set size | moves %         |  wins % 
-------------------+---------+---------
-           800000 |  97.04 +/- 0.07 |  84.71 +/- 0.05  <<< best
 
 
 
      [ ] writing goal: Complete stuff about the tree-game-playing
 WK 30: 
      [ ] more work on internal network features
+          [ ] supervised:
+               [ ] plain
+               [ ] random network
+               [ ] only future 1
+               [X] win0,move0
+wins: 0, moves: 0
+[2020-07-17T11:56:29.885481+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  97.04 +/- 0.07 |  84.71 +/- 0.05  <<< best
+               [ ] win0
+               [ ] move0
+               [X] win3,move3
+wins: 3, moves: 3
+[2020-07-17T09:21:24.567521+02:00]
+Training set size | moves %         |  wins %
+------------------+---------+---------
+           800000 |  96.66 +/- 0.06 |  84.49 +/- 0.05  <<< best
+
+               [ ] win1,move1
+               [ ] win1
+               [ ] move1
+
+          [ ] AlphaZero
+               [ ] random network
+               [ ] only future 1
+               [x] win0, move0 -> BAD
+               [ ] win3, move3
+               [ ] win1, move1
+               [ ] win1
+               [ ] move1
+
+          [ ] try to do the features one deeper
+               [ ] test on best supervised & best alpha zero from before
+
      [ ] document the code
 WK 31:
      [ ] No more I in the text, Table, Figure with capital letters!
