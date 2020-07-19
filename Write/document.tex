@@ -139,9 +139,12 @@ Colin Clausen
 
 \section{Introduction}
 
-Games have been used for a long time as a standin of the more complex real world in developing artifical intelligence. Beating humans at various games has often been viewed as a milestone.
+Games have been used for a long time as a stand-in of the more complex real world in developing artificial intelligence. Achieving superhuman performance in common games has been a goal of computer and AI research since even before electronic computers were available.
 
-(TODO a few sentences here about progress on various milestone games).
+A very early example of AI beating humans at games is the Nimrod computer from 1951 \cite{nimrod}, with work on similar machines starting in the 1940s \cite{nimmath}, which could defeat players at the game Nim.
+Moving onward to harder games requiring tree search algorithms with much more computational power, Connect 4 was completely solved in 1995 \cite{trompsolved}.
+Chess was for a long time considered a major milestone with Claude Shannon \cite{shannon1950xxii} noting how Chess is an ideal ground for experimentation to investigate the possibilities of computing machines.
+In 1996 the chess computer Deep Blue for the first time defeated a reigning world champion in a single game, in 1997 a full match under standard tournament rules was won \cite{campbell2002deep}.
 
 In March 2016 a program called AlphaGo for the first time in history has defeated a top human player in the board game Go \cite{leesedolVsAlphaGo}.
 Go had eluded attempts at super human level play for a very long time.
@@ -149,12 +152,12 @@ Go had eluded attempts at super human level play for a very long time.
 Louis Victor Allis attributes \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
 but also to the way humans use their natural pattern recognition ability to quickly eliminate most of the often 200 or more possible moves and focus on few promising ones.
 
-This combination of the usage of hard-to-program pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on programmed heuristics.
+This combination of the usage of ambiguous pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on designed heuristics.
 AlphaGo solved this issue by using the strong pattern recognition abilities of deep learning and combining them with a tree search, allowing the computer to learn patterns, similar to a human, but also search forward in the game tree to find the best move to play.
 
 Further development of the AlphaGo algorithm yielded the AlphaZero algorithm, which significantly simplified AlphaGo, allowing learning to start with a random network and no requirements for human expert input of any kind.
 
-In the following thesis I want to investigate further possible improvements to reduce the computational cost of using AlphaZero to learn to play games without using the generality of the algorithm.
+In the following thesis I want to investigate possible improvements to reduce the computational cost of using AlphaZero to learn to play games without using the generality of the algorithm.
 
 (TODO here one could state some key results, once they exist...)
 

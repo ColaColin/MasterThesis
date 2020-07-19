@@ -24,11 +24,15 @@
 \@writefile{toc}{\select@language{english}}
 \@writefile{lof}{\select@language{english}}
 \@writefile{lot}{\select@language{english}}
+\citation{nimrod}
+\citation{nimmath}
+\citation{trompsolved}
+\citation{shannon1950xxii}
+\citation{campbell2002deep}
 \citation{leesedolVsAlphaGo}
 \citation{allis1994searching}
 \citation{shannon1950xxii}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{8}{section.1}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Previous work}{8}{section.2}}
 \citation{montecarlogo1993}
 \citation{kocsis2006bandit}
 \citation{gelly2006modification}
@@ -36,27 +40,26 @@
 \citation{pachi_github}
 \citation{crazystone}
 \citation{kocsis2006bandit}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Previous work}{9}{section.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Monte Carlo Tree Search}{9}{subsection.2.1}}
 \newlabel{s:mcts}{{2.1}{9}{Monte Carlo Tree Search}{subsection.2.1}{}}
-\newlabel{eq:UCT_bias}{{1}{9}{Monte Carlo Tree Search}{equation.2.1}{}}
 \citation{silver2018general}
 \citation{silver2017mastering}
 \citation{silver2016mastering}
 \citation{NoCastleChess}
-\citation{silver2018general}
+\newlabel{eq:UCT_bias}{{1}{10}{Monte Carlo Tree Search}{equation.2.1}{}}
 \newlabel{eq:UCT_max}{{2}{10}{Monte Carlo Tree Search}{equation.2.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}AlphaZero}{10}{subsection.2.2}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{10}{subsubsection.2.2.1}}
-\newlabel{s:azalgo}{{2.2.1}{10}{The AlphaZero algorithm}{subsubsection.2.2.1}{}}
+\citation{silver2018general}
 \citation{anthony2017thinking}
 \citation{kahneman2011thinking}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{11}{subsubsection.2.2.1}}
+\newlabel{s:azalgo}{{2.2.1}{11}{The AlphaZero algorithm}{subsubsection.2.2.1}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Statistics tracked per node in the AlphaZero MCTS\relax }}{11}{table.caption.2}}
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
 \newlabel{t:mcts_stats_values}{{1}{11}{Statistics tracked per node in the AlphaZero MCTS\relax }{table.caption.2}{}}
 \newlabel{eq:alpha_max_zero}{{3}{12}{The AlphaZero algorithm}{equation.2.3}{}}
 \newlabel{eq:alpha_zero_u}{{4}{12}{The AlphaZero algorithm}{equation.2.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{12}{subsection.2.3}}
-\newlabel{s:prev_extensions}{{2.3}{12}{Extensions to AlphaZero}{subsection.2.3}{}}
 \citation{hu2018squeeze}
 \citation{leela0sq}
 \citation{wu2019accelerating}
@@ -64,17 +67,19 @@
 \citation{smith2017cyclical}
 \citation{oracledevs6}
 \citation{lan2019multiple}
-\citation{wu2019accelerating}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{13}{subsection.2.3}}
+\newlabel{s:prev_extensions}{{2.3}{13}{Extensions to AlphaZero}{subsection.2.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Network and training modifications}{13}{subsubsection.2.3.1}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{13}{subsubsection.2.3.2}}
+\citation{wu2019accelerating}
 \citation{leela0propagation}
 \citation{leela0kldgain}
 \citation{wu2019accelerating}
 \citation{wu2019accelerating}
 \citation{wu2019accelerating}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}}
 \citation{leela0wdl}
 \citation{anonymous2020threehead}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}}
 \citation{oracledevs6}
 \citation{oracledevs6}
 \citation{oracledevs6}
@@ -96,114 +101,117 @@
 \citation{wu2019accelerating}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Evaluation of training costs}{17}{subsection.3.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Supervised training}{18}{subsection.3.3}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Results of supervised training. Accuracy compared to a connect 4 solver.\relax }}{18}{table.caption.3}}
-\newlabel{t:supervised_results}{{2}{18}{Results of supervised training. Accuracy compared to a connect 4 solver.\relax }{table.caption.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Results of supervised training. Accuracy compared to a connect 4 solver.\relax }}{19}{table.caption.3}}
+\newlabel{t:supervised_results}{{2}{19}{Results of supervised training. Accuracy compared to a connect 4 solver.\relax }{table.caption.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Baseline}{19}{subsection.3.4}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{19}{subsubsection.3.4.1}}
-\newlabel{tab:addlabel}{{\caption@xref {tab:addlabel}{ on input line 509}}{20}{Hyperparameter search}{table.caption.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Hyperparameters searched\relax }}{20}{table.caption.4}}
-\newlabel{t:hyperparameters}{{3}{20}{Hyperparameters searched\relax }{table.caption.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Hyperparameter sets selected for further investigation.\relax }}{20}{table.caption.5}}
-\newlabel{t:hyper_search_results}{{4}{20}{Hyperparameter sets selected for further investigation.\relax }{table.caption.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Results of the runs to determine a good hyperparameter set. Mean is only calculated until the first of the single runs stops showing improvements.\relax }}{21}{figure.caption.6}}
-\newlabel{fig:hyper_compare_results}{{1}{21}{Results of the runs to determine a good hyperparameter set. Mean is only calculated until the first of the single runs stops showing improvements.\relax }{figure.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Extended Baseline}{21}{subsection.3.5}}
-\newlabel{s:exexp}{{3.5}{21}{Extended Baseline}{subsection.3.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{20}{subsubsection.3.4.1}}
+\newlabel{tab:addlabel}{{\caption@xref {tab:addlabel}{ on input line 512}}{21}{Hyperparameter search}{table.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Hyperparameters searched\relax }}{21}{table.caption.4}}
+\newlabel{t:hyperparameters}{{3}{21}{Hyperparameters searched\relax }{table.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Hyperparameter sets selected for further investigation.\relax }}{21}{table.caption.5}}
+\newlabel{t:hyper_search_results}{{4}{21}{Hyperparameter sets selected for further investigation.\relax }{table.caption.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Results of the runs to determine a good hyperparameter set. Mean is only calculated until the first of the single runs stops showing improvements.\relax }}{22}{figure.caption.6}}
+\newlabel{fig:hyper_compare_results}{{1}{22}{Results of the runs to determine a good hyperparameter set. Mean is only calculated until the first of the single runs stops showing improvements.\relax }{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Extended Baseline}{22}{subsection.3.5}}
+\newlabel{s:exexp}{{3.5}{22}{Extended Baseline}{subsection.3.5}{}}
 \citation{oracledevs6}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{22}{subsubsection.3.5.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{23}{subsubsection.3.5.1}}
 \citation{smith2017cyclical}
 \citation{oracledevs6}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Comparison of different choices for $w_{\text  {duplicate}}$. $0.8$ is chosen for all further experiments.\relax }}{23}{figure.caption.7}}
-\newlabel{fig:dedupe_cmp}{{2}{23}{Comparison of different choices for $w_{\text {duplicate}}$. $0.8$ is chosen for all further experiments.\relax }{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}Cyclic learning rate}{23}{subsubsection.3.5.2}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The change of the learning rate and momentum over the training of a new network iteration when using cyclic learning rates.\relax }}{24}{figure.caption.8}}
-\newlabel{fig:cyclic_lr}{{3}{24}{The change of the learning rate and momentum over the training of a new network iteration when using cyclic learning rates.\relax }{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Comparison of different choices for $w_{\text  {duplicate}}$. $0.8$ is chosen for all further experiments.\relax }}{24}{figure.caption.7}}
+\newlabel{fig:dedupe_cmp}{{2}{24}{Comparison of different choices for $w_{\text {duplicate}}$. $0.8$ is chosen for all further experiments.\relax }{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.2}Cyclic learning rate}{24}{subsubsection.3.5.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The change of the learning rate and momentum over the training of a new network iteration when using cyclic learning rates.\relax }}{25}{figure.caption.8}}
+\newlabel{fig:cyclic_lr}{{3}{25}{The change of the learning rate and momentum over the training of a new network iteration when using cyclic learning rates.\relax }{figure.caption.8}{}}
 \citation{oracledevs6}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Comparison of the usage of cyclic learning rates and momentum with the baseline.\relax }}{25}{figure.caption.9}}
-\newlabel{fig:cyclic_results}{{4}{25}{Comparison of the usage of cyclic learning rates and momentum with the baseline.\relax }{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.3}Improved training window}{25}{subsubsection.3.5.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Comparison of the usage of cyclic learning rates and momentum with the baseline.\relax }}{26}{figure.caption.9}}
+\newlabel{fig:cyclic_results}{{4}{26}{Comparison of the usage of cyclic learning rates and momentum with the baseline.\relax }{figure.caption.9}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.3}Improved training window}{26}{subsubsection.3.5.3}}
 \citation{wu2019accelerating}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of the usage of a slow training window with the baseline.\relax }}{26}{figure.caption.10}}
-\newlabel{fig:slow_window_results}{{5}{26}{Comparison of the usage of a slow training window with the baseline.\relax }{figure.caption.10}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.4}Playout Caps}{26}{subsubsection.3.5.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Comparison of the usage of a slow training window with the baseline.\relax }}{27}{figure.caption.10}}
+\newlabel{fig:slow_window_results}{{5}{27}{Comparison of the usage of a slow training window with the baseline.\relax }{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.4}Playout Caps}{27}{subsubsection.3.5.4}}
 \citation{leela0sq}
 \citation{hu2018squeeze}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Results of implementing Playout Caps on Connect 4.\relax }}{27}{figure.caption.11}}
-\newlabel{fig:playout_caps}{{6}{27}{Results of implementing Playout Caps on Connect 4.\relax }{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.5}Improving the network structure}{27}{subsubsection.3.5.5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Results of implementing Squeeze-and-excitation elements in the network.\relax }}{28}{figure.caption.12}}
-\newlabel{fig:sqnet}{{7}{28}{Results of implementing Squeeze-and-excitation elements in the network.\relax }{figure.caption.12}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Baseline results}{28}{subsection.3.6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }}{29}{figure.caption.13}}
-\newlabel{fig:baseline_compare}{{8}{29}{Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }{figure.caption.13}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Evaluated novel ideas}{29}{section.4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Using the self-playing phase as an evolutionary process}{29}{subsection.4.1}}
-\newlabel{s:novel_evolution}{{4.1}{29}{Using the self-playing phase as an evolutionary process}{subsection.4.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Results of implementing Playout Caps on Connect 4.\relax }}{28}{figure.caption.11}}
+\newlabel{fig:playout_caps}{{6}{28}{Results of implementing Playout Caps on Connect 4.\relax }{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.5}Improving the network structure}{28}{subsubsection.3.5.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Results of implementing Squeeze-and-excitation elements in the network.\relax }}{29}{figure.caption.12}}
+\newlabel{fig:sqnet}{{7}{29}{Results of implementing Squeeze-and-excitation elements in the network.\relax }{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Baseline results}{29}{subsection.3.6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }}{30}{figure.caption.13}}
+\newlabel{fig:baseline_compare}{{8}{30}{Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Evaluated novel ideas}{30}{section.4}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Using the self-playing phase as an evolutionary process}{30}{subsection.4.1}}
+\newlabel{s:novel_evolution}{{4.1}{30}{Using the self-playing phase as an evolutionary process}{subsection.4.1}{}}
 \citation{yao1999evolving}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Implementation}{30}{subsubsection.4.1.1}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Evolution of players}{30}{subsubsection.4.1.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Implementation}{31}{subsubsection.4.1.1}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.2}Evolution of players}{31}{subsubsection.4.1.2}}
 \citation{leela0kldgain}
-\newlabel{eq:mutate_v}{{5}{31}{Evolution of players}{equation.4.5}{}}
-\newlabel{eq:mutate_w}{{6}{31}{Evolution of players}{equation.4.6}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Selection of hyperparameters}{31}{subsubsection.4.1.3}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Experiments}{32}{subsubsection.4.1.4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Initial results of evolving hyperparameters.\relax }}{32}{figure.caption.14}}
-\newlabel{fig:evolve_results}{{9}{32}{Initial results of evolving hyperparameters.\relax }{figure.caption.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }}{33}{figure.caption.15}}
-\newlabel{fig:evolve_low_diversity}{{10}{33}{Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }{figure.caption.15}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{33}{subsubsection.4.1.5}}
-\newlabel{eq:inverted_mtcs}{{7}{34}{Requirements for evolution to succeed}{equation.4.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf  {I}$ is reduced substantially over the generations.\relax }}{34}{table.caption.16}}
-\newlabel{t:inversion_results}{{5}{34}{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf {I}$ is reduced substantially over the generations.\relax }{table.caption.16}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }}{35}{table.caption.17}}
-\newlabel{t:hyperparam_accuracy}{{6}{35}{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }{table.caption.17}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }}{36}{table.caption.18}}
-\newlabel{t:hyperparam_games}{{7}{36}{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }{table.caption.18}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{37}{subsection.4.2}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{37}{subsubsection.4.2.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{38}{figure.caption.19}}
-\newlabel{fig:cache_play}{{11}{38}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.19}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{38}{subsubsection.4.2.2}}
+\newlabel{eq:mutate_v}{{5}{32}{Evolution of players}{equation.4.5}{}}
+\newlabel{eq:mutate_w}{{6}{32}{Evolution of players}{equation.4.6}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Selection of hyperparameters}{32}{subsubsection.4.1.3}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Experiments}{33}{subsubsection.4.1.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Initial results of evolving hyperparameters.\relax }}{33}{figure.caption.14}}
+\newlabel{fig:evolve_results}{{9}{33}{Initial results of evolving hyperparameters.\relax }{figure.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }}{34}{figure.caption.15}}
+\newlabel{fig:evolve_low_diversity}{{10}{34}{Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{34}{subsubsection.4.1.5}}
+\newlabel{eq:inverted_mtcs}{{7}{35}{Requirements for evolution to succeed}{equation.4.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf  {I}$ is reduced substantially over the generations.\relax }}{35}{table.caption.16}}
+\newlabel{t:inversion_results}{{5}{35}{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf {I}$ is reduced substantially over the generations.\relax }{table.caption.16}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }}{36}{table.caption.17}}
+\newlabel{t:hyperparam_accuracy}{{6}{36}{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }{table.caption.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }}{37}{table.caption.18}}
+\newlabel{t:hyperparam_games}{{7}{37}{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }{table.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{38}{subsection.4.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{38}{subsubsection.4.2.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{39}{figure.caption.19}}
+\newlabel{fig:cache_play}{{11}{39}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.19}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{39}{subsubsection.4.2.2}}
 \citation{chaslot2008parallel}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{39}{figure.caption.20}}
-\newlabel{fig:winp_tree}{{12}{39}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.20}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{39}{subsubsection.4.2.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{40}{figure.caption.20}}
+\newlabel{fig:winp_tree}{{12}{40}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{40}{subsubsection.4.2.3}}
 \citation{wu2019accelerating}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{41}{figure.caption.21}}
-\newlabel{fig:mcts_tree_explore}{{13}{41}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.21}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{41}{subsection.4.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{42}{section.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{42}{figure.caption.21}}
+\newlabel{fig:mcts_tree_explore}{{13}{42}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{42}{subsection.4.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{43}{section.5}}
 \bibstyle{plain}
 \bibdata{document}
-\bibcite{leesedolVsAlphaGo}{1}
-\bibcite{leela0sq}{2}
-\bibcite{leela0propagation}{3}
-\bibcite{leela0kldgain}{4}
-\bibcite{leela0wdl}{5}
-\bibcite{trompsolved}{6}
+\bibcite{trompsolved}{1}
+\bibcite{leesedolVsAlphaGo}{2}
+\bibcite{leela0sq}{3}
+\bibcite{leela0propagation}{4}
+\bibcite{leela0kldgain}{5}
+\bibcite{leela0wdl}{6}
 \bibcite{pascalsolver}{7}
 \bibcite{pascalsolvergithub}{8}
 \bibcite{crazystone}{9}
-\bibcite{pachi_github}{10}
-\bibcite{allis1994searching}{11}
-\bibcite{anonymous2020threehead}{12}
-\bibcite{anthony2017thinking}{13}
-\bibcite{auer2002finite}{14}
-\bibcite{montecarlogo1993}{15}
-\bibcite{chaslot2008parallel}{16}
-\bibcite{gelly2006modification}{17}
-\bibcite{hu2018squeeze}{18}
-\bibcite{kahneman2011thinking}{19}
-\bibcite{kocsis2006bandit}{20}
-\bibcite{NoCastleChess}{21}
-\bibcite{lan2019multiple}{22}
-\bibcite{oracledevs}{23}
-\bibcite{shannon1950xxii}{24}
-\bibcite{silver2016mastering}{25}
-\bibcite{silver2018general}{26}
-\bibcite{AlphaZero}{27}
-\bibcite{silver2017mastering}{28}
-\bibcite{smith2017cyclical}{29}
-\bibcite{wu2019accelerating}{30}
-\bibcite{yao1999evolving}{31}
-\bibcite{oracledevs6}{32}
+\bibcite{nimrod}{10}
+\bibcite{pachi_github}{11}
+\bibcite{allis1994searching}{12}
+\bibcite{anonymous2020threehead}{13}
+\bibcite{anthony2017thinking}{14}
+\bibcite{auer2002finite}{15}
+\bibcite{montecarlogo1993}{16}
+\bibcite{campbell2002deep}{17}
+\bibcite{chaslot2008parallel}{18}
+\bibcite{gelly2006modification}{19}
+\bibcite{hu2018squeeze}{20}
+\bibcite{kahneman2011thinking}{21}
+\bibcite{kocsis2006bandit}{22}
+\bibcite{NoCastleChess}{23}
+\bibcite{lan2019multiple}{24}
+\bibcite{oracledevs}{25}
+\bibcite{nimmath}{26}
+\bibcite{shannon1950xxii}{27}
+\bibcite{silver2016mastering}{28}
+\bibcite{silver2018general}{29}
+\bibcite{AlphaZero}{30}
+\bibcite{silver2017mastering}{31}
+\bibcite{smith2017cyclical}{32}
+\bibcite{wu2019accelerating}{33}
+\bibcite{yao1999evolving}{34}
+\bibcite{oracledevs6}{35}

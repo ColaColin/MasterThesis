@@ -139,7 +139,12 @@ Colin Clausen
 
 \section{Introduction}
 
-Games have been used for a long time as a standin of the more complex real world in developing artifical intelligence. Beating humans at various games has often been viewed as a milestone.
+Games have been used for a long time as a stand-in of the more complex real world in developing artificial intelligence. Beating humans at various games has often been viewed as a milestone.
+
+A very early example of AI beating humans at games is the Nimrod computer from 1951 \cite{nimrod}, with work on similar machines starting in the 1940s \cite{nimmath}, which could defeat players at the game Nim.
+Moving onward to harder games requiring tree search algorithms with much more computational power, Connect 4 was completely solved in 1995 \cite{trompsolved}.
+Chess was for a long time considered a major milestone with Claude Shannon \cite{shannon1950xxii} noting how Chess is an ideal ground for experimentation to investigate the possibilities of computing machines.
+In 1996 the chess computer Deep Blue for the first time defeated a reigning world champion in a game.
 
 (TODO a few sentences here about progress on various milestone games).
 
@@ -184,7 +189,7 @@ In the \emph{multi-armed bandit problem} a player is faced with a machine that h
 This creates a dilemma, where the player has to decide to explore, i.e. try a new lever to maybe find a higher return, or exploit, i.e. pull the lever with the highest known reward. This exploration-exploitation dilemma is a key problem of reinforcement learning
 and L.Kocsis et al. \cite{kocsis2006bandit} apply it to tree searches, effectively viewing the decision of which move to play in a node of the game tree as a multi-armed bandit problem.
 
-UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played form the root of the tree up to the end of the game or a fixed depth of the tree. The result
+UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played from the root of the tree up to the end of the game or a fixed depth of the tree. The result
 of the episode is backpropagated upwards in the tree. When playing to a fixed depth of the tree a way to evaluate a position is by randomly playing it to the end a number of time and using the average results of these random playouts to evaluate the position.
 UCT is thus an incremental process, which improves the quality of the approximation of the move values at the root with every episode sampled and can be stopped at any time to return a result.
 
@@ -1053,20 +1058,14 @@ To first establish where various combinations of these options might stand, supe
 
 
 
+\section{Conclusion}
 
-
-Since I am especially interested in ways to improve learning performance at little additional computational cost, I suggest to use internal features of the network from previous network iterations as regularization targets to learn for future iterations.
-Since the internal features are learnt either way, this only introduces a small additional cost in the form of the computation of the increased size of the output layer.
-
-Specifically I propose to designate a layer $\mathbb{F}$ in the network and connect an additional head $\mathbb{H}_{future}$ to the layer before $\mathbb{F}$. 
-The network stem $\mathbb{S}$ up to $\mathbb{F}$ is then used to produce additional learning targets by applying $\mathbb{S}$ to the 2-ply future of every game state used as training data.
-This uses the encoding the network found to be meaningful for game playing to encode the immediate future of the game and uses this as a learning target. The usage of the 2-ply future is required, since otherwise the network would just be tasked with producing
-its own internal features. Instead the network will be required to predict the future game situation after one action by each player.
-
-The reason for attaching the head $\mathbb{H}_{future}$ before $\mathbb{F}$ is such that $\mathbb{F}$ only contains an encoding relevant to the value and policy heads, not an encoding that also tries to encode information for $\mathbb{H}_{future}$ of previous iterations.
-
-An extension of this could be to try $n$-ply futures, for example 4-ply or 6-ply to evaluate how predicting a more distance future could be helpful, if 2-ply prediction shows promise.
-
+\begin{itemize}
+ \item Establishing comparable baselines is hard, as shown on how different connect4 datasets can produce wildly different absolute values.
+ \item Evolution works, but what objective to use
+ \item Different modes of exploration all suck compared to plain random(). Plain random() really is incredibly good.
+ \item Skipped new network stuff, gather excite, because that is just not that much better than squeeze excite and sq was already not a big jump
+\end{itemize}
 
 
 

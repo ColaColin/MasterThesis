@@ -1,5 +1,9 @@
 \begin{thebibliography}{10}
 
+\bibitem{trompsolved}
+\url{https://tromp.github.io/c4/c4.html}.
+\newblock Accessed: 2020-05-28.
+
 \bibitem{leesedolVsAlphaGo}
 \url{http://www.straitstimes.com/asia/east-asia/googles-alphago-gets-divine-go-ranking}.
 \newblock Accessed: 2020-05-17.
@@ -20,10 +24,6 @@
 \url{https://github.com/LeelaChessZero/lc0/pull/635}.
 \newblock Accessed: 2019-11-29.
 
-\bibitem{trompsolved}
-\url{https://tromp.github.io/c4/c4.html}.
-\newblock Accessed: 2020-05-28.
-
 \bibitem{pascalsolver}
 \url{https://connect4.gamesolver.org/}.
 \newblock Accessed: 2020-05-28.
@@ -35,6 +35,10 @@
 \bibitem{crazystone}
 Crazystone go engine.
 \newblock \url{https://senseis.xmp.net/?CrazyStone}.
+
+\bibitem{nimrod}
+Nimrod booklet.
+\newblock \url{http://www.goodeveca.net/nimrod/NIMROD_Guide.html}.
 
 \bibitem{pachi_github}
 Pachi go engine.
@@ -67,6 +71,11 @@ Peter Auer, Nicolo Cesa-Bianchi, and Paul Fischer.
 Bernd Brügmann.
 \newblock Monte carlo go.
 \newblock 1993.
+
+\bibitem{campbell2002deep}
+Murray Campbell, A~Joseph Hoane~Jr, and Feng-hsiung Hsu.
+\newblock Deep blue.
+\newblock {\em Artificial intelligence}, 134(1-2):57--83, 2002.
 
 \bibitem{chaslot2008parallel}
 Guillaume MJ-B Chaslot, Mark~HM Winands, and H~Jaap van Den~Herik.
@@ -115,6 +124,11 @@ Aditya Prasad.
 \newblock
   \url{https://medium.com/oracledevs/lessons-from-implementing-alphazero-7e36e9054191}.
 \newblock Accessed: 2019-11-29.
+
+\bibitem{nimmath}
+Raymond Redheffer.
+\newblock A machine for playing the game nim.
+\newblock {\em The American Mathematical Monthly}, 55(6):343--349, 1948.
 
 \bibitem{shannon1950xxii}
 Claude~E Shannon.
