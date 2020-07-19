@@ -12,7 +12,7 @@ pons:
 
 genPlayer:
   name: SemiPerfectPolicy
-  p: 0.9
+  p: 0.5
 
 main:
   name: TestDatabaseGenerator2
@@ -23,6 +23,6 @@ main:
   databaseSize: 1000000
   framesPerGame: 1
   storeFuture: true
-  outputFile: datasets/connect4/1M_future.txt.zip
+  outputFile: datasets/connect4/1M_future_2.txt.zip
   policy: $genPlayer
   workers: 16
