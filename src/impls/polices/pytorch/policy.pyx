@@ -186,6 +186,7 @@ class ResCNN(nn.Module):
             winP = self.lsoftmax(self.winHead(x))
             return moveP, winP, replyP
         else:
+            preHead = x
             moveX = self.moveHeadConv(x)
             winX = self.valueHeadConv(x)
 
@@ -212,6 +213,8 @@ class ResCNN(nn.Module):
                 return moveP, winP, replyP, headMove
             elif self.outputExtra == "bothhead":
                 return moveP, winP, replyP, headWin, headMove
+            elif self.outputExtra == "resblock":
+                return moveP, winP, replyP, preHead, preHead
             else:
                 assert False, "Unknown outputExtra: " + self.outputExtra
         
@@ -289,7 +292,7 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
         else:
             result += [inputArray, outputMoves, outputWins, hash(game)]
 
-        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+        if self.useWinFeatures != -1 or self.useMoveFeatures != -1:
             featuresDicts = dict()
             result.append(featuresDicts)
 
@@ -324,7 +327,7 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
             target[3] *= targetWeight
             target[3] += sourceWeight * source[3]
 
-        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+        if self.useWinFeatures != -1 or self.useMoveFeatures != -1:
             ftdict = target[len(target)-1]
             fsdict = source[len(source)-1]
             for fname in dict.keys(ftdict):
@@ -346,7 +349,7 @@ class PytorchExamplePrepareWorker(ExamplePrepareWorker, metaclass=abc.ABCMeta):
         else:
             result += [inputs, movesOut, winsOut, len(examples)]
 
-        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+        if self.useWinFeatures != -1 or self.useMoveFeatures != -1:
             fidx = len(examples[0]) - 1
             winFeaturesOut = [
                 torch.cat(list(map(lambda x: x[fidx]["winFeatures"], examples))).to(self.device),
@@ -454,6 +457,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.useWinFeatures = useWinFeatures
         self.useMoveFeatures = useMoveFeatures
         self.featuresWeight = featuresWeight
+
+        logMsg("extra features", self.useWinFeatures, self.useMoveFeatures, self.featuresWeight)
 
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -655,7 +660,8 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         return self.packer.packageExamplesBatch(examples)
 
     def getExamplePrepareObject(self):
-        return PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
+        return PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(),\
+            self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
 
     def fit(self, data, iteration = None, iterationProgress = None, forceLr = None):
         self.uuid = str(uuid.uuid4())
@@ -681,7 +687,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         cdef float wOpp = self.replyWeight
 
-        if self.useWinFeatures > -1 or self.useMoveFeatures > -1:
+        if self.useWinFeatures != -1 or self.useMoveFeatures != -1:
             winFeatures = data[len(data)-2]
             moveFeatures = data[len(data)-1]
             data = data[:len(data)-2]
@@ -701,6 +707,14 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         wflosses = []
         mflosses = []
 
+        uwf = self.useWinFeatures
+        if uwf != -1 and (not isinstance(uwf, list)):
+            uwf = list(range(0, self.useWinFeatures + 1))
+
+        umf = self.useMoveFeatures
+        if umf != -1 and (not isinstance(umf, list)):
+            umf = list(range(0, self.useMoveFeatures + 1))
+
         for bi in range(batchNum):
             batchStart = bi*sbatchSize
             batchEnd = min((bi+1) * sbatchSize, examplesCount)
@@ -714,14 +728,14 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
                 yR = rT[batchStart:batchEnd]
 
             wfs = []
-            if self.useWinFeatures > -1:
-                for wf0 in winFeatures[0:self.useWinFeatures+1]:
-                    wfs.append(wf0[batchStart:batchEnd])
+            if self.useWinFeatures != -1:
+                for wfIdx in uwf:
+                    wfs.append(winFeatures[wfIdx][batchStart:batchEnd])
 
             mfs = []
-            if self.useMoveFeatures > -1:
-                for mf0 in moveFeatures[0:self.useMoveFeatures+1]:
-                    mfs.append(mf0[batchStart:batchEnd])
+            if self.useMoveFeatures != -1:
+                for mfIdx in umf:
+                    mfs.append(moveFeatures[mfIdx][batchStart:batchEnd])
 
             self.optimizer.zero_grad()
 
@@ -743,7 +757,9 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
                 loss += self.featuresWeight * wfloss
 
             for midx, mf in enumerate(mfs):
-                mfloss = mseLoss(mf, headMove[:,midx,:,:].view(thisBatchSize, -1))
+                # when training on the res block output headMove == headWin, so go from the other end of the shape to prevent a conflict
+                matchToIndex = headMove.shape[1]-midx-1
+                mfloss = mseLoss(mf, headMove[:,matchToIndex,:,:].view(thisBatchSize, -1))
                 mflosses.append(mfloss.data.item())
                 loss += self.featuresWeight * mfloss
 

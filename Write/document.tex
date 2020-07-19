@@ -184,7 +184,7 @@ In the \emph{multi-armed bandit problem} a player is faced with a machine that h
 This creates a dilemma, where the player has to decide to explore, i.e. try a new lever to maybe find a higher return, or exploit, i.e. pull the lever with the highest known reward. This exploration-exploitation dilemma is a key problem of reinforcement learning
 and L.Kocsis et al. \cite{kocsis2006bandit} apply it to tree searches, effectively viewing the decision of which move to play in a node of the game tree as a multi-armed bandit problem.
 
-UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played form the root of the tree up to the end of the game or a fixed depth of the tree. The result
+UCT as described by L.Kocsis et al. is a rollout-based planning algorithm, which repeatedly samples possible episodes from the root of the tree. An episode is a possible sequence of moves that can be played from the root of the tree up to the end of the game or a fixed depth of the tree. The result
 of the episode is backpropagated upwards in the tree. When playing to a fixed depth of the tree a way to evaluate a position is by randomly playing it to the end a number of time and using the average results of these random playouts to evaluate the position.
 UCT is thus an incremental process, which improves the quality of the approximation of the move values at the root with every episode sampled and can be stopped at any time to return a result.
 
@@ -940,29 +940,34 @@ Another option is to abondon the idea of playing independent games to explore en
 
 \subsubsection{Implementation}
 
-To better control the games played, all games are played out on a single machine. To still scale to many GPUs, a MCTS evaluation service is created. The one machine playing the games queues position to be evaluated and waits for
+To better control the games played, all games are played out on a single machine. To still scale to many GPUs, a MCTS evaluation service is created. The one machine playing the games queues positions to be evaluated and waits for
 the results to return. To fully uitilize a lot of GPUs, many thousands of games are played concurrently. The machine playing the games caches the MCTS search results for positions and only queues every position once per network iteration. This 
 way of implementing AlphaZero increases the efficiency of GPU usage, as it prevents duplicate MCTS on common game positions. It is however only an implementation detail and cannot be considered an improvement to the algorithm.
 This also changes the way the training costs are measured, to simplify the measurement of the time to play a single move, the costs are measured in the MCTS evaluation service, so the cost is calculated as the number of requested evaluation multiplied
 by the cost to do a single evaluation on the ''standard`` machine.
 
 Since this different implementation is more efficient compared to the standard baseline normal training runs are done using the MCTS evaluation service with no further changes in the algorithm to establish a new baseline.
-Any algorithmic improvements which need the MCTS evaluation service are compared against this new baseline.
+Any algorithmic improvements which need the MCTS evaluation service are compared against this new baseline. The baseline is compared with the previously defined extended baseline in Figure \ref{fig:cache_play}.
 
-TODO show mcts evaluation service baseline results here.
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{cache_play}
+\caption{The MCTS evaluation service is a more efficient implementation of AlphaZero.}
+\label{fig:cache_play}
+\end{figure}
 
 \subsubsection{Resetting games to a position before a likely mistake}
 
-The idea investigated here is to explore by trying out to play another move in a position that might have been the reason a game was lost.
+This idea aims to explore by trying out to play another move in a position that might have been the reason a game was lost.
 
 Randomized play is reduced to the first $16$ turns of a game, down from $30$, to focus exploration on the novel way investigated here.
-Instead of relying on randomized moves to explore, once a game is completed it is reset to an earlier position and replayed with a different choice of moves from there. This choice of moves is intended to be done in a way that explores new possibilities.
+Instead of relying on randomized moves to explore, once a game is completed it is reset to an earlier position and replayed with a different choice of moves from there. This choice of moves is intended to be done in a way that explores new gameplay possibilities.
 
-The suggested way to chose a new move is to first search the position in which the predicted chance to win of the losing player dropped the most compared to before the latest move was made. For this the position value prediction of the network is used. 
+The suggested way to choose a new move is to first search the position in which the predicted chance to win of the losing player dropped the most compared to before the latest move was made. For this the position value prediction of the network is used.
 This should indicate a position in which a likely bad move was played.
 
-From one position earlier, before the network value evaluation dropped, restart a new game and let the losing player pick the best move in the position that has not been played yet.
-This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that might represent better play.
+From one position earlier, before the network value evaluation dropped, a new game is started and lets the loosing player pick the best move in the position that has not been played yet.
+This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that potentially represents better play.
 
 Figure \ref{fig:winp_tree} shows results of this idea. The results are not good, it appears the randomized moves are substantially better at exploration, with game diversity drastically reduced when exploring by retrying a different move in a critical position.
 
@@ -973,17 +978,19 @@ Figure \ref{fig:winp_tree} shows results of this idea. The results are not good,
 \label{fig:winp_tree}
 \end{figure}
 
-TODO maybe do another run with the exploration set back to up to turn 30?!
+TODO maybe do another run with the exploration set back to up to turn 30 and another with turn 0?
 
 \subsubsection{Explore the game tree in the same fashion as MCTS}
 
 The exploration-exploitation dilemma faced by AlphaZero self-play is the same one that MCTS aims to solve. It might thus make sense to explore the game tree by MCTS instead of randomized self-play.
-Specifically this thesis proposes to create a tree of game position, by MCTS rules, to generate example games and game results. Since AlphaZero needs to scale to many distributed machines, virtual losses \cite{chaslot2008parallel} are used to play out many games 
+Specifically it is proposed to create a tree of game position, by MCTS rules, to generate example games and game results. Since AlphaZero needs to scale to many distributed machines, virtual losses \cite{chaslot2008parallel} are used to play out many games 
 using the same MCTS tree. This should not be confused with the MCTS used to evaluate single game positions. That per-position MCTS is still used to evaluate positions, effectively stacking two MCTS searches into each other. The one big MCTS that generates training data
 and replaces randomized self-play uses the per-position MCTS as position evaluations, just like the per-position MCTS uses the neural network.
 
 A virtual loss is given to every node visited, pushing following games to investigate other nodes if too many such losses push down the value of a node in the search tree.
 Every game played represents one thread walking down the tree, adding virtual losses to visited nodes. Unlike in AlphaZero MCTS, games have to be played out to a final result before backpropagation can occur. 
+
+TODO: maybe that is a bad idea. Could instead do actual roll-outs on new positions instead to get a quick evaluation of a position. Maybe that will change something...
 
 To fully utilize ten or more GPUs, thousands of games have to be played in parallel. This might prove a challenge to 
 the virtual loss concept, as the original paper proposing virtual losses tested with only up to $16$ threads, whereas in this case thousands will be necessary.
@@ -996,9 +1003,12 @@ Throwing away the MCTS tree when a new network
 is completed would implement throwing away the half finished games, which is too expensive.
 Even after a new network has been trained, games that finish with positions only evaluated by the previous network are still reported. Instead of throwing away the MCTS tree, nodes are only reevaluated as they are encountered again,
 with currently running games untouched.
-
 This is similar to how normal AlphaZero might report some game states to the training server that use an older network due to the distributed nature of the workers.
-Experiments with this approach quickly revealed, that MCTS tends to get stuck on a relatively low number of possible games, dropping game diversity and hurting exploration. 
+
+One more difference with the MCTS implementation to discover new gameplay is that it uses a hash table between game position and tree nodes. This way, for every game position only a single node can exist, handling game transpositions in a rudimentary way. For 
+the backpropagation of game results transpositions are ignored however and only the recently played path from the root is back-propagated over.
+
+Experiments with this self-play approach quickly revealed that MCTS tends to get stuck on a relatively low number of possible games, dropping game diversity and hurting exploration. 
 Figure \ref{fig:mcts_tree_explore} shows that even setting the exploration-exploitation hyperparameter cpuct of the MCTS to extremely large values up to $15$ does not help against this.
 Increasing game diversity stays out of reach entirely.
 
@@ -1010,25 +1020,47 @@ Increasing game diversity stays out of reach entirely.
 \end{figure}
 
 
-
-TODO: also maybe talk about how this MCTS implementation has a rudementary handling of duplicate nodes, by keeping all nodes in a state -> node map.
-
 \subsection{Using network internal features as auxiliary targets}
 
-\cite{wu2019accelerating} shows that using domain specific features as auxiliary targets to regularize learning is very helpful. This motivates the search for an automatic way to find such targets.
+\cite{wu2019accelerating}[Wu et. al.] shows that using domain specific features as auxiliary targets to regularize learning is very helpful. This motivates the search for an automatic way to find such targets.
 
-Since I am especially interested in ways to improve learning performance at little additional computational cost, I suggest to use internal features of the network from previous network iterations as regularization targets to learn for future iterations.
-Since the internal features are learnt either way, this only introduces a small additional cost in the form of the computation of the increased size of the output layer.
+This thesis proposes to use internal feature representations of a small network to be used as such auxilary targets. For this purpose a full AlphaZero run is done, learning to play Connect 4 using a very small network with less than $70000$ 
+parameters, a fraction of the $1.5$ million parameters of the network used in all other experiments. This small network uses only a single filter in the last convolutional layer for both output-heads of the network. The predicition of the policy as well as the prediction of the game outcome 
+are bottlenecked by only $42$ features each, one feature for each of the $6 \times 7$ fields of Connect 4.
 
-Specifically I propose to designate a layer $\mathbb{F}$ in the network and connect an additional head $\mathbb{H}_{future}$ to the layer before $\mathbb{F}$. 
-The network stem $\mathbb{S}$ up to $\mathbb{F}$ is then used to produce additional learning targets by applying $\mathbb{S}$ to the 2-ply future of every game state used as training data.
-This uses the encoding the network found to be meaningful for game playing to encode the immediate future of the game and uses this as a learning target. The usage of the 2-ply future is required, since otherwise the network would just be tasked with producing
-its own internal features. Instead the network will be required to predict the future game situation after one action by each player.
+Training such a small network to an accuarcy of about $84\%$ takes less than two hours of computational time on a single GPU. The network can afterwards be used to generate features when training in an AlphaZero run with a larger network.
+Multiple options exist on how to use these features exactly. First a distinction can be made between the features of the game outcome prediction, the win-features, and the features of the policy prediction, the move-features.
 
-The reason for attaching the head $\mathbb{H}_{future}$ before $\mathbb{F}$ is such that $\mathbb{F}$ only contains an encoding relevant to the value and policy heads, not an encoding that also tries to encode information for $\mathbb{H}_{future}$ of previous iterations.
+For a given training example, the small network is run on it to produce these feature sets, producing the features of the present position. Additionally more features can be generated by considering future positions that occured in the game
+after a training position. This defines the future-features, which may induce the ability to predict the future of a game position in the regularized network. In this thesis future positions $2$, $4$ and $6$ ply in the future are considered, they are called future-1, future-2 and future-3.
+Including the present position this gives up to four feature layers to be used as regularization targets.
 
-An extension of this could be to try $n$-ply futures, for example 4-ply or 6-ply to evaluate how predicting a more distance future could be helpful, if 2-ply prediction shows promise.
+To regularize the bigger network a mean square error is used to add to the training loss, calculating the mean square error between the auxilary feature and an internal layer of the big network. No additional parameters are added to the bigger network,
+only some internal layers are enforced to produce the auxilary features. Two options are investigated: Regularize the very last convolutional layer and regularize the output of the last residual network block. The last convolutional layers before
+the fully connected output layers have $32$ filters in the big network, so only a small number of them are needed for regularization, the others are free to learn arbitary representations. The last residual network block has $128$ filters, so again only a small number is regularized.
 
+To first establish where various combinations of these options might stand, supervised training is enhanced with the auxilary features.
+
+
+\begin{itemize}
+ \item Try to use features found by a small network to regularize training of a bigger network.
+ \item Get small network by a full alpha zero run with the small network up to 84\%.
+ \item Try out various things: win features, move features, look-ahead future features, regularize in the head filters, regularize the last res-block, compare against random network
+ \item supervised results
+ \item AlphaZero results
+ \item discuss?
+\end{itemize}
+
+
+
+\section{Conclusion}
+
+\begin{itemize}
+ \item Establishing comparable baselines is hard, as shown on how different connect4 datasets can produce wildly different absolute values.
+ \item Evolution works, but what objective to use
+ \item Different modes of exploration all suck compared to plain random(). Plain random() really is incredibly good.
+ \item Skipped new network stuff, gather excite, because that is just not that much better than squeeze excite and sq was already not a big jump
+\end{itemize}
 
 
 
