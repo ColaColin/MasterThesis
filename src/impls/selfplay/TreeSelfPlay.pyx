@@ -29,6 +29,10 @@ import multiprocessing as mp
 from utils.fields.fields cimport mallocWithZero
 from libc.stdlib cimport free
 
+import random
+
+from libc.stdlib cimport rand, RAND_MAX
+
 import signal
 import ctypes
 libc = ctypes.CDLL("libc.so.6")
@@ -68,6 +72,54 @@ def pollResults(evalHost, queue):
             rDict = decodeFromBson(rBytes)
             result[rId] = (rDict["iterations"], rDict["network"], rDict["workerName"])
         queue.put(result)
+
+def rolloutPosition(object root, int n):
+    results = np.zeros((root.getPlayerCount() + 1), dtype=np.float32)
+
+    cdef int idx
+
+    for idx in range(n):
+        position = root
+        while not position.hasEnded():
+            move = position.getRandomLegalMove()
+            position = position.playMove(move)
+        results[position.getWinnerNumber()] += 1
+
+    results /= np.sum(results)
+
+    return results
+
+def rolloutWithUniformMCTS(object root, int n):
+    results = np.zeros((root.getPlayerCount() + 1), dtype=np.float32)
+    tree = MCTSNode(root)
+
+    cdef int idx
+
+    for idx in range(n):
+        passedNodes, failNode = tree.selectDown(1, 0, 99, 0)
+
+        if failNode.state.hasEnded():
+            result = failNode.getTerminalResult()
+            results[failNode.state.getWinnerNumber()] += 1
+            for node, move in passedNodes:
+                node.backup(move, result, 0.5)
+        else:
+            assert not failNode.isExpanded
+            
+            r = np.random.rand(failNode.state.getMoveCount())
+            r /= np.sum(r)
+            failNode.expand(r, None, "A", 0, "")
+
+    return results
+
+def tryMCTSRollout(object root, int n, int minResults, int alternativeRollouts):
+    x = rolloutWithUniformMCTS(root, n)
+    xs = np.sum(x)
+    if xs < minResults:
+        x = rolloutPosition(root, alternativeRollouts)
+    else:
+        x /= xs
+    return x
 
 class RemoteEvaluationAccess(EvaluationAccess, metaclass=abc.ABCMeta):
     def __init__(self, workers=4):

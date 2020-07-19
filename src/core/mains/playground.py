@@ -17,7 +17,7 @@ from utils.bsonHelp.bsonHelp import encodeToBson, decodeFromBson
 
 from core.training.StreamTrainingWorker import SlowWindowSizeManager
 
-from impls.selfplay.TreeSelfPlay import MCTSNode
+from impls.selfplay.TreeSelfPlay import MCTSNode, rolloutPosition, rolloutWithUniformMCTS, tryMCTSRollout
 
 from impls.polices.pytorch.policy import ResCNN
 import pytorch_model_summary as pms
@@ -183,8 +183,23 @@ import torch
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    net = ResCNN(6, 7, 1, 3, 128, 64, 2, 7, 3, 3, mode="sq")
-    print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
+    game = Connect4GameState(7,6,4)
+    game = game.playMove(0)
+    game = game.playMove(6)
+    game = game.playMove(1)
+    game = game.playMove(5)
+    game = game.playMove(2)
+
+    start = time.monotonic_ns()
+    x = tryMCTSRollout(game, 200, 10, 500)
+    end = time.monotonic_ns()
+
+    rtime = (end - start) / 1000000.0
+
+    print(rtime, x)
+
+    # net = ResCNN(6, 7, 1, 3, 128, 64, 2, 7, 3, 3, mode="sq")
+    # print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
 
     # genStart = time.monotonic()
     # package = [makeReport() for _ in range(2048)]

@@ -1,4 +1,5 @@
 import abc
+import random
 
 class GameState(metaclass=abc.ABCMeta):
     """
@@ -58,6 +59,12 @@ class GameState(metaclass=abc.ABCMeta):
         A move with a given index should always refer the same action in the game.
         Consider using some sort of internal cache to speed up this call as much as possible, do not just iterate all moves and filter every time!
         """
+
+    def getRandomLegalMove(self):
+        """
+        helper to get a random legal move. Some games might be able to implement this in a more efficient manner.
+        """
+        return random.choice(self.getLegalMoves())
 
     @abc.abstractmethod
     def getPlayerCount(self):

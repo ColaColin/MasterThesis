@@ -13,6 +13,8 @@ import numpy as np
 
 import hashlib
 
+from libc.stdlib cimport rand, RAND_MAX
+
 # this is a copy of the MNK code, modified to play as connectk (with k = 4 you get the standard game...)
 
 cdef struct Connect4_c:
@@ -296,6 +298,11 @@ cdef class Connect4GameData():
     def getLegalMoves(self):
         return self._legalMovesList.copy()
 
+    def getRandomLegalMove(self):
+        cdef int lsize = len(self._legalMovesList)
+        cdef rndIdx = int((rand() / (<float>RAND_MAX)) * (lsize-1))
+        return self._legalMovesList[rndIdx]
+
     def getLastMove(self):
         return self.lastMove
 
@@ -409,6 +416,9 @@ class Connect4GameState(GameState, metaclass=abc.ABCMeta):
     def getLegalMoves(self):
         return self._data.getLegalMoves()
     
+    def getRandomLegalMove(self):
+        return self._data.getRandomLegalMove()
+
     def getPlayerCount(self):
         return 2
 

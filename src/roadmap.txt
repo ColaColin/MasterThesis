@@ -722,18 +722,28 @@ WK 29
           [X] also allow to include future moves into this.
           [X] see where it goes
           [X] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
+               -> probably there is an issue with supervised on the different dataset?!...
 
+          [ ] supervised % depend heavily on the dataset move decisions!
+               [ ] redo supervised results for the 90% dataset.
+               [ ] check the test set against the 50% testset, is it the testset that is just easier somehow? Or does it learn more?
+          [X] implement only future x
+          [X] implement regularize pre-head
+               [ ] ./build.sh and test it
 
-
-
-
+     [ ] MCTS-tree: use rollouts! 1k rollouts should be pretty fast, right?! 10k?
      [ ] writing goal: Complete stuff about the tree-game-playing
 WK 30: 
      [ ] more work on internal network features
           [ ] supervised:
                [ ] plain
                [ ] random network
-               [ ] only future 1
+               [ ] only future 1 <- in progress
+[2020-07-19T04:59:56.979475+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  97.00 +/- 0.08 |  84.71 +/- 0.04  <<< best
+
                [X] win0,move0
 wins: 0, moves: 0
 [2020-07-17T11:56:29.885481+02:00] 
@@ -757,10 +767,11 @@ Training set size | moves %         |  wins %
                [ ] random network
                [ ] only future 1
                [x] win0, move0 -> BAD
-               [ ] win3, move3
+               [X] win3, move3 -> WORSE
                [ ] win1, move1
                [ ] win1
                [ ] move1
+               [ ] lower weight maybe?!
 
           [ ] try to do the features one deeper
                [ ] test on best supervised & best alpha zero from before
