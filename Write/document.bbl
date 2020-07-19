@@ -95,6 +95,13 @@ Jie Hu, Li~Shen, and Gang Sun.
 \newblock In {\em Proceedings of the IEEE conference on computer vision and
   pattern recognition}, pages 7132--7141, 2018.
 
+\bibitem{jackson2019novelty}
+Ethan~C Jackson and Mark Daley.
+\newblock Novelty search for deep reinforcement learning policy network weights
+  by action sequence edit metric distance.
+\newblock In {\em Proceedings of the Genetic and Evolutionary Computation
+  Conference Companion}, pages 173--174, 2019.
+
 \bibitem{kahneman2011thinking}
 Daniel Kahneman.
 \newblock Thinking, fast and slow. new york.
@@ -117,6 +124,12 @@ Vladimir Kramnik.
 Li-Cheng Lan, Wei Li, Ting-Han Wei, I~Wu, et~al.
 \newblock Multiple policy value monte carlo tree search.
 \newblock {\em arXiv preprint arXiv:1905.13521}, 2019.
+
+\bibitem{lehman2011abandoning}
+Joel Lehman and Kenneth~O Stanley.
+\newblock Abandoning objectives: Evolution through the search for novelty
+  alone.
+\newblock {\em Evolutionary computation}, 19(2):189--223, 2011.
 
 \bibitem{oracledevs}
 Aditya Prasad.

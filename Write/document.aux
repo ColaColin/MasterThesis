@@ -162,22 +162,31 @@
 \newlabel{t:inversion_results}{{5}{35}{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf {I}$ is reduced substantially over the generations.\relax }{table.caption.16}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }}{36}{table.caption.17}}
 \newlabel{t:hyperparam_accuracy}{{6}{36}{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }{table.caption.17}{}}
+\citation{lehman2011abandoning}
+\citation{jackson2019novelty}
 \@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }}{37}{table.caption.18}}
 \newlabel{t:hyperparam_games}{{7}{37}{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }{table.caption.18}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{38}{subsection.4.2}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{38}{subsubsection.4.2.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{39}{figure.caption.19}}
-\newlabel{fig:cache_play}{{11}{39}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.19}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{39}{subsubsection.4.2.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.6}Novelty search as an optimization target}{38}{subsubsection.4.1.6}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Novelty search for novel ways to win the game shows little difference to just optimizing for wins.\relax }}{38}{figure.caption.19}}
+\newlabel{fig:player_evolution_win_novelty}{{11}{38}{Novelty search for novel ways to win the game shows little difference to just optimizing for wins.\relax }{figure.caption.19}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }}{39}{table.caption.20}}
+\newlabel{t:novel_win_fail}{{8}{39}{Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }{table.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.\relax }}{39}{figure.caption.21}}
+\newlabel{fig:pure_novelty_search}{{12}{39}{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.\relax }{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{40}{subsection.4.2}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{40}{subsubsection.4.2.1}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{41}{figure.caption.22}}
+\newlabel{fig:cache_play}{{13}{41}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.22}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{41}{subsubsection.4.2.2}}
 \citation{chaslot2008parallel}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{40}{figure.caption.20}}
-\newlabel{fig:winp_tree}{{12}{40}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.20}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{40}{subsubsection.4.2.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{42}{figure.caption.23}}
+\newlabel{fig:winp_tree}{{14}{42}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{42}{subsubsection.4.2.3}}
 \citation{wu2019accelerating}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{42}{figure.caption.21}}
-\newlabel{fig:mcts_tree_explore}{{13}{42}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.21}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{42}{subsection.4.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{43}{section.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{44}{figure.caption.24}}
+\newlabel{fig:mcts_tree_explore}{{15}{44}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.24}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{44}{subsection.4.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{45}{section.5}}
 \bibstyle{plain}
 \bibdata{document}
 \bibcite{trompsolved}{1}
@@ -200,18 +209,20 @@
 \bibcite{chaslot2008parallel}{18}
 \bibcite{gelly2006modification}{19}
 \bibcite{hu2018squeeze}{20}
-\bibcite{kahneman2011thinking}{21}
-\bibcite{kocsis2006bandit}{22}
-\bibcite{NoCastleChess}{23}
-\bibcite{lan2019multiple}{24}
-\bibcite{oracledevs}{25}
-\bibcite{nimmath}{26}
-\bibcite{shannon1950xxii}{27}
-\bibcite{silver2016mastering}{28}
-\bibcite{silver2018general}{29}
-\bibcite{AlphaZero}{30}
-\bibcite{silver2017mastering}{31}
-\bibcite{smith2017cyclical}{32}
-\bibcite{wu2019accelerating}{33}
-\bibcite{yao1999evolving}{34}
-\bibcite{oracledevs6}{35}
+\bibcite{jackson2019novelty}{21}
+\bibcite{kahneman2011thinking}{22}
+\bibcite{kocsis2006bandit}{23}
+\bibcite{NoCastleChess}{24}
+\bibcite{lan2019multiple}{25}
+\bibcite{lehman2011abandoning}{26}
+\bibcite{oracledevs}{27}
+\bibcite{nimmath}{28}
+\bibcite{shannon1950xxii}{29}
+\bibcite{silver2016mastering}{30}
+\bibcite{silver2018general}{31}
+\bibcite{AlphaZero}{32}
+\bibcite{silver2017mastering}{33}
+\bibcite{smith2017cyclical}{34}
+\bibcite{wu2019accelerating}{35}
+\bibcite{yao1999evolving}{36}
+\bibcite{oracledevs6}{37}

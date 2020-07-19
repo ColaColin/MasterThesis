@@ -17,45 +17,45 @@ Warning--to sort, need author or key in pascalsolvergithub
 Warning--empty journal in montecarlogo1993
 Warning--empty journal in gelly2006modification
 Warning--empty journal in kahneman2011thinking
-You've used 35 entries,
+You've used 37 entries,
             2118 wiz_defined-function locations,
-            672 strings with 9091 characters,
-and the built_in function-call counts, 10623 in all, are:
-= -- 1019
-> -- 502
-< -- 5
-+ -- 210
-- -- 172
-* -- 680
-:= -- 1663
-add.period$ -- 101
-call.type$ -- 35
-change.case$ -- 177
+            684 strings with 9501 characters,
+and the built_in function-call counts, 11407 in all, are:
+= -- 1101
+> -- 528
+< -- 6
++ -- 220
+- -- 180
+* -- 730
+:= -- 1779
+add.period$ -- 107
+call.type$ -- 37
+change.case$ -- 187
 chr.to.int$ -- 0
-cite$ -- 49
-duplicate$ -- 390
-empty$ -- 902
-format.name$ -- 172
-if$ -- 2277
+cite$ -- 51
+duplicate$ -- 424
+empty$ -- 970
+format.name$ -- 180
+if$ -- 2451
 int.to.chr$ -- 0
-int.to.str$ -- 35
-missing$ -- 22
-newline$ -- 171
-num.names$ -- 48
-pop$ -- 293
+int.to.str$ -- 37
+missing$ -- 24
+newline$ -- 181
+num.names$ -- 52
+pop$ -- 304
 preamble$ -- 1
-purify$ -- 151
+purify$ -- 159
 quote$ -- 0
-skip$ -- 301
+skip$ -- 330
 stack$ -- 0
-substring$ -- 551
-swap$ -- 85
-text.length$ -- 5
+substring$ -- 618
+swap$ -- 97
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 138
+type$ -- 146
 warning$ -- 14
-while$ -- 79
-width$ -- 37
-write$ -- 338
+while$ -- 88
+width$ -- 39
+write$ -- 360
 (There were 14 warnings)

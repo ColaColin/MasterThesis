@@ -695,15 +695,15 @@ This extended baseline forms the basis of all further experiments, unless stated
 
 \section{Evaluated novel ideas}
 
-In this section I preset my proposals on possible improvements to AlphaZero, including experimental results.
+In this section I present my proposals on possible improvements to AlphaZero, including experimental results.
 
 
 \subsection{Using the self-playing phase as an evolutionary process} \label{s:novel_evolution}
 
-There are many hyperparameters involved in AlphaZero which have to be tuned. An important subset of these hyperparameters controls the exact behavior of the MCTS search, for example $C_{puct}$, as discussed in section \ref{s:azalgo}, equation \ref{eq:alpha_zero_u} on page \pageref{eq:alpha_zero_u}.
+There are many hyperparameters involved in AlphaZero which have to be tuned. An important subset of these hyperparameters controls the exact behavior of the MCTS search, for example $C_{puct}$, as discussed in section \ref{s:azalgo}, Equation \ref{eq:alpha_zero_u} on page \pageref{eq:alpha_zero_u}.
 A hyperparameter search shows that these MCTS-parameters have a noteable impact on how much the MCTS can improve the playing strength of the network alone. Better parameters therefore could translate into faster training progression.
 
-I propose to use the self-playing phase of AlphaZero to optimize these hyperparameters by designating ''players``, which utilize different hyperparameters and have them play against each other in a league-system using a rating system such as Elo. The games played 
+This thesis proposes to use the self-playing phase of AlphaZero to optimize these hyperparameters by designating ''players``, which utilize different hyperparameters and have them play against each other in a league-system using a rating system such as Elo. The games played 
 in this league make up the self-playing phase, but additionally the results of these games will be used to judge which hyperparameters perform best. After some hyperparameters are found to perform best, the weaker players can be replaced with modified versions 
 of the best players, forming an evolutionary process. The hope is to be able to search for good hyperparameters at no substantial additional cost.
 
@@ -732,7 +732,7 @@ Each individual player is defined by a pair of two vectors $(w_i, v_i)$. $w_i$ r
 Additionally a range of valid values is defined for each hyperparameter is defined: $(\text{min}_i, \text{max}_i)$.
 
 The initial set of players selects values at random according to a uniform distribution over the allowed range of values.
-To create as new player $(w_j, v_j)$, an already existing player $(w_i, v_i)$ is used as shown in formulas \ref{eq:mutate_v} and \ref{eq:mutate_w} where $N(0,1)$ is a value randomly picked from a Gaussian distribution with mean $0$ and standard deviation $1$
+To create a new player $(w_j, v_j)$, an already existing player $(w_i, v_i)$ is used as shown in Equations \ref{eq:mutate_v} and \ref{eq:mutate_w} where $N(0,1)$ is a value randomly picked from a Gaussian distribution with mean $0$ and standard deviation $1$
 once for the mutation of all hyperparameters,
 $N_i(0,1)$ is the same, but a new value is randomly picked for every hyperparameter. $\tau'$ is $(\sqrt{2\sqrt{n}})^{-1}$ and $\tau$ is $(\sqrt{2n})^{-1}$.
 
@@ -761,8 +761,8 @@ For a game of average length this will play out around $350$ node evaluations pe
 
 \subsubsection{Experiments}
 
-I implemented the evolution approach and ran initial experiments, one evolving cpuct, fpu and drawValue, the other the Kullback-Leibler divergence threshold for play with a dynamic number of MCTS nodes.
-Results can be seen in figure \ref{fig:evolve_results}. Neither approach produces promising results.
+The evolutionary approach was implemented and initial experiments run, one evolving cpuct, fpu and drawValue, the other the Kullback-Leibler divergence threshold for play with a dynamic number of MCTS nodes.
+Results can be seen in figure \ref{fig:evolve_results}. Neither approach produced promising results, under-performing the baseline by a margin much larger than the run-to-run difference within the baseline.
 
 \begin{figure}[H]
 \centering
@@ -782,20 +782,20 @@ One potential issue can be seen for the evolution of the MCTS hyperparameters in
 
 \subsubsection{Requirements for evolution to succeed}
 
-The weak results of the first experiments with evolving players do not show good results. This raises the question of what conditions have to be fulfilled to improve training efficiency with the evolutionary process.
-A few key points can be established, that need to be verified:
+First experiments with evolving players do not show good results, raising the question of what conditions have to be fulfilled to improve training efficiency with the evolutionary process.
+A few key points can be established:
 
 \begin{itemize}
  \item The player league needs to be able to pick players that actually maximize playing strength.
  \item Players that win a lot of games against other players should correspond to players that produce a high accuracy of play compared to the Connect 4 solver.
 \end{itemize}
 
-To investigate if the player evolution is able to find ''strong`` players I have done tests with another hyperparameter, which was designed only for this purporse, the inversion-hyperparameter $\mathbf{I}$.
-$\mathbf{I}$ modifies the move distribution found by MCTS. 
+To investigate if the player evolution is able to find ''strong`` players tests were done with another hyperparameter, which was designed only for this purporse, the inversion-hyperparameter $\mathbf{I}$.
+$\mathbf{I}$ modifies the move distribution found by MCTS in a way designed to disrupt playing strength.
 
-If $m$ is the vector that represents the move distribution produces by MCTS, then the new move distribution is calculated by the inversion parameter as shown in formula \ref{eq:inverted_mtcs}.
-In words, the inversion parameter controls a linear interpolation between the original move distribution and a vector that is one minus the original move distribution. Therefore, when $\mathbf{I}$ is $1$, the MCTS will produce results which put most weight on moves that originally
-were considered to be the worst moves, while the best moves will receive the lowest weight. It is clear, that $\mathbf{I}$ should be $0$, to not disturb the MCTS results at all.
+If $m$ is the vector that represents the move distribution produced by MCTS, then the new move distribution is calculated by the inversion parameter as shown in formula \ref{eq:inverted_mtcs}.
+In words: the inversion parameter controls a linear interpolation between the original move distribution and a vector that is one minus the original move distribution. Therefore, when $\mathbf{I}$ is $1$, the MCTS will produce results which put most weight on moves that originally
+were considered to be the worst moves, while the best moves will receive the lowest weight. $\mathbf{I}$ should be $0$ to not disturb the MCTS results at all, giving a known optimal value towards evolution should optimize.
 
 \begin{equation}
  m_\text{inverted} = \mathbf{I}((1 - m) / \sum(1 - m)) + (1 - \mathbf{I}) m \label{eq:inverted_mtcs}
@@ -806,7 +806,7 @@ Table \ref{t:inversion_results} shows the development of the average players ove
 To gain further insight into how strong the optimization is in face of reduced impact of the parameter, two more sets of $3$ runs were made, were the inversion was only applied at random with a probability $p$. $p$ was chosen to be $0.25$ and $0.05$, so in the most extreme case,
 only $1$ in $20$ moves would be affected.
 
-The results clearly show, that the evolution of players works and can pick parameters that play stronger, even in face of a lower influence of the hyperparameter on game results, such as with $p = 0.25$ or even $p = 0.05$.
+The results clearly show that the evolution of players works and can pick parameters that play stronger, even in face of a lower influence of the hyperparameter on game results, such as with $p = 0.25$ or even $p = 0.05$.
 Full training runs typically go for $30$ to $50$ generations, so they have even more generation to optimize parameters.
 
 \begin{table} [H]
@@ -830,7 +830,7 @@ Full training runs typically go for $30$ to $50$ generations, so they have even 
 
 After establishing that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
 
-For this purpose I will compare three sets of MCTS hyperparameters: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
+For this purpose three sets of MCTS hyperparameters are compared: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
 directly towards maximum accuracy compared to the solver. This is different from the bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
 the accuracy.
 
@@ -876,7 +876,7 @@ parameter set, as evolved parameter sets are only generated while also training 
 These results provide multiple interesting insights:
 
 \begin{itemize}
- \item Once the training run has reached the best network, the evolved player has found a parameter set, which performs equally good to the baseline parameters, however it starts weaker.
+ \item Once the training run has reached the best network the evolved player has found a parameter set which performs equally good to the baseline parameters, however it starts weaker.
  \item Neither the baseline nor the evolved player reach the performance of a hyperparameter set only optimized to reach highest accuracy.
  \item The optimized parameter set shows how different hyperparameters are good for different phases of the training. Especially the fpu changes drastically, from the maximum possible value of $1$ to the minimum possible value of $0$. It seems
  setting cpuct low, but fpu high is an efficient way to explore with a random network. Similarly, the drawValue also starts at a higher value and is reduced later in the training run. The evolved player does capture both of these developments over the run,
@@ -923,13 +923,59 @@ Table \ref{t:hyperparam_games} shows the results of the matches between the diff
   \label{t:hyperparam_games}
 \end{table}
 
-The high win rate of the evolved player shows, that the hyperparameter optimization has achieved, what its optimization goal requires: Win more games. It appears this is not necessarily the same, as playing in such a way as to play correct according to the Connect 4 solver,
+The high win rate of the evolved player shows that the hyperparameter optimization has achieved what its optimization goal requires: Win more games. It appears this is not necessarily the same as playing in such a way as to play correct according to the Connect 4 solver
 and is also not generally helpful to speed up the training processes.
 
-Most likely this is the core reason why, the evolution approach does not help efficiency: The winrate of hyperparameters in playing against each other using the same network is not a good proxy for learning progress of AlphaZero.
-The evolution of hyperparameters by using self-play clearly works, so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
+Most likely this is the core reason why the evolution approach does not help efficiency: The win-rate of hyperparameters in playing against each other using the same network is not a good proxy for learning progress of AlphaZero.
 
 
+\subsubsection{Novelty search as an optimization target}
+
+Since the win-rate of players does not appear to be a good optimization target, it might be useful to instead optimize towards a novelty search objective. Novelty search has been shown before to be a useful optimization target to solve RL problems in Deep Learning as well
+as evolutionary approaches \cite{lehman2011abandoning, jackson2019novelty}.
+
+Figure \ref{fig:evolve_low_diversity} established that optimizing for winning games causes MCTS hyperparameters to be selected which reduce the game diversity substantially, which is likely to hurt exploration.
+As a compromise it is proposed to replace the Elo league with a points-based league where the winner of a game is given points for every new position in a won game. Therefore a hyperparameter set has to not just win games, but win them in novel ways.
+This might help to increase the game diversity. Apart from the different objective, the player-league implementation stays unchanged. Figure \ref{fig:player_evolution_win_novelty} shows that optimizing novel ways in this way does
+not substantially increase game diversity, only in the later part of the training a minimally higher game diversity seems to be created. Since players still have to win to gain points they still mainly focus on winning games, as a $1000$ game match between the novelty-evolved player
+and the extended baseline parameters shows, see Figure \ref{t:novel_win_fail}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{player_evolution_win_novelty}
+\caption{Novelty search for novel ways to win the game shows little difference to just optimizing for wins.}
+\label{fig:player_evolution_win_novelty}
+\end{figure}
+
+\begin{table} [H]
+ \centering
+
+  \begin{tabular}{ c c }
+  \multicolumn{2}{c}{\textbf{Match using fully trained network}} \\
+	      VS & Baseline  \\
+  \hline
+  Evolved & $599W, 238L, 163D$
+  \end{tabular}
+  
+  \caption{Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.}
+  \label{t:novel_win_fail}
+\end{table}
+
+Lastly, it is possible to abandon the idea of rewards winning at all and optimize for novelty alone. This means both players get points at the end of the game, one for every novel position encountered in the game. $3$ runs were done using this optimization target,
+results are shown in Figure \ref{fig:pure_novelty_search}. Towards the second half of the training game diversity is very clearly better than with the baseline, however game play performance lags substantially behind.
+In the first half of the training the baseline produces more game diversity, likely because the evolution needs some time to find good parameters, while the baseline starts with parameters that were already optimized to produce good results.
+The only small advantage in game diversity, even in the later half of training, indicates that the baseline parameter optimization already considered game diversity, there is not much space for improvement.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{pure_novelty_search}
+\caption{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.}
+\label{fig:pure_novelty_search}
+\end{figure}
+
+
+This closes the investigation on the evolutionary optimization of hyperparameters. No meaningful improvements could be found. However the evolution of hyperparameters by using self-play has been shown to work,
+so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
 
 
 \subsection{Playing games as trees}
@@ -959,6 +1005,10 @@ Any algorithmic improvements which need the MCTS evaluation service are compared
 \label{fig:cache_play}
 \end{figure}
 
+
+
+
+
 \subsubsection{Resetting games to a position before a likely mistake}
 
 This idea aims to explore by trying out to play another move in a position that might have been the reason a game was lost.
@@ -973,6 +1023,7 @@ From one position earlier, before the network value evaluation dropped, a new ga
 This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that potentially represents better play.
 
 Figure \ref{fig:winp_tree} shows results of this idea. The results are not good, it appears the randomized moves are substantially better at exploration, with game diversity drastically reduced when exploring by retrying a different move in a critical position.
+
 
 \begin{figure}[H]
 \centering
