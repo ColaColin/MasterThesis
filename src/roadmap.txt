@@ -731,7 +731,12 @@ WK 29
 WK 30: 
      [ ] more work on internal network features
           [ ] supervised:
-               [ ] plain
+               [X] plain
+[2020-07-19T06:22:01.380478+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  95.94 +/- 2.15 |  83.33 +/- 2.88  <<< best
+
                [ ] random network
                [ ] only future 1
                [X] win0,move0
@@ -740,8 +745,18 @@ wins: 0, moves: 0
 Training set size | moves %         |  wins % 
 ------------------+---------+---------
            800000 |  97.04 +/- 0.07 |  84.71 +/- 0.05  <<< best
-               [ ] win0
-               [ ] move0
+               [X] win0 
+[2020-07-19T05:53:01.030773+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  96.08 +/- 1.50 |  83.89 +/- 1.15  <<< best
+
+               [X] move0
+[2020-07-19T06:21:17.294722+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  97.04 +/- 0.05 |  84.79 +/- 0.03  <<< best
+
                [X] win3,move3
 wins: 3, moves: 3
 [2020-07-17T09:21:24.567521+02:00]
