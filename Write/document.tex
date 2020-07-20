@@ -354,19 +354,29 @@ The behavior of the tree search can be modified to change how available time is 
 
 \section{Experimental Setup} \label{s:experiments}
 
-I have developed a framework for experiments with AlphaZero which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
-TODO talk a lot more about this, publish the code in a more refined manner...
+For this thesis a framework for experiments with AlphaZero has been developed which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
+An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_overview}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{x0_framework_overview}
+\caption{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks are handled on machines talking to this central server.}
+\label{fig:x0_framework_overview}
+\end{figure}
+
+
+
+TODO document the code, link github here.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
-This differs from the original implementation, which used a single output with values between $0$ and $1$.
-There might be a slight change in learing efficiency from this, but the main reasons for implementing this were of technical nature in the context of the abstraction-driven framework
-and no further research has been done on the difference between these two ways of implementing the value target.
+This differs from the original implementation which used a single output with values between zero and one.
+There might be a slight change in learning efficiency from this, but the main reasons for it were of technical nature in the context of the abstraction-driven framework and no further research has been done on the difference between these two ways of implementing the value target.
 
-My experiments are split into multiple parts:
+The experiments are split into multiple parts:
 \begin{enumerate}
  \item Establish a baseline with a base implementation very close to raw AlphaZero
- \item Extend AlphaZero with some known extensions.
- \item Evaluate my proposed improvements one by one.
+ \item Implement some known extensions to AlphaZero.
+ \item Evaluate proposed ideas one by one.
 \end{enumerate}
 
 \subsection{Testing on Connect 4}
@@ -437,7 +447,7 @@ In version 2 of the dataset, only a single position is randomly picked from each
 For both versions of the dataset, $800000$ examples were used as training data, $100000$ examples were used as validation data and the remaining $100000$ examples were used as test data.
 Training started with a learning rate of $0.2$ and was reduced by a factor of $10$ after $8$ epochs of no accuracy improvements on the validation data. The supervised training stops after $12$ epochs with no improvements on the validation accuracy.
 
-Various network sizes are evaluated. Results are shown in table \ref{t:supervised_results}.
+Various network sizes are evaluated. Mean results of five runs for each network are shown in table \ref{t:supervised_results}.
 
 \begin{table} [H]
  \centering

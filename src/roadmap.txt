@@ -729,7 +729,7 @@ WK 29
                [ ] check the test set against the 50% testset, is it the testset that is just easier somehow? Or does it learn more?
           [X] implement only future x
           [X] implement regularize pre-head
-               [ ] ./build.sh and test it
+               [X] ./build.sh and test it
 
      [ ] MCTS-tree: use rollouts! 1k rollouts should be pretty fast, right?! 10k?
      [ ] writing goal: Complete stuff about the tree-game-playing
@@ -743,8 +743,11 @@ Training set size | moves %         |  wins %
 ------------------+---------+---------                            
            800000 |  92.60 +/- 0.10 |  78.94 +/- 0.10  <<< best   
 
-               [ ] move1 - 50% dataset <<<<<<<<<<<<<<< DOWN
-
+               [X] move1 - 50% dataset
+[2020-07-20T21:27:10.531364+02:00]                                    
+Training set size | moves %         |  wins %                         
+------------------+---------+---------                                
+           800000 |  92.89 +/- 0.08 |  79.02 +/- 0.07  <<< best       
 
                [X] plain
 [2020-07-19T06:22:01.380478+02:00] 
