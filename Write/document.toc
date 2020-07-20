@@ -1,11 +1,11 @@
 \select@language {english}
 \select@language {english}
 \contentsline {section}{\numberline {1}Introduction}{8}{section.1}
-\contentsline {section}{\numberline {2}Previous work}{8}{section.2}
+\contentsline {section}{\numberline {2}Previous work}{9}{section.2}
 \contentsline {subsection}{\numberline {2.1}Monte Carlo Tree Search}{9}{subsection.2.1}
 \contentsline {subsection}{\numberline {2.2}AlphaZero}{10}{subsection.2.2}
-\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{10}{subsubsection.2.2.1}
-\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{12}{subsection.2.3}
+\contentsline {subsubsection}{\numberline {2.2.1}The AlphaZero algorithm}{11}{subsubsection.2.2.1}
+\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{13}{subsection.2.3}
 \contentsline {subsubsection}{\numberline {2.3.1}Network and training modifications}{13}{subsubsection.2.3.1}
 \contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{13}{subsubsection.2.3.2}
 \contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}
@@ -16,24 +16,25 @@
 \contentsline {subsection}{\numberline {3.2}Evaluation of training costs}{17}{subsection.3.2}
 \contentsline {subsection}{\numberline {3.3}Supervised training}{18}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}Baseline}{19}{subsection.3.4}
-\contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{19}{subsubsection.3.4.1}
-\contentsline {subsection}{\numberline {3.5}Extended Baseline}{21}{subsection.3.5}
-\contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{22}{subsubsection.3.5.1}
-\contentsline {subsubsection}{\numberline {3.5.2}Cyclic learning rate}{23}{subsubsection.3.5.2}
-\contentsline {subsubsection}{\numberline {3.5.3}Improved training window}{25}{subsubsection.3.5.3}
-\contentsline {subsubsection}{\numberline {3.5.4}Playout Caps}{26}{subsubsection.3.5.4}
-\contentsline {subsubsection}{\numberline {3.5.5}Improving the network structure}{27}{subsubsection.3.5.5}
-\contentsline {subsection}{\numberline {3.6}Baseline results}{28}{subsection.3.6}
-\contentsline {section}{\numberline {4}Evaluated novel ideas}{29}{section.4}
-\contentsline {subsection}{\numberline {4.1}Using the self-playing phase as an evolutionary process}{29}{subsection.4.1}
-\contentsline {subsubsection}{\numberline {4.1.1}Implementation}{30}{subsubsection.4.1.1}
-\contentsline {subsubsection}{\numberline {4.1.2}Evolution of players}{30}{subsubsection.4.1.2}
-\contentsline {subsubsection}{\numberline {4.1.3}Selection of hyperparameters}{31}{subsubsection.4.1.3}
-\contentsline {subsubsection}{\numberline {4.1.4}Experiments}{32}{subsubsection.4.1.4}
-\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{33}{subsubsection.4.1.5}
-\contentsline {subsection}{\numberline {4.2}Playing games as trees}{37}{subsection.4.2}
-\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{37}{subsubsection.4.2.1}
-\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{38}{subsubsection.4.2.2}
-\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{39}{subsubsection.4.2.3}
-\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{41}{subsection.4.3}
-\contentsline {section}{\numberline {5}Conclusion}{42}{section.5}
+\contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{20}{subsubsection.3.4.1}
+\contentsline {subsection}{\numberline {3.5}Extended Baseline}{22}{subsection.3.5}
+\contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{23}{subsubsection.3.5.1}
+\contentsline {subsubsection}{\numberline {3.5.2}Cyclic learning rate}{24}{subsubsection.3.5.2}
+\contentsline {subsubsection}{\numberline {3.5.3}Improved training window}{26}{subsubsection.3.5.3}
+\contentsline {subsubsection}{\numberline {3.5.4}Playout Caps}{27}{subsubsection.3.5.4}
+\contentsline {subsubsection}{\numberline {3.5.5}Improving the network structure}{28}{subsubsection.3.5.5}
+\contentsline {subsection}{\numberline {3.6}Baseline results}{29}{subsection.3.6}
+\contentsline {section}{\numberline {4}Evaluated novel ideas}{30}{section.4}
+\contentsline {subsection}{\numberline {4.1}Using the self-playing phase as an evolutionary process}{30}{subsection.4.1}
+\contentsline {subsubsection}{\numberline {4.1.1}Implementation}{31}{subsubsection.4.1.1}
+\contentsline {subsubsection}{\numberline {4.1.2}Evolution of players}{31}{subsubsection.4.1.2}
+\contentsline {subsubsection}{\numberline {4.1.3}Selection of hyperparameters}{32}{subsubsection.4.1.3}
+\contentsline {subsubsection}{\numberline {4.1.4}Experiments}{33}{subsubsection.4.1.4}
+\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{34}{subsubsection.4.1.5}
+\contentsline {subsubsection}{\numberline {4.1.6}Novelty search as an optimization target}{38}{subsubsection.4.1.6}
+\contentsline {subsection}{\numberline {4.2}Playing games as trees}{40}{subsection.4.2}
+\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{40}{subsubsection.4.2.1}
+\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{41}{subsubsection.4.2.2}
+\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{42}{subsubsection.4.2.3}
+\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{44}{subsection.4.3}
+\contentsline {section}{\numberline {5}Conclusion}{45}{section.5}
