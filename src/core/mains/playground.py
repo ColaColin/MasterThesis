@@ -191,7 +191,7 @@ if __name__ == "__main__":
     game = game.playMove(2)
 
     start = time.monotonic_ns()
-    x = tryMCTSRollout(game, 200, 10, 500)
+    x = rolloutPosition(game, 500)
     end = time.monotonic_ns()
 
     rtime = (end - start) / 1000000.0

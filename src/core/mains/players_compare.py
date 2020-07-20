@@ -20,9 +20,7 @@ from core.training.NetworkApi import NetworkApi
 
 from core.mains.remote_evaluator import getRunConfig
 
-
-
-# for run 325d9f51-97d2-48ab-8999-25f2583979ba, iteration 0 random network
+# for run 395ba2f7-4e40-4cbd-ae57-19087d344e25, iteration 25 (network is 67bbb2dd-f3d1-477c-a3dd-a22bd7f74c3d)
 players = {
     "extended": {
         "cpuct": 1.545,
@@ -30,13 +28,29 @@ players = {
         "fpu": 0.8545,
         "alphaBase": 20.38
     },
-    "hyperopt": {
-        "cpuct": 0.08295,
-        "drawValue": 0.106,
-        "fpu": 0.9995,
-        "alphaBase": 20.38
+    "evolved": {
+        "cpuct": 0.5590,
+        "fpu": 0.1685,
+        "alphaBase": 3.6369,
+        "drawValue": 0.1037
     }
 }
+
+# for run 325d9f51-97d2-48ab-8999-25f2583979ba, iteration 0 random network
+# players = {
+#     "extended": {
+#         "cpuct": 1.545,
+#         "drawValue": 0.6913,
+#         "fpu": 0.8545,
+#         "alphaBase": 20.38
+#     },
+#     "hyperopt": {
+#         "cpuct": 0.08295,
+#         "drawValue": 0.106,
+#         "fpu": 0.9995,
+#         "alphaBase": 20.38
+#     }
+# }
 
 # for run 325d9f51-97d2-48ab-8999-25f2583979ba, iteration 1 (network is 8b0d0678-1fce-4f9e-a286-8ba7fc9b8769)
 # players = {

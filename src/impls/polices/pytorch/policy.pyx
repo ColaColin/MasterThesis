@@ -451,14 +451,17 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
     def __init__(self, batchSize, blocks, filters, headKernel, headFilters, protoState, device, optimizerName, \
             optimizerArgs = None, extraHeadFilters = None, silent = True, lrDecider = None, gradClipValue = None, valueLossWeight = 1, momentumDecider = None, \
             networkMode="plain", replyWeight = 0,\
-            useWinFeatures = -1, useMoveFeatures = -1, featuresWeight = 0.01):
+            useWinFeatures = -1, useMoveFeatures = -1, featuresWeight = 0.01,\
+            outputExtra="bothhead"):
         self.batchSize = batchSize
         
         self.useWinFeatures = useWinFeatures
         self.useMoveFeatures = useMoveFeatures
         self.featuresWeight = featuresWeight
 
-        logMsg("extra features", self.useWinFeatures, self.useMoveFeatures, self.featuresWeight)
+        self.outputExtra = outputExtra
+
+        logMsg("extra features", self.useWinFeatures, self.useMoveFeatures, self.featuresWeight, self.outputExtra)
 
         if torch.cuda.is_available():
             gpuCount = torch.cuda.device_count()
@@ -519,7 +522,7 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
             self.headKernel, self.headFilters, self.filters, self.blocks,\
             self.protoState.getMoveCount(), self.protoState.getPlayerCount() + 1, self.extraHeadFilters,\
-            mode=self.networkMode, predictReply=self.replyWeight > 0, outputExtra="bothhead")
+            mode=self.networkMode, predictReply=self.replyWeight > 0, outputExtra=self.outputExtra)
         self.net = self.net.to(self.device)
 
         # can't use mlconfig, as mlconfig has no access to self.net.parameters :(
