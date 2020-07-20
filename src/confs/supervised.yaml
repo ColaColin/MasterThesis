@@ -21,7 +21,7 @@ main:
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /ImbaKeks/x0/supervised/future_50p_move1
+  workingDirectory: /PwnKeks/x0/supervised/future_move1
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
