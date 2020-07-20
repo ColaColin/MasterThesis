@@ -21,14 +21,14 @@ main:
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/future_plain
+  workingDirectory: /PwnKeks/x0/supervised/future_move1
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
   lrStart: 0.2
   lrPatience: 8
-  # featureProvider: $feature_provider
-  # featureNetwork: f7b37c26-9568-4789-a996-5d662000f91f.network
+  featureProvider: $feature_provider
+  featureNetwork: f7b37c26-9568-4789-a996-5d662000f91f.network
 
 c4:
   name: Connect4GameState
@@ -57,5 +57,5 @@ resnet:
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
   useWinFeatures: -1
-  useMoveFeatures: -1
+  useMoveFeatures: 1
   featuresWeight: 1
