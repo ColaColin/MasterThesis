@@ -11,11 +11,11 @@
 \contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}
 \contentsline {subsubsection}{\numberline {2.3.4}Training data enhancements}{15}{subsubsection.2.3.4}
 \contentsline {section}{\numberline {3}Experimental Setup}{15}{section.3}
-\contentsline {subsection}{\numberline {3.1}Testing on Connect 4}{16}{subsection.3.1}
-\contentsline {subsubsection}{\numberline {3.1.1}Generating Connect 4 datasets}{16}{subsubsection.3.1.1}
-\contentsline {subsection}{\numberline {3.2}Evaluation of training costs}{17}{subsection.3.2}
-\contentsline {subsection}{\numberline {3.3}Supervised training}{18}{subsection.3.3}
-\contentsline {subsection}{\numberline {3.4}Baseline}{19}{subsection.3.4}
+\contentsline {subsection}{\numberline {3.1}Testing on Connect 4}{17}{subsection.3.1}
+\contentsline {subsubsection}{\numberline {3.1.1}Generating Connect 4 datasets}{17}{subsubsection.3.1.1}
+\contentsline {subsection}{\numberline {3.2}Evaluation of training costs}{18}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Supervised training}{19}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.4}Baseline}{20}{subsection.3.4}
 \contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{20}{subsubsection.3.4.1}
 \contentsline {subsection}{\numberline {3.5}Extended Baseline}{22}{subsection.3.5}
 \contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{23}{subsubsection.3.5.1}
