@@ -354,19 +354,29 @@ The behavior of the tree search can be modified to change how available time is 
 
 \section{Experimental Setup} \label{s:experiments}
 
-I have developed a framework for experiments with AlphaZero which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
-TODO talk a lot more about this, publish the code in a more refined manner...
+For this thesis a framework for experiments with AlphaZero has been developed which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
+An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_overview}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{x0_framework_overview}
+\caption{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks are handled on machines talking to this central server.}
+\label{fig:x0_framework_overview}
+\end{figure}
+
+
+
+TODO document the code, link github here.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
-This differs from the original implementation, which used a single output with values between $0$ and $1$.
-There might be a slight change in learing efficiency from this, but the main reasons for implementing this were of technical nature in the context of the abstraction-driven framework
-and no further research has been done on the difference between these two ways of implementing the value target.
+This differs from the original implementation which used a single output with values between zero and one.
+There might be a slight change in learning efficiency from this, but the main reasons for it were of technical nature in the context of the abstraction-driven framework and no further research has been done on the difference between these two ways of implementing the value target.
 
-My experiments are split into multiple parts:
+The experiments are split into multiple parts:
 \begin{enumerate}
  \item Establish a baseline with a base implementation very close to raw AlphaZero
- \item Extend AlphaZero with some known extensions.
- \item Evaluate my proposed improvements one by one.
+ \item Implement some known extensions to AlphaZero.
+ \item Evaluate proposed ideas one by one.
 \end{enumerate}
 
 \subsection{Testing on Connect 4}
@@ -437,7 +447,7 @@ In version 2 of the dataset, only a single position is randomly picked from each
 For both versions of the dataset, $800000$ examples were used as training data, $100000$ examples were used as validation data and the remaining $100000$ examples were used as test data.
 Training started with a learning rate of $0.2$ and was reduced by a factor of $10$ after $8$ epochs of no accuracy improvements on the validation data. The supervised training stops after $12$ epochs with no improvements on the validation accuracy.
 
-Various network sizes are evaluated. Results are shown in table \ref{t:supervised_results}.
+Various network sizes are evaluated. Mean results of five runs for each network are shown in table \ref{t:supervised_results}.
 
 \begin{table} [H]
  \centering
@@ -662,6 +672,10 @@ This means the AlphaZero learning to play Go will be a lot more pressed for more
 
 Playout Caps were not made part of the extended baseline.
 
+\subsubsection{Predicting the opponents reply.}
+
+\cite{wu2019accelerating}[Wu et. al.] shows that predicting the opponents reply after the current position produces a ''modest but clear beneft``.
+
 \subsubsection{Improving the network structure}
 
 The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze-and-excitation elements in the network \cite{hu2018squeeze}.
@@ -681,7 +695,7 @@ logically should help, especially given more distinct training data from dedupli
 
 \subsection{Baseline results}
 
-Combining deduplication, a cyclic learning rate, a slow window and squeeze-and-excitation elements yields substantial improvements, yielding above $91\%$ final performance in all runs. The results can be seen in figure \ref{fig:baseline_compare}.
+Combining deduplication, a cyclic learning rate, a slow window, predicting the opponents reply and squeeze-and-excitation elements yields substantial improvements, yielding above $91\%$ final performance in all runs. The results can be seen in figure \ref{fig:baseline_compare}.
 
 This extended baseline forms the basis of all further experiments, unless stated otherwise all these previous improvements are active.
 
@@ -929,7 +943,7 @@ and is also not generally helpful to speed up the training processes.
 Most likely this is the core reason why the evolution approach does not help efficiency: The win-rate of hyperparameters in playing against each other using the same network is not a good proxy for learning progress of AlphaZero.
 
 
-\subsubsection{Novelty search as optimization target}
+\subsubsection{Novelty search as an optimization target}
 
 Since the win-rate of players does not appear to be a good optimization target, it might be useful to instead optimize towards a novelty search objective. Novelty search has been shown before to be a useful optimization target to solve RL problems in Deep Learning as well
 as evolutionary approaches \cite{lehman2011abandoning, jackson2019novelty}.
@@ -969,14 +983,13 @@ The only small advantage in game diversity, even in the later half of training, 
 \begin{figure}[H]
 \centering
 \includegraphics[clip,width=\columnwidth]{pure_novelty_search}
-\caption{Pure novelty only produces more novel games towards the end of the training.}
+\caption{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.}
 \label{fig:pure_novelty_search}
 \end{figure}
 
 
-
-
-The evolution of hyperparameters by using self-play clearly works, so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
+This closes the investigation on the evolutionary optimization of hyperparameters. No meaningful improvements could be found. However the evolution of hyperparameters by using self-play has been shown to work,
+so future work might be able to identify better optimization targets that align better with the overarching goal of AlphaZero training.
 
 
 \subsection{Playing games as trees}
@@ -986,7 +999,7 @@ This thesis investigates an alternative scheme of exploration, by instead playin
 
 A first option to do this involves to reset games to a position in which the losing player likely made a mistake and try out a different move from that position.
 
-Another option is to abondon the idea of playing independent games to explore entirely and instead focus on playing one large MCTS-tree, which explores the current space of gameplay possibilities by the MCTS algorithm.
+Another option is to abandon the idea of playing independent games to explore entirely and instead focus on playing one large MCTS-tree, which explores the current space of gameplay possibilities by the MCTS algorithm.
 
 \subsubsection{Implementation}
 
