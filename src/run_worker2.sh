@@ -5,7 +5,10 @@
 
 # Use this as the startup script on vast.ai:
 
-# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh https://x0.cclausen.eu <secret> <runid> <normal|tree>
+# apt install -y wget; wget https://raw.githubusercontent.com/ColaColin/MasterThesis/master/src/run_worker2.sh ; chmod +x run_worker2.sh; ./run_worker2.sh <server path, e.g. https://x0.cclausen.eu> <secret> <runid> <normal|tree>
+
+# normal is normal operation
+# tree starts the MCTS evaluation service used in some of my experiments.
 
 NET_DIR=/tmp/x0_networks
 CHECK_FILE=/workspace/installed.flag

@@ -1,0 +1,74 @@
+server {
+
+        gzip on;
+        gzip_types    text/plain application/javascript application/x-javascript text/javascript text/xml text/css application/json;
+        gzip_proxied no-cache no-store private expired auth;
+
+        root /home/x0/MasterThesis/src/core/command/frontend/;
+
+        server_name x0.cclausen.eu;
+
+        location /api {
+                client_max_body_size 1000M;
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_pass http://localhost:8042/api;
+        }
+
+        location /tables {
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_pass http://localhost:8042/tables;
+        }
+
+        location /data/ {
+                client_max_body_size 1000M;
+                autoindex on;
+                alias /root/x0/binary/;
+        }
+
+        location /costs {
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_pass http://localhost:8042/costs;
+        }
+
+        location /sha {
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_pass http://localhost:8042/sha;
+        }
+
+        location /password {
+                proxy_http_version 1.1;
+                proxy_set_header Connection "";
+                proxy_pass http://localhost:8042/password;
+        }
+
+
+        location / {
+                try_files $uri $uri/ =404;
+        }
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/x0.cclausen.eu/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/x0.cclausen.eu/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+server {
+    if ($host = x0.cclausen.eu) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+
+        listen 80;
+        listen [::]:80;
+        server_name x0.cclausen.eu;
+    return 404; # managed by Certbot
+
+
+}
