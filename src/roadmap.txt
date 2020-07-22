@@ -800,12 +800,11 @@ Training set size | moves %         |  wins %
            800000 |  92.41 +/- 0.12 |  78.81 +/- 0.11  <<< best
 
                [X] plain
-[2020-07-19T06:22:01.380478+02:00] 
+[2020-07-22T20:11:48.000308+02:00] 
 Training set size | moves %         |  wins % 
 ------------------+---------+---------
-           800000 |  95.94 +/- 2.15 |  83.33 +/- 2.88  <<< best
-          
-               [ ] plain - redo this, that std dev is because of a single outlier?!
+           800000 |  96.94 +/- 0.02 |  84.75 +/- 0.04  <<< best
+
 
                [X] pre-head win0, move0
 [2020-07-20T06:22:51.082727+02:00]                                        
