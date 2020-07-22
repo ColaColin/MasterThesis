@@ -46,6 +46,7 @@ with the SHA and a config file. All run configs can be found in configs/run. Bel
 | Cyclic learning rate | 7d434f56-e7c0-4945-af3b-3abdb30f4fca |
 | Slow training window | 32bb62a4-5541-4c0c-af1d-e84c09dfdccc |
 | Playout Caps | 0538a5d8-0706-4b90-b601-c0adbfd69cc6 |
+| Predict the opponent's reply | fd514ad3-35db-44e9-8768-76c5822dc09e | 
 | Squeeze and Excite Resnet | f64aae6e-f094-47b5-aa0c-1201b324e939 |
 | hyperopt1 hyperparameters | aa4782ae-c162-4443-a290-41d7bb625d17, 3d09cdce-4e69-4811-bda9-ad2985228230, fe764034-ba1f-457b-8329-b5904bb8f66c, 3eca837f-4b4d-439e-b6e7-09b35edf3d5d, 55efa347-a847-4241-847e-7497d2497713   |
 | hyperopt2 hyperparameters |  1edc288e-df3e-47c1-b9ce-52ab0045404a, bdf69def-4476-43fc-934d-115a7d895d6e, 59e19f40-c4f0-46e9-97f8-5a2b423ef7fc, 45d2087b-04f9-49ca-b2d9-5c8736da86b5, 12c31999-e8a9-4a52-b017-796e64b05f8a |
@@ -96,4 +97,20 @@ Controlled by a switch on the PytorchPolicy: networkMode, set it to sq
 
 Controlled by a switch on the PytorchPolicy: replyWeight, 0 disables it, higher values give a weight to the loss in the training function.
 
+## Evolutionary hyperparameter optimization
 
+The central server tracks the players and provides APIs for this. The server runs some additional code for this, which is controlled by the serverLeague node in those configurations. The workers use the LeagueSelfPlayerWorker implementation.
+
+### Novelty search
+
+Novelty search requires an additional server process, written in javascript for node.js, which accepts reports of novel game positions. It keeps tracks of all md5 hashes of all positions ever encountered, which can consume a few GB of memory on full runs. Start it on the command server via "node src/node_server/novelty-service.js"
+
+## Playing games as trees
+
+These configurations require an additional management server that manages the high-throughput MCTS evaluation service. Due to performance issues with python this is written in javascript, using node.js. The management server needs to be started by hand for each experiment via "node src/node_server/eval-service.js" on the command server.
+
+## Using network features of a small network to regularize a big network
+
+This is controlled by a few flags and requires no additional processes. On the PytorchPolicy you set useWinFeatures or useMoveFeatures. They can be set to values -1,0,1,2,3 to use either no features or present/future features. -1 disables, 0 uses just present features. Using values above 0 uses the combination of the present features and all future features up to the given turn. Alternatively a list can be provided to specify only specific future turns to be used.
+
+To produce features the LinearSelfPlayWorker needs to be provided an additional ResCNN node configured for the exact network and a featureNetworkID, which is the UUID of the network to be used, which should exist on the command server.
