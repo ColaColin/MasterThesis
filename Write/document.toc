@@ -17,7 +17,7 @@
 \contentsline {subsection}{\numberline {3.3}Supervised training}{19}{subsection.3.3}
 \contentsline {subsection}{\numberline {3.4}Baseline}{20}{subsection.3.4}
 \contentsline {subsubsection}{\numberline {3.4.1}Hyperparameter search}{20}{subsubsection.3.4.1}
-\contentsline {subsection}{\numberline {3.5}Extended Baseline}{22}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.5}Extended Baseline}{23}{subsection.3.5}
 \contentsline {subsubsection}{\numberline {3.5.1}Remove duplicate positions}{23}{subsubsection.3.5.1}
 \contentsline {subsubsection}{\numberline {3.5.2}Cyclic learning rate}{24}{subsubsection.3.5.2}
 \contentsline {subsubsection}{\numberline {3.5.3}Improved training window}{26}{subsubsection.3.5.3}

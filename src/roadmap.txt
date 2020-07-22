@@ -876,7 +876,7 @@ Training set size | moves %         |  wins %
           [ ] try to do the features one deeper
                [ ] test on best supervised & best alpha zero from before
 
-     [ ] document the code
+     [X] document the code
 WK 31:
      [ ] No more I in the text, Table, Figure with capital letters!
      [ ] writing goal: Complete stuff about the internal network features

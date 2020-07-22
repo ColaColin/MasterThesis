@@ -364,9 +364,7 @@ An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_ov
 \label{fig:x0_framework_overview}
 \end{figure}
 
-
-
-TODO document the code, link github here.
+For the sake of reproducibility for all experimental runs the git SHA was recorded. All code is available on github: \url{https://github.com/ColaColin/MasterThesis}.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
 This differs from the original implementation which used a single output with values between zero and one.
@@ -672,13 +670,30 @@ This means the AlphaZero learning to play Go will be a lot more pressed for more
 
 Playout Caps were not made part of the extended baseline.
 
-\subsubsection{Predicting the opponents reply.}
+\subsubsection{Predicting the opponent's reply.}
 
-\cite{wu2019accelerating}[Wu et. al.] shows that predicting the opponents reply after the current position produces a ''modest but clear beneft``.
+\cite{wu2019accelerating}[Wu et. al.] shows that predicting the opponent's reply after the current position produces a ''modest but clear beneft``.
+Specifically they propose to add a term to the loss function to regularize training:
+
+\begin{equation}
+ -w_{\text{opp}} \sum\limits_{m \in \text{moves}} \pi_{\text{opp}}(m) \log(\hat{\pi}_{\text{opp}}(m)) \label{eq:opp_reply}
+\end{equation}
+
+where $\pi_{\text{opp}}$ is the policy target for the turn after the current turn, $\hat{\pi}_{\text{opp}}$ is the network's prediction of $\pi_{\text{opp}}$ and $w_{\text{opp}}$ is a weight for the loss term. In the experiments with Connect 4, $0.35$ is used.
+
+Figure \ref{fig:predict_reply} shows the results of testing this on Connect 4. There appears to be a small advantage for some parts of the run, therefore this was made part of the extended baseline.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{predict_reply}
+\caption{Results of implementing the prediction of the opponent's reply.}
+\label{fig:predict_reply}
+\end{figure}
+
 
 \subsubsection{Improving the network structure}
 
-The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze-and-excitation elements in the network \cite{hu2018squeeze}.
+The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze and Excitation elements in the network \cite{hu2018squeeze}.
 These are a general development of deep neural networks, which have been shown to improve learning efficiency at a small additional cost.
 
 I have modified the network in my implementation to use Squeeze-and-excitation residual blocks. A result of a test run can be seen in figure \ref{fig:sqnet}. 
@@ -686,7 +701,7 @@ I have modified the network in my implementation to use Squeeze-and-excitation r
 \begin{figure}[H]
 \centering
 \includegraphics[clip,width=\columnwidth]{sqnet}
-\caption{Results of implementing Squeeze-and-excitation elements in the network.}
+\caption{Results of implementing Squeeze and Excitation elements in the network.}
 \label{fig:sqnet}
 \end{figure}
 

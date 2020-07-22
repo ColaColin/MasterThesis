@@ -364,9 +364,8 @@ An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_ov
 \label{fig:x0_framework_overview}
 \end{figure}
 
-
-
-TODO document the code, link github here.
+All code is available on github\footnote{\url{https://github.com/ColaColin/MasterThesis}}. The repository documents all configuration files used for every experiment mentioned in this thesis and 
+for the sake of reproducibility the commit SHA is recorded as well, allowing to reset the code to the exact form it had when a specific experiment was run.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
 This differs from the original implementation which used a single output with values between zero and one.
@@ -675,7 +674,7 @@ Playout Caps were not made part of the extended baseline.
 \subsubsection{Predicting the opponent's reply.}
 
 \cite{wu2019accelerating}[Wu et. al.] shows that predicting the opponent's reply after the current position produces a ''modest but clear beneft``.
-Specifically they propose to add a term to the loss function:
+Specifically they propose to add a term to the loss function to regularize training:
 
 \begin{equation}
  -w_{\text{opp}} \sum\limits_{m \in \text{moves}} \pi_{\text{opp}}(m) \log(\hat{\pi}_{\text{opp}}(m)) \label{eq:opp_reply}
