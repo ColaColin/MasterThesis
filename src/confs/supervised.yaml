@@ -56,7 +56,7 @@ resnet:
   optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
-  useWinFeatures: [2]
-  useMoveFeatures: -1
+  useWinFeatures: [1]
+  useMoveFeatures: [1]
   featuresWeight: 1
   #outputExtra: resblock

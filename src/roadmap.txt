@@ -749,8 +749,20 @@ Training set size | moves %         |  wins %
 ------------------+---------+---------                                
            800000 |  92.89 +/- 0.08 |  79.02 +/- 0.07  <<< best       
 
+               [X] only future 1 - 50% dataset
+               
+[2020-07-21T22:07:22.733674+02:00] 
+Training set size | moves %         |  wins % 
+------------------+---------+---------
+           800000 |  92.57 +/- 0.06 |  78.86 +/- 0.05  <<< best 
 
-               [X] win1 - 50% dataset
+              [ ] move1 - 50% dataset - pre-head <<<<<<< UP
+
+              [ ] win1 - 50% dataset - pre-head <<<<<<< DOWN
+
+              [ ] move0, win0 -50% - pre-head <<<<<<< BOTTOM
+           
+               [X] win1 - 50% dataset 
 [2020-07-21T13:10:58.010167+02:00]
 Training set size | moves %         |  wins %
 ------------------+---------+---------
