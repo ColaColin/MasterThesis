@@ -1,0 +1,95 @@
+# Run Name: one_cycle_test_4
+# Run ID:  7d434f56-e7c0-4945-af3b-3abdb30f4fca
+# Run SHA: ba0e36919577b2a0a24a20b7bf7310ec65fc055b
+reporter:
+  name: DistributedReporter
+  packageSize: 1024
+
+updater:
+  name: DistributedNetworkUpdater2
+  storage: /tmp/x0_networks
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  weight_decay: 0.0001
+  momentum: 0.9
+  lr: 0.2
+
+lrcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.02
+  peakVal: 0.2
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 25
+  targetReductionFactor: 0.5
+
+momentumcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.95
+  peakVal: 0.85
+  endVal: 0.95
+  dbgName: momentum
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 256
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $mnk
+  silent: true
+  device: cuda
+  lrDecider: $lrcycle
+  momentumDecider: $momentumcycle
+  optimizerName: torch.optim.SGD
+  optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  valueLossWeight: 0.01
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 343
+  cpuct: 1.545
+  rootNoise: 0.25
+  drawValue: 0.6913
+  alphaBase: 20.38
+  fpu: 0.8545
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 256
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+
+trainerWindow:
+  name: ConstantWindowSizeManager
+  size: 2000000
+  minimumSize: 8192
+  iterationSize: 300000
+
+trainer:
+  name: StreamTrainingWorker2
+  windowManager: $trainerWindow
+  policy: $resnet
+  batchSize: 1024

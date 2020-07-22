@@ -1,0 +1,77 @@
+# Run Name: stream
+# Run ID:  d995e451-6043-4509-b2e1-4b63864c7f9e
+# Run SHA: 881852a9b8e9e004b5908cb96066e911bc1c1f71
+reporter:
+  name: DistributedReporter
+  packageSize: 512
+
+updater:
+  name: DistributedNetworkUpdater
+  checkInterval: 1
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  weight_decay: 0.000249
+
+lrschedule:
+  name: LrStepSchedule
+  startValue: 0.005
+  stepEvery: 10
+  stepMultiplier: 0.1
+  minValue: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 12
+  filters: 256
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 64
+  protoState: $mnk
+  silent: true
+  device: cuda
+  lrDecider: $lrschedule
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 300
+  cpuct: 0.78
+  rootNoise: 0.24
+  drawValue: 0.5
+  alphaBase: 9.0
+  fpu: 0.73
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+
+trainerWindow:
+  name: ConstantWindowSizeManager
+  size: 3000000
+  minimumSize: 8192
+  iterationSize: 256000
+
+trainer:
+  name: StreamTrainingWorker
+  windowManager: $trainerWindow
+  policy: $resnet
+  batchSize: 128

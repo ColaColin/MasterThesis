@@ -1,0 +1,66 @@
+# Run Name: betterWindow
+# Run ID:  0e7233c2-048e-4826-91a6-6459296e0bd9
+# Run SHA: unknown
+reporter:
+  name: DistributedReporter
+  packageSize: 500
+
+updater:
+  name: DistributedNetworkUpdater
+  checkInterval: 1
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  lr: 0.001
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  protoState: $mnk
+  device: cuda:0
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 800
+  cpuct: 3
+  rootNoise: 0.2
+  drawValue: 0.4
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+
+trainerWindow:
+  name: ConstantTrainingWindowManager
+  maxSize: 3000000
+  nextIterationStatesCount: 150000
+
+trainer:
+  name: TrainingWorker
+  epochs: 1
+  windowManager: $trainerWindow
+  dataDir: traininerData/betterWindowRun
+  policy: $resnet
