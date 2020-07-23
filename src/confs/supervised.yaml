@@ -21,7 +21,7 @@ main:
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/future_only_win2_50p
+  workingDirectory: /PwnKeks/x0/supervised/move0_win0_50p_pre_head
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
@@ -56,7 +56,7 @@ resnet:
   optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
-  useWinFeatures: [1]
-  useMoveFeatures: [1]
+  useWinFeatures: 0
+  useMoveFeatures: 0
   featuresWeight: 1
-  #outputExtra: resblock
+  outputExtra: resblock
