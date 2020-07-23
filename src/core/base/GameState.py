@@ -134,12 +134,14 @@ class GameState(metaclass=abc.ABCMeta):
         Calculate a hash for this GameState
         This implementation is especially important for positional transpositions, so equal should mean equal in
         terms of gameplay situation. Values that do not matter for the games result should not be part of the hash.
+        Make this really, really fast! Some collisions are ok.
         """
 
     @abc.abstractmethod
     def md5(self):
         """
         md5 of the state, only consider game play relevant information.
+        Can be slow, not used in performance critical contexts. But needs to be perfect, no hash collisions should ever happen!
         """
 
     @abc.abstractmethod

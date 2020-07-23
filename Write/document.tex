@@ -364,9 +364,8 @@ An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_ov
 \label{fig:x0_framework_overview}
 \end{figure}
 
-
-
-TODO document the code, link github here.
+All code is available on github\footnote{\url{https://github.com/ColaColin/MasterThesis}}. The repository documents all configuration files used for every experiment mentioned in this thesis and 
+for the sake of reproducibility the commit SHA is recorded as well, allowing to reset the code to the exact form it had when a specific experiment was run.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
 This differs from the original implementation which used a single output with values between zero and one.
@@ -389,6 +388,8 @@ It also allows to run supervised training of the used network on a dataset of ga
 
 \subsubsection{Generating Connect 4 datasets}
 \label{s:generate_dataset}
+
+TODO mention the huge differences found between datasets based on how many moves played in them were random
 
 The generation of the database to be used as a testing set for the learning process is an important step that determines how comparable my results are to previous work. 
 
@@ -672,9 +673,30 @@ This means the AlphaZero learning to play Go will be a lot more pressed for more
 
 Playout Caps were not made part of the extended baseline.
 
+\subsubsection{Predicting the opponent's reply.}
+
+\cite{wu2019accelerating}[Wu et. al.] shows that predicting the opponent's reply after the current position produces a ''modest but clear beneft``.
+Specifically they propose to add a term to the loss function to regularize training:
+
+\begin{equation}
+ -w_{\text{opp}} \sum\limits_{m \in \text{moves}} \pi_{\text{opp}}(m) \log(\hat{\pi}_{\text{opp}}(m)) \label{eq:opp_reply}
+\end{equation}
+
+where $\pi_{\text{opp}}$ is the policy target for the turn after the current turn, $\hat{\pi}_{\text{opp}}$ is the network's prediction of $\pi_{\text{opp}}$ and $w_{\text{opp}}$ is a weight for the loss term. In the experiments with Connect 4, $0.35$ is used.
+
+Figure \ref{fig:predict_reply} shows the results of testing this on Connect 4. There appears to be a small advantage for some parts of the run, therefore this was made part of the extended baseline.
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{predict_reply}
+\caption{Results of implementing the prediction of the opponent's reply.}
+\label{fig:predict_reply}
+\end{figure}
+
+
 \subsubsection{Improving the network structure}
 
-The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze-and-excitation elements in the network \cite{hu2018squeeze}.
+The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze and Excitation elements in the network \cite{hu2018squeeze}.
 These are a general development of deep neural networks, which have been shown to improve learning efficiency at a small additional cost.
 
 I have modified the network in my implementation to use Squeeze-and-excitation residual blocks. A result of a test run can be seen in figure \ref{fig:sqnet}. 
@@ -682,7 +704,7 @@ I have modified the network in my implementation to use Squeeze-and-excitation r
 \begin{figure}[H]
 \centering
 \includegraphics[clip,width=\columnwidth]{sqnet}
-\caption{Results of implementing Squeeze-and-excitation elements in the network.}
+\caption{Results of implementing Squeeze and Excitation elements in the network.}
 \label{fig:sqnet}
 \end{figure}
 
@@ -691,7 +713,7 @@ logically should help, especially given more distinct training data from dedupli
 
 \subsection{Baseline results}
 
-Combining deduplication, a cyclic learning rate, a slow window and squeeze-and-excitation elements yields substantial improvements, yielding above $91\%$ final performance in all runs. The results can be seen in figure \ref{fig:baseline_compare}.
+Combining deduplication, a cyclic learning rate, a slow window, predicting the opponents reply and squeeze-and-excitation elements yields substantial improvements, yielding above $91\%$ final performance in all runs. The results can be seen in figure \ref{fig:baseline_compare}.
 
 This extended baseline forms the basis of all further experiments, unless stated otherwise all these previous improvements are active.
 

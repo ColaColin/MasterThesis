@@ -1,0 +1,134 @@
+# Run Name: league_test_4
+# Run ID:  833d031a-5566-41c4-98a2-3f45c50dda27
+# Run SHA: d34913dee925d40388d0d5ee2c5e497eb973287e
+reporter:
+  name: DistributedReporter
+  packageSize: 2048
+
+updater:
+  name: DistributedNetworkUpdater2
+  storage: /tmp/x0_networks
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  weight_decay: 0.0001
+  momentum: 0.9
+  lr: 0.2
+
+lrcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.02
+  peakVal: 0.2
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 20
+  targetReductionFactor: 0.4
+
+momentumcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.95
+  peakVal: 0.85
+  endVal: 0.95
+  dbgName: momentum
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 256
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $mnk
+  silent: true
+  device: cuda
+  lrDecider: $lrcycle
+  momentumDecider: $momentumcycle
+  optimizerName: torch.optim.SGD
+  optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  valueLossWeight: 0.01
+  networkMode: sq
+  replyWeight: 0.35
+
+playerParameterRanges:
+  name: dict
+  cpuct: [-0.5, 10]
+  drawValue: [0, 1]
+  alphaBase: [6, 30]
+  fpu: [-0.2, 1.2]
+
+
+serverLeague:
+  name: EloGaussServerLeague
+  parameters: $playerParameterRanges
+  generationGames: 2500
+  populationSize: 75
+  mutateTopN: 20
+  mutateCount: 2
+  initialRating: 1600
+  n: 400
+  K: 32
+
+hAccess:
+  name: LeaguePlayerAccess
+  activePopulation: 75
+
+mcts:
+  name: MctsPolicyIterator
+  rootNoise: 0.25
+  # used by the evaluator, LeagueSelfPlayerWorker does support a dynamic number via thinkDecider implementations
+  expansions: 350
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+fixedThink:
+  name: FixedThinkDecider
+  expansions: 350
+
+learnThink:
+  name: LearntThinkDecider
+
+worker:
+  name: LeagueSelfPlayerWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+  playerAccess: $hAccess
+  expansionIncrement: 50
+  expansionsMaxSingle: 1400
+  expansionMax: 99999
+  thinkDecider: $fixedThink
+
+trainerWindow:
+  name: SlowWindowSizeManager
+  startSize: 500000
+  growStart: 5
+  growFinish: 15
+  finalSize: 2000000
+  iterationSize: 180000
+  minimumSize: 8192
+
+trainer:
+  name: StreamTrainingWorker2
+  windowManager: $trainerWindow
+  policy: $resnet
+  batchSize: 1024
+  deduplicate: True
+  deduplicationWeight: 0.8

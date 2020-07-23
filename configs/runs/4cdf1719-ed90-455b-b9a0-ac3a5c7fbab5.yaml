@@ -1,0 +1,62 @@
+# Run Name: server1
+# Run ID:  4cdf1719-ed90-455b-b9a0-ac3a5c7fbab5
+# Run SHA: unknown
+reporter:
+  name: DistributedReporter
+  packageSize: 1000
+
+updater:
+  name: DistributedNetworkUpdater
+  checkInterval: 20
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  lr: 0.001
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 10
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  protoState: $mnk
+  device: cuda:0
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 900
+  cpuct: 1.5
+  rootNoise: 0.2
+  drawValue: 0.4
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 20
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+
+trainer:
+  name: TrainingWorker
+  epochs: 10
+  minWindowsSize: 100000
+  windowSize: 1000000
+  dataDir: traininerData/serverRun1
+  policy: $resnet

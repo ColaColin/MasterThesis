@@ -1,0 +1,121 @@
+# Run Name: test_cached_linear_play_2
+# Run ID:  d91dbba7-4363-4779-8a86-7a127977d9e4
+# Run SHA: 32c4cc4c58d24d4a3ca4285e4331420a39080486
+reporter:
+  name: DistributedReporter
+  packageSize: 2048
+  threads: 2
+
+updater:
+  name: DistributedNetworkUpdater2
+  storage: /tmp/x0_networks
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  weight_decay: 0.0001
+  momentum: 0.9
+  lr: 0.2
+
+lrcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.02
+  peakVal: 0.2
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 20
+  targetReductionFactor: 0.4
+
+momentumcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.95
+  peakVal: 0.85
+  endVal: 0.95
+  dbgName: momentum
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 256
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $mnk
+  silent: true
+  device: cuda
+  lrDecider: $lrcycle
+  momentumDecider: $momentumcycle
+  optimizerName: torch.optim.SGD
+  optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  valueLossWeight: 0.01
+  networkMode: sq
+  replyWeight: 0.35
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 343
+  cpuct: 1.545
+  rootNoise: 0.25
+  drawValue: 0.6913
+  alphaBase: 20.38
+  fpu: 0.8545
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+fakeEvalAccess:
+  name: FakeEvaluationAccess
+  iterationSize: 280000
+
+localEvalAccess:
+  name: LocalEvaluationAccess
+  workerN: 2
+
+remEvalAccess:
+  name: RemoteEvaluationAccess
+  workers: 4
+
+worker:
+  name: CachedLinearSelfPlay
+  initialState: $mnk
+  batchSize: 256
+  numActiveBatches: 50
+  gameReporter: $reporter
+  evalAccess: $remEvalAccess
+  moveDecider: $tempDecider
+
+evalWorker:
+  name: EvaluationWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  policyUpdater: $updater
+
+trainerWindow:
+  name: SlowWindowSizeManager
+  startSize: 500000
+  growStart: 5
+  growFinish: 15
+  finalSize: 2000000
+  iterationSize: 180000
+  minimumSize: 8192
+
+trainer:
+  name: StreamTrainingWorker2
+  windowManager: $trainerWindow
+  policy: $resnet
+  batchSize: 1024
+  deduplicate: True
+  deduplicationWeight: 0.8

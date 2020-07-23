@@ -1,0 +1,9 @@
+{
+    "dataPath": "/root/x0/",
+    "secret": "42",
+    "dbuser": "x0",
+    "dbpassword": "x0",
+    "dbname": "x0",
+    "host": "127.0.0.1",
+    "port": 8042
+}

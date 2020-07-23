@@ -1,0 +1,67 @@
+# Run Name: multigpu
+# Run ID:  92e3fefd-2a86-4af3-a519-17166680044d
+# Run SHA: unknown
+reporter:
+  name: DistributedReporter
+  packageSize: 500
+
+updater:
+  name: DistributedNetworkUpdater
+  checkInterval: 1
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  lr: 0.001
+  weight_decay: 0.0001
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 128
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $mnk
+  device: cuda
+  optimizerName: torch.optim.adamw.AdamW
+  optimizerArgs: $optimizerArgs
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 800
+  cpuct: 3.5
+  rootNoise: 0.2
+  drawValue: 0.5
+  fpu: 0
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 128
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+
+trainerWindow:
+  name: ConstantTrainingWindowManager
+  maxSize: 3000000
+  nextIterationStatesCount: 150000
+
+trainer:
+  name: TrainingWorker
+  epochs: 1
+  windowManager: $trainerWindow
+  policy: $resnet
