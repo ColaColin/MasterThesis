@@ -724,9 +724,9 @@ WK 29
           [X] as "bonus material": Do supervised training runs with these help-features and evaluate how it changes results there.
                -> probably there is an issue with supervised on the different dataset?!...
 
-          [ ] supervised % depend heavily on the dataset move decisions!
-               [ ] redo supervised results for the 90% dataset.
-               [ ] check the test set against the 50% testset, is it the testset that is just easier somehow? Or does it learn more?
+          [X] supervised % depend heavily on the dataset move decisions!
+               [~] redo supervised results for the 90% dataset.
+               [-] check the test set against the 50% testset, is it the testset that is just easier somehow? Or does it learn more?
           [X] implement only future x
           [X] implement regularize pre-head
                [X] ./build.sh and test it
@@ -881,17 +881,20 @@ Training set size | moves %         |  wins %
                [X] win3, move3 -> WORSE
                [ ] win1, move1
                [ ] win1
-               [ ] move1
+               [X] move1 -> better, but probably still not good enough...
                [ ] lower weight maybe?!
+                    [ ] move1
 
           [ ] try to do the features one deeper
-               [ ] test on best supervised & best alpha zero from before
-
+               [X] move1 on resblock -> much worse than move1 alone
+               
      [X] document the code
+     [ ] fill in the gaps in supervised
+     [X] eval the baseline locally with the easy dataset and show how the baselines compare on that
 WK 31:
-     [ ] No more I in the text, Table, Figure with capital letters!
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
+     [ ] No more I in the text, Table, Figure with capital letters!
      [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp
 WK 32:
      [ ] prepare presentation

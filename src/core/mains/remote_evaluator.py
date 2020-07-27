@@ -46,6 +46,9 @@ if __name__ == "__main__":
 
     datasetPath = "datasets/connect4/testset.txt.zip"
 
+    if "--dataset" in sys.argv:
+        datasetPath = sys.argv[sys.argv.index("--dataset")+1]
+
     hasArgs = ("--secret" in sys.argv) and ("--command" in sys.argv)
 
     if not hasArgs:

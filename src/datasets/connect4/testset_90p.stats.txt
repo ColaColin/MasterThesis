@@ -1,0 +1,73 @@
+Depth distribution is:
+"2": 9
+"3": 17
+"4": 48
+"5": 49
+"6": 104
+"7": 120
+"8": 173
+"9": 209
+"10": 347
+"11": 264
+"12": 309
+"13": 355
+"14": 411
+"15": 434
+"16": 424
+"17": 482
+"18": 417
+"19": 443
+"20": 413
+"21": 424
+"22": 361
+"23": 404
+"24": 365
+"25": 356
+"26": 334
+"27": 311
+"28": 313
+"29": 287
+"30": 257
+"31": 255
+"32": 221
+"33": 233
+"34": 219
+"35": 199
+"36": 178
+"37": 137
+"38": 98
+"39": 17
+"40": 3
+Average number of correct moves is: 1.9572
+Wins 52.11%, Losses 39.96%, Draws 7.93%
+Package size is 1000 kb, compressed to 190 kb
+
+
+c4:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+pons:
+  name: PonsSolver
+  executable: ../pons/c4solver
+  book: ../pons/7x6.book
+  mode: strong
+
+genPlayer:
+  name: SemiPerfectPolicy
+  p: 0.9
+
+main:
+  name: TestDatabaseGenerator2
+  initialState: $c4
+  solver: $pons
+  dedupe: true
+  filterTrivial: true
+  databaseSize: 10000
+  framesPerGame: 1
+  storeFuture: true
+  outputFile: datasets/connect4/testset_90p.txt.zip
+  policy: $genPlayer
+  workers: 4

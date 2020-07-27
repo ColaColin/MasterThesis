@@ -12,7 +12,40 @@ from matplotlib.ticker import MaxNLocator
 
 import numpy as np
 
-# plot_name = "Baselines"
+# up to what hour of cost to display data
+cutRight = 40
+yLow = 84
+yHigh = 92.5
+
+command = "https://x0.cclausen.eu"
+
+
+plot_name = "Baselines, hard dataset"
+groups = {
+    "extended": {
+        "color": (1,0,0),
+        "runs": [
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+        ]
+    },
+    "base": {
+        "color": (0,0,1),
+        "runs": [
+            "12c31999-e8a9-4a52-b017-796e64b05f8a",
+            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+            "bdf69def-4476-43fc-934d-115a7d895d6e",
+            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+        ]
+    }
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex.eps"
+
+# plot_name = "Baselines, easy dataset"
 # groups = {
 #     "extended": {
 #         "color": (1,0,0),
@@ -35,7 +68,9 @@ import numpy as np
 #         ]
 #     }
 # }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex.eps"
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex_easy_dataset.eps"
+# command = "http://127.0.0.1:8042"
+# yHigh = 97.5
 
 # plot_name = "Deduplication with different weight factors"
 # groups = {
@@ -138,27 +173,27 @@ import numpy as np
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/playout_caps.eps"
 
 
-plot_name = "Predict the opponent's reply"
-groups = {
-    "base": {
-        "color": (0,0,1),
-        "runs": [
-            "12c31999-e8a9-4a52-b017-796e64b05f8a",
-            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
-            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
-            "bdf69def-4476-43fc-934d-115a7d895d6e",
-            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
-        ],
-        "onlyMean": True
-    },
-    "Playout Caps": {
-        "color": (1,0,0),
-        "runs": [
-            "fd514ad3-35db-44e9-8768-76c5822dc09e"
-        ]
-    },
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/predict_reply.eps"
+# plot_name = "Predict the opponent's reply"
+# groups = {
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ],
+#         "onlyMean": True
+#     },
+#     "Playout Caps": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "fd514ad3-35db-44e9-8768-76c5822dc09e"
+#         ]
+#     },
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/predict_reply.eps"
 
 
 # plot_name = "Squeeze and Excite ResNet"
@@ -414,13 +449,6 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/predict_reply.eps"
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
 
 
-# up to what hour of cost to display data
-cutRight = 40
-yLow = 84
-yHigh = 92.5
-
-command = "https://x0.cclausen.eu"
-#command = "http://127.0.0.1:8042"
 
 
 def getMeanOf(lsts):
