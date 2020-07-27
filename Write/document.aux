@@ -41,6 +41,7 @@
 \citation{crazystone}
 \citation{kocsis2006bandit}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Previous work}{9}{section.2}}
+\newlabel{sec:prev_work}{{2}{9}{Previous work}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Monte Carlo Tree Search}{9}{subsection.2.1}}
 \newlabel{s:mcts}{{2.1}{9}{Monte Carlo Tree Search}{subsection.2.1}{}}
 \citation{silver2018general}
@@ -66,43 +67,43 @@
 \citation{oracledevs6}
 \citation{smith2017cyclical}
 \citation{oracledevs6}
-\citation{lan2019multiple}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Extensions to AlphaZero}{13}{subsection.2.3}}
 \newlabel{s:prev_extensions}{{2.3}{13}{Extensions to AlphaZero}{subsection.2.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.1}Network and training modifications}{13}{subsubsection.2.3.1}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{13}{subsubsection.2.3.2}}
+\citation{lan2019multiple}
 \citation{wu2019accelerating}
 \citation{leela0propagation}
 \citation{leela0kldgain}
 \citation{wu2019accelerating}
 \citation{wu2019accelerating}
-\citation{wu2019accelerating}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.2}Modification of the tree search}{14}{subsubsection.2.3.2}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.3}Learning target modifications}{14}{subsubsection.2.3.3}}
+\citation{wu2019accelerating}
 \citation{leela0wdl}
 \citation{anonymous2020threehead}
 \citation{oracledevs6}
 \citation{oracledevs6}
 \citation{oracledevs6}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {2.3.4}Training data enhancements}{15}{subsubsection.2.3.4}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Experimental Setup}{15}{section.3}}
-\newlabel{s:experiments}{{3}{15}{Experimental Setup}{section.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks are handled on machines talking to this central server.\relax }}{16}{figure.caption.3}}
-\newlabel{fig:x0_framework_overview}{{1}{16}{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks are handled on machines talking to this central server.\relax }{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Experimental Setup}{16}{section.3}}
+\newlabel{s:experiments}{{3}{16}{Experimental Setup}{section.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks, such as network evaluation, network training and especially self-play are handled on machines talking to this central server.\relax }}{16}{figure.caption.3}}
+\newlabel{fig:x0_framework_overview}{{1}{16}{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks, such as network evaluation, network training and especially self-play are handled on machines talking to this central server.\relax }{figure.caption.3}{}}
 \citation{silver2018general}
 \citation{silver2018general}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Network architecture}{17}{subsection.3.1}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Structure of the used network in this work, a smaller and slightly modified version of the original AlphaZero network used by DeepMind \cite  {silver2018general}. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }}{17}{table.caption.4}}
-\newlabel{fig:blocks_network}{{2}{17}{Structure of the used network in this work, a smaller and slightly modified version of the original AlphaZero network used by DeepMind \cite {silver2018general}. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }{table.caption.4}{}}
 \citation{trompsolved}
 \citation{pascalsolver}
 \citation{pascalsolvergithub}
-\citation{oracledevs}
-\citation{oracledevs}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Structure of the used network in this work, a smaller and slightly modified version of the original AlphaZero network used by DeepMind \cite  {silver2018general}. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }}{18}{table.caption.4}}
+\newlabel{fig:blocks_network}{{2}{18}{Structure of the used network in this work, a smaller and slightly modified version of the original AlphaZero network used by DeepMind \cite {silver2018general}. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }{table.caption.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Testing on Connect 4}{18}{subsection.3.2}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Generating Connect 4 datasets}{18}{subsubsection.3.2.1}}
-\newlabel{s:generate_dataset}{{3.2.1}{18}{Generating Connect 4 datasets}{subsubsection.3.2.1}{}}
+\citation{oracledevs}
+\citation{oracledevs}
 \citation{pascalsolver}
 \citation{pascalsolvergithub}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {3.2.1}Generating Connect 4 datasets}{19}{subsubsection.3.2.1}}
+\newlabel{s:generate_dataset}{{3.2.1}{19}{Generating Connect 4 datasets}{subsubsection.3.2.1}{}}
 \citation{oracledevs}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Different ways of generating the dataset can cause a substantially different distribution of examples.\relax }}{20}{figure.caption.5}}
 \newlabel{fig:dataset_hist}{{2}{20}{Different ways of generating the dataset can cause a substantially different distribution of examples.\relax }{figure.caption.5}{}}
@@ -115,7 +116,7 @@
 \newlabel{t:supervised_results}{{3}{22}{Results of supervised training. Accuracy compared to a connect 4 solver.\relax }{table.caption.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Baseline}{22}{subsection.3.5}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.5.1}Hyperparameter search}{23}{subsubsection.3.5.1}}
-\newlabel{tab:addlabel}{{\caption@xref {tab:addlabel}{ on input line 580}}{24}{Hyperparameter search}{table.caption.7}{}}
+\newlabel{tab:addlabel}{{\caption@xref {tab:addlabel}{ on input line 585}}{24}{Hyperparameter search}{table.caption.7}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Hyperparameters searched\relax }}{24}{table.caption.7}}
 \newlabel{t:hyperparameters}{{4}{24}{Hyperparameters searched\relax }{table.caption.7}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Hyperparameter sets selected for further investigation.\relax }}{24}{table.caption.8}}
@@ -153,14 +154,15 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Results of implementing the prediction of the opponent's reply.\relax }}{32}{figure.caption.15}}
 \newlabel{fig:predict_reply}{{9}{32}{Results of implementing the prediction of the opponent's reply.\relax }{figure.caption.15}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {3.6.6}Improving the network structure}{32}{subsubsection.3.6.6}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces The modified network using Squeeze and Excitation Residual blocks \cite  {hu2018squeeze}. Squeeze and Excite modifies the residual blocks to include an average pooling, which averages every feature map to a single scalar value. These scalar values are then processed by fully connected layers without bias, activated by ReLU and Sigmoid. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }}{33}{table.caption.16}}
-\newlabel{fig:sq_blocks_network}{{6}{33}{The modified network using Squeeze and Excitation Residual blocks \cite {hu2018squeeze}. Squeeze and Excite modifies the residual blocks to include an average pooling, which averages every feature map to a single scalar value. These scalar values are then processed by fully connected layers without bias, activated by ReLU and Sigmoid. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.\relax }{table.caption.16}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces The modified network using Squeeze and Excitation Residual blocks \cite  {hu2018squeeze}. Squeeze and Excite modifies the residual blocks to include an average pooling, which averages every feature map to a single scalar value. These scalar values are then processed by fully connected layers without bias, activated by ReLU and Sigmoid. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most experiments of this Thesis $5$ blocks are used.\relax }}{33}{table.caption.16}}
+\newlabel{fig:sq_blocks_network}{{6}{33}{The modified network using Squeeze and Excitation Residual blocks \cite {hu2018squeeze}. Squeeze and Excite modifies the residual blocks to include an average pooling, which averages every feature map to a single scalar value. These scalar values are then processed by fully connected layers without bias, activated by ReLU and Sigmoid. $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block. The move policy output and the win prediction output both are connected to the output of the last residual block. Residual blocks make up the bulk of the network. In most experiments of this Thesis $5$ blocks are used.\relax }{table.caption.16}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Results of implementing Squeeze and Excitation elements in the network.\relax }}{34}{figure.caption.17}}
 \newlabel{fig:sqnet}{{10}{34}{Results of implementing Squeeze and Excitation elements in the network.\relax }{figure.caption.17}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Baseline results}{34}{subsection.3.7}}
 \@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }}{35}{figure.caption.18}}
 \newlabel{fig:baseline_compare}{{11}{35}{Comparison of the baseline and the extended baseline. Mean is only calculated until the first of the single runs stops showing improvements.\relax }{figure.caption.18}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Investigated novel ideas}{36}{section.4}}
+\newlabel{s:novel_ideas}{{4}{36}{Investigated novel ideas}{section.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Using the self-playing phase as an evolutionary process}{36}{subsection.4.1}}
 \newlabel{s:novel_evolution}{{4.1}{36}{Using the self-playing phase as an evolutionary process}{subsection.4.1}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.1}Implementation}{36}{subsubsection.4.1.1}}
@@ -170,40 +172,40 @@
 \newlabel{eq:mutate_v}{{6}{37}{Evolution of players}{equation.4.6}{}}
 \newlabel{eq:mutate_w}{{7}{37}{Evolution of players}{equation.4.7}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.3}Selection of hyperparameters}{37}{subsubsection.4.1.3}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Initial results of evolving hyperparameters.\relax }}{38}{figure.caption.19}}
+\newlabel{fig:evolve_results}{{12}{38}{Initial results of evolving hyperparameters.\relax }{figure.caption.19}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.4}Experiments}{38}{subsubsection.4.1.4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Initial results of evolving hyperparameters.\relax }}{39}{figure.caption.19}}
-\newlabel{fig:evolve_results}{{12}{39}{Initial results of evolving hyperparameters.\relax }{figure.caption.19}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }}{40}{figure.caption.20}}
-\newlabel{fig:evolve_low_diversity}{{13}{40}{Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }{figure.caption.20}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{40}{subsubsection.4.1.5}}
-\newlabel{eq:inverted_mtcs}{{8}{41}{Requirements for evolution to succeed}{equation.4.8}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf  {I}$ is reduced substantially over the generations.\relax }}{41}{table.caption.21}}
-\newlabel{t:inversion_results}{{7}{41}{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf {I}$ is reduced substantially over the generations.\relax }{table.caption.21}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }}{42}{table.caption.22}}
-\newlabel{t:hyperparam_accuracy}{{8}{42}{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }{table.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }}{39}{figure.caption.20}}
+\newlabel{fig:evolve_low_diversity}{{13}{39}{Evolving basic MCTS parameters results in much lower game diversity, evolving the KL divergence threshold stays similar to the baseline. \relax }{figure.caption.20}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.5}Requirements for evolution to succeed}{39}{subsubsection.4.1.5}}
+\newlabel{eq:inverted_mtcs}{{8}{40}{Requirements for evolution to succeed}{equation.4.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Results of optimizing the inversion hyperparameter. The evolution works, $\mathbf  {I}$ is reduced substantially over the generations.\relax }}{40}{table.caption.21}}
+\newlabel{t:inversion_results}{{7}{40}{Results of optimizing the inversion hyperparameter. The evolution works, $\mathbf {I}$ is reduced substantially over the generations.\relax }{table.caption.21}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }}{41}{table.caption.22}}
+\newlabel{t:hyperparam_accuracy}{{8}{41}{Various hyperparameters show different accuracy. Directly optimizing for accuracy shows that neither the baseline, nor the evolutionary hyperparameter perfectly capture correct play.\relax }{table.caption.22}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }}{42}{table.caption.23}}
+\newlabel{t:hyperparam_games}{{9}{42}{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }{table.caption.23}{}}
 \citation{lehman2011abandoning}
 \citation{jackson2019novelty}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }}{43}{table.caption.23}}
-\newlabel{t:hyperparam_games}{{9}{43}{Results of $1000$ games between different players. Results are from the perspective of the player in the row against the player of the column. The evolved player wins every single match.\relax }{table.caption.23}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.6}Novelty search as an optimization target}{44}{subsubsection.4.1.6}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.1.6}Novelty search as an optimization target}{43}{subsubsection.4.1.6}}
 \@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Novelty search for novel ways to win the game shows little difference to just optimizing for wins.\relax }}{44}{figure.caption.24}}
 \newlabel{fig:player_evolution_win_novelty}{{14}{44}{Novelty search for novel ways to win the game shows little difference to just optimizing for wins.\relax }{figure.caption.24}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }}{45}{table.caption.25}}
-\newlabel{t:novel_win_fail}{{10}{45}{Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }{table.caption.25}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.\relax }}{45}{figure.caption.26}}
-\newlabel{fig:pure_novelty_search}{{15}{45}{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.\relax }{figure.caption.26}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{46}{subsection.4.2}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Rewarding novel wins instead of just wins makes no substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }}{44}{table.caption.25}}
+\newlabel{t:novel_win_fail}{{10}{44}{Rewarding novel wins instead of just wins makes no substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.\relax }{table.caption.25}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity by the initial Bayesian hyperparameter optimization aiming to learn efficiently.\relax }}{45}{figure.caption.26}}
+\newlabel{fig:pure_novelty_search}{{15}{45}{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity by the initial Bayesian hyperparameter optimization aiming to learn efficiently.\relax }{figure.caption.26}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Playing games as trees}{45}{subsection.4.2}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.1}Implementation}{46}{subsubsection.4.2.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{47}{figure.caption.27}}
-\newlabel{fig:cache_play}{{16}{47}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }}{46}{figure.caption.27}}
+\newlabel{fig:cache_play}{{16}{46}{The MCTS evaluation service is a more efficient implementation of AlphaZero.\relax }{figure.caption.27}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{47}{subsubsection.4.2.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{47}{figure.caption.28}}
+\newlabel{fig:winp_tree}{{17}{47}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.28}{}}
 \citation{chaslot2008parallel}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Retrying a different move in a critical position to explore does not appear to work.\relax }}{48}{figure.caption.28}}
-\newlabel{fig:winp_tree}{{17}{48}{Retrying a different move in a critical position to explore does not appear to work.\relax }{figure.caption.28}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{48}{subsubsection.4.2.3}}
 \citation{wu2019accelerating}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{50}{figure.caption.29}}
-\newlabel{fig:mcts_tree_explore}{{18}{50}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{49}{figure.caption.29}}
+\newlabel{fig:mcts_tree_explore}{{18}{49}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.29}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{50}{subsection.4.3}}
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces The small bottleneck network used as a source of auxilary learning targets. The network has about $70000$ parameters. The network primarily has much less parameters, as it uses only $32$ filters throughout the residual blocks, instead of $128$. The outputs both are based on a convolution with a single filter, yielding $42$ features for each the win prediction and the move policy. Those $42$ features are used as auxilary features for game positions and learnt by the bigger network as a regularizer.\relax }}{51}{table.caption.30}}
 \newlabel{fig:sq_bottleneck_network}{{11}{51}{The small bottleneck network used as a source of auxilary learning targets. The network has about $70000$ parameters. The network primarily has much less parameters, as it uses only $32$ filters throughout the residual blocks, instead of $128$. The outputs both are based on a convolution with a single filter, yielding $42$ features for each the win prediction and the move policy. Those $42$ features are used as auxilary features for game positions and learnt by the bigger network as a regularizer.\relax }{table.caption.30}{}}

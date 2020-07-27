@@ -911,9 +911,10 @@ Training set size | moves %         |  wins %
      [ ] fill in the gaps in supervised
      [X] eval the baseline locally with the easy dataset and show how the baselines compare on that
 WK 31:
+     [ ] No more I in the text, Table, Figure with capital letters!
+     [ ] run some more internal network feature a0 runs
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
-     [ ] No more I in the text, Table, Figure with capital letters!
      [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp
 WK 32:
      [ ] prepare presentation
