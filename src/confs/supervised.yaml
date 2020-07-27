@@ -16,19 +16,19 @@ feature_provider:
 
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: datasets/connect4/1M_future.txt.zip
+  datasetFile: datasets/connect4/1M_future_2.txt.zip
   initialGame: $c4
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/move0_win0_50p_pre_head
+  workingDirectory: /PwnKeks/x0/supervised/win0_50p_
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
   lrStart: 0.2
   lrPatience: 8
-  # featureProvider: $feature_provider
-  # featureNetwork: f7b37c26-9568-4789-a996-5d662000f91f.network
+  featureProvider: $feature_provider
+  featureNetwork: f7b37c26-9568-4789-a996-5d662000f91f.network
 
 c4:
   name: Connect4GameState
@@ -57,6 +57,5 @@ resnet:
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
   useWinFeatures: 0
-  useMoveFeatures: 0
+  useMoveFeatures: -1
   featuresWeight: 1
-  outputExtra: resblock
