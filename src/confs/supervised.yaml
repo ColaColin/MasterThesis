@@ -16,12 +16,12 @@ feature_provider:
 
 main:
   name: SupervisedNetworkTrainer
-  datasetFile: datasets/connect4/1M_future_2.txt.zip
+  datasetFile: datasets/connect4/1M_future.txt.zip
   initialGame: $c4
   policy: $resnet
   windowSizeSplits: 1
   trainingRuns: 5
-  workingDirectory: /PwnKeks/x0/supervised/win0_50p_
+  workingDirectory: /PwnKeks/x0/supervised/move2_fail
   testSamples: 100000
   validationSamples: 100000
   batchSize: 128
@@ -56,6 +56,6 @@ resnet:
   optimizerName: torch.optim.SGD
   optimizerArgs: $optimizerArgs
   gradClipValue: 1
-  useWinFeatures: 0
-  useMoveFeatures: -1
+  useWinFeatures: -1
+  useMoveFeatures: 2
   featuresWeight: 1
