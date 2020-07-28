@@ -149,34 +149,32 @@ In 1996 the chess computer Deep Blue for the first time defeated a reigning worl
 In March 2016 a program called AlphaGo for the first time in history has defeated a top human player in the board game Go \cite{leesedolVsAlphaGo}.
 Go had eluded attempts at super human level play for a very long time.
 
-Louis Victor Allis attributes \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
-but also to the way humans use their natural pattern recognition ability to quickly eliminate most of the often 200 or more possible moves and focus on few promising ones.
+Louis Victor Allis attributed \cite{allis1994searching} this to the large game tree size of $10^{360}$ possible games, compared to $10^{120}$ in chess \cite{shannon1950xxii},
+but also to the way humans use their natural pattern recognition ability to quickly eliminate most of the often $200$ or more possible moves and focus on few promising ones.
 
-This combination of the usage of ambiguous pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on designed heuristics.
-AlphaGo solved this issue by using the strong pattern recognition abilities of deep learning and combining them with a tree search, allowing the computer to learn patterns, similar to a human, but also search forward in the game tree to find the best move to play.
+This combination of the usage of ambiguous pattern recognition with an extremely large game tree has prevented computers from reaching top human strength through game tree search algorithms based on hand designed heuristics.
+AlphaGo solved this issue by using the strong pattern recognition abilities of deep learning and combining them with a tree search algorithm, allowing the computer to learn patterns, similar to a human, but also search forward in the game tree to find the best move to play.
 
 Further development of the AlphaGo algorithm yielded the AlphaZero algorithm, which significantly simplified AlphaGo, allowing learning to start with a random network and no requirements for human expert input of any kind.
 
-In the following thesis I want to investigate possible improvements to reduce the computational cost of using AlphaZero to learn to play games without using the generality of the algorithm.
-
-(TODO here one could state some key results, once they exist...)
+In the following Thesis possible improvements to reduce the computational cost of using AlphaZero to learn to play games will be investigated. Only proposals that do not lose the generality of AlphaZero will be considered.
 
 This thesis is structured as follows:
 
-First I will look at previous work, starting with the basis of AlphaZero, Monte Carlo Tree Search, moving onto the various versions of AlphaZero with previously suggested improvements.
-Then a list of novel improvements will be described. Finally an extensive set of experiments will be presented, first establishing a baseline performance, then showing the results on the novel improvements.
+In section \ref{sec:prev_work} on page \pageref{sec:prev_work} previous work on AlphaZero will be discussed, starting with the basic tree search algorithm and ending with improvement proposals of other authors.
+Section \ref{s:experiments} on page \pageref{s:experiments} will describe the way new proposals are evaluated, establish various baselines and implement a selection of improvements proposed by previous work.
+Finally section \ref{s:novel_ideas} on page \pageref{s:novel_ideas} will discuss proposed improvement ideas and evaluate them.
 
-
-\section{Previous work}
+\section{Previous work} \label{sec:prev_work}
 
 In this section previous work relevant to AlphaZero will be presented.
 
 \subsection{Monte Carlo Tree Search}
 \label{s:mcts}
 
-Monte Carlo Tree Search, in short MCTS, is the idea to search a large tree (e.g. a game tree) in a randomized fashion, gathering statistics on how good the expected return for moves at the root of the tree is.
+Monte Carlo Tree Search, in short MCTS, is based on the idea to search a large tree (e.g. a game tree) in a randomized fashion, gathering statistics on how good the expected return for moves at the root of the tree is.
 
-An early suggestion of this idea was made by Bernd Brügmann in 1993 \cite{montecarlogo1993}, who suggested a tree search in a random fashion inspired by simulated annealing. He used the algorithm to play computer go and found promising results on 9x9 boards.
+An early suggestion of this idea was made by Bernd Brügmann in 1993 \cite{montecarlogo1993}, who suggested a tree search in a random fashion inspired by simulated annealing. He used the algorithm to play computer go and found promising results on 9x9 boards against contemporary algorithms.
 
 AlphaZero uses a variant of MCTS called UCT, which was formulated in 2006 \cite{kocsis2006bandit} by L.Kocsis et al. and used in computer go for the first time in the same year \cite{gelly2006modification}.
 UCT stands for ``UCB applied to trees'', where UCB is the ``Upper Confidence Bounds'' algorithm of the \emph{multi-armed bandit problem} \cite{auer2002finite}. 
@@ -212,8 +210,6 @@ Equation \ref{eq:UCT_max} can be understood as weighting exploitation, in the fo
 
 \subsection{AlphaZero}
 
-TODO: Should I describe AlphaGo here in more detail? I don't really care about all the complications it did compared to AlphaZero, but it might still be interesting?
-
 The AlphaZero algorithm \cite{silver2018general} is the application of AlphaGoZero \cite{silver2017mastering} to games other than Go. AlphaGoZero is a significant simplification of AlphaGo \cite{silver2016mastering}.
 AlphaGo  is the first program to reach superhuman performance in Go by combining MCTS with deep learning.
 
@@ -232,10 +228,10 @@ Additionally it allows to use the algorithm for research of games for which no h
 
 The AlphaZero algorithm \cite{silver2018general} uses MCTS with the UCT formulation, as described in section \ref{s:mcts}, and modifies it to incorporate a deep neural network which serves as a heuristic to bias the tree search and provide evaluations of unfinished games.
 The network is then trained to predict the final result of the MCTS search directly, as well as the final result of games played by MCTS against itself.
-This allows to form a closed cycle of self improvement, which starts with a random network and has been shown to successfully learn to play various games, such as chess, shogi or go on the highest level, if given substantial computation resources.
+This allows to form a closed cycle of self improvement, which starts with a random network and has been shown to successfully learn to play various games, such as chess, shogi or go on the highest level, if given substantial computational resources.
 
 Work written concurrently to AlphaGoZero describes a similar algorithm tested with the game hex \cite{anthony2017thinking}. They describe the algorithm as thinking slow, via MCTS, and fast, via the network alone, in reference to results from human behavioral science \cite{kahneman2011thinking}.
-AlphaZero in that sense learns in a similar fashion as humans: At first a time intensive ''thought process`` is used to reason about a new problem, but with pratice good decisions can be made much faster.
+AlphaZero in that sense learns in a similar fashion as humans: At first a time intensive ''thought process`` is used to reason about a new problem, but with practice good decisions can be made much faster.
 
 The network in AlphaZero is provided with an encoding of a game situation and has two outputs: a policy describing move likelihoods and the expected value of the situation for the players, i.e. it predicts what move should be played and who is likely to win in the given situation.
 
@@ -262,8 +258,8 @@ The analysis of the network is then backpropagated upwards the search tree, upda
 
 The tree grows until some fixed number of nodes is created. The output is the distribution of visits to the actions of the root node, as a high visit count implies the tree search considers a move to be worthwhile and has analyzed it thoroughly.
 
-To use the network outputs in UCT, the formulations are changed. The action $a$ in a given node is selected accoring to equation \ref{eq:alpha_max_zero}, where $U(s,a)$ is a term that is inspired by UCT but is biased by the network policy, as seen in equation \ref{eq:alpha_zero_u}.
-$C_{puct}$ is a constant to be chosen, the same as $C_p$ in UCT.
+To use the network outputs in UCT, the formulations are changed. The action $a$ in a given node is selected according to equation \ref{eq:alpha_max_zero}, where $U(s,a)$ is a term that is inspired by UCT but is biased by the network policy, as seen in equation \ref{eq:alpha_zero_u}.
+$C_{puct}$ is a constant to be chosen, the same as $C_p$ in UCT, with values in practice ranging between $0.5$ and $5$, depending on the game.
 
 \begin{equation}
  argmax_a(Q(s, a) + U(s, a))\label{eq:alpha_max_zero}
@@ -285,53 +281,56 @@ The self-play learning hinges on the assumption that the policy generated by MCT
 as the MCTS effectively averages many network predictions into one, forming a sort of ensemble of network evaluations on possible future positions.
 
 A drawback of this approach is the high computational cost, as in practice for good results the search tree to play a single move has to be grown to at least hundreds of nodes, requiring the same number of forward passes through the network to play a single move.
-For more complex games it takes millions of games to be played until the highest level of play is reached with a network having millions of parameters. This motivates my work in researching possible improvements to the algorithm that allow learning to progress
+For more complex games it takes millions of games to be played until the highest level of play is reached with a network having millions of parameters. This motivates this Thesis in researching possible improvements to the algorithm that allow learning to progress
 faster or with less example games played.
 
 \subsection{Extensions to AlphaZero} \label{s:prev_extensions}
 
 Many improvements to the AlphaZero algorithm have been proposed, typically aiming at reducing the extreme computational cost of learning to play a new game.
-In this section I will present a collection of such proposals, especially focusing at ideas that do not require game specific knowledge to be incorporated. Still, some improvements might work better on some games than others,
+In this section a collection of such proposals will be presented, especially focusing at ideas that do not require game specific knowledge to be incorporated. Still, some improvements might work better on some games than others,
 depending on hyperparameters used. 
 
-In section \ref{s:exexp} on page \pageref{s:exexp} I will present experimental results of my own implementation of a selection of these proposals by previous work.
+In section \ref{s:exexp} on page \pageref{s:exexp} experimental results of a reimplementation of a selection of these proposals by previous work will be presented and introduced as a baseline to improve upon.
 
 \subsubsection{Network and training modifications}
 
-The original network used in AlphaZero is a tower of 20 or 40 residual network blocks with 256 convolutional filters. Some ways have been found to improve this network to speed up training without any actual change to the AlphaZero algorithm, mainly by applying progress in the artificial neural network design.
+The original network used in AlphaZero is a tower of $20$ or $40$ residual network blocks with $256$ convolutional filters. Some ways have been found to improve this network to speed up training without any
+actual change to the AlphaZero algorithm, mainly by applying progress in the artificial neural network design.
 
 \begin{itemize}
- \item Enhancing the blocks with Squeeze-and-excitation elements \cite{hu2018squeeze}, has been proposed by the Leela Chess Zero projects, which reimplements AlphaZero for Chess as a distributed effort \cite{leela0sq}.
+ \item Enhancing the blocks with Squeeze-and-excitation elements \cite{hu2018squeeze}, has been proposed by the Leela Chess Zero projects, which implements AlphaZero for Chess as a distributed effort \cite{leela0sq}.
        A very similar approach is used in \cite{wu2019accelerating} which also cites the similarity to Squeeze-and-excitation networks.
- \item The original design of the network only uses 2 filters in the policy head and a single filter in the value head, using 32 filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
+ \item The original design of the network only uses $2$ convolutional filters in the policy head and a single convolutional filter in the value head, using $32$ filters has been found to speed up training, as reported by \cite{oracledevs6} based on earlier work done by the Leela Chess Zero project.
  \item Cyclic learning rates, as developed by \cite{smith2017cyclical}, can be used to improve the network fitting to the data, \cite{oracledevs6} shows a modest speed up.
 \end{itemize}
 
 \subsubsection{Modification of the tree search}
 
-The behavior of the tree search can be modified to change how available time is spent to understand given game positions.
+The behavior of the tree search can be modified to change how available time is spent to analyze given game positions.
 
 \begin{itemize}
  \item Instead of using a single network \cite{lan2019multiple} proposes to combine multiple networks of different sizes, especially two networks, one big, one small. Specifically, in the paper, the 
- big network has 10 residual blocks with 128 convolutional filters, whereas the small network has 5 residual block with 64 convolutional filters. This results in one forward pass of the big network taking as long as eight forward passes of the small network.
+ big network has $10$ residual blocks with $128$ convolutional filters, whereas the small network has $5$ residual block with $64$ convolutional filters. This results in one forward pass of the big network taking as long as eight forward passes of the small network.
  Using the small network in most positions reduces computational requirements, 
- which allows more search steps. This appears to increase playing strength given the same computational budget, the authors state that training is accelerated by a factor of at least 2.
+ which allows more search steps. This appears to increase playing strength given the same computational budget, the authors state that training is accelerated by a factor of at least $2$.
  \item An idea called Playout Caps is proposed in \cite{wu2019accelerating}. They drastically reduce the number of MCTS playouts randomly in most of the moves played. It allows to play more games in the same time, somewhat similar to 
- the concept of using a combination of a small and a big network, the authors argue that this gives more data to train the value target, which is starved for data since every game played is only a single data point for this target. A training acceleration of 27\% is stated.
+ the concept of using a combination of a small and a big network, the authors argue that this gives more data to train the value target, which is starved for data since every game played is only a single data point for this target. A training acceleration of $27\%$ is stated.
  \item Propagation of terminal moves through the search tree to simplify the search is proposed by the Leela Chess Zero project, with a moderate improvement in playing strength \cite{leela0propagation}. This kind of improvement falls
  into a family of various other ways to improve the handling of the search tree, such as detecting positional transpositions. From the AlphaZero paper it is not clear to what degree DeepMind used such optimizations.
- \item The Leela Chess Zero project suggests analyzing statistics, namly the Kullback-Leibler divergence of the policy as it evolves during the tree search, to understand how complex a position is and apply more tree search evaluations on complex situations. They find a noteable increase
+ \item The Leela Chess Zero project suggests analyzing statistics, namely the Kullback-Leibler divergence of the policy as it evolves during the tree search, to understand how complex a position is and apply more tree search evaluations on complex situations. They find a notable increase
    in playing strength \cite{leela0kldgain} using the same computational budget.
 \end{itemize}
 
 \subsubsection{Learning target modifications}
+
+The training targets of the neural network can be modified or extended to regularize training and reduce overfitting.
 
 \begin{itemize}
  \item \cite{wu2019accelerating} Proposes to predict the opponent's reply to regularize training. A modest improvement is shown.
  \item \cite{wu2019accelerating} also shows major improvements can be made if some domain specific targets are used to regularize the learning process. This hints at the possibility to search for ways to automatically determine such regularization targets.
  They again point at how the learning is highly constrained by available data on the value target and how these additional targets may help alleviate this.
  \item Forced Playouts and Policy Target Pruning, proposed in \cite{wu2019accelerating}, force that nodes, if they are ever selected, receive a minimum number of further playouts. Pruning is used to remove this from the policy distribution used to train the network for bad moves,
- as the forced playouts are only meant to improve exploration. Training progress is stated to be accelerated by 20\%.
+ as the forced playouts are only meant to improve exploration. Training progress is stated to be accelerated by $20\%$.
  \item The Leela Chess Zero project uses a modification of the value target, which explicitly predicts a drawing probability, as this allows the network to tell the difference between a very uncertain position and a position that is very likely drawn \cite{leela0wdl}.
  \item \cite{anonymous2020threehead} suggests using a third output head which predicts the win probability for every move. This can be used to shortcut the tree search, reducing the number of network evaluations, but the win probability estimate might be of a worse quality.
   Small improvements are claimed.
@@ -341,6 +340,9 @@ The behavior of the tree search can be modified to change how available time is 
 
 
 \subsubsection{Training data enhancements}
+
+The way the millions of training example for the network are handled can be modified.
+
 \begin{itemize}
  \item There can be multiple copies of the same identical position in the training data. \cite{oracledevs6} shows that averaging the targets for these positions and reducing them to a single example is beneficial. This is shown on the game of Connect 4,
  which is especially prone to identical positions showing up, so it is not clear how well it might translate to more complex games.
@@ -354,17 +356,17 @@ The behavior of the tree search can be modified to change how available time is 
 
 \section{Experimental Setup} \label{s:experiments}
 
-For this thesis a framework for experiments with AlphaZero has been developed which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
+For this Thesis a framework for experiments with AlphaZero has been developed which allows to easily setup different configurations with a configuration file, switching on or off various features and improvements under investigation.
 An overview of the distributed setup is shown in Figure \ref{fig:x0_framework_overview}.
 
 \begin{figure}[H]
 \centering
 \includegraphics[clip,width=\columnwidth]{x0_framework_overview}
-\caption{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks are handled on machines talking to this central server.}
+\caption{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks, such as network evaluation, network training and especially self-play are handled on machines talking to this central server.}
 \label{fig:x0_framework_overview}
 \end{figure}
 
-All code is available on github\footnote{\url{https://github.com/ColaColin/MasterThesis}}. The repository documents all configuration files used for every experiment mentioned in this thesis and 
+All code is available on github\footnote{\url{https://github.com/ColaColin/MasterThesis}}. The repository documents all configuration files used for every experiment mentioned in this Thesis and 
 for the sake of reproducibility the commit SHA is recorded as well, allowing to reset the code to the exact form it had when a specific experiment was run.
 
 The framework base implementation of AlphaZero uses a different network target for game results, which encodes a dedicated value for a draw. This means for a two player game the possible outcomes are the win of either player, or a draw.
@@ -382,6 +384,15 @@ The experiments are split into multiple parts:
 
 The network used in all experiments is a minimal modification of the original network used in the AlphaZero work by DeepMind. Modifications are made in the output of the win probabilities, as the original work did not explicitly predict draw chances. Additionally the 
 input encoding was adapted for Connect 4.
+
+Position encodings are relative to the player currently making a turn. This includes the input, as well as the output encoding the win chances for the players.
+The input encoding converts the $7\times6$ board into a tensor of $1\times7\times6$. Empty fields are encoded as a $3$, the player currently making a move is a $1$, the other player is represented by a $2$. $0$ is not used, as all convolutions 
+in the network use padding with $0$, such that all convolutions keep working on a field of size $7\times6$. $0$ thus exclusively represents the edge of the board and the network can learn this.
+For the output the move policy is encoded by a flat vector of $7$ values, activated with SoftMax, forming a probability distribution. The win probabilities are encoded as a vector of $3$ values, activated with SoftMax. The first represents the chance of a draw, the second the chance of the
+current player winning and the last the chance of the other player winning. The network is shown in Figure \ref{fig:blocks_network}.
+
+The used loss function is the sum of the negative log likelihood of the move policy and the win predictions with the win prediction loss weighted at $0.01$. 
+
 
 \begin{table} [H]
  \centering
@@ -406,15 +417,6 @@ input encoding was adapted for Connect 4.
   \label{fig:blocks_network}
 \end{table}
 
-Position encodings are relative to the player currently making a turn. This includes the input, as well as the output encoding the win chances for the players.
-The input encoding converts the $7\times6$ board into a tensor of $1\times7\times6$. Empty fields are encoded as a $3$, the player currently making a move is a $1$, the other player is represented by a $2$. $0$ is not used, as all convolutions 
-in the network use padding with $0$, such that all convolutions keep working on a field of size $7\times6$. $0$ thus exclusively represents the edge of the board and the network can learn this.
-For the output the move policy is encoded by a flat vector of $7$ values, activated with SoftMax, forming a probability distribution. The win probabilities are encoded as a vector of $3$ values. The first represents the chance of a draw, the second the chance of the
-current player winning and the last the chance of the other player winning. The network is shown in Figure \ref{fig:blocks_network}.
-
-The used loss function is the sum of the negative log likelihood of the move policy and the win predicitions with the win prediction loss weighted at $0.01$. 
-
-
 \subsection{Testing on Connect 4}
 
 To reduce costs of experiments the game Connect 4 is used. Unlike Go, Connect 4 is a game with a known solution, as it is a solved game for which strong solvers are available \cite{trompsolved, pascalsolver, pascalsolvergithub}, 
@@ -429,9 +431,9 @@ It also allows to run supervised training of the used network on a dataset of ga
 
 The generation of the database to be used as a testing set for the learning process is an important step that determines how comparable results are to previous work. 
 
-There is one previous work \cite{oracledevs}[OracleDevs et al.] which published results on Connect 4 using Alpha Zero. They claim to reach $97\%$ to $99\%$ accuracy.
+There is one previous work \cite{oracledevs}[OracleDevs et al.] which published results on Connect 4 using AlphaZero. They claim to reach $97\%$ to $99\%$ accuracy.
 
-Experiments with various datasets have made clear that results can vary between $90\%$ and the claimed $97\%$, depending on the dataset configuration.
+Experiments with various datasets have made clear that results can vary wildly between $90\%$ and the claimed $97\%$, depending on the dataset configuration.
 
 One important decision is on what is considered a correct move in a given situation. In Connect 4 there are many positions where the player has multiple ways to force a win, but some may lead to a longer game before the win is forced.
 \cite{oracledevs} defines here \emph{strong} and \emph{weak} testsets: 
@@ -443,7 +445,7 @@ as the best move, no matter how much longer the win will take or how much faster
 
 They report $97\%$ accuracy on strong datasets and $99\%$ on weak datasets.
 
-Additional important decisions made in the dataset creation, which are not talked about in detail by previous work are:
+Additional important decisions made in the dataset creation which are not talked about in detail by previous work are:
 
 \begin{enumerate}
  \item How to play the games exactly? Only perfect moves or make some mistakes?
@@ -455,7 +457,7 @@ Experiments with various options showed that especially the question of how game
 by a solver \cite{pascalsolver, pascalsolvergithub}, is substantially harder than a dataset created using
 $90\%$ perfect and only $10\%$ random moves. This appears to be mainly a result of the distribution of game length, shown in Figure \ref{fig:dataset_hist}, as less random moves produce a dataset with more positions in the late game, while more random moves cause more positions to be in the early game.
 Making the right move in turn $10$ is a lot harder than in turn $30$, as the remaining game tree is much larger in the earlier phase of the game. Using supervised training, described in section \ref{sec:supervised}, the harder dataset can only reach about $92.6\%$ accuracy whereas the easier dataset
-can reach $96.97\%$, as claimed by previous work. 
+can reach $96.97\%$, very close to the $97\%$ claimed by previous work. 
 
 \begin{figure}[H]
 \centering
@@ -466,32 +468,33 @@ can reach $96.97\%$, as claimed by previous work.
 
 
 
-For most of the following experiments the harder dataset, playing $50\%$ random moves, was used. If a dataset is specified, they will be refered to as the easy and the hard dataset from here on.
+For most of the following experiments the harder dataset, playing $50\%$ random moves, was used. If a dataset is specified, they will be referred to as the easy and the hard dataset from here on.
 For all other options the hardest possible settings were used to create a maximally challenging dataset:
 No duplicates, without trivial positions and only the strongest possible moves are accepted as correct.
 
-The average number of correct moves per position can be used as a metric to determine how challenging a dataset is. The generated maximally hard dataset, $50\%$ random moves, has on average $1.8$ correct moves per position. The generated easier dataset, playing $10\%$ random moves, has $1.95$ correct moves
-per position.
+The average number of correct moves per position can be used as a metric to determine how challenging a dataset is. The generated maximally hard dataset, $50\%$ random moves, has on average $1.8$ correct moves per position.
+The generated easier dataset, playing $10\%$ random moves, has $1.95$ correct moves per position.
 
 In contrast \cite{oracledevs}[OracleDevs et al.] report $4.07$ correct moves per position in their weak dataset and $2.16$ correct moves per position in their strong dataset, indicating they made choices which noticeably reduced the challenge their dataset posed, 
-possibly explaining differences in accuarcy values between this work and theirs.
+possibly explaining differences in accuracy values between this work and theirs.
 
 \subsection{Evaluation of training costs}
 
-The goal of my work is to identify ways to reduce the substantial costs of training using AlphaZero. The majority of GPU capcacity is spent on self-playing games to be used as training material for the neural network.
-In all my experiments I train on a single GPU, evaluate newly produced networks on another single GPU and run self-play workers on a p2p cloud service\footnote{\url{https://vast.ai}} using up to 20 GPUs of various types.
+The goal of this Thesis is to identify ways to reduce the substantial costs of training using AlphaZero. The majority of GPU capcacity is spent on self-playing games to be used as training material for the neural network.
+In all experiments neural network training is done on a single GPU, newly produced networks are evaluated on another single GPU and self-play workers are run on a p2p cloud service\footnote{\url{https://vast.ai}} using up to 20 GPUs of various types to complete full training runs
+for Connect 4 in $2$ to $6$ hours, depending on the number of self-play workers.
 
-This huge inbalance between training hardware and self-play hardware can be seen in related work as well, e.g. \cite{AlphaZero}[Silver et. al.] used 5000 first-generation TPUs for self-play and 16 second-generation TPUs 
-to learn play Chess on super-human, and potentially even super-classical-engine, level within hours. Similarly \cite{wu2019accelerating}[David J. Wu] used up to 24 V100 GPUs to produce self-play training examples to feed a single V100 GPU training data for neural network training to play Go.
+This huge imbalance between training hardware and self-play hardware can be seen in related work as well, e.g. \cite{AlphaZero}[Silver et. al.] used $5000$ first-generation TPUs for self-play and $16$ second-generation TPUs 
+to learn play Chess on super-human, and potentially even super-classical-engine, level within hours. Similarly \cite{wu2019accelerating}[David J. Wu] used up to $24$ V100 GPUs to produce self-play training examples to feed a single V100 GPU training data for neural network training to play Go.
 
-The bulk of the training cost consequently lies in the self-play workers. For my experiments I will use this fact to simplify the training cost measurement by ignoring the costs of the network-training and only measure the time needed to generate self-play games.
+The bulk of the training cost consequently lies in the self-play workers. For all experiments in this Thesis this fact will be used to simplify the training cost measurement by ignoring the costs of the network training. Instead only the cost of self-playing workers is measured.
 
-Since my main source of computational resources for self-play is a p2p cloud service which provides unreliable but cheap GPU time I am not using a constant number of GPU workers between experiments or often even change the number of workers during training.
+Since the main source of computational resources for self-play is a p2p cloud service which provides unreliable but cheap GPU time there is no constant number of GPU workers between experiments or the number of self-play workers even changes during training.
 
 After an experiment is completed a benchmarking program is run on a reference machine using the produced networks and measures how much time is needed on average 
 to play a single move. This value is then used to estimate the cost of the actual number of moves that were played by the self-play workers during the experiments.
 
-This reference machine uses a single Nvidia RTX 2070S, which is saturated to $100\%$ load by the benchmark. Thus all self-play cost of my experiments is stated as estimated self-play time on that machine and bottlenecked by GPU capcacity on it.
+This reference machine uses a single Nvidia RTX 2070S, which is saturated to $100\%$ load by the benchmark. Thus all self-play cost of experiments is stated as estimated self-play time on that machine and bottlenecked by GPU capcacity on it.
 
 \subsection{Supervised training}\label{sec:supervised}
 
@@ -502,7 +505,7 @@ In version 2 of the dataset, only a single position is randomly picked from each
 For both versions of the dataset, $800000$ examples were used as training data, $100000$ examples were used as validation data and the remaining $100000$ examples were used as test data.
 Training started with a learning rate of $0.2$ and was reduced by a factor of $10$ after $8$ epochs of no accuracy improvements on the validation data. The supervised training stops after $12$ epochs with no improvements on the validation accuracy.
 
-Various network sizes are evaluated. Mean results of five runs for each network are shown in table \ref{t:supervised_results}. One additional set of five 5-blocks network were trained using the easier $10\%$ random moves dataset, they reached a mean supervised accuracy
+Various network sizes are evaluated. Mean results of five runs for each network are shown in table \ref{t:supervised_results}. One additional set of five $5$-blocks network were trained using the easier $10\%$ random moves dataset, they reached a mean supervised accuracy
 of $96.94\%$ on move prediction and $84.75\%$ on win prediction, highlighting the big difference in achieved accuracy between the harder and the easier dataset.
 
 \begin{table} [H]
@@ -522,9 +525,9 @@ of $96.94\%$ on move prediction and $84.75\%$ on win prediction, highlighting th
 What surprises of these results is the quite low accuracy on the prediction of the winner of a match, as AlphaZero training runs achieve values close to $90\%$ win-prediction accuracy.
 This hints at some problem with the supervised training data.
 
-To rule out overfitting on the dataset, another dataset, using the $10\%$ random moves, with 10 million positions taken from 10 million games was generated. This dataset achieved a move prediction accuracy with the 5-block network 
+To rule out overfitting on the dataset, another dataset, using the $10\%$ random moves, with 10 million positions taken from 10 million games was generated. This dataset achieved a move prediction accuracy with the $5$-block network 
 of $97\%$, but the win-prediction still stayed below the accuracy reached in AlphaZero training runs, that played less than 10 million games overall.
-Given that the used 5 block network only has about $1.5$ million parameters, overfitting on a dataset of $10$ million examples seems unlikely.
+Given that the used $5$ block network only has about $1.5$ million parameters, overfitting on a dataset of $10$ million examples seems unlikely.
 
 Since overfitting is ruled out as a cause, it seems likely the issue is that a dataset generated from games with a certain fraction of random-moves does not provide optimal training quality to predict the outcome of perfect-play games, which causes the low win-prediction accuracy.
 Games played on the best level AlphaZero can accomplish are not perfect, but mistakes made are much different from just playing random moves. This seems to be mirrored in the win prediction accuracy.
@@ -535,20 +538,22 @@ Games played on the best level AlphaZero can accomplish are not perfect, but mis
 Various baselines need to be established to compare novel proposals against. Supervised training of the used networks allows to explore the maximum possible performance, a plain AlphaZero baseline shows how the original algorithm performed, while a baseline
 of AlphaZero extended with a set of previously known improvements shows the progress made since the original algorithm was published.
 
-For all experiments, unless noted otherwise, the MCTS uses trees with $343$ nodes, networks will be trained in iterations of $300000$ produced examples. Every network is evaluated on the test set for accuracy compared with the Connect 4 solver.
-Network training happens using SGD with momentum of $0.9$, weight decacy of $0.0001$. The learning rate starts at $0.2$, is dropped to $0.02$ at iteration 7 and $0.002$ at iteration 14. Gradient clipping at a magnitude of $1$ is used to stabilize training at the maximum learning rate of $0.2$.
+For all experiments, unless noted otherwise, the MCTS uses trees with $343$ nodes, which was picked as it represents the number of nodes to fully search $3$ moves ahead in Connect 4: $7^3$,
+networks will be trained in iterations of $300000$ produced examples. Every network is evaluated on the test set for accuracy compared with the Connect 4 solver.
+Network training happens using SGD with momentum of $0.9$, weight decay of $0.0001$. The learning rate starts at $0.2$, is dropped to $0.02$ in iteration $7$ and $0.002$ at iteration $14$. 
+Gradient clipping at a magnitude of $1$ is used to stabilize training at the maximum learning rate of $0.2$.
 A training window of $2$ million positions is used.
 
 
 Based on the results of the supervised training and under consideration of the training costs all experiments are done with the $5$ block network, which has about $1.5$ million parameters. A larger network might reach slightly better results,
-but the goal of my work is to look for efficiency gains, not maximum final performance. Therefore the smaller network is used to allow for faster experimentation.
+but the goal of this Thesis is to look for efficiency gains, not maximum final performance. Therefore the smaller network is used to allow for faster experimentation.
 
 \subsubsection{Hyperparameter search}
 
 The AlphaZero algorithm requires some important hyperparameter values, which can make a large difference on the learning efficiency. 
 
-To establish a baseline with sensible hyperparameter a bayesian hyperparameter optimization with 65 search steps was used.
-In each search step the AlphaZero algorithm was run on a single machine, which alternated between self-play and training. The bayesian optimization was tasked with optimizing the accuracy after two hours of real time. 
+To establish a baseline with sensible hyperparameter a Bayesian hyperparameter optimization with $65$ search steps was used.
+In each search step the AlphaZero algorithm was run on a single machine, which alternated between self-play and training. The Bayesian optimization was tasked with optimizing the accuracy after two hours of real time. 
 
 To yield meaningful results after just two hours on a single GPU,
 the size of iterations were chosen in such a way to make faster progress, at the cost of the quality of the final results, i.e. less games were played per network trained and the MCTS-trees were smaller when playing games. Thus the accuracy values reached were rather low, around $80\%$,
@@ -597,8 +602,8 @@ The hyperparameters chosen for further investigation in full experimental runs a
   \label{t:hyper_search_results}
 \end{table}
 
-Full training runs are done 5 times for every of the hyperparameter sets under investigation. In every run the training is stopped once the MCTS accuarcy has not improved for 10 iterations.
-The 5 runs are used to calculate a mean, which is used to compare the different runs against each other.
+Full training runs are done $5$ times for every of the hyperparameter sets under investigation. In every run the training is stopped once the MCTS accuracy has not improved for $10$ iterations.
+The $5$ runs are used to calculate a mean, which is used to compare the different runs against each other.
 
 \begin{figure}[H]
 \centering
@@ -608,14 +613,14 @@ The 5 runs are used to calculate a mean, which is used to compare the different 
 \end{figure}
 
 
-It can be seen that the results of the parameters taken from previous works fall substantially behind the values found via bayesian optimization. This is likely due to the fact that previous work was on other games, 
+It can be seen that the results of the parameters taken from previous works fall substantially behind the values found via Bayesian optimization. This is likely due to the fact that previous work was on other games, 
 using different implementation details, such as different tree sizes, iteration sizes, network sizes or other differences.
 
 The hyperparameter set hyperopt2 is used for all further experiments, its performance forms the baseline on which improvements are investigated.
 
 \subsection{Extended Baseline} \label{s:exexp}
 
-As outlayed in chapters \ref{s:prev_extensions} on page \pageref{s:prev_extensions}, much work has been done to propose various ways of improving learning efficiency of AlphaZero. 
+As outlined in section \ref{s:prev_extensions} on page \pageref{s:prev_extensions}, much work has been done to propose various ways of improving learning efficiency of AlphaZero. 
 
 The differentiation between the AlphaZero baseline and the extended AlphaZero baseline is important to verify proposed improvements are cumulative with already known ways to improve AlphaZero.
 
@@ -623,15 +628,15 @@ The differentiation between the AlphaZero baseline and the extended AlphaZero ba
 \subsubsection{Remove duplicate positions}
 
 Especially for games such as Connect 4 there are a lot of duplicate positions in the training data. Depending on various exploration hyperparameters and training progress, this causes between $30\%$ and $80\%$ duplicate positions to be reached.
-The neural network training thus is provided with a large set of duplicate input values, which will have conflicting target values to be learnt. Additionally positions early in the game will be overrepresented in the training data, as they make up the vast majority of
+The neural network training thus is provided with a large set of duplicate input values, which will have conflicting target values to be learned. Additionally positions early in the game will be overrepresented in the training data, as they make up the vast majority of
 duplicate positions.
 
 In the context of Connect 4 \cite{oracledevs6}[OracleDevs et al.] propose to merge duplicate positions to counteract this.
 
-My implementation of this acts in the training worker and only adds new positions to the pool of training examples, previously known positions instead update the target value
+This Thesis implements this by acting in the training worker, only new positions are added to the pool of training examples, previously known positions instead update the target value
 for that position.
 
-For this purpose a record of all previously known positions is kept in a hashmap.
+For this purpose a record of all previously known positions is kept in a hash map.
 Every time a duplicate is produced by a self-play worker and send to the training worker, the training worker will merge the new target values with the old target values of the duplicate using a weight
 $w_{\text{duplicate}}$: $$\text{target}_{\text{new}} = \text{target}_{\text{old}} * (1 - w_{\text{duplicate}}) + \text{target}_{\text{duplicate}} * w_{\text{duplicate}}$$
 
@@ -642,9 +647,9 @@ The values $0.2$, $0.5$ and $0.8$ are tested in single runs and compared against
 
 A noticeable improvement can be seen. $0.8$ appears to outperform the baseline the most and is chosen to be part of the extended baseline configuration.
 
-To keep the size of iterations consistent with previous experimenets, network iterations are now reduced to once every $180000$ new examples. With the typical rate of duplicates during a baseline run, this comes out at about $300000$ positions played per iteration, at least in the first part
-of the training. The more duplicates are produced during play, the longer iterations become.
-The training window stays at $2$ million positions, which all will be distinct from each other with deduplication.
+To keep the size of iterations consistent with previous experiments, network iterations are now reduced to once every $180000$ new examples. With the typical rate of duplicates during a baseline run, this comes out at about $300000$ positions played per iteration, at least in the first part
+of the training. The more duplicates are produced during play, the longer iterations become in real time, as less and less new examples are generated.
+The training window stays at $2$ million positions, which however now all will be distinct from each other.
 
 \begin{figure}[H]
 \centering
@@ -656,14 +661,11 @@ The training window stays at $2$ million positions, which all will be distinct f
 
 \subsubsection{Cyclic learning rate}
 
-Cyclical learning rates are a proposal \cite{smith2017cyclical} to speed up general neural network training. \cite{oracledevs6}[OracleDevs et al.] claim some improvement using them in the context of AlphaZero.
+Cyclical learning rates are a proposal by \cite{smith2017cyclical}[Smith et al.] to speed up general neural network training. \cite{oracledevs6}[OracleDevs et al.] claim some improvement using them in the context of AlphaZero.
 
-Based on these claims I have implemented cyclic learning rates and cyclic momentum for my version of AlphaZero as a potential addition to the extended learning rate. The cycles are over single iterations of the network, thus $300000$ examples 
+Based on these claims cyclic learning rates and cyclic momentum have been implemented for AlphaZero as a potential addition to the extended baseline. The cycles are over single iterations of the network, thus $300000$ examples 
 using the baseline or $180000$ new examples using deduplication.
 
-The learning rate starts out at $0.02$, reaches its peak of $0.2$ at $35\%$ of the iteration, then starts to drop back to $0.02$, which is reached by $70\%$ of the iteration, finally the learning rate is dropped down to $0.003$ by the end of the iteration.
-Using the same proportions over the iteration, the momentum starts at $0.95$, drops to $0.85$ and then rises back to $0.95$.
-The values are informed by previous runs to determine the maximum and minimum useful learning rate, especially the supervised training.
 
 \begin{figure}[H]
 \centering
@@ -672,9 +674,20 @@ The values are informed by previous runs to determine the maximum and minimum us
 \label{fig:cyclic_lr}
 \end{figure}
 
+The learning rate starts out at $0.02$, reaches its peak of $0.2$ at $35\%$ of the iteration, then starts to drop back to $0.02$, which is reached by $70\%$ of the iteration, finally the learning rate is dropped down to $0.003$ by the end of the iteration.
+Using the same proportions over the iteration, the momentum starts at $0.95$, drops to $0.85$ and then rises back to $0.95$.
+The values are informed by previous runs to determine the maximum and minimum useful learning rate, especially the supervised training which reduced the learning rate automatically using early stopping.
+
+
 These curves can be seen in figure \ref{fig:cyclic_lr}.
 Additionally, not shown in the figure, the learning rate is annealed down with a multiplicative factor that drops with the network iterations in a linear fashion. It starts at $1$ in iteration $1$ and reaches $0.4$ in iteration $20$. Beyond iteration $20$ the factor stays at $0.4$.
 Thus at iteration $20$ and later, the maximum learning rate is $0.08$.
+
+
+A single run was done with the baseline configuration, using the described cyclic learning rate and momentum. The results can be seen in figure \ref{fig:cyclic_results}.
+Slight improvements were found, especially in the earlier stages of the training. Cyclic learning rate and momentum was added to the extended baseline 
+configuration. 
+
 
 \begin{figure}[H]
 \centering
@@ -683,19 +696,15 @@ Thus at iteration $20$ and later, the maximum learning rate is $0.08$.
 \label{fig:cyclic_results}
 \end{figure}
 
-A single run was done with the baseline configuration, using the described cyclic learning rate and momentum. The results can be seen in figure \ref{fig:cyclic_results}.
-Slight improvements were found, especially in the earlier stages of the training. Cyclic learning rate and momentum was added to the extended baseline 
-configuration. 
-
 
 
 \subsubsection{Improved training window}
 
-\cite{oracledevs6}[OracleDevs et al.] notice that a jump down in the training error can be observed in the first iteration that pushes the examples of the very start of the training out of the training window. It stands to 
+\cite{oracledevs6}[OracleDevs et al.] noticed that a jump down in the training error can be observed in the first iteration that pushes the examples of the very start of the training out of the training window. It stands to 
 reason that these are especially bad training examples, as the network at that point would be very close to random play. This motives to let the training window start out small and grow over a number of iterations. This way the 
 training examples of early iterations are removed from the training data more quickly. This is called a slow training window.
 
-In my implementation of the slow training window, I start with a training window of $500000$ examples, which grows between iteration $5$ and $12$ up to the maximum size of $2$ million examples. This causes early examples to be removed by iteration $3$.
+For this Thesis a slow training window is implemented, it starts with a size of $500000$ examples, which grows between iteration $5$ and $12$ up to the maximum size of $2$ million examples. This causes early examples to be removed by iteration $3$.
 
 A single run is done to evaluate the effects of this modification, the results are seen in figure \ref{fig:slow_window_results}. 
 
@@ -706,16 +715,16 @@ A single run is done to evaluate the effects of this modification, the results a
 \label{fig:slow_window_results}
 \end{figure}
 
-The slow window is added to the extended baseline, since it does not appear to hurt and it follows a sound idea. To accomodate the fact that the extended baseline uses a training window without duplicate positions the parameters are modified
+The slow window is added to the extended baseline, since it does not appear to hurt and it follows a sound idea. To accommodate the fact that the extended baseline uses a training window without duplicate positions the parameters are modified
 to grow from iteration $5$ to $15$, since the number of new examples per iteration is lower.
 
 \subsubsection{Playout Caps}
 
 Playout Caps \cite{wu2019accelerating}[Wu et. al.] implement the idea to play, at random, a substantial fraction of all moves with a substantially reduced number of nodes in the MCTS and only record moves played with the full number of nodes used.
-This means a lot more games are played at a marginally additional cost. Since the moves played with a less deep MCTS are not recorded, the training data does not reduce in quality, but more distinct game results are collected.
+This means a lot more games are played at a marginal additional cost. Since the moves played with a less deep MCTS are not recorded, the training data does not reduce in quality, but more distinct game results are collected.
 This can help provide better quality data for the value target of the network, which predicts the winner of games. Wu et. al. claim $27\%$ improvement in Go, which is notorious for especially long games.
 
-I have implemented Playout Caps and evaluated them on Connect 4. For $75\%$ of the moves played the number of MCTS nodes was reduced to $30$, only the moves played with the standard $350$ nodes in the other $25\%$ were recorded as training data.
+Playout Caps have been implemented for this Thsis and have been evaluated on Connect 4. For $75\%$ of the moves played the number of MCTS nodes was reduced to $30$, only the moves played with the standard $350$ nodes in the other $25\%$ were recorded as training data.
 Results of a test run can be seen in figure \ref{fig:playout_caps}.
 
 \begin{figure}[H]
@@ -753,8 +762,8 @@ Figure \ref{fig:predict_reply} shows the results of testing this on Connect 4. T
 
 \subsubsection{Improving the network structure}
 
-The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze and Excitation elements in the network \cite{hu2018squeeze}.
-These are a general development of deep neural networks, which have been shown to improve learning efficiency at a small additional cost.
+The Leela Chess Zero project \cite{leela0sq} proposes to use Squeeze and Excitation elements in the network.
+These are a general development of deep neural networks  \cite{hu2018squeeze}, which have been shown to improve learning efficiency at a small additional cost.
 
 The network described in Table \ref{fig:blocks_network} on page \pageref{fig:blocks_network} was modified for this, the resulting network is shown in table \ref{fig:sq_blocks_network}.
 
@@ -778,7 +787,7 @@ The network described in Table \ref{fig:blocks_network} on page \pageref{fig:blo
   Squeeze and Excite modifies the residual blocks to include an average pooling, which averages every feature map to a single scalar value. These scalar values are then processed by fully connected layers without bias, activated by ReLU and Sigmoid.
   $x \times y \times z$ describes a convolution with kernel size $x \times y$ and $z$ filters. $FC: x$ describes a fully connected layer with $x$ neurons. $Addition$ describes the addition with the input of the residual block the addition is a part of, forming the residual structure of the block.
   The move policy output and the win prediction output both are connected 
-  to the output of the last residual block. Residual blocks make up the bulk of the network. In most of this Thesis $5$ blocks are used.}
+  to the output of the last residual block. Residual blocks make up the bulk of the network. In most experiments of this Thesis $5$ blocks are used.}
   \label{fig:sq_blocks_network}
 \end{table}
 
@@ -810,16 +819,16 @@ This extended baseline forms the basis of all further experiments, unless stated
 \end{figure}
 
 
-\section{Investigated novel ideas}
+\section{Investigated novel ideas}\label{s:novel_ideas}
 
 In this section various novel ideas on possible improvements to AlphaZero are investigated experimentally.
 
 \subsection{Using the self-playing phase as an evolutionary process} \label{s:novel_evolution}
 
 There are many hyperparameters involved in AlphaZero which have to be tuned. An important subset of these hyperparameters controls the exact behavior of the MCTS search, for example $C_{puct}$, as discussed in section \ref{s:azalgo}, Equation \ref{eq:alpha_zero_u} on page \pageref{eq:alpha_zero_u}.
-A hyperparameter search shows that these MCTS-parameters have a noteable impact on how much the MCTS can improve the playing strength of the network alone. Better parameters therefore could translate into faster training progression.
+A hyperparameter search shows that these MCTS-parameters have a notable impact on how much the MCTS can improve the playing strength of the network alone. Better parameters therefore could translate into faster training progression.
 
-This thesis proposes to use the self-playing phase of AlphaZero to optimize these hyperparameters by designating ''players``, which utilize different hyperparameters and have them play against each other in a league-system using a rating system such as Elo. The games played 
+This Thesis proposes to use the self-playing phase of AlphaZero to optimize these hyperparameters by designating ''players``, which utilize different hyperparameters and have them play against each other in a league-system using a rating system such as Elo. The games played 
 in this league make up the self-playing phase, but additionally the results of these games will be used to judge which hyperparameters perform best. After some hyperparameters are found to perform best, the weaker players can be replaced with modified versions 
 of the best players, forming an evolutionary process. The hope is to be able to search for good hyperparameters at no substantial additional cost.
 
@@ -831,7 +840,7 @@ For each new game to be played, the self-play workers randomly pick two players 
 
 The central server tracks the population of players as a list, sorted by their Elo rating. 
 At the start of the training, a set of initial players are randomly generated.
-Once the players of the most recent generation have played $1500$ games, a new generation of players is created. For this the top $15$ players are each mutated into two new versions of themself. These mutated copies are then added to the list of players at the same rating as their source players.
+Once the players of the most recent generation have played $1500$ games, a new generation of players is created. For this the top $15$ players are each mutated into two new versions of themselves. These mutated copies are then added to the list of players at the same rating as their source players.
 Only the top $50$ players are used as players to play new games, so old players fall out of the active population if they drop in rating too much.
 
 Then again games are played, until enough games were played by the most recent generation, which triggers another set of mutations to begin a new generation.
@@ -865,7 +874,7 @@ $N_i(0,1)$ is the same, but a new value is randomly picked for every hyperparame
 There are many hyperparameters in AlphaZero, but it is unclear which ones might be best optimized by evolutionary self-play. Only parameters that can be changed easily during a training run can be considered, so mainly parameters that control the behavior of the MCTS search.
 First candidates are parameters such as cpuct, fpu and drawValue, as described in table \ref{t:hyperparameters} on page \pageref{t:hyperparameters}.
 
-An additional candidate is to control the size of the MCTS tree by a the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}. 
+An additional candidate is to control the size of the MCTS tree by the development of the Kullback-Leibler divergence as more nodes are added to the MCTS tree, as suggested by the Leela chess zero project \cite{leela0kldgain}. 
 
 For this purpose, the self-play-workers are changed to work in steps of adding $50$ nodes to the current batch of trees,
 then checking for each game if the kldgain is high enough to continue adding nodes or if the move in that game should be played with the current number of nodes.
@@ -875,10 +884,6 @@ If the binary logarithm of the Kullback-Leibler divergence is above a threshold,
 To limit the maximum number of nodes, a ''clock`` is implemented, where for each game each player starts with a budget of $4650$ allowed node evaluations and gets an additional $50$ each turn.
 For a game of average length this will play out around $350$ node evaluations per move, which is the same as without this extension. If a player is out of node evaluations, they will play with only $50$ nodes per MTCS for the rest of the game.
 
-\subsubsection{Experiments}
-
-The evolutionary approach was implemented and initial experiments run, one evolving cpuct, fpu and drawValue, the other the Kullback-Leibler divergence threshold for play with a dynamic number of MCTS nodes.
-Results can be seen in figure \ref{fig:evolve_results}. Neither approach produced promising results, under-performing the baseline by a margin much larger than the run-to-run difference within the baseline.
 
 \begin{figure}[H]
 \centering
@@ -886,6 +891,12 @@ Results can be seen in figure \ref{fig:evolve_results}. Neither approach produce
 \caption{Initial results of evolving hyperparameters.}
 \label{fig:evolve_results}
 \end{figure}
+
+\subsubsection{Experiments}
+
+The evolutionary approach was implemented and initial experiments run, one evolving cpuct, fpu and drawValue, the other the Kullback-Leibler divergence threshold for play with a dynamic number of MCTS nodes.
+Results can be seen in figure \ref{fig:evolve_results}. Neither approach produced promising results, under-performing the baseline by a margin much larger than the run-to-run difference within the baseline.
+
 
 One potential issue can be seen for the evolution of the MCTS hyperparameters in figure \ref{fig:evolve_low_diversity}, which shows a substantial drop in game play diversity when evolving those parameters.
 
@@ -899,19 +910,19 @@ One potential issue can be seen for the evolution of the MCTS hyperparameters in
 \subsubsection{Requirements for evolution to succeed}
 
 First experiments with evolving players do not show good results, raising the question of what conditions have to be fulfilled to improve training efficiency with the evolutionary process.
-A few key points can be established:
+Two key points can be established:
 
 \begin{itemize}
  \item The player league needs to be able to pick players that actually maximize playing strength.
  \item Players that win a lot of games against other players should correspond to players that produce a high accuracy of play compared to the Connect 4 solver.
 \end{itemize}
 
-To investigate if the player evolution is able to find ''strong`` players tests were done with another hyperparameter, which was designed only for this purporse, the inversion-hyperparameter $\mathbf{I}$.
+To investigate if the player evolution is able to find ''strong`` players tests were done with another hyperparameter, which was designed only for this purpose, the inversion-hyperparameter $\mathbf{I}$.
 $\mathbf{I}$ modifies the move distribution found by MCTS in a way designed to disrupt playing strength.
 
 If $m$ is the vector that represents the move distribution produced by MCTS, then the new move distribution is calculated by the inversion parameter as shown in formula \ref{eq:inverted_mtcs}.
 In words: the inversion parameter controls a linear interpolation between the original move distribution and a vector that is one minus the original move distribution. Therefore, when $\mathbf{I}$ is $1$, the MCTS will produce results which put most weight on moves that originally
-were considered to be the worst moves, while the best moves will receive the lowest weight. $\mathbf{I}$ should be $0$ to not disturb the MCTS results at all, giving a known optimal value towards evolution should optimize.
+were considered to be the worst moves, while the best moves will receive the lowest weight. $\mathbf{I}$ should be $0$ to not disturb the MCTS results at all, giving a known optimal value towards which evolution should optimize.
 
 \begin{equation}
  m_\text{inverted} = \mathbf{I}((1 - m) / \sum(1 - m)) + (1 - \mathbf{I}) m \label{eq:inverted_mtcs}
@@ -922,7 +933,7 @@ Table \ref{t:inversion_results} shows the development of the average players ove
 To gain further insight into how strong the optimization is in face of reduced impact of the parameter, two more sets of $3$ runs were made, were the inversion was only applied at random with a probability $p$. $p$ was chosen to be $0.25$ and $0.05$, so in the most extreme case,
 only $1$ in $20$ moves would be affected.
 
-The results clearly show that the evolution of players works and can pick parameters that play stronger, even in face of a lower influence of the hyperparameter on game results, such as with $p = 0.25$ or even $p = 0.05$.
+The results show that the evolution of players works and can pick parameters that play stronger, even in face of a lower influence of the hyperparameter on game results, such as with $p = 0.25$ or even $p = 0.05$.
 Full training runs typically go for $30$ to $50$ generations, so they have even more generation to optimize parameters.
 
 \begin{table} [H]
@@ -939,15 +950,15 @@ Full training runs typically go for $30$ to $50$ generations, so they have even 
   9 & $0.029$ & $0.091$ & $0.243$ \\
   10 & $0.027$ & $0.085$ & $0.248$ \\
   \end{tabular}
-  \caption{Results of optimizing the inversion hyperparameter. Clearly the evolution works, $\mathbf{I}$ is reduced substantially over the generations.}
+  \caption{Results of optimizing the inversion hyperparameter. The evolution works, $\mathbf{I}$ is reduced substantially over the generations.}
   \label{t:inversion_results}
 \end{table}
 
 
 After establishing that the evolution does work in general to optimize parameters, now it is important to also establish how well such players do in the context of accuracy compared to the Connect 4 solver.
 
-For this purpose three sets of MCTS hyperparameters are compared: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of bayesian optimization
-directly towards maximum accuracy compared to the solver. This is different from the bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
+For this purpose three sets of MCTS hyperparameters are compared: The hyperparameters used in the extended AlphaZero baseline, the hyperparameters found by evolution and a set of MCTS hyperparameters, which were found by running $65$ steps of Bayesian optimization
+directly towards maximum accuracy compared to the solver. This is different from the Bayesian optimization used to find the hyperparameters for the AlphaZero baseline, as no full AlphaZero run is done, instead the fitness function runs MCTS directly on a set of test positions and returns
 the accuracy.
 
 The three hyperparameter sets are compared on a random network, a network after a single training iteration and the best network of the training run. Results can be seen in table \ref{t:hyperparam_accuracy}. The random network has no evolved
@@ -1002,7 +1013,7 @@ These results provide multiple interesting insights:
 
 Lastly the three hyperparameter sets are compared in matches of $1000$ games against each other, to determine which sets actually win the most games when playing against each other using the same network. Games are played by picking a move according
 to the probability distribution produced by MCTS at random.
-For the evolution approach to actually improve learning efficiency, a player that wins most games should be the same as a player with a high MCTS accuracy, or else the winrate of the hyperparameters is not a good proxy for faster training progress.
+For the evolution approach to actually improve learning efficiency, a player that wins most games should be the same as a player with a high MCTS accuracy, or else the win rate of the hyperparameters is not a good proxy for faster training progress.
 Table \ref{t:hyperparam_games} shows the results of the matches between the different hyperparameter sets.
 
 \begin{table} [H]
@@ -1054,7 +1065,7 @@ Figure \ref{fig:evolve_low_diversity} established that optimizing for winning ga
 As a compromise it is proposed to replace the Elo league with a points-based league where the winner of a game is given points for every new position in a won game. Therefore a hyperparameter set has to not just win games, but win them in novel ways.
 This might help to increase the game diversity. Apart from the different objective, the player-league implementation stays unchanged. Figure \ref{fig:player_evolution_win_novelty} shows that optimizing novel ways in this way does
 not substantially increase game diversity, only in the later part of the training a minimally higher game diversity seems to be created. Since players still have to win to gain points they still mainly focus on winning games, as a $1000$ game match between the novelty-evolved player
-and the extended baseline parameters shows, see Figure \ref{t:novel_win_fail}.
+and the extended baseline parameters shows, see Table \ref{t:novel_win_fail}.
 
 \begin{figure}[H]
 \centering
@@ -1073,11 +1084,11 @@ and the extended baseline parameters shows, see Figure \ref{t:novel_win_fail}.
   Evolved & $599W, 238L, 163D$
   \end{tabular}
   
-  \caption{Rewarding novel wins instead of just wins makes not substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.}
+  \caption{Rewarding novel wins instead of just wins makes no substantial difference, players foremost still get optimized towards winning games. Results are from the perspective of the player in the row against the player of the column.}
   \label{t:novel_win_fail}
 \end{table}
 
-Lastly, it is possible to abandon the idea of rewards winning at all and optimize for novelty alone. This means both players get points at the end of the game, one for every novel position encountered in the game. $3$ runs were done using this optimization target,
+Finally, it is possible to abandon the idea of rewarding winning at all and optimize for novelty alone. This means both players get points at the end of the game, one for every novel position encountered in the game. $3$ runs were done using this optimization target,
 results are shown in Figure \ref{fig:pure_novelty_search}. Towards the second half of the training game diversity is very clearly better than with the baseline, however game play performance lags substantially behind.
 In the first half of the training the baseline produces more game diversity, likely because the evolution needs some time to find good parameters, while the baseline starts with parameters that were already optimized to produce good results.
 The only small advantage in game diversity, even in the later half of training, indicates that the baseline parameter optimization already considered game diversity, there is not much space for improvement.
@@ -1085,7 +1096,7 @@ The only small advantage in game diversity, even in the later half of training, 
 \begin{figure}[H]
 \centering
 \includegraphics[clip,width=\columnwidth]{pure_novelty_search}
-\caption{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity.}
+\caption{Even pure novelty search only produces more novel games towards the end of the training, the baseline parameters likely were already implicitly optimized for game diversity by the initial Bayesian hyperparameter optimization aiming to learn efficiently.}
 \label{fig:pure_novelty_search}
 \end{figure}
 
@@ -1097,7 +1108,7 @@ so future work might be able to identify better optimization targets that align 
 \subsection{Playing games as trees}
 
 The standard AlphaZero implementation explores new possible moves mainly by the randomization of moves, according to the policy found by MCTS.
-This thesis investigates an alternative scheme of exploration, by instead playing out games in a structure similar to a tree.
+This Thesis investigates an alternative scheme of exploration, by instead playing out games in a structure similar to a tree.
 
 A first option to do this involves to reset games to a position in which the losing player likely made a mistake and try out a different move from that position.
 
@@ -1106,13 +1117,11 @@ Another option is to abandon the idea of playing independent games to explore en
 \subsubsection{Implementation}
 
 To better control the games played, all games are played out on a single machine. To still scale to many GPUs, a MCTS evaluation service is created. The one machine playing the games queues positions to be evaluated and waits for
-the results to return. To fully uitilize a lot of GPUs, many thousands of games are played concurrently. The machine playing the games caches the MCTS search results for positions and only queues every position once per network iteration. This 
+the results to return. To fully utilize a lot of GPUs, many thousands of games are played concurrently. The machine playing the games caches the MCTS search results for positions and only queues every position once per network iteration. This 
 way of implementing AlphaZero increases the efficiency of GPU usage, as it prevents duplicate MCTS on common game positions. It is however only an implementation detail and cannot be considered an improvement to the algorithm.
 This also changes the way the training costs are measured, to simplify the measurement of the time to play a single move, the costs are measured in the MCTS evaluation service, so the cost is calculated as the number of requested evaluation multiplied
 by the cost to do a single evaluation on the ''standard`` machine.
 
-Since this different implementation is more efficient compared to the standard baseline normal training runs are done using the MCTS evaluation service with no further changes in the algorithm to establish a new baseline.
-Any algorithmic improvements which need the MCTS evaluation service are compared against this new baseline. The baseline is compared with the previously defined extended baseline in Figure \ref{fig:cache_play}.
 
 \begin{figure}[H]
 \centering
@@ -1122,6 +1131,8 @@ Any algorithmic improvements which need the MCTS evaluation service are compared
 \end{figure}
 
 
+Since this different implementation is more efficient compared to the standard baseline normal training runs are done using the MCTS evaluation service with no further changes in the algorithm to establish a new baseline.
+Any algorithmic improvements which need the MCTS evaluation service are compared against this new baseline. The baseline is compared with the previously defined extended baseline in Figure \ref{fig:cache_play}.
 
 
 
@@ -1135,11 +1146,6 @@ Instead of relying on randomized moves to explore, once a game is completed it i
 The suggested way to choose a new move is to first search the position in which the predicted chance to win of the losing player dropped the most compared to before the latest move was made. For this the position value prediction of the network is used.
 This should indicate a position in which a likely bad move was played.
 
-From one position earlier, before the network value evaluation dropped, a new game is started and lets the loosing player pick the best move in the position that has not been played yet.
-This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that potentially represents better play.
-
-Figure \ref{fig:winp_tree} shows results of this idea. The results are not good, it appears the randomized moves are substantially better at exploration, with game diversity drastically reduced when exploring by retrying a different move in a critical position.
-
 
 \begin{figure}[H]
 \centering
@@ -1147,6 +1153,14 @@ Figure \ref{fig:winp_tree} shows results of this idea. The results are not good,
 \caption{Retrying a different move  in a critical position to explore does not appear to work.}
 \label{fig:winp_tree}
 \end{figure}
+
+From one position earlier, before the network value evaluation dropped, a new game is started and lets the loosing player pick the best move in the position that has not been played yet.
+This way the player who lost a game gets another attempt to rectify a mistake that might have lead to the loss, exploring a new branch of the game tree that potentially represents better play.
+
+
+Figure \ref{fig:winp_tree} shows results of this idea. The results are not good, it appears the randomized moves are substantially better at exploration, with game diversity drastically reduced when exploring by retrying a different move in a critical position.
+
+
 
 TODO maybe do another run with the exploration set back to up to turn 30 and another with turn 0?
 
@@ -1159,8 +1173,6 @@ and replaces randomized self-play uses the per-position MCTS as position evaluat
 
 A virtual loss is given to every node visited, pushing following games to investigate other nodes if too many such losses push down the value of a node in the search tree.
 Every game played represents one thread walking down the tree, adding virtual losses to visited nodes. Unlike in AlphaZero MCTS, games have to be played out to a final result before backpropagation can occur. 
-
-TODO: maybe that is a bad idea. Could instead do actual roll-outs on new positions instead to get a quick evaluation of a position. Maybe that will change something...
 
 To fully utilize ten or more GPUs, thousands of games have to be played in parallel. This might prove a challenge to 
 the virtual loss concept, as the original paper proposing virtual losses tested with only up to $16$ threads, whereas in this case thousands will be necessary.
@@ -1194,11 +1206,11 @@ Increasing game diversity stays out of reach entirely.
 
 \cite{wu2019accelerating}[Wu et. al.] shows that using domain specific features as auxiliary targets to regularize learning improves learning in Go. This motivates the search for an automatic way to find such targets.
 
-This Thesis proposes to use internal feature representations of a small network, shown in Figure \ref{fig:sq_bottleneck_network}, to be used as such auxilary targets. For this purpose a full AlphaZero run is done, learning to play Connect 4 using a very small network with less than $70000$ 
-parameters, a fraction of the $1.5$ million parameters of the network used in all other experiments. This small network uses only a single filter in the last convolutional layer for both output-heads of the network. The predicition of the policy as well as the prediction of the game outcome 
+This Thesis proposes to use internal feature representations of a small network, shown in Figure \ref{fig:sq_bottleneck_network}, to be used as such auxiliary targets. For this purpose a full AlphaZero run is done, learning to play Connect 4 using a very small network with less than $70000$ 
+parameters, a fraction of the $1.5$ million parameters of the network used in all other experiments. This small network uses only a single filter in the last convolutional layer for both output-heads of the network. The prediction of the policy as well as the prediction of the game outcome 
 are bottlenecked by only $42$ features each, one feature for each of the $6 \times 7$ fields of Connect 4.
 
-Training such a small network to an accuarcy of about $84\%$ takes about two hours of computational time on a single GPU. The network can afterwards be used to generate features when training in an AlphaZero run with a larger network.
+Training such a small network to an accuracy of about $84\%$ takes about two hours of computational time on a single GPU. The network can afterwards be used to generate features when training in an AlphaZero run with a larger network.
 Multiple options exist on how to use these features exactly. First a distinction can be made between the features of the game outcome prediction, the win-features, and the features of the policy prediction, the move-features.
 
 \begin{table} [H]
@@ -1223,19 +1235,17 @@ Multiple options exist on how to use these features exactly. First a distinction
   \label{fig:sq_bottleneck_network}
 \end{table}
 
-For a given training example, the small network is run on it to produce these feature sets, producing the features of the present position. Additionally more features can be generated by considering future positions that occured in the game
-after a training position. This defines the future-features, which may induce the ability to predict the future of a game position in the regularized network. In this thesis future positions $2$, $4$ and $6$ ply in the future are considered.
+For a given training example, the small network is run on it to produce these feature sets, producing the features of the present position. Additionally more features can be generated by considering future positions that occurred in the game
+after a training position. This defines the future-features, which may induce the ability to predict the future of a game position in the regularized network. In this Thesis future positions $2$, $4$ and $6$ ply in the future are considered.
 Including the present position this gives up to four feature layers to be used as regularization targets. They are named move0 to move3 and win0 to win3, $0$ standing for the present, $3$ for the $6$ ply future features. move3 and win3 include the previous features,
 therefore move3 and win3 use $4$ feature layers as regularization. Additionally it was tried to only regularize with some of the future feature layers and not the earlier ones, this is named only move1 to only move3 and only win1 to only win3.
 
-To regularize the bigger network a mean square error is used to add to the training loss, calculating the mean square error between the auxilary feature and an internal layer of the big network. No additional parameters are added to the bigger network,
-only some internal layers are enforced to produce the auxilary features. Two options are investigated: Regularize the very last convolutional layer and regularize the output of the last residual network block. The last convolutional layers before
+To regularize the bigger network a mean square error is used to add to the training loss, calculating the mean square error between the auxiliary feature and an internal layer of the big network. No additional parameters are added to the bigger network,
+only some internal layers are enforced to produce the auxiliary features. Two options are investigated: Regularize the very last convolutional layer and regularize the output of the last residual network block. The last convolutional layers before
 the fully connected output layers have $32$ filters in the big network, so even when learning $4$ to produce the regularization target it leaves $28$ for arbitrary representations. The last residual network block has $128$ filters, so again only a small number is regularized.
 
-To first establish where various combinations of these options might stand, supervised training is enhanced with the auxilary features. Results are showin in Table \ref {fig:supervised_results_auxilary_f}. It can be seen that regularizing with the features of the
+To first establish where various combinations of these options might stand, supervised training is enhanced with the auxiliary features. Results are shown in Table \ref {fig:supervised_results_auxilary_f}. It can be seen that regularizing with the features of the
 move output produces very small improvements outside of the standard deviation of the runs. Using the win features worsens the results of supervised training.
-
-TODO redo move0, win0, there was one outlier that screwed the result up.
 
 \begin{table} [H]
  
@@ -1246,13 +1256,13 @@ TODO redo move0, win0, there was one outlier that screwed the result up.
    \hline
    Baseline, no auxilary features & $92.6\% \pm 0.1$ & $78.94\% \pm 0.1$ \\
    \hline
-   move0 & 0 & 0 \\
+   move0 & $92.76\% \pm 0.1$ & $78.98\% \pm 0.06$ \\
    \hline 
-   win0  & 0 & 0 \\
+   win0  & $91.45\% \pm 2.23$ &  \boldmath{$79.98\% \pm 2.04$} \\
    \hline
-   move0, win0 & $91.71\% \pm 2.21$ & $80.02\% \pm 1.96$ \\
+   move0, win0 & $92.81\% \pm 0.08$ & $78.96\% \pm 0.06$ \\
    \hline
-   move1 &  \boldmath{$92.89\% \pm 0.07$} &  \boldmath{$79.09\% \pm 0.06$} \\
+   move1 &  \boldmath{$92.89\% \pm 0.07$} & $79.09\% \pm 0.06$ \\
    \hline
    win1 & $92.51\% \pm 0.05$ & $78.82\% \pm 0.07$ \\
    \hline
@@ -1261,10 +1271,6 @@ TODO redo move0, win0, there was one outlier that screwed the result up.
    win2 & $92.35\% \pm 0.02$ & $78.75\% \pm 0.06$ \\
    \hline
    only move1, only win 1 & $92.57\% \pm 0.06$ & $78.86\% \pm 0.05$ \\
-   \hline
-   only move1 & 0 & 0 \\
-   \hline
-   only win1 & 0 & 0 \\
    \hline
    only move2 & $92.79\% \pm 0.05$ & $79.05\% \pm 0.11$ \\
    \hline
@@ -1305,10 +1311,6 @@ Results mirror the results of the harder dataset, again move1 shows the most imp
    win2 & $0$ & $0$ \\
    \hline
    only move1, only win 1 & $97.00\% \pm 0.08$ & $84.71\% \pm 0.04$ \\
-   \hline
-   only move1 & 0 & 0 \\
-   \hline
-   only win1 & 0 & 0 \\
    \hline
    only move2 & $92.79\% \pm 0.05$ & $79.05\% \pm 0.11$ \\
    \hline
