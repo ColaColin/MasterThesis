@@ -44,7 +44,57 @@ import random
 
 import pickle
 
-# random testing code
+import os
+import abc
+
+import numpy as np
+
+import torch
+import torch.cuda
+import torch.nn as nn
+from torch.autograd import Variable
+
+import uuid
+
+from core.base.Policy import Policy, ExamplePrepareWorker
+
+from utils.encoding import stringToBytes, bytesToString
+
+import pytorch_model_summary as pms
+
+import io
+
+import random
+
+import math
+
+import time
+
+from utils.misc import constructor_for_class_name, IterationCalculatedValue
+
+from utils.prints import logMsg
+
+import sys
+
+from torch.nn.utils.clip_grad import clip_grad_norm_
+
+# random te
+# sting code
+
+def saveNetwork(net):
+    uid = str(uuid.uuid4())
+    uuidBytes = stringToBytes(uid)
+    ublen = np.array([uuidBytes.shape[0]], dtype=np.uint8)
+
+    buffer = io.BytesIO()
+    torch.save(net.state_dict(), buffer)
+
+    modelBytes = np.frombuffer(buffer.getvalue(), dtype=np.uint8)
+
+    result = encodeToBson(np.concatenate((ublen, uuidBytes, modelBytes)))
+
+    with open(uid + ".network", "w+b") as f:
+        f.write(result)
 
 def getRandomGame():
     game = Connect4GameState(7,6,4)
@@ -183,23 +233,25 @@ import torch
 if __name__ == "__main__":
     setLoggingEnabled(True)
 
-    game = Connect4GameState(7,6,4)
-    game = game.playMove(0)
-    game = game.playMove(6)
-    game = game.playMove(1)
-    game = game.playMove(5)
-    game = game.playMove(2)
+    # game = Connect4GameState(7,6,4)
+    # game = game.playMove(0)
+    # game = game.playMove(6)
+    # game = game.playMove(1)
+    # game = game.playMove(5)
+    # game = game.playMove(2)
 
-    start = time.monotonic_ns()
-    x = rolloutPosition(game, 500)
-    end = time.monotonic_ns()
+    # start = time.monotonic_ns()
+    # x = rolloutPosition(game, 500)
+    # end = time.monotonic_ns()
 
-    rtime = (end - start) / 1000000.0
+    # rtime = (end - start) / 1000000.0
 
-    print(rtime, x)
+    # print(rtime, x)
 
-    # net = ResCNN(6, 7, 1, 3, 128, 64, 2, 7, 3, 3, mode="sq")
-    # print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
+    net = ResCNN(6, 7, 1, 3, 128, 32, 3, 7, 3, 1, mode="sq")
+    print(pms.summary(net, torch.zeros((1, 1, 6, 7))))
+    saveNetwork(net)
+
 
     # genStart = time.monotonic()
     # package = [makeReport() for _ in range(2048)]

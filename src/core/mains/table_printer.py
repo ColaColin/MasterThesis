@@ -20,7 +20,7 @@ yHigh = 92.5
 command = "https://x0.cclausen.eu"
 
 
-plot_name = "Baselines, hard dataset"
+plot_name = "Auxiliary features"
 groups = {
     "extended": {
         "color": (1,0,0),
@@ -32,18 +32,47 @@ groups = {
             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
         ]
     },
-    "base": {
-        "color": (0,0,1),
+    "move1": {
+        "color": (0, 1, 0),
+        "extraCost": 7200,
         "runs": [
-            "12c31999-e8a9-4a52-b017-796e64b05f8a",
-            "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
-            "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
-            "bdf69def-4476-43fc-934d-115a7d895d6e",
-            "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+        ]
+    },
+    "move0, win0": {
+        "color": (0, 0, 1),
+        "extraCost": 7200,
+        "runs": [
+            "0e80434c-ac21-4e6c-b89c-67102e7d472c"
         ]
     }
 }
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex.eps"
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/auxiliary_attempt1.eps"
+
+# plot_name = "Baselines, hard dataset"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "base": {
+#         "color": (0,0,1),
+#         "runs": [
+#             "12c31999-e8a9-4a52-b017-796e64b05f8a",
+#             "45d2087b-04f9-49ca-b2d9-5c8736da86b5",
+#             "59e19f40-c4f0-46e9-97f8-5a2b423ef7fc",
+#             "bdf69def-4476-43fc-934d-115a7d895d6e",
+#             "1edc288e-df3e-47c1-b9ce-52ab0045404a"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/baseline_ex.eps"
 
 # plot_name = "Baselines, easy dataset"
 # groups = {
@@ -524,6 +553,9 @@ def whitenColor(rgb, f):
 def plotGroup(name, fig, ax, ax2, extraStats = None):
     runs = groups[name]["runs"]
     color = groups[name]["color"]
+    extraCosts = 0
+    if "extraCost" in groups[name]:
+        extraCosts = groups[name]["extraCost"] / 3600.0
 
     datas = []
 
@@ -537,7 +569,7 @@ def plotGroup(name, fig, ax, ax2, extraStats = None):
             cost = d["cost"]
             acc = d["acc_mcts_moves"]
             if cost is not None and acc is not None:
-                costs.append(cost)
+                costs.append(cost + extraCosts)
                 accs.append(acc)
         datas.append((costs, accs))
 
@@ -546,7 +578,7 @@ def plotGroup(name, fig, ax, ax2, extraStats = None):
             costs = []
             extraVals = []
             for ed in edata:
-                costs.append(ed["cost"])
+                costs.append(ed["cost"] + extraCosts)
                 extraVals.append(ed[extraStats])
             extras.append((costs, extraVals))
 

@@ -894,7 +894,13 @@ Training set size | moves %         |  wins %
            800000 |  97.16 +/- 0.04 |  84.81 +/- 0.03  <<< best
 
           [ ] AlphaZero
-               [ ] random network
+
+               [ ] win0
+               [ ] only move 2
+
+               [ ] move1 with a random network
+     
+
                [ ] only future 1
                [x] win0, move0 -> BAD
                [X] win3, move3 -> WORSE
@@ -904,6 +910,9 @@ Training set size | moves %         |  wins %
                [ ] lower weight maybe?!
                     [ ] move1
 
+               [X] random network: 5b1efe63-6c82-41c6-a32c-0146c4d215b3
+                    -> how much worse can it be? The 2 hours init cost for the network is the main problem, can this fix it?!
+
           [ ] try to do the features one deeper
                [X] move1 on resblock -> much worse than move1 alone
                
@@ -911,11 +920,13 @@ Training set size | moves %         |  wins %
      [ ] fill in the gaps in supervised
      [X] eval the baseline locally with the easy dataset and show how the baselines compare on that
 WK 31:
-     [ ] No more I in the text, Table, Figure with capital letters!
+     [X] No more I in the text, Table, Figure with capital letters!
      [ ] run some more internal network feature a0 runs
      [ ] writing goal: Complete stuff about the internal network features
      [ ] writing goal: conclusions
      [ ] writing goal: Complete writing, cleanup, make it pretty, etc pp
+
+     [ ] growing network?! The bottleneck network got to 84% much faster than the bigger network.
 WK 32:
      [ ] prepare presentation
 WK 33:
