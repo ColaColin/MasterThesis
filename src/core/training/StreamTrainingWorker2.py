@@ -536,7 +536,7 @@ class StreamTrainingWorker2():
 
                 if self.upgradeCounter % self.upgradeEvery == 0:
                     self.upgradeEvery *= 2
-                    logMsg("Upgrading policy! Next upgrade will be in %i iterations" % self.upgradeEvery)
+                    logMsg("Upgrading policy! Next upgrade will be in iteration %i" % self.upgradeEvery)
                     self.policy.upgrade()
 
                 self.upgradeCounter += 1
