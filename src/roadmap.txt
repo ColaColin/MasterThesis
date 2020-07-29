@@ -925,7 +925,7 @@ Training set size | moves %         |  wins %
                [ ] only move 2
 
                [ ] move1 with a random network
-     
+
 
                [ ] only future 1
                [x] win0, move0 -> BAD
