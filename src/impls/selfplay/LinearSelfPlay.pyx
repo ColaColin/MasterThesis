@@ -117,7 +117,7 @@ class LinearSelfPlayWorker(SelfPlayWorker, metaclass=abc.ABCMeta):
                 logMsg("Loading feature network %s" % self.featureNetworkID)
                 networks = NetworkApi(noRun=True)
                 networkData = networks.downloadNetwork(self.featureNetworkID)
-                uuid, modelDict = unpackTorchNetwork(networkData)
+                uuid, modelDict, featureNetConfig = unpackTorchNetwork(networkData)
                 self.featureProvider.load_state_dict(modelDict)
 
             if torch.cuda.is_available():

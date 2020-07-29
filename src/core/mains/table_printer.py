@@ -19,8 +19,36 @@ yHigh = 92.5
 
 command = "https://x0.cclausen.eu"
 
+# plot_name = "Auxiliary features: Auxiliary network training costs are an issue"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "move1, full costs": {
+#         "color": (0, 1, 0),
+#         "extraCost": 7200,
+#         "runs": [
+#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+#         ]
+#     },
+#     "move1, ignore init cost": {
+#         "color": (0, 0, 1),
+#         "extraCost": 0,
+#         "runs": [
+#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/preCostCompare.eps"
 
-plot_name = "Auxiliary features"
+plot_name = "Auxiliary features: Random network vs Trained network"
 groups = {
     "extended": {
         "color": (1,0,0),
@@ -32,22 +60,60 @@ groups = {
             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
         ]
     },
-    "move1": {
+    "move1, trained": {
         "color": (0, 1, 0),
         "extraCost": 7200,
         "runs": [
             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
         ]
     },
-    "move0, win0": {
-        "color": (0, 0, 1),
-        "extraCost": 7200,
+    "move1, trained, ignore init cost": {
+        "color": (1, 0.5, 0.5),
+        "extraCost": 0,
         "runs": [
-            "0e80434c-ac21-4e6c-b89c-67102e7d472c"
+            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+        ]
+    },
+    "move1, random": {
+        "color": (0, 0, 1),
+        "extraCost": 0,
+        "runs": [
+            "782e0549-06b5-4157-a3c6-ce6954140fe3"
         ]
     }
 }
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/auxiliary_attempt1.eps"
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/rndVsTrainedAux.eps"
+
+
+
+# plot_name = "Auxiliary features"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "move1": {
+#         "color": (0, 1, 0),
+#         "extraCost": 7200,
+#         "runs": [
+#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+#         ]
+#     },
+#     "move0, win0": {
+#         "color": (0, 0, 1),
+#         "extraCost": 7200,
+#         "runs": [
+#             "0e80434c-ac21-4e6c-b89c-67102e7d472c"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/auxiliary_attempt1.eps"
 
 # plot_name = "Baselines, hard dataset"
 # groups = {

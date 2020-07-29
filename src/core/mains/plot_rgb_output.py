@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     networkData = networks.downloadNetwork(networkID)
 
-    uuid, modelDict = unpackTorchNetwork(networkData)
+    uuid, modelDict, ignoreConfig = unpackTorchNetwork(networkData)
 
     # net.load_state_dict(modelDict)
 

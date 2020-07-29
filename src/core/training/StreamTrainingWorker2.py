@@ -465,7 +465,7 @@ class StreamManagement():
 
 
 class StreamTrainingWorker2():
-    def __init__(self, policy, windowManager, batchSize = 1024, deduplicate = False, deduplicationWeight = 0.5):
+    def __init__(self, policy, windowManager, batchSize = 1024, deduplicate = False, deduplicationWeight = 0.5, upgradeEvery=99999):
         hasArgs = ("--secret" in sys.argv) and ("--run" in sys.argv) and ("--command" in sys.argv)
 
         if not hasArgs:
@@ -481,6 +481,8 @@ class StreamTrainingWorker2():
         self.batchSize = batchSize
         self.deduplicate = deduplicate
         self.deduplicationWeight = deduplicationWeight
+        self.upgradeEvery = upgradeEvery
+        self.upgradeCounter = 1
 
     def initManager(self):
         self.trainQueue = mp.Queue()
@@ -531,6 +533,13 @@ class StreamTrainingWorker2():
                 logMsg("Spending %.2f%% of time fitting the network. Waiting for new data %.2f%% of the time" % (np.mean(fitTimes) * 100, np.mean(getTimes) * 100))
                 fitTimes = []
                 getTimes = []
+
+                if self.upgradeCounter % self.upgradeEvery == 0:
+                    self.upgradeEvery *= 2
+                    logMsg("Upgrading policy! Next upgrade will be in %i iterations" % self.upgradeEvery)
+                    self.policy.upgrade()
+
+                self.upgradeCounter += 1
 
             del nextWork
 

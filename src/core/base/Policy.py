@@ -109,3 +109,11 @@ class Policy(metaclass=abc.ABCMeta):
         """
         @return Policy configuration, as a numpy byte (uint8) array to be loaded by load()
         """
+
+    def upgrade(self):
+        """
+        Implement if any kind of upgrading ability is desired.
+        The trainer might decide to call this once every X iterations. The policy should know what it means to do one more upgrade,
+        it could for example double the number of network features or similar.
+        """
+        pass

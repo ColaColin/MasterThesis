@@ -1315,9 +1315,9 @@ Results mirror the results of the harder dataset, again move1 shows the most imp
    \hline
    only move1, only win 1 & $97.00\% \pm 0.08$ & $84.71\% \pm 0.04$ \\
    \hline
-   only move2 & $0$ & $0$ \\
+   only move2 & $97.04\% \pm 0.07$ & $84.75\% \pm 0.03$ \\
    \hline
-   only win2 & $0$ & $0$ \\
+   only win2 & $96.91\% \pm 0.07$ & $84.67\% \pm 0.05$ \\
    
    
   \end{tabular}
@@ -1340,17 +1340,22 @@ In the following data the cost of the runs with auxiliary features has been incr
 \end{figure}
 
 Results are not very promising. Whereas in the supervised setting the final accuracy was slighly higher, here it is actually lower. The extra cost of $2$ hours of time to train the initial network pushes the cost up a lot and makes the use of auxiliary features like this not worthwhile.
+The first few iterations however do show a faster rise in accuracy when the extra costs are ignored, as shown in Figure \ref{fig:rndVsTrainedAux}. Even without the issue of the extra costs, the baseline reaches a substantially higher final result.
+An interesting result is found when using a random network for auxiliary features, also shown in Figure \ref{fig:rndVsTrainedAux}, instead of one trained in a previous AlphaZero run. This reduces the costs for initialization to $0$. The training run with random features follows the extended baseline very closely.
+It seems to fall off minimally towards the end, but that might just be run-to-run variance. 
 
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{rndVsTrainedAux}
+\caption{The training costs of the feature network push the auxiliary feature-enhanced training run behind the baseline.}
+\label{fig:rndVsTrainedAux}
+\end{figure}
 
+In summary using a pre-trained smaller network for features does appear to help at the beginning of the training, but not enough to pay for the costs of training the network. Additionally the performance in later parts of the training is held back, likely by the
+regularization that keeps enforcing the auxiliary features which are only useful for prediction on an accuracy level of about $84\%$.
 
-\begin{itemize}
- \item Try to use features found by a small network to regularize training of a bigger network.
- \item Get small network by a full alpha zero run with the small network up to 84\%.
- \item Try out various things: win features, move features, look-ahead future features, regularize in the head filters, regularize the last res-block, compare against random network
- \item supervised results
- \item AlphaZero results
- \item discuss?
-\end{itemize}
+This raises the questions: Can the initial cost be reduced? Can the negative influence in the later parts of the training be prevented?
+
 
 
 

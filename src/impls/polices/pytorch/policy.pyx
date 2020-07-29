@@ -37,11 +37,25 @@ from torch.nn.utils.clip_grad import clip_grad_norm_
 
 # helper function to unpack data that is used to encode the policy as bytes.
 def unpackTorchNetwork(packed):
-    ublen = packed[0]
-    uuidBytes = packed[1:ublen+1]
-    modelBuffer = io.BytesIO(bytes(packed[ublen+1:]))
+    if packed[0] == 255:
+        numBlocks = packed[1]
+        numFilters = (packed[2] << 8) | packed[3]
+        headKernel = packed[4]
+        numHeadFilters = (packed[5] << 8) | packed[6]
+        mode = "plain" if packed[7] == 1 else "sq"
+        
+        ublen = packed[8]
+        uuidBytes = packed[9:ublen+9]
+        modelBuffer = io.BytesIO(bytes(packed[ublen+9:]))
 
-    return bytesToString(uuidBytes), torch.load(modelBuffer, map_location=torch.device('cpu'))
+        return bytesToString(uuidBytes), torch.load(modelBuffer, map_location=torch.device('cpu')),\
+            [numBlocks, numFilters, headKernel, numHeadFilters, mode]
+    else:
+        ublen = packed[0]
+        uuidBytes = packed[1:ublen+1]
+        modelBuffer = io.BytesIO(bytes(packed[ublen+1:]))
+
+        return bytesToString(uuidBytes), torch.load(modelBuffer, map_location=torch.device('cpu')), []
 
 # SELayer was taken from https://github.com/moskomule/senet.pytorch/blob/9d279eccb5a0ca6cb09ad1053b5f971656b801de/senet/se_module.py
 class SELayer(nn.Module):
@@ -508,15 +522,10 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.lrDecider = lrDecider
         self.momentumDecider = momentumDecider
 
-        self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(), self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
+        self.packer = PytorchExamplePrepareWorker(self.device, self.protoState.getGameConstructorName(), self.protoState.getGameConstructorParams(),\
+            self.gameDims, self.replyWeight > 0, self.useWinFeatures, self.useMoveFeatures)
 
         self.initNetwork()
-
-        logMsg("\nCreated a PytorchPolicy using device " + str(self.device) + "\n", pms.summary(self.net, torch.zeros((1, ) + self.gameDims, device = self.device)))
-        if self.replyWeight > 0:
-            logMsg("PytorchPolicy will predict the next turns move policy with a weight of %.2f" % self.replyWeight)
-        else:
-            logMsg("Prediction of the next turns move policy is disabled")
 
     def initNetwork(self):
         self.net = ResCNN(self.gameDims[1], self.gameDims[2], self.gameDims[0],\
@@ -529,6 +538,12 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         octor = constructor_for_class_name(self.optimizerName)
         self.optimizer = octor(self.net.parameters(), **self.optimizerArgs)
         self.net.train(False)
+
+        logMsg("\nCreated a PytorchPolicy using device " + str(self.device) + "\n", pms.summary(self.net, torch.zeros((1, ) + self.gameDims, device = self.device)))
+        if self.replyWeight > 0:
+            logMsg("PytorchPolicy will predict the next turns move policy with a weight of %.2f" % self.replyWeight)
+        else:
+            logMsg("Prediction of the next turns move policy is disabled")
 
     def prepareForwardData(self, batch, int thisBatchSize):
         if not self.tensorCacheExists:
@@ -808,7 +823,11 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         return mls, wls, rls, wflosses, mflosses
 
     def load(self, packed):
-        uuid, stateDict = unpackTorchNetwork(packed)
+        uuid, stateDict, netConfig = unpackTorchNetwork(packed)
+
+        if len(netConfig) > 0:
+            [self.blocks, self.filters, self.headKernel, self.headFilters, self.networkMode] = netConfig
+            self.reset()
 
         self.uuid = uuid
 
@@ -818,6 +837,15 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
         self.net.train(False)
 
     def store(self):
+        versionKey = np.array([255], dtype=np.uint8)
+
+        filtersHigh = (self.filters >> 8) & 255
+        filtersLow = (self.filters) & 255
+
+        headFiltersHigh = (self.headFilters >> 8) & 255
+        headFiltersLow = (self.headFilters) & 255
+
+        netConfig = np.array([self.blocks, filtersHigh, filtersLow, self.headKernel, headFiltersHigh, headFiltersLow, 1 if self.networkMode == "plain" else 0], np.uint8)
         uuidBytes = stringToBytes(self.uuid)
         ublen = np.array([uuidBytes.shape[0]], dtype=np.uint8)
 
@@ -826,8 +854,14 @@ class PytorchPolicy(Policy, metaclass=abc.ABCMeta):
 
         modelBytes = np.frombuffer(buffer.getvalue(), dtype=np.uint8)
 
-        result = np.concatenate((ublen, uuidBytes, modelBytes))
+        result = np.concatenate((versionKey, netConfig, ublen, uuidBytes, modelBytes))
 
         return result
 
+    def upgrade(self):
+        """
+        upgrading this policy to a bigger network. The upgraded policy will need new training
+        """
+        self.filters *= 2
+        self.reset()
 

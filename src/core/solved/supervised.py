@@ -119,7 +119,7 @@ class SupervisedNetworkTrainer():
             if self.featureNetwork is not None:
                 with open(self.featureNetwork, "rb") as f:
                     networkData = decodeFromBson(f.read())
-                    uuid, modelDict = unpackTorchNetwork(networkData)
+                    uuid, modelDict, netConfig = unpackTorchNetwork(networkData)
                     self.featureProvider.load_state_dict(modelDict)
                     logMsg("Loaded feature network %s" % uuid)
 
