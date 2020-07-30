@@ -169,7 +169,10 @@ class ResCNN(nn.Module):
             hiddens = features * (inWidth - (baseKernelSize - (1 + paddingSize * 2))) * (inHeight - (baseKernelSize - (1 + paddingSize * 2)))
 
         self.moveHead = nn.Linear(hiddens, moveSize)
-        
+
+        if self.outputExtra == "extraConvOutput":
+            self.extraHead = nn.Conv2d(features, 8, 3, padding=1)
+
         if self.predictReply:
             self.replyHead = nn.Linear(hiddens, moveSize)
 
@@ -229,6 +232,9 @@ class ResCNN(nn.Module):
                 return moveP, winP, replyP, headWin, headMove
             elif self.outputExtra == "resblock":
                 return moveP, winP, replyP, preHead, preHead
+            elif self.outputExtra == "extraConvOutput":
+                eOut = self.extraHead(preHead)
+                return moveP, winP, replyP, eOut, eOut
             else:
                 assert False, "Unknown outputExtra: " + self.outputExtra
         

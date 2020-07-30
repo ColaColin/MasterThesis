@@ -1315,9 +1315,9 @@ Results mirror the results of the harder dataset, again move1 shows the most imp
    \hline
    only move1, only win 1 & $97.00\% \pm 0.08$ & $84.71\% \pm 0.04$ \\
    \hline
-   only move2 & $0$ & $0$ \\
+   only move2 & $97.04\% \pm 0.07$ & $84.75\% \pm 0.03$ \\
    \hline
-   only win2 & $0$ & $0$ \\
+   only win2 & $96.91\% \pm 0.07$ & $84.67\% \pm 0.05$ \\
    
    
   \end{tabular}
@@ -1353,16 +1353,25 @@ It seems to fall off minimally towards the end, but that might just be run-to-ru
 
 
 
+In summary using a pre-trained smaller network for features does appear to help at the beginning of the training, but not enough to pay for the costs of training the network. Additionally the performance in later parts of the training is held back, likely by the
+regularization that keeps enforcing the auxiliary features which are only useful for prediction on an accuracy level of about $84\%$.
 
-\begin{itemize}
- \item Try to use features found by a small network to regularize training of a bigger network.
- \item Get small network by a full alpha zero run with the small network up to 84\%.
- \item Try out various things: win features, move features, look-ahead future features, regularize in the head filters, regularize the last res-block, compare against random network
- \item supervised results
- \item AlphaZero results
- \item discuss?
-\end{itemize}
+This raises the questions: Can the initial cost be reduced? Can the negative influence in the later parts of the training be prevented?
 
+An important observation related to these questions is that the training of the smaller network, which was used for the features, reached $84\%$ in just $2$ hours of training. This is a lot faster than the baseline, which requires about $3$ hours.
+Starting training with a smaller network and then switching over to a bigger network does in fact raise learning efficiency, as can be seen in Figure \ref{fig:growNetwork}. Specifically the number of filters in the convolutional layers is grown in this run,
+starting with $16$ filters and doubeling 
+
+\begin{figure}[H]
+\centering
+\includegraphics[clip,width=\columnwidth]{growNetwork}
+\caption{Growing the network as the run progresses does increase efficiency.}
+\label{fig:growNetwork}
+\end{figure}
+
+
+
+This is however not a novel idea, growing the size of the network as its playing strength rises has been done by the LCZero project \cite{lzNetworks} as well as in other AlphaZero related works such as by \cite{wu2019accelerating}[Wu. et al].
 
 
 \section{Conclusion}
