@@ -39,4 +39,8 @@
 \contentsline {subsubsection}{\numberline {4.2.2}Resetting games to a position before a likely mistake}{47}{subsubsection.4.2.2}
 \contentsline {subsubsection}{\numberline {4.2.3}Explore the game tree in the same fashion as MCTS}{48}{subsubsection.4.2.3}
 \contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{50}{subsection.4.3}
-\contentsline {section}{\numberline {5}Conclusion}{55}{section.5}
+\contentsline {subsubsection}{\numberline {4.3.1}Implementation}{50}{subsubsection.4.3.1}
+\contentsline {subsubsection}{\numberline {4.3.2}Supervised}{51}{subsubsection.4.3.2}
+\contentsline {subsubsection}{\numberline {4.3.3}AlphaZero runs}{53}{subsubsection.4.3.3}
+\contentsline {subsubsection}{\numberline {4.3.4}Growing the network}{54}{subsubsection.4.3.4}
+\contentsline {section}{\numberline {5}Conclusion}{56}{section.5}

@@ -89,6 +89,7 @@
 \newlabel{s:experiments}{{3}{16}{Experimental Setup}{section.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks, such as network evaluation, network training and especially self-play are handled on machines talking to this central server.\relax }}{16}{figure.caption.3}}
 \newlabel{fig:x0_framework_overview}{{1}{16}{An overview of the distributed setup for AlphaZero experimentation. A central command server is managing all data and configurations, GPU intensive tasks, such as network evaluation, network training and especially self-play are handled on machines talking to this central server.\relax }{figure.caption.3}{}}
+\citation{oracledevs}
 \citation{silver2018general}
 \citation{silver2018general}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Network architecture}{17}{subsection.3.1}}
@@ -207,21 +208,27 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }}{49}{figure.caption.29}}
 \newlabel{fig:mcts_tree_explore}{{18}{49}{Replacing self-play with one large MCTS. MCTS tends to get stuck on a few paths of games and stops exploring, reducing the diversity of game positions encountered.\relax }{figure.caption.29}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Using network internal features as auxiliary targets}{50}{subsection.4.3}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.1}Implementation}{50}{subsubsection.4.3.1}}
 \@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces The small bottleneck network used as a source of auxilary learning targets. The network has about $70000$ parameters. The network primarily has much less parameters, as it uses only $32$ filters throughout the residual blocks, instead of $128$. The outputs both are based on a convolution with a single filter, yielding $42$ features for each the win prediction and the move policy. Those $42$ features are used as auxilary features for game positions and learnt by the bigger network as a regularizer.\relax }}{51}{table.caption.30}}
 \newlabel{fig:sq_bottleneck_network}{{11}{51}{The small bottleneck network used as a source of auxilary learning targets. The network has about $70000$ parameters. The network primarily has much less parameters, as it uses only $32$ filters throughout the residual blocks, instead of $128$. The outputs both are based on a convolution with a single filter, yielding $42$ features for each the win prediction and the move policy. Those $42$ features are used as auxilary features for game positions and learnt by the bigger network as a regularizer.\relax }{table.caption.30}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.2}Supervised}{51}{subsubsection.4.3.2}}
 \@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Supervised results for auxilary features. Mean and standard deviation of $5$ supervised runs, using the same setup as in section \ref  {sec:supervised} on page \pageref  {sec:supervised}\relax }}{52}{table.caption.31}}
 \newlabel{fig:supervised_results_auxilary_f}{{12}{52}{Supervised results for auxilary features. Mean and standard deviation of $5$ supervised runs, using the same setup as in section \ref {sec:supervised} on page \pageref {sec:supervised}\relax }{table.caption.31}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Supervised results for auxilary features on easy dataset. Mean and standard deviation of $5$ supervised runs, using the same setup as in section \ref  {sec:supervised} on page \pageref  {sec:supervised}, with the easier dataset as described in section \ref  {s:generate_dataset} on page \pageref  {s:generate_dataset}\relax }}{52}{table.caption.32}}
 \newlabel{fig:supervised_results_auxilary_f_easy_dataset}{{13}{52}{Supervised results for auxilary features on easy dataset. Mean and standard deviation of $5$ supervised runs, using the same setup as in section \ref {sec:supervised} on page \pageref {sec:supervised}, with the easier dataset as described in section \ref {s:generate_dataset} on page \pageref {s:generate_dataset}\relax }{table.caption.32}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.3}AlphaZero runs}{53}{subsubsection.4.3.3}}
 \@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Using auxiliary features from a smaller network with AlphaZero.\relax }}{53}{figure.caption.33}}
 \newlabel{fig:auxiliary_attempt1}{{19}{53}{Using auxiliary features from a smaller network with AlphaZero.\relax }{figure.caption.33}{}}
 \citation{lzNetworks}
 \citation{wu2019accelerating}
 \@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces The training costs of the feature network push the auxiliary feature-enhanced training run behind the baseline.\relax }}{54}{figure.caption.34}}
 \newlabel{fig:rndVsTrainedAux}{{20}{54}{The training costs of the feature network push the auxiliary feature-enhanced training run behind the baseline.\relax }{figure.caption.34}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {4.3.4}Growing the network}{54}{subsubsection.4.3.4}}
 \@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Growing the network as the run progresses does increase efficiency.\relax }}{55}{figure.caption.35}}
 \newlabel{fig:growNetwork}{{21}{55}{Growing the network as the run progresses does increase efficiency.\relax }{figure.caption.35}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{55}{section.5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Various options for where to apply regularization.\relax }}{56}{figure.caption.36}}
+\newlabel{fig:aux_extra_output}{{22}{56}{Various options for where to apply regularization.\relax }{figure.caption.36}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{56}{section.5}}
 \bibstyle{plain}
 \bibdata{document}
 \bibcite{trompsolved}{1}

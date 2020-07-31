@@ -19,7 +19,7 @@ yHigh = 92.5
 
 command = "https://x0.cclausen.eu"
 
-plot_name = "Growing the network by initializing a bigger one"
+plot_name = "Auxiliary features, move1: different outputs"
 groups = {
     "extended": {
         "color": (1,0,0),
@@ -31,14 +31,51 @@ groups = {
             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
         ]
     },
-    "grow network": {
+    "aux. features, extra output": {
         "color": (0, 1, 0),
+        "extraCost": 7200,
         "runs": [
-            "6b4e3e40-883c-4907-816f-9f99f681fddd"
+            "1a7782c8-90d0-47eb-8802-d07184d5da82"
+        ]
+    },
+    "aux. features, last residual block": {
+        "color": (0, 0, 1),
+        "extraCost": 7200,
+        "runs": [
+            "00e95bef-1711-4210-9f95-27f38c7374dd"
+        ]
+    },
+    "aux. features, last convolution": {
+        "color": (0.5, 0.5, 1),
+        "extraCost": 7200,
+        "runs": [
+            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
         ]
     }
 }
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/growNetwork.eps"
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
+
+# plot_name = "Growing the network during the run"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "grow network": {
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "6b4e3e40-883c-4907-816f-9f99f681fddd",
+#             "3811cae0-baa4-4baf-869f-27e3fc5dd5d0"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/growNetwork.eps"
 
 # plot_name = "Auxiliary features: Auxiliary network training costs are an issue"
 # groups = {

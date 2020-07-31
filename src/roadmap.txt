@@ -924,7 +924,7 @@ Training set size | moves %         |  wins %
                [ ] win0
                [ ] only move 2
 
-               [ ] move1 with a random network
+               [X] move1 with a random network
 
 
                [ ] only future 1

@@ -37,4 +37,8 @@
 \BOOKMARK [3][-]{subsubsection.4.2.2}{Resetting games to a position before a likely mistake}{subsection.4.2}% 37
 \BOOKMARK [3][-]{subsubsection.4.2.3}{Explore the game tree in the same fashion as MCTS}{subsection.4.2}% 38
 \BOOKMARK [2][-]{subsection.4.3}{Using network internal features as auxiliary targets}{section.4}% 39
-\BOOKMARK [1][-]{section.5}{Conclusion}{}% 40
+\BOOKMARK [3][-]{subsubsection.4.3.1}{Implementation}{subsection.4.3}% 40
+\BOOKMARK [3][-]{subsubsection.4.3.2}{Supervised}{subsection.4.3}% 41
+\BOOKMARK [3][-]{subsubsection.4.3.3}{AlphaZero runs}{subsection.4.3}% 42
+\BOOKMARK [3][-]{subsubsection.4.3.4}{Growing the network}{subsection.4.3}% 43
+\BOOKMARK [1][-]{section.5}{Conclusion}{}% 44
