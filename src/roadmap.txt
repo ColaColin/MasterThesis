@@ -922,6 +922,7 @@ Training set size | moves %         |  wins %
           [ ] AlphaZero
 
                [ ] win0
+                    -> that was move0 by accident...
                [ ] only move 2
 
                [X] move1 with a random network

@@ -19,41 +19,41 @@ yHigh = 92.5
 
 command = "https://x0.cclausen.eu"
 
-plot_name = "Auxiliary features, move1: different outputs"
-groups = {
-    "extended": {
-        "color": (1,0,0),
-        "runs": [
-            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
-            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
-            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
-            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
-            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
-        ]
-    },
-    "aux. features, extra output": {
-        "color": (0, 1, 0),
-        "extraCost": 7200,
-        "runs": [
-            "1a7782c8-90d0-47eb-8802-d07184d5da82"
-        ]
-    },
-    "aux. features, last residual block": {
-        "color": (0, 0, 1),
-        "extraCost": 7200,
-        "runs": [
-            "00e95bef-1711-4210-9f95-27f38c7374dd"
-        ]
-    },
-    "aux. features, last convolution": {
-        "color": (0.5, 0.5, 1),
-        "extraCost": 7200,
-        "runs": [
-            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
-        ]
-    }
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
+# plot_name = "Auxiliary features, move1: different outputs"
+# groups = {
+#     "extended": {
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "aux. features, extra output": {
+#         "color": (0, 1, 0),
+#         "extraCost": 7200,
+#         "runs": [
+#             "1a7782c8-90d0-47eb-8802-d07184d5da82"
+#         ]
+#     },
+#     "aux. features, last residual block": {
+#         "color": (0, 0, 1),
+#         "extraCost": 7200,
+#         "runs": [
+#             "00e95bef-1711-4210-9f95-27f38c7374dd"
+#         ]
+#     },
+#     "aux. features, last convolution": {
+#         "color": (0.5, 0.5, 1),
+#         "extraCost": 7200,
+#         "runs": [
+#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
 
 # plot_name = "Growing the network during the run"
 # groups = {
@@ -71,7 +71,8 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
 #         "color": (0, 1, 0),
 #         "runs": [
 #             "6b4e3e40-883c-4907-816f-9f99f681fddd",
-#             "3811cae0-baa4-4baf-869f-27e3fc5dd5d0"
+#             "3811cae0-baa4-4baf-869f-27e3fc5dd5d0",
+#             "448a572b-2564-4adf-98d3-98dadeea4bb6"
 #         ]
 #     }
 # }
@@ -168,6 +169,20 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
 #         "extraCost": 7200,
 #         "runs": [
 #             "0e80434c-ac21-4e6c-b89c-67102e7d472c"
+#         ]
+#     },
+#     "win0": {
+#         "color": (0.5, 0.5, 1),
+#         "extraCost": 7200,
+#         "runs": [
+#             "5dbf5fa6-cbef-4a4b-a56b-6062e5698fa6"
+#         ]
+#     },
+#     "only move2": {
+#         "color": (1, 0.5, 0.5),
+#         "extraCost": 7200,
+#         "runs": [
+#             "513a3284-fdff-4368-987f-77d5019de19e"
 #         ]
 #     }
 # }
@@ -581,25 +596,37 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/winp_tree.eps"
 
-# plot_name = "Exploration by MCTS"
-# groups = {
-#     "cached MCTS baseline": {
-#         "color": (1, 0, 0),
-#         "runs": [
-#             "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
-#             "d91dbba7-4363-4779-8a86-7a127977d9e4",
-#             "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
-#         ]
-#     },
-#     "Exploration by MCTS, cpuct = 15": {
-#         "color": (0, 1, 0),
-#         "runs": [
-#             "e5eb7ac2-3123-46bd-a79a-5026814a859c"
-#         ]
-#     },
-#     "extra": "diversity"
-# }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
+plot_name = "Exploration by MCTS"
+groups = {
+    "cached MCTS baseline": {
+        "color": (1, 0, 0),
+        "runs": [
+            "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
+            "d91dbba7-4363-4779-8a86-7a127977d9e4",
+            "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
+        ]
+    },
+    "Exploration by MCTS, cpuct = 15": {
+        "color": (0, 1, 0),
+        "runs": [
+            "e5eb7ac2-3123-46bd-a79a-5026814a859c"
+        ]
+    },
+    "Exploration by MCTS, cpuct = 5": {
+        "color": (0, 0, 1),
+        "runs": [
+            "109220df-0fa2-4020-9aff-b49c58c5843e"
+        ]
+    },
+    "Exploration by MCTS, cpuct = 1.5": {
+        "color": (0.5, 0.5, 0.5),
+        "runs": [
+            "ca9e85f5-6a88-4f42-8c03-cbe04a60e4e3"
+        ]
+    },
+    "extra": "diversity"
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
 
 
 

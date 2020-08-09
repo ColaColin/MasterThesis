@@ -104,8 +104,8 @@ axR.hist(toHData(p90Data), density=True, bins=len(dict.keys(p90Data)))
 axL.set_ylim([0, 0.105])
 axR.set_ylim([0, 0.105])
 
-axL.set_title("harder dataset: 50% random moves")
-axR.set_title("easier dataset: 90% random moves")
+axL.set_title("harder dataset: 50% optimal moves")
+axR.set_title("easier dataset: 90% optimal moves")
 
 fig.text(0.5, 0.04, 'Example in turn', ha='center')
 fig.text(0.04, 0.5, 'Fraction of positions at that turn in dataset', va='center', rotation='vertical')
