@@ -59,8 +59,17 @@ with the SHA and a config file. All run configs can be found in configs/run. Bel
 | cached MCTS is a more efficient implementation | 1d182bb0-5b26-49fb-b2a9-4417322f76e5, d91dbba7-4363-4779-8a86-7a127977d9e4, e1500cbb-45ae-4e1a-a55a-8015fa414afd |
 | Explore by retrying different moves after losses | e6135ef6-e360-47d7-b9bb-bfe91f3a341b |
 | Exploration by MCTS, cpuct = 15 | e5eb7ac2-3123-46bd-a79a-5026814a859c |
-
+| Exploration by MCTS, cpuct = 5 | 109220df-0fa2-4020-9aff-b49c58c5843e |
+| Exploration by MCTS, cpuct = 1.5 | ca9e85f5-6a88-4f42-8c03-cbe04a60e4e3 |
+| aux. features, extra output | 1a7782c8-90d0-47eb-8802-d07184d5da82 |
+| aux. features, last residual block | 00e95bef-1711-4210-9f95-27f38c7374dd |
+| aux. features, last convolution, move1 | 4564200d-3a4c-425d-b54a-ee8f4ea9d998 |
+| grow network | 6b4e3e40-883c-4907-816f-9f99f681fddd, 3811cae0-baa4-4baf-869f-27e3fc5dd5d0, 448a572b-2564-4adf-98d3-98dadeea4bb6 |
+| move1, random | 782e0549-06b5-4157-a3c6-ce6954140fe3 |
 Most of the charts were made by the script src/core/table_printer. It still contains the configurations used in commented-out form. It needs a command server to pull data from.
+| move0, win0 | 0e80434c-ac21-4e6c-b89c-67102e7d472c |
+| win0 | 5dbf5fa6-cbef-4a4b-a56b-6062e5698fa6 |
+| only move2 | 513a3284-fdff-4368-987f-77d5019de19e |
 
 # Experiments specifics
 
