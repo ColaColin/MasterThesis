@@ -15,7 +15,8 @@ To reproduce my results you will need to setup the central server that manages t
 4. Setup nginx and configure it as outlined in the example file in configs/nginx. The python based server will run on port 8042, nginx will add SSL and reverse proxy. You could skip nginx, if you don't want to bother with nginx and let's encrypt SSL.
 5. Setup a database in postgres using the file in src/setup.sql
 6. The server needs a configuration file called server.json, there is in an example in configs/server.json. Change the config values to fit your system, databaseuse, etc. dataPath is a directory where binary data will be stored (stored networks and self-play training examples). Secret is a simple password used in the APIs.
-7. You can then start the command server like so: python -m core.mains.command --config server.json
+7. You need to build the project in the src folder via ./build.sh
+8. You can then start the command server like so: python -m core.mains.command --config server.json
 
 ## Setup self-play workers
 

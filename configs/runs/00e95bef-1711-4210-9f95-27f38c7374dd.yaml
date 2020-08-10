@@ -1,0 +1,123 @@
+# Run Name: auxilary_features_move1_resblock
+# Run ID:  00e95bef-1711-4210-9f95-27f38c7374dd
+# Run SHA: 8e59714c0803aaeb1c7e499cb8ceec517e79718b
+reporter:
+  name: DistributedReporter
+  packageSize: 1024
+
+updater:
+  name: DistributedNetworkUpdater2
+  storage: /tmp/x0_networks
+
+mnk:
+  name: Connect4GameState
+  m: 7
+  n: 6
+  k: 4
+
+optimizerArgs:
+  name: dict
+  weight_decay: 0.0001
+  momentum: 0.9
+  lr: 0.2
+
+lrcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.02
+  peakVal: 0.2
+  endVal: 0.003
+  dbgName: lr
+  targetIteration: 20
+  targetReductionFactor: 0.4
+
+momentumcycle:
+  name: OneCycleSchedule
+  peak: 0.35
+  end: 0.7
+  baseVal: 0.95
+  peakVal: 0.85
+  endVal: 0.95
+  dbgName: momentum
+
+resnet:
+  name: PytorchPolicy
+  batchSize: 256
+  blocks: 5
+  filters: 128
+  headKernel: 3
+  headFilters: 64
+  extraHeadFilters: 32
+  protoState: $mnk
+  silent: true
+  device: cuda
+  lrDecider: $lrcycle
+  momentumDecider: $momentumcycle
+  optimizerName: torch.optim.SGD
+  optimizerArgs: $optimizerArgs
+  gradClipValue: 1
+  valueLossWeight: 0.01
+  networkMode: sq
+  replyWeight: 0.35
+  useWinFeatures: -1
+  useMoveFeatures: 1
+  featuresWeight: 1
+  outputExtra: resblock
+
+mcts:
+  name: MctsPolicyIterator
+  expansions: 343
+  cpuct: 1.545
+  rootNoise: 0.25
+  drawValue: 0.6913
+  alphaBase: 20.38
+  fpu: 0.8545
+
+tempDecider:
+  name: TemperatureMoveDecider
+  explorationPlyCount: 30
+
+feature_provider:
+  name: ResCNN
+  inWidth: 6
+  inHeight: 7
+  inDepth: 1
+  baseKernelSize: 3
+  baseFeatures: 128
+  features: 32
+  blocks: 3
+  moveSize: 7
+  winSize: 3
+  extraHeadFilters: 1
+  mode: sq
+  outputExtra: bothhead
+
+worker:
+  name: LinearSelfPlayWorker
+  initialState: $mnk
+  policy: $resnet
+  policyIterator: $mcts
+  gameCount: 256
+  moveDecider: $tempDecider
+  gameReporter: $reporter
+  policyUpdater: $updater
+  featureProvider: $feature_provider
+  featureNetworkID: f7b37c26-9568-4789-a996-5d662000f91f
+
+trainerWindow:
+  name: SlowWindowSizeManager
+  startSize: 500000
+  growStart: 5
+  growFinish: 15
+  finalSize: 2000000
+  iterationSize: 180000
+  minimumSize: 8192
+
+trainer:
+  name: StreamTrainingWorker2
+  windowManager: $trainerWindow
+  policy: $resnet
+  batchSize: 1024
+  deduplicate: True
+  deduplicationWeight: 0.8
