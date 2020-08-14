@@ -1,0 +1,334 @@
+== Einleitung ==
+
+==== Motivation ====
+
+* \pause Plankton ist ein wichtiges Element der Nahrungskette
+* \pause Analyse von Plankton ist wichtiger Indikator für das Ökosystem
+* \pause Hierzu werden Bilder von Plankton gemacht
+* \pause Aber wer klassifiziert all die Bilder?
+* \pause Deep Learning hat rasante Fortschritte gemacht
+* \pause Problem: Trainingsdaten beschaffen
+* \pause Könnten hierarchische Ansätze hier helfen?
+
+==== Zielsetzung ====
+
+* \pause Klassifikation von Plankton via Deep Learning
+* \pause Vergleich hierarchischer Ansätze mit flachen Ansätzen
+* \pause Erprobung von Schwellenwertverfahren zur Behandlung unbekannter Klassen
+
+== Grundlagen ==
+
+=== Datensätze ===
+
+==== WHOI ====
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.8]{examples/w1}
+\hspace*{0.05cm}
+\includegraphics[scale=0.8]{examples/w2}
+\hspace*{0.05cm}
+\includegraphics[scale=0.8]{examples/w3}
+\hspace*{0.05cm}
+\includegraphics[scale=0.8]{examples/w4}
+\hspace*{0.05cm}
+\includegraphics[scale=0.8]{examples/w5}
+\end{figure}
+* \pause Phytoplankton
+* \pause Woods Hole Oceanographic Institution
+* \pause 75 Kategorien über 101149 Bilder
+
+==== Ecotaxa ====
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5336]{examples/e1}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/e2}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/e3}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/e4}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/e5}
+\end{figure}
+
+* \pause Zooplankton
+* \pause Observatoire Océanologique de Villefranche sur Mer
+* \pause 37 Kategorien über 37083 Bilder
+
+
+==== Ecotaxa, unbekannte Klassen ====
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.5336]{examples/u1}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/u2}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/u3}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/u4}
+\hspace*{0.05cm}
+\includegraphics[scale=0.5336]{examples/u5}
+\end{figure}
+
+* \pause 54 Klassen über 1314 Bilder
+* \pause Kein Training auf diesem Datensatz
+* \pause Ziel: Klassifikation auf Oberklassen
+
+=== Deep Learning ===
+
+==== Künstliche Neuronen ====
+* \pause Künstliche Neuronen dargestellt als $f(x) = x \cdot w + b$.
+** $x, w \in \mathbb{R}^n, b \in \mathbb{R}$
+\pause
+-<3>{ \centering \includegraphics[scale=0.4336]{neuron_linear} \\ $w = \begin{pmatrix} 1  \\ 0 \end{pmatrix}, b = 0$}
+-<4-7>{ \centering \includegraphics[scale=0.4336]{neuron_xor}}
+\pause
+* \pause Die Linearität ist eine deutliche Einschränkung
+* \pause Lösbar durch nonlineare Aktivierungsfunktion 
+* \pause Einzelnes Neuron trotzdem beschränkt
+
+==== Multilayer Perceptrons ====
+
+* \pause Kombination vieler Neuronen in Layern
+\pause
+\def\layersep{2.5cm}
+\begin{figure} [H]
+  \centering
+  \begin{tikzpicture}[scale=0.75, shorten >=1pt,->,draw=black!50, node distance=\layersep]
+      \tikzstyle{every pin edge}=[<-,shorten <=1pt]
+      \tikzstyle{neuron}=[circle,fill=black!25,minimum size=17pt,inner sep=0pt]
+      \tikzstyle{input neuron}=[neuron, fill=green!50];
+      \tikzstyle{output neuron}=[neuron, fill=red!50];
+      \tikzstyle{hidden neuron}=[neuron, fill=blue!50];
+      \tikzstyle{annot} = [text width=4em, text centered]
+
+      % Draw the input layer nodes
+      \foreach \name / \y in {1,...,4}
+      % This is the same as writing \foreach \name / \y in {1/1,2/2,3/3,4/4}
+	  \node[input neuron, pin=left:Eingabe \#\y] (I-\name) at (0,-\y) {};
+
+      % Draw the hidden layer nodes
+      \foreach \name / \y in {1,...,5}
+	  \path[yshift=0.5cm]
+	      node[hidden neuron] (H-\name) at (\layersep,-\y cm) {};
+
+	      
+      \foreach \name / \y in {1,...,3}
+	  \path[yshift=0.5cm]
+	      node[output neuron,pin={[pin edge={->}]right:Ausgabe \#\y}] (O-\name) at (\layersep * 2,-\y - 1) {};
+
+      % Connect every node in the input layer with every node in the
+      % hidden layer.
+      \foreach \source in {1,...,4}
+	  \foreach \dest in {1,...,5}
+	      \path (I-\source) edge (H-\dest);
+
+	      
+      \foreach \source in {1,...,5}
+	  \foreach \dest in {1,...,3}
+	      \path (H-\source) edge (O-\dest);
+
+      % Annotate the layers
+      \node[annot,above of=H-1, node distance=1cm] (hl) {Verstecker Layer};
+      \node[annot,left of=hl] {Eingabe Layer};
+      \node[annot,right of=hl] {Ausgabe Layer};
+  \end{tikzpicture}
+\end{figure}
+
+=== Trainingsablauf ===
+
+==== Aufteilung der Beispieldaten ====
+
+* \pause Trainingsset
+* \pause Validationset
+* \pause Testset
+* \pause Bestimme den Mittelwert von drei Durchläufen
+
+==== Early Stopping ====
+
+* \pause Beobachtung: Overfitting tritt auf am Ende des Trainings auf
+\pause \centering \includegraphics[scale=0.45]{overfitting}
+* \pause Stoppe das Training bevor dies passiert!
+
+=== Die Problemstellung ===
+
+==== Hierarchische Klassifikationsprobleme ====
+
+* \pause Ordne Klassen zu Eingaben zu
+* \pause Hierarchische Klassifikation ordnet Klassen in Hierarchie
+* \pause Flache Klassifikation ist ein Spezialfall
+\pause
+\centering \includegraphics[scale=0.225]{htrees}
+* \pause Verwende die biologische Taxonomie
+
+=== Qualitätsmerkmale ===
+
+==== Qualität flacher Klassifikation ====
+
+* \pause Binärer Fall
+** \pause Accuracy
+** \pause Recall
+** \pause Precision
+** \pause $f1$ Score
+
+* \pause Mehrklassiger Fall
+** \pause Micro-Averaging
+** \pause Macro-Averaging
+
+==== Qualität hierarchischer Klassifikation ====
+
+* \pause Flache Kriterien sind unzureichend
+* \pause Hierarchische Precision und Recall
+-<3> {\centering \includegraphics[scale=0.51236]{h_tree_example.png}}
+
+== Betrachte Ansätze ==
+
+=== Hierarchische Ausgaben ===
+
+==== Ziel hierarchischer Ausgabe ====
+
+\centering \includegraphics[scale=0.51236]{h_tree_raw.png}
+
+==== Softmax Pro Ebene ====
+
+\centering \includegraphics[scale=0.51236]{tree_per_layer.png}
+
+==== Softmax Pro Elternknoten ====
+
+\centering \includegraphics[scale=0.51236]{tree_per_node.png}
+
+==== Inferenzmethoden ====
+
+<[columns]
+
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.41236]{h_tree_raw.png}
+
+[[[0.45\textwidth]]]
+* \pause Bestimme die finale Ausgabe
+* \pause Arithmetischer Mittelwert
+* \pause Geometrischer Mittelwert
+* \pause Produkt
+* \pause Direkte Entscheidungen
+
+[columns]>
+
+== Experimente ==
+
+=== Mandatory Leaf Prediction ===
+
+==== Mandatory Leaf Prediction bringt keine Vorteile ====
+-<2> {
+<[nowiki]
+\centering \includegraphics[scale=0.51236]{et_per_node_mandatory_wrn22d25.pdf}
+[nowiki]>
+}
+-<3> {
+<[nowiki]
+\centering \includegraphics[scale=0.51236]{et_per_layer_mandatory_wrn22d25.pdf}
+[nowiki]>
+}
+-<4> {
+<[nowiki]
+\centering \includegraphics[scale=0.51236]{wh_per_layer_wrn23d0.pdf}
+[nowiki]>
+}
+
+==== Es tritt keine Fehlerumverteilung auf ====
+
+-<2> {\centering \includegraphics[scale=0.51236]{h_tree_raw.png}}
+-<3> {\centering \includegraphics[scale=0.40]{acc_in_depth}}
+
+==== Fehlerskalierung ist nicht hilfreich ====
+
+<[columns]
+
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.41236]{h_tree_raw.png}
+
+[[[0.45\textwidth]]]
+* \pause Skaliere Fehler einzelner Layer
+* \pause Ansatz 1: harmonisches Mittel
+* \pause Ansatz 2: Gesamtzahl der Trainingsbeispiele
+* \pause Beide Ansätze verschlechtern die Leistung
+
+[columns]>
+
+==== Zufällig vertauschte Blätter ====
+
+* \pause Vertausche Blätter der biologischen Taxonomie zufällig
+* \pause Erhalte die Struktur, entferne die semantischen Zusammenhänge
+\pause \centering \includegraphics[scale=0.4]{random_leafs_summary}
+* \pause Die biologische Taxonomie zeigt begrenzte Vorteile
+
+==== Zufällige balancierte Bäume ====
+
+* \pause Bilde zufällige balancierte Bäume, 3 Kinder pro Elternknoten
+* \pause Ergründe, wie sich die Struktur der Bäume auswirkt
+\pause \centering \includegraphics[scale=0.4]{random_balanced_summary}
+* \pause Weniger Ausgabelayer zu verwenden ist gut!
+
+=== Optional Leaf Predicition ===
+
+==== Ein zusätzliches Bewertungskriterium ====
+
+* \pause Informationsgewinn
+** \pause Reduktion der Entropie
+** \pause Falsche Klassifikation: Kein Informationsgewinn
+** \pause Bestimme Mittelwert über alle Beispiele
+* \pause Bei Mandatory Leaf Prediction ist dies eine Skalierung der Accuracy
+
+==== Schwellenwertmechanismen ====
+
+\pause
+
+<[columns]
+
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.41236]{h_tree_raw.png}
+
+[[[0.45\textwidth]]]
+* \pause Schwellenwert für jeden Knoten
+* \pause Softmax
+* \pause Presoftmax
+* \pause Monte Carlo Dropout
+[columns]>
+
+==== Betrachtung von Beispielknoten: Softmax ====
+
+<[columns]
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{softmax_good_thr}
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{softmax_bad_thr}
+[columns]>
+
+==== Betrachtung von Beispielknoten: Presoftmax ====
+
+<[columns]
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{presoftmax_good_thr}
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{presoftmax_bad_thr}
+[columns]>
+
+==== Betrachtung von Beispielknoten: MC Dropout ====
+
+<[columns]
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{meh_mcdropout_thr}
+[[[0.45\textwidth]]]
+\centering \includegraphics[scale=0.391236]{mc_dropout_stds}
+[columns]>
+
+==== OLP ist kein Vorteil im Kontext bekannter Klassen ====
+
+\pause \centering \includegraphics[scale=0.3125]{optional_leaf_summary}
+
+* \pause Die Accuracy kann nur auf Kosten des Informationsgewinns erhöht werden
+
+
+

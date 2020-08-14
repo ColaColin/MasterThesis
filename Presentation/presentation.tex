@@ -1,0 +1,139 @@
+\documentclass[11pt]{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[babel]{csquotes}
+\usepackage[T1]{fontenc}
+
+\usepackage{graphicx}
+\graphicspath{ {../Write/images/} }
+
+\usepackage{verbatim}
+\usepackage{romannum}
+
+\usepackage{ae, aecompl}
+
+\usepackage{todonotes}
+
+\usepackage{array}
+
+\usepackage{xcolor}
+
+% used for color define
+\usepackage{color}
+\definecolor{bgsidebar}{rgb}{0,0.1,0.6}
+\definecolor{darkgreen}{rgb}{0,0.6,0}
+\definecolor{Gray}{gray}{0.5}
+\definecolor{highlight}{rgb}{0,0.7,0.5}
+\definecolor{lightgray}{gray}{0.5}
+\usepackage{subfigure}
+
+\usepackage{ulem}
+\usepackage{color}
+\usepackage{amsmath}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows}
+
+\tikzset{
+  treenode/.style = {align=center, inner sep=0pt, text centered,
+    font=\sffamily},
+  arn_n/.style = {treenode, circle, white, font=\sffamily\bfseries, draw=black,
+    fill=black, text width=1.5em},% arbre rouge noir, noeud noir
+  defc/.style = {treenode, circle, black, draw=black, 
+    text width=2.5em, very thick},% arbre rouge noir, noeud rouge
+  arn_x/.style = {treenode, rectangle, draw=black,
+    minimum width=0.5em, minimum height=0.5em}% arbre rouge noir, nil
+  
+}
+
+
+\usepackage{textcomp,upquote,lmodern,listings}
+
+\newcommand{\highlight}[1]{%
+  \colorbox{yellow!50}{$\displaystyle#1$}}
+
+\lstset{%
+   basicstyle=\tt\footnotesize,
+   numbers=left,
+   language=Java,
+   numberstyle=\scriptsize\color{gray},
+   columns=fullflexible,
+   xleftmargin=6mm,
+   frame=trlb,
+   frameround=tttt,
+   identifierstyle=\color[rgb]{0,0,0},
+   keywordstyle=\color[rgb]{0,0,1},
+   commentstyle=\color{darkgreen},
+   stringstyle=\color[rgb]{0.627,0.126,0.941}
+}
+
+\lstdefinestyle{basic}{
+    captionpos=t,%
+    basicstyle=\footnotesize\ttfamily,%
+    numberstyle=\tiny,%
+    numbers=left,%
+    stepnumber=1,%
+    frame=single,%
+    showspaces=false,%
+    showstringspaces=false,%
+    showtabs=false,%
+    %
+    keywordstyle=\color{blue},%
+    identifierstyle=,%
+    commentstyle=\color{gray},%
+    stringstyle=\color{magenta}%
+}
+
+\usetheme{cau} 			%Theme
+%\usecolortheme{dolphin}
+%
+%\useoutertheme[left,hideothersubsections,width=20mm,height=0.7cm]{sidebar} % Sidebar links verwenden
+\setbeamertemplate{navigation symbols}{} 
+%
+%% Breite der Seitenleiste einstellen
+%%\setbeamersize{sidebar width left=30mm}
+%
+%% Breite des Randes zur Sidebar einstellen
+%\setbeamersize{text margin left=5mm}
+%
+%\setbeamercolor{section in sidebar}{fg=black,bg=blue!40}
+%\setbeamercolor{section in sidebar shaded}{fg=white}
+%
+%% autoren klein anzeigen
+%%\setbeamerfont{author in sidebar}{size=\tiny}
+%
+%% Überschriften der Folien groß und weiß
+%\setbeamerfont{frametitle}{size=\LARGE}
+%\setbeamercolor{frametitle}{fg=black}
+%\setbeamercolor{frametitle}{bg=white}
+%
+%\let\oldsection\section
+%\renewcommand{\section}[1]{\oldsection[\thesection . #1]{#1}}
+%\newcommand{\multilinesection}[2]{\oldsection[\thesection . #1 \hbox{\vbox{\hspace{0.17cm}#2}}]{#1 #2}}
+%
+%\setbeamertemplate{frametitle}{%
+%\begin{beamercolorbox}[ht=0cm,wd=0.9\paperwidth,leftskip=15pt,dp=0ex]{frametitle}
+%  \insertframetitle
+%\end{beamercolorbox}}
+
+
+\setbeamertemplate{caption}[numbered]
+
+\AtBeginSection{
+	\addtocounter{framenumber}{-1}
+	\frame{\scriptsize \frametitle{Inhalt} \tableofcontents[currentsection,hideothersubsections]}
+}
+
+\title[Investigation of improvements to AlphaZero]{Investigation of possible improvements to increase the efficiency of the AlphaZero algorithm.}
+\author{Colin Clausen}
+\date{X.X.2020}
+
+\begin{document}
+	 \frame{\titlepage}
+
+        \begin{frame}{Inhalt}
+	\scriptsize{\tableofcontents[hideallsubsections]}
+	\end{frame}
+		\include{content}
+\end{document}

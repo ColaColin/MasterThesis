@@ -1,0 +1,251 @@
+== Einleitung ==
+
+==== Einleitung ====
+
+* \pause Spiele als Lernumgebung für AI
+** \pause 1951: Nimrod 
+** \pause 1995: Vier gewinnt 
+** \pause 1997: Schach 
+** \pause 2016: Go
+
+* \pause AlphaGo
+* \pause AlphaZero
+* \pause Großer Rechenaufwand nötig: 5000+ TPUs
+
+==== Zielsetzung ====
+
+* \pause Untersuche mögliche Effizienzsteigerungen
+* \pause Solide Baseline
+* \pause Experimentiere mit Vier gewinnt
+* \pause Evaluiere verschiende neue Ideen
+** \pause Evolution von Hyperparametern
+** \pause Self-play im Baumformat
+** \pause Auxiliary Features
+
+== Grundlagen ==
+
+=== Algorithmus ===
+
+==== Monte Carlo tree search (MCTS) ====
+
+* \pause Seit 2006 sehr verbreitet in Computer Go.
+* \pause Iterativer Baumsuchalgorithmus verwendet in AlphaGo/AlphaGoZero/AlphaZero
+** \pause Wandere den Baum von der Wurzel hinab
+** \pause Wäge ab zwischen bekannten guten Zügen und wenig untersuchten neuen Zügen
+** \pause Schließlich propagiere Spielergebnis zurück durch den Baum
+* \pause Benötigt:
+** \pause Eine Policy die Züge einschätzen kann
+** \pause Eine sehr schnelle Rolloutpolicy
+*** \pause Alternativ: Policy zur Positionseinschätzung
+* \pause Output: Eine bessere Policy über die Züge in der analysierten Position
+* \pause MCTS ist praktisch ein Verbesserungsoperator
+
+==== AlphaGo ====
+
+* \pause Kernidee: Kombinere MCTS mit Deep Learning
+* \pause Trainingsprozess involviert aber kein MCTS
+* \pause Trainere mehrere Netzwerke
+** \pause Supervised auf Datensatz von besten Menschen: Schnell und Langsam
+** \pause Verbessere das langsame Netz durch RL
+** \pause Erzeuge Datensatz für Netzwerk zur Positionsevaluierung
+** \pause Verwende erzeugte Netzwerke um mit MCTS zu spielen
+*** \pause Das langsame RL-Netzwerk macht die Ersteinschätzung der Züge
+*** \pause Einschätzung der Spielposition: Netzwerk + Rollouts
+
+==== AlphaZero ====
+
+* \pause Drastische Vereinfachung von AlphaGo
+* \pause Kernidee: Verwende MCTS bereits zur Trainingsphase
+* \pause Verwendet nur ein Netzwerk: Positionsbewertung und Zugpolicy
+* \pause Kein Bedarf für Datensatz von besten Menschen
+
+==== AlphaZero: Trainingsablauf ====
+
+<[center]
+-<1>{\includegraphics[scale=0.425]{a0_cycle_0}}
+-<2>{\includegraphics[scale=0.425]{a0_cycle_1}}
+-<3>{\includegraphics[scale=0.425]{a0_cycle_2}}
+-<4>{\includegraphics[scale=0.425]{a0_cycle_3}}
+[center]>
+
+=== Baselines ===
+
+==== Aufbau der Experimente ====
+
+\pause
+\centering \includegraphics[scale=0.425]{x0_framework_overview}
+* \pause Laufzeit auf Referenzmaschine
+
+==== Hyperparametersuche ====
+
+* \pause Optimiere wichtige Hyperparameter für Vier gewinnt
+* \pause Bayesian Optimization Package verwendet
+* \pause Fitnessfunktion: Trainiere über 2 Stunden, messe Accuracy
+* \pause 65 Steps, Laufzeit ca. eine Woche
+\pause \centering \includegraphics[scale=0.385]{hyper_compare}
+
+==== Extended baseline ====
+
+* \pause Erweitere die Baselineimplementierung mit Verbesserungen anderer Arbeiten
+** \pause Deduplikation
+** \pause Cyclic learning rate
+** \pause Verbessertes Trainingswindow
+** \pause Playout Caps
+** \pause Vorhersage des nächsten Zuges des Gegners
+** \pause Verbesserung des Netzwerks
+
+* \pause Alle außer Playout Caps zeigten eine tendenzielle Verbesserung
+* \pause Kombiniert ist die Verbesserung sehr erheblich.
+
+==== Extended baseline Ergebnisse ====
+
+\center \includegraphics[scale=0.625]{baseline_ex}
+
+== Untersuchte neue Ideen ==
+
+=== Evolutionary Self-play ===
+
+==== Implementierung: Evolutionary Self-play ====
+
+* \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
+* \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
+* \pause Implementiert als eine Liga als Spielern.
+* \pause Ein Spieler ist ein Hyperparameterset
+* \pause Bewerte Spieler mit Elo
+* \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
+
+* \pause Zwei Arten von Hyperparametern untersucht
+** \pause Verwendung von Kullback-Leibler divergence um "Denkzeit" zu wählen.
+** \pause MCTS Parameter: cpuct, fpu, drawValue
+
+==== Erste Ergebnisse ====
+
+\center \includegraphics[scale=0.625]{evolve_results}
+
+==== Untersuchung  ====
+
+* \pause Bedingungen für erfolgreiche Evolution:
+** \pause Die Liga muss gute Parameter erkennen
+** \pause Viele Siege müssen sich übertragen auf schnelleren Lernfortschritt
+
+==== Erkennt die Liga gute Parameter? ====
+
+* \pause "Gut" im Sinne der Evolution: Gewinne viele Spiele
+* \pause Erfinde einen neuen Parameter für den der optimale Wert klar ist
+* \pause Stelle die Bewertung der Spielzüge auf den Kopf. 
+* \pause Wertebereich von 0 bis 1. 
+** \pause Bei 0 hat der Parameter keinen Effekt
+** \pause Bei 1 werden gute Züge selten gespielt, schlechte am häufigsten.
+* \pause Der Parameter wird innerhalb von 10 Generationen deutlich reduziert.
+* \pause Ein voller Trainingslauf hat eher 30 bis 50 Generationen
+* \pause Die Liga mit Evolution funktioniert ganz klar
+
+==== Folgt Lernfortschritt aus mehr Siegen? ====
+
+* \pause Lernfortschritt bedeutet höhere Übereinstimmung mit dem Solver
+* \pause Vergleiche 3 Hyperparametersets
+** \pause Bester Spieler aus der Evolution
+** \pause Baseline Parameter
+** \pause Bayesian Optimization
+
+* \pause Direkt optimierte Parameter sind am besten
+* \pause Die Evolution findet Parameter von ähnlicher Qualität wie die baseline
+* \pause Aber erst am Ende des Trainings
+** \pause Potentielles Problem: Das Training startet langsamer
+
+==== Folgt Lernfortschritt aus mehr Siegen? ====
+
+* \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
+* \pause Klarer Sieger: Die Evolution
+* \pause Viele gewonne Spiele bedeuten also nicht hoher Lernfortschritt
+* \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
+* \pause Eine weitere untersuchte Alternative: Novelty search
+** \pause Keine bedeutend höhere Diversität.
+** \pause Die Hyperparametersuche hat darauf schon implizit geachtet
+
+=== Games as trees ===
+
+==== Implementierung: Games as trees ====
+
+* \pause Exploration durch Zurücksetzen an kritische Positionen
+* \pause Spiele als MCTS-Baum
+* \pause Notwendigkeit für MCTS-Evaluation Service
+* \pause Nebeneffekt: Keine doppelte Auswertung von Positionen
+\pause \center \includegraphics[scale=0.425]{cache_play}
+
+==== Zurücksetzen auf kritische Position ====
+
+* \pause Nach einer Niederlage darf der Verlierer einen Zug zurücknehmen
+* \pause Wähle Position anhand der Entwicklung der Positionsevaluation
+* \pause Beginne neues Spiel in dieser Position
+\pause \center \includegraphics[scale=0.365]{winp_tree}
+* \pause Die Spieldiversität nimmt deutlich ab
+
+
+==== Spiele als MCTS-Baum ====
+
+* \pause Exploration-Exploitation: MCTS macht das
+* \pause Baue einen einzigen MCTS Baum
+** \pause 150k+ Knoten
+* \pause Reporte die Positionen in den Knoten als Trainingspositionen
+\pause \center \includegraphics[scale=0.425]{mcts_tree_explore}
+
+=== Auxiliary features ===
+
+==== Implementierung: Auxiliary features ====
+
+* \pause Trainiere ein kleines Netzwerk, ca. 70k Parameter
+* \pause Verwende interne Features aus diesem Netzwerk zur Regularisierung des großen Netzwerkes
+* \pause Verschiedene Optionen wurden im Supervised Setting vorselektiert
+
+==== Untersuchung ====
+
+* \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
+* \pause Positiver Effekt auf initialen Anstieg der Spielstärke
+* \pause Negativer Effekt auf finale Spielstärke
+* \pause Ein zufälliges Netzwerk zeigt diesen Effekt deutlich weniger
+* \pause Kosten des Trainings des kleinen Netzwerkes sind zu hoch.
+* \pause Zwei Probleme mit dem Ansatz:
+** \pause Trainingskosten des kleinen Netzwerks
+** \pause Finale Spielstärke wird gestört
+
+==== Das Netzwerk wachsen lassen ====
+
+* \pause Beginne den AlphaZero Trainingslauf mit kleinem Netzwerk
+* \pause Tausche des Netzwerk alle paar Iterationen gegen größeres aus
+* \pause Dieses Vorgehen ist generell effektiver
+* \pause Aber keine neue Idee
+* \pause Die Trainingskosten des kleinen Netzwerkes verschwinden
+
+==== Finale Spielstärke darf nicht geschadet werden ====
+
+* \pause Auxiliary features dürfen nicht der finalen Spielstärke schaden
+* \pause Es wurden verschiedene Optionen erprobt
+* \pause Keine verbesserte die Situation
+
+=== Fazit ===
+
+==== Fazit ====
+
+* \pause AlphaZero Experimentalframework entwickelt
+* \pause Keine großen Verbesserungen gefunden
+* \pause Trotzdem einiges Interessante Erkenntnisse
+** \pause Nicht alle Ideen vorheriger Arbeiten funktionieren mit Vier gewinnt
+** \pause Evolution für Hyperparameter funktioniert
+*** \pause Nur eine gute Fitnessfunktion fehlt
+*** \pause Unterschied zwischen Lernfortschritt und Spielstärke
+** \pause Alternative Explorationsmethoden zeigen vor allem wie gut die einfache Standardversion funktioniert
+** \pause Auxiliary features aus dem inneren eines kleineren Netzwerks sind nur schwer nutzbar
+*** \pause Aber das Konzept des Netzwerkwachstums sollte weiter erforscht werden
+
+
+== Ende ==
+
+==== Referenzen ====
+
+\centering Danke für Ihre Aufmerksamkeit.
+
+
+* Maybe do some references here...
+
+
