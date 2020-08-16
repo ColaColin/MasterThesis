@@ -17,7 +17,7 @@ cutRight = 40
 yLow = 84
 yHigh = 92.5
 
-command = "https://x0.cclausen.eu"
+command = "http://127.0.0.1:8042"
 
 # plot_name = "Auxiliary features, move1: different outputs"
 # groups = {
@@ -107,41 +107,45 @@ command = "https://x0.cclausen.eu"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/preCostCompare.eps"
 
-# plot_name = "Auxiliary features: Random network vs Trained network"
-# groups = {
-#     "extended": {
-#         "color": (1,0,0),
-#         "runs": [
-#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
-#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
-#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
-#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
-#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
-#         ]
-#     },
-#     "move1, trained": {
-#         "color": (0, 1, 0),
-#         "extraCost": 7200,
-#         "runs": [
-#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
-#         ]
-#     },
-#     "move1, trained, ignore init cost": {
-#         "color": (1, 0.5, 0.5),
-#         "extraCost": 0,
-#         "runs": [
-#             "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
-#         ]
-#     },
-#     "move1, random": {
-#         "color": (0, 0, 1),
-#         "extraCost": 0,
-#         "runs": [
-#             "782e0549-06b5-4157-a3c6-ce6954140fe3"
-#         ]
-#     }
-# }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/rndVsTrainedAux.eps"
+plot_name = "Auxiliary features: Random network vs Trained network"
+groups = {
+    "extended": {
+        "order": 0,
+        "color": (1,0,0),
+        "runs": [
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+        ]
+    },
+    "move1, trained": {
+        "order": 1,
+        "color": (0, 1, 0),
+        "extraCost": 7200,
+        "runs": [
+            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+        ]
+    },
+    "move1, trained, ignore init cost": {
+        "order": 2,
+        "color": (1, 0.5, 0.5),
+        "extraCost": 0,
+        "runs": [
+            "4564200d-3a4c-425d-b54a-ee8f4ea9d998"
+        ]
+    },
+    "move1, random": {
+        "order": 3,
+        "color": (0, 0, 1),
+        "extraCost": 0,
+        "runs": [
+            "782e0549-06b5-4157-a3c6-ce6954140fe3"
+        ]
+    }
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/rndVsTrainedAux.eps"
 
 
 
@@ -191,6 +195,7 @@ command = "https://x0.cclausen.eu"
 # plot_name = "Baselines, hard dataset"
 # groups = {
 #     "extended": {
+#         "order": 1,
 #         "color": (1,0,0),
 #         "runs": [
 #             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
@@ -201,6 +206,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "base": {
+#         "order": 0,
 #         "color": (0,0,1),
 #         "runs": [
 #             "12c31999-e8a9-4a52-b017-796e64b05f8a",
@@ -390,6 +396,7 @@ command = "https://x0.cclausen.eu"
 # plot_name = "Hyperparameter comparison"
 # groups = {
 #     "hyperopt1": {
+#         "order": 1,
 #         "color": (1, 0, 0),
 #         "runs": [
 #             "aa4782ae-c162-4443-a290-41d7bb625d17",
@@ -400,6 +407,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "hyperopt2": {
+#         "order": 2,
 #         "color": (0, 0, 1),
 #         "runs": [
 #             "1edc288e-df3e-47c1-b9ce-52ab0045404a",
@@ -410,6 +418,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "prevWork": {
+#         "order": 0,
 #         "color": (0,1,0),
 #         "runs": [
 #             "65388799-c526-4870-b371-fb47e35e56af",
@@ -420,7 +429,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     }
 # }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/foobar.eps"
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/hyper_compare.eps"
 
 # plot_name = "Player evolution of key parameters"
 # groups = {
@@ -447,6 +456,7 @@ command = "https://x0.cclausen.eu"
 # plot_name = "Player evolution of key parameters"
 # groups = {
 #     "extended": {
+#         "order": 0,
 #         "color": (1,0,0),
 #         "runs": [
 #             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
@@ -457,12 +467,14 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "evolve cpuct, fpu, drawValue": {
+#         "order": 1,
 #         "color": (0, 1, 0),
 #         "runs": [
 #             "325d9f51-97d2-48ab-8999-25f2583979ba"
 #         ]
 #     },
 #     "evolve kldgain": {
+#         "order": 2,
 #         "color": (0, 0, 1),
 #         "runs": [
 #             "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
@@ -555,6 +567,7 @@ command = "https://x0.cclausen.eu"
 # plot_name = "Caching all MCTS results with the help of an MCTS evaluation service."
 # groups = {
 #     "extended": {
+#         "order": 0,
 #         "color": (1,0,0),
 #         "runs": [
 #             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
@@ -565,6 +578,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "cached MCTS": {
+#         "order": 1,
 #         "color": (0, 1, 0),
 #         "runs": [
 #             "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
@@ -579,6 +593,7 @@ command = "https://x0.cclausen.eu"
 # plot_name = "Exploration by retrying different moves after losses."
 # groups = {
 #     "cached MCTS": {
+#         "order": 0,
 #         "color": (1, 0, 0),
 #         "runs": [
 #             "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
@@ -587,6 +602,7 @@ command = "https://x0.cclausen.eu"
 #         ]
 #     },
 #     "Retry after loss": {
+#         "order": 1,
 #         "color": (0, 1, 0),
 #         "runs": [
 #             "e6135ef6-e360-47d7-b9bb-bfe91f3a341b"
@@ -596,37 +612,41 @@ command = "https://x0.cclausen.eu"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/winp_tree.eps"
 
-plot_name = "Exploration by MCTS"
-groups = {
-    "cached MCTS baseline": {
-        "color": (1, 0, 0),
-        "runs": [
-            "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
-            "d91dbba7-4363-4779-8a86-7a127977d9e4",
-            "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
-        ]
-    },
-    "Exploration by MCTS, cpuct = 15": {
-        "color": (0, 1, 0),
-        "runs": [
-            "e5eb7ac2-3123-46bd-a79a-5026814a859c"
-        ]
-    },
-    "Exploration by MCTS, cpuct = 5": {
-        "color": (0, 0, 1),
-        "runs": [
-            "109220df-0fa2-4020-9aff-b49c58c5843e"
-        ]
-    },
-    "Exploration by MCTS, cpuct = 1.5": {
-        "color": (0.5, 0.5, 0.5),
-        "runs": [
-            "ca9e85f5-6a88-4f42-8c03-cbe04a60e4e3"
-        ]
-    },
-    "extra": "diversity"
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
+# plot_name = "Exploration by MCTS"
+# groups = {
+#     "cached MCTS baseline": {
+#         "order": 0,
+#         "color": (1, 0, 0),
+#         "runs": [
+#             "1d182bb0-5b26-49fb-b2a9-4417322f76e5",
+#             "d91dbba7-4363-4779-8a86-7a127977d9e4",
+#             "e1500cbb-45ae-4e1a-a55a-8015fa414afd"
+#         ]
+#     },
+#     "Exploration by MCTS, cpuct = 15": {
+#         "order": 3,
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "e5eb7ac2-3123-46bd-a79a-5026814a859c"
+#         ]
+#     },
+#     "Exploration by MCTS, cpuct = 5": {
+#         "order": 2,
+#         "color": (0, 0, 1),
+#         "runs": [
+#             "109220df-0fa2-4020-9aff-b49c58c5843e"
+#         ]
+#     },
+#     "Exploration by MCTS, cpuct = 1.5": {
+#         "order": 1,
+#         "color": (0.5, 0.5, 0.5),
+#         "runs": [
+#             "ca9e85f5-6a88-4f42-8c03-cbe04a60e4e3"
+#         ]
+#     },
+#     "extra": "diversity"
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/mcts_tree_explore.eps"
 
 
 
@@ -785,15 +805,9 @@ def meanInterpolatedLine(datas):
 
     return xPoints, yPoints
 
-if __name__ == "__main__":
-    setLoggingEnabled(True)
-    setproctitle.setproctitle("x0_generate_tables")
-
+def plotForGroups(i, dgroups, groups, mostLeft = None, mostRight = None):
     fig = plt.figure(figsize=(8, 5))
     ax = plt.subplot(1,1,1)
-
-    mostLeft = None
-    mostRight = None
 
     if "extra" in groups:
         extraStats = groups["extra"]
@@ -803,20 +817,21 @@ if __name__ == "__main__":
         extraStats = None
         ax2 = None
 
-    for groupName in groups:
-        if groupName == "extra":
-            continue
+    adjustLeft = mostLeft is None
+    adjustRight = mostRight is None
+
+    for ig in range(i):
+        groupName = dgroups[ig]
         mL, mR = plotGroup(groupName, fig, ax, ax2, extraStats)
 
-        if mostLeft is None or mostLeft > mL:
+        if adjustLeft and (mostLeft is None or mostLeft > mL):
             mostLeft = mL
 
-        if mostRight is None or mostRight < mR:
+        if adjustRight and (mostRight is None or mostRight < mR):
             mostRight = mR
 
-    if mostRight > cutRight:
+    if adjustRight and mostRight > cutRight:
         mostRight = cutRight
-
 
     ax.set_axisbelow(True)
     ax.minorticks_on()
@@ -827,15 +842,44 @@ if __name__ == "__main__":
 
     ax.set_ylim([yLow, yHigh])
 
-    ax.legend(loc="lower left" if ax2 is not None else "lower right", fancybox=True, title="Accuracy")
-    if ax2 is not None:
-        ax2.legend(loc="lower right", fancybox=True, title="Diversity")
+    if i > 0:
+        ax.legend(loc="lower left" if ax2 is not None else "lower right", fancybox=True, title="Accuracy")
+        if ax2 is not None:
+            ax2.set_ylim([0, 1])
+            ax2.legend(loc="lower right", fancybox=True, title="Diversity")
 
     plt.title(plot_name)
 
     ax.set_ylabel("MCTS accuracy %")
     plt.xlabel("Estimated cost in hours")
 
-    plt.savefig(img_output, bbox_inches="tight", format="eps", dpi=300)
+    iopath = img_output.replace(".eps", "")
+    iopath = iopath + str(i) + ".eps"
+    if i == len(dgroups):
+        foop = img_output
+    else:
+        foop = iopath
+    print(foop)
+    plt.savefig(foop, bbox_inches="tight", format="eps", dpi=300)
 
     plt.show()
+
+    return mostLeft, mostRight
+
+if __name__ == "__main__":
+    setLoggingEnabled(True)
+    setproctitle.setproctitle("x0_generate_tables")
+
+    dgroups = []
+    for groupName in groups:
+        if groupName == "extra":
+            continue
+        dgroups.append(groupName)
+    
+    dgroups = list(sorted(dgroups, key=lambda x: groups[x]["order"] if "order" in groups[x] else 0))
+    print(dgroups)
+
+    mostLeft, mostRight = plotForGroups(len(dgroups), dgroups, groups)
+
+    for i in range(len(dgroups)):
+        plotForGroups(i, dgroups, groups, mostLeft, mostRight)

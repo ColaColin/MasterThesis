@@ -3,10 +3,10 @@
 \beamer@sectionintoc {1}{Einleitung}{3}{0}{1}
 \beamer@sectionintoc {2}{Grundlagen}{21}{0}{2}
 \beamer@subsectionintoc {2}{1}{Algorithmus}{22}{0}{2}
-\beamer@subsectionintoc {2}{2}{Baselines}{53}{0}{2}
-\beamer@sectionintoc {3}{Untersuchte neue Ideen}{73}{0}{3}
-\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{74}{0}{3}
-\beamer@subsectionintoc {3}{2}{Games as trees}{117}{0}{3}
-\beamer@subsectionintoc {3}{3}{Auxiliary features}{135}{0}{3}
-\beamer@subsectionintoc {3}{4}{Fazit}{158}{0}{3}
-\beamer@sectionintoc {4}{Ende}{169}{0}{4}
+\beamer@subsectionintoc {2}{2}{Baselines}{61}{0}{2}
+\beamer@sectionintoc {3}{Untersuchte neue Ideen}{87}{0}{3}
+\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{88}{0}{3}
+\beamer@subsectionintoc {3}{2}{Games as trees}{131}{0}{3}
+\beamer@subsectionintoc {3}{3}{Auxiliary features}{155}{0}{3}
+\beamer@subsectionintoc {3}{4}{Fazit}{183}{0}{3}
+\beamer@sectionintoc {4}{Ende}{194}{0}{4}

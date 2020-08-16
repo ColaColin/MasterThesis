@@ -85,6 +85,23 @@
   
 \end{frame}
 \begin{frame}
+ \frametitle{MCTS Beispiel}
+  
+
+
+\only<1>{\includegraphics[scale=0.225]{tree_1}}
+\only<2>{\includegraphics[scale=0.225]{tree_2}}
+\only<3>{\includegraphics[scale=0.225]{tree_3}}
+\only<4>{\includegraphics[scale=0.225]{tree_4}}
+\only<5>{\includegraphics[scale=0.225]{tree_5}}
+\only<6>{\includegraphics[scale=0.225]{tree_6}}
+\only<7>{\includegraphics[scale=0.225]{tree_7}}
+\only<8>{\includegraphics[scale=0.225]{tree_8}}
+
+
+  
+\end{frame}
+\begin{frame}
  \frametitle{AlphaGo}
   
 
@@ -145,11 +162,10 @@
   
 
 
-\pause
-\centering \includegraphics[scale=0.425]{x0_framework_overview}
-\begin{itemize}
-  \item \pause Laufzeit auf Referenzmaschine
-\end{itemize}
+\only<1>{\includegraphics[scale=0.425]{framework_0}}
+\only<2>{\includegraphics[scale=0.425]{framework_1}}
+\only<3>{\includegraphics[scale=0.425]{framework_2}}
+\only<4>{\includegraphics[scale=0.425]{framework_3}}
 
   
 \end{frame}
@@ -164,7 +180,12 @@
   \item \pause Fitnessfunktion: Trainiere über 2 Stunden, messe Accuracy
   \item \pause 65 Steps, Laufzeit ca. eine Woche
 \end{itemize}
-\pause \centering \includegraphics[scale=0.385]{hyper_compare}
+\only<6>{\center \includegraphics[scale=0.425]{hyper_compare0}}
+\only<7>{\center \includegraphics[scale=0.425]{hyper_compare1}}
+\only<8>{\center \includegraphics[scale=0.425]{hyper_compare2}}
+\only<9>{\center \includegraphics[scale=0.425]{hyper_compare}}
+
+
 
   
 \end{frame}
@@ -197,7 +218,9 @@
   
 
 
-\center \includegraphics[scale=0.625]{baseline_ex}
+\only<1>{\center \includegraphics[scale=0.625]{baseline_ex0}}
+\only<2>{\center \includegraphics[scale=0.625]{baseline_ex1}}
+\only<3>{\center \includegraphics[scale=0.625]{baseline_ex}}
 
   
 \end{frame}
@@ -219,7 +242,7 @@
 \begin{itemize}
   \item \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
   \item \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
-  \item \pause Implementiert als eine Liga als Spielern.
+  \item \pause Implementiert als eine Liga von Spielern.
   \item \pause Ein Spieler ist ein Hyperparameterset
   \item \pause Bewerte Spieler mit Elo
   \item \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
@@ -240,7 +263,10 @@
   
 
 
-\center \includegraphics[scale=0.625]{evolve_results}
+\only<1>{\center \includegraphics[scale=0.625]{evolve_results0}}
+\only<2>{\center \includegraphics[scale=0.625]{evolve_results1}}
+\only<3>{\center \includegraphics[scale=0.625]{evolve_results2}}
+\only<4>{\center \includegraphics[scale=0.625]{evolve_results}}
 
   
 \end{frame}
@@ -273,9 +299,11 @@
   \item \pause Bei 0 hat der Parameter keinen Effekt
   \item \pause Bei 1 werden gute Züge selten gespielt, schlechte am häufigsten.
 \end{itemize}
-  \item \pause Der Parameter wird innerhalb von 10 Generationen deutlich reduziert.
+\end{itemize}
+\pause \center \includegraphics[scale=0.3]{inversion_reduction}
+\begin{itemize}
   \item \pause Ein voller Trainingslauf hat eher 30 bis 50 Generationen
-  \item \pause Die Liga mit Evolution funktioniert ganz klar
+  \item \pause Die Liga mit Evolution funktioniert
 \end{itemize}
 
   
@@ -293,15 +321,7 @@
   \item \pause Baseline Parameter
   \item \pause Bayesian Optimization
 \end{itemize}
-\end{itemize}
-
-\begin{itemize}
-  \item \pause Direkt optimierte Parameter sind am besten
-  \item \pause Die Evolution findet Parameter von ähnlicher Qualität wie die baseline
-  \item \pause Aber erst am Ende des Trainings
-\begin{itemize}
-  \item \pause Potentielles Problem: Das Training startet langsamer
-\end{itemize}
+  \item \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
 \end{itemize}
 
   
@@ -311,8 +331,21 @@
   
 
 
+\pause
+\begin{table} [H]
+ \centering
+
+  \begin{tabular}{ c c c c }
+  \\
+	Evolved Player vs...       &   \\
+  \hline
+  Baseline & 557W, 155L, 228D \\
+  Bayesian Opt. & 442W, 388L, 190D  \\
+  \end{tabular}
+
+\end{table}
+
 \begin{itemize}
-  \item \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
   \item \pause Klarer Sieger: Die Evolution
   \item \pause Viele gewonne Spiele bedeuten also nicht hoher Lernfortschritt
   \item \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
@@ -341,7 +374,10 @@
   \item \pause Notwendigkeit für MCTS-Evaluation Service
   \item \pause Nebeneffekt: Keine doppelte Auswertung von Positionen
 \end{itemize}
-\pause \center \includegraphics[scale=0.425]{cache_play}
+\only<6>{\center \includegraphics[scale=0.425]{cache_play0}}
+\only<7>{\center \includegraphics[scale=0.425]{cache_play1}}
+\only<8>{\center \includegraphics[scale=0.425]{cache_play}}
+
 
   
 \end{frame}
@@ -355,11 +391,9 @@
   \item \pause Wähle Position anhand der Entwicklung der Positionsevaluation
   \item \pause Beginne neues Spiel in dieser Position
 \end{itemize}
-\pause \center \includegraphics[scale=0.365]{winp_tree}
-\begin{itemize}
-  \item \pause Die Spieldiversität nimmt deutlich ab
-\end{itemize}
-
+\only<5>{\center \includegraphics[scale=0.425]{winp_tree0}}
+\only<6>{\center \includegraphics[scale=0.425]{winp_tree1}}
+\only<7>{\center \includegraphics[scale=0.425]{winp_tree}}
 
   
 \end{frame}
@@ -376,7 +410,11 @@
 \end{itemize}
   \item \pause Reporte die Positionen in den Knoten als Trainingspositionen
 \end{itemize}
-\pause \center \includegraphics[scale=0.425]{mcts_tree_explore}
+\only<5>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
+\only<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
+\only<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
+\only<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
+\only<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
 
   
 \end{frame}
@@ -394,6 +432,7 @@
   \item \pause Trainiere ein kleines Netzwerk, ca. 70k Parameter
   \item \pause Verwende interne Features aus diesem Netzwerk zur Regularisierung des großen Netzwerkes
   \item \pause Verschiedene Optionen wurden im Supervised Setting vorselektiert
+  \item \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
 \end{itemize}
 
   
@@ -404,7 +443,6 @@
 
 
 \begin{itemize}
-  \item \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
   \item \pause Positiver Effekt auf initialen Anstieg der Spielstärke
   \item \pause Negativer Effekt auf finale Spielstärke
   \item \pause Ein zufälliges Netzwerk zeigt diesen Effekt deutlich weniger
@@ -415,6 +453,19 @@
   \item \pause Finale Spielstärke wird gestört
 \end{itemize}
 \end{itemize}
+
+  
+\end{frame}
+\begin{frame}
+ \frametitle{Untersuchung}
+  
+
+\only<1>{\center \includegraphics[scale=0.425]{rndVsTrainedAux0}}
+\only<2>{\center \includegraphics[scale=0.425]{rndVsTrainedAux1}}
+\only<3>{\center \includegraphics[scale=0.425]{rndVsTrainedAux2}}
+\only<4>{\center \includegraphics[scale=0.425]{rndVsTrainedAux3}}
+\only<5>{\center \includegraphics[scale=0.425]{rndVsTrainedAux}}
+
 
   
 \end{frame}

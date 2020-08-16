@@ -20,67 +20,71 @@
 \headcommand {\beamer@subsectionentry {0}{2}{1}{22}{Algorithmus}}\headcommand {\beamer@subsectionpages {21}{21}}
 \headcommand {\slideentry {2}{1}{1}{22/33}{Algorithmus}{0}}
 \headcommand {\beamer@framepages {22}{33}}
-\headcommand {\slideentry {2}{1}{2}{34/43}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {34}{43}}
-\headcommand {\slideentry {2}{1}{3}{44/48}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {44}{48}}
-\headcommand {\slideentry {2}{1}{4}{49/52}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {49}{52}}
-\headcommand {\beamer@subsectionentry {0}{2}{2}{53}{Baselines}}\headcommand {\beamer@subsectionpages {22}{52}}
-\headcommand {\slideentry {2}{2}{1}{53/55}{Baselines}{0}}
-\headcommand {\beamer@framepages {53}{55}}
-\headcommand {\slideentry {2}{2}{2}{56/61}{Baselines}{0}}
-\headcommand {\beamer@framepages {56}{61}}
-\headcommand {\slideentry {2}{2}{3}{62/71}{Baselines}{0}}
-\headcommand {\beamer@framepages {62}{71}}
-\headcommand {\slideentry {2}{2}{4}{72/72}{Baselines}{0}}
-\headcommand {\beamer@framepages {72}{72}}
-\headcommand {\sectionentry {3}{Untersuchte neue Ideen}{73}{Untersuchte neue Ideen}{0}}
-\headcommand {\beamer@sectionpages {21}{72}}
-\headcommand {\beamer@subsectionpages {53}{72}}
-\headcommand {\slideentry {3}{0}{1}{73/73}{}{0}}
-\headcommand {\beamer@framepages {73}{73}}
-\headcommand {\beamer@subsectionentry {0}{3}{1}{74}{Evolutionary Self-play}}\headcommand {\beamer@subsectionpages {73}{73}}
-\headcommand {\slideentry {3}{1}{1}{74/83}{Evolutionary Self-play}{0}}
+\headcommand {\slideentry {2}{1}{2}{34/41}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {34}{41}}
+\headcommand {\slideentry {2}{1}{3}{42/51}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {42}{51}}
+\headcommand {\slideentry {2}{1}{4}{52/56}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {52}{56}}
+\headcommand {\slideentry {2}{1}{5}{57/60}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {57}{60}}
+\headcommand {\beamer@subsectionentry {0}{2}{2}{61}{Baselines}}\headcommand {\beamer@subsectionpages {22}{60}}
+\headcommand {\slideentry {2}{2}{1}{61/64}{Baselines}{0}}
+\headcommand {\beamer@framepages {61}{64}}
+\headcommand {\slideentry {2}{2}{2}{65/73}{Baselines}{0}}
+\headcommand {\beamer@framepages {65}{73}}
+\headcommand {\slideentry {2}{2}{3}{74/83}{Baselines}{0}}
 \headcommand {\beamer@framepages {74}{83}}
-\headcommand {\slideentry {3}{1}{2}{84/84}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {84}{84}}
-\headcommand {\slideentry {3}{1}{3}{85/88}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {85}{88}}
-\headcommand {\slideentry {3}{1}{4}{89/98}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {89}{98}}
-\headcommand {\slideentry {3}{1}{5}{99/108}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {99}{108}}
-\headcommand {\slideentry {3}{1}{6}{109/116}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {109}{116}}
-\headcommand {\beamer@subsectionentry {0}{3}{2}{117}{Games as trees}}\headcommand {\beamer@subsectionpages {74}{116}}
-\headcommand {\slideentry {3}{2}{1}{117/122}{Games as trees}{0}}
-\headcommand {\beamer@framepages {117}{122}}
-\headcommand {\slideentry {3}{2}{2}{123/128}{Games as trees}{0}}
-\headcommand {\beamer@framepages {123}{128}}
-\headcommand {\slideentry {3}{2}{3}{129/134}{Games as trees}{0}}
-\headcommand {\beamer@framepages {129}{134}}
-\headcommand {\beamer@subsectionentry {0}{3}{3}{135}{Auxiliary features}}\headcommand {\beamer@subsectionpages {117}{134}}
-\headcommand {\slideentry {3}{3}{1}{135/138}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {135}{138}}
-\headcommand {\slideentry {3}{3}{2}{139/147}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {139}{147}}
-\headcommand {\slideentry {3}{3}{3}{148/153}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {148}{153}}
-\headcommand {\slideentry {3}{3}{4}{154/157}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {154}{157}}
-\headcommand {\beamer@subsectionentry {0}{3}{4}{158}{Fazit}}\headcommand {\beamer@subsectionpages {135}{157}}
-\headcommand {\slideentry {3}{4}{1}{158/168}{Fazit}{0}}
-\headcommand {\beamer@framepages {158}{168}}
-\headcommand {\sectionentry {4}{Ende}{169}{Ende}{0}}
-\headcommand {\beamer@sectionpages {73}{168}}
-\headcommand {\beamer@subsectionpages {158}{168}}
-\headcommand {\slideentry {4}{0}{1}{169/169}{}{0}}
-\headcommand {\beamer@framepages {169}{169}}
-\headcommand {\slideentry {4}{0}{2}{170/170}{}{0}}
-\headcommand {\beamer@framepages {170}{170}}
-\headcommand {\beamer@partpages {1}{170}}
-\headcommand {\beamer@subsectionpages {169}{170}}
-\headcommand {\beamer@sectionpages {169}{170}}
-\headcommand {\beamer@documentpages {170}}
-\headcommand {\def \inserttotalframenumber {27}}
+\headcommand {\slideentry {2}{2}{4}{84/86}{Baselines}{0}}
+\headcommand {\beamer@framepages {84}{86}}
+\headcommand {\sectionentry {3}{Untersuchte neue Ideen}{87}{Untersuchte neue Ideen}{0}}
+\headcommand {\beamer@sectionpages {21}{86}}
+\headcommand {\beamer@subsectionpages {61}{86}}
+\headcommand {\slideentry {3}{0}{1}{87/87}{}{0}}
+\headcommand {\beamer@framepages {87}{87}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{88}{Evolutionary Self-play}}\headcommand {\beamer@subsectionpages {87}{87}}
+\headcommand {\slideentry {3}{1}{1}{88/97}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {88}{97}}
+\headcommand {\slideentry {3}{1}{2}{98/101}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {98}{101}}
+\headcommand {\slideentry {3}{1}{3}{102/105}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {102}{105}}
+\headcommand {\slideentry {3}{1}{4}{106/115}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {106}{115}}
+\headcommand {\slideentry {3}{1}{5}{116/122}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {116}{122}}
+\headcommand {\slideentry {3}{1}{6}{123/130}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {123}{130}}
+\headcommand {\beamer@subsectionentry {0}{3}{2}{131}{Games as trees}}\headcommand {\beamer@subsectionpages {88}{130}}
+\headcommand {\slideentry {3}{2}{1}{131/138}{Games as trees}{0}}
+\headcommand {\beamer@framepages {131}{138}}
+\headcommand {\slideentry {3}{2}{2}{139/145}{Games as trees}{0}}
+\headcommand {\beamer@framepages {139}{145}}
+\headcommand {\slideentry {3}{2}{3}{146/154}{Games as trees}{0}}
+\headcommand {\beamer@framepages {146}{154}}
+\headcommand {\beamer@subsectionentry {0}{3}{3}{155}{Auxiliary features}}\headcommand {\beamer@subsectionpages {131}{154}}
+\headcommand {\slideentry {3}{3}{1}{155/159}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {155}{159}}
+\headcommand {\slideentry {3}{3}{2}{160/167}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {160}{167}}
+\headcommand {\slideentry {3}{3}{3}{168/172}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {168}{172}}
+\headcommand {\slideentry {3}{3}{4}{173/178}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {173}{178}}
+\headcommand {\slideentry {3}{3}{5}{179/182}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {179}{182}}
+\headcommand {\beamer@subsectionentry {0}{3}{4}{183}{Fazit}}\headcommand {\beamer@subsectionpages {155}{182}}
+\headcommand {\slideentry {3}{4}{1}{183/193}{Fazit}{0}}
+\headcommand {\beamer@framepages {183}{193}}
+\headcommand {\sectionentry {4}{Ende}{194}{Ende}{0}}
+\headcommand {\beamer@sectionpages {87}{193}}
+\headcommand {\beamer@subsectionpages {183}{193}}
+\headcommand {\slideentry {4}{0}{1}{194/194}{}{0}}
+\headcommand {\beamer@framepages {194}{194}}
+\headcommand {\slideentry {4}{0}{2}{195/195}{}{0}}
+\headcommand {\beamer@framepages {195}{195}}
+\headcommand {\beamer@partpages {1}{195}}
+\headcommand {\beamer@subsectionpages {194}{195}}
+\headcommand {\beamer@sectionpages {194}{195}}
+\headcommand {\beamer@documentpages {195}}
+\headcommand {\def \inserttotalframenumber {29}}

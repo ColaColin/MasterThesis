@@ -40,6 +40,18 @@
 * \pause Output: Eine bessere Policy über die Züge in der analysierten Position
 * \pause MCTS ist praktisch ein Verbesserungsoperator
 
+==== MCTS Beispiel ====
+
+-<1>{\includegraphics[scale=0.225]{tree_1}}
+-<2>{\includegraphics[scale=0.225]{tree_2}}
+-<3>{\includegraphics[scale=0.225]{tree_3}}
+-<4>{\includegraphics[scale=0.225]{tree_4}}
+-<5>{\includegraphics[scale=0.225]{tree_5}}
+-<6>{\includegraphics[scale=0.225]{tree_6}}
+-<7>{\includegraphics[scale=0.225]{tree_7}}
+-<8>{\includegraphics[scale=0.225]{tree_8}}
+
+
 ==== AlphaGo ====
 
 * \pause Kernidee: Kombinere MCTS mit Deep Learning
@@ -72,9 +84,10 @@
 
 ==== Aufbau der Experimente ====
 
-\pause
-\centering \includegraphics[scale=0.425]{x0_framework_overview}
-* \pause Laufzeit auf Referenzmaschine
+-<1>{\includegraphics[scale=0.425]{framework_0}}
+-<2>{\includegraphics[scale=0.425]{framework_1}}
+-<3>{\includegraphics[scale=0.425]{framework_2}}
+-<4>{\includegraphics[scale=0.425]{framework_3}}
 
 ==== Hyperparametersuche ====
 
@@ -82,7 +95,12 @@
 * \pause Bayesian Optimization Package verwendet
 * \pause Fitnessfunktion: Trainiere über 2 Stunden, messe Accuracy
 * \pause 65 Steps, Laufzeit ca. eine Woche
-\pause \centering \includegraphics[scale=0.385]{hyper_compare}
+-<6>{\center \includegraphics[scale=0.425]{hyper_compare0}}
+-<7>{\center \includegraphics[scale=0.425]{hyper_compare1}}
+-<8>{\center \includegraphics[scale=0.425]{hyper_compare2}}
+-<9>{\center \includegraphics[scale=0.425]{hyper_compare}}
+
+
 
 ==== Extended baseline ====
 
@@ -99,7 +117,9 @@
 
 ==== Extended baseline Ergebnisse ====
 
-\center \includegraphics[scale=0.625]{baseline_ex}
+-<1>{\center \includegraphics[scale=0.625]{baseline_ex0}}
+-<2>{\center \includegraphics[scale=0.625]{baseline_ex1}}
+-<3>{\center \includegraphics[scale=0.625]{baseline_ex}}
 
 == Untersuchte neue Ideen ==
 
@@ -109,7 +129,7 @@
 
 * \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
 * \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
-* \pause Implementiert als eine Liga als Spielern.
+* \pause Implementiert als eine Liga von Spielern.
 * \pause Ein Spieler ist ein Hyperparameterset
 * \pause Bewerte Spieler mit Elo
 * \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
@@ -120,7 +140,10 @@
 
 ==== Erste Ergebnisse ====
 
-\center \includegraphics[scale=0.625]{evolve_results}
+-<1>{\center \includegraphics[scale=0.625]{evolve_results0}}
+-<2>{\center \includegraphics[scale=0.625]{evolve_results1}}
+-<3>{\center \includegraphics[scale=0.625]{evolve_results2}}
+-<4>{\center \includegraphics[scale=0.625]{evolve_results}}
 
 ==== Untersuchung  ====
 
@@ -136,9 +159,9 @@
 * \pause Wertebereich von 0 bis 1. 
 ** \pause Bei 0 hat der Parameter keinen Effekt
 ** \pause Bei 1 werden gute Züge selten gespielt, schlechte am häufigsten.
-* \pause Der Parameter wird innerhalb von 10 Generationen deutlich reduziert.
+\pause \center \includegraphics[scale=0.3]{inversion_reduction}
 * \pause Ein voller Trainingslauf hat eher 30 bis 50 Generationen
-* \pause Die Liga mit Evolution funktioniert ganz klar
+* \pause Die Liga mit Evolution funktioniert
 
 ==== Folgt Lernfortschritt aus mehr Siegen? ====
 
@@ -147,15 +170,24 @@
 ** \pause Bester Spieler aus der Evolution
 ** \pause Baseline Parameter
 ** \pause Bayesian Optimization
-
-* \pause Direkt optimierte Parameter sind am besten
-* \pause Die Evolution findet Parameter von ähnlicher Qualität wie die baseline
-* \pause Aber erst am Ende des Trainings
-** \pause Potentielles Problem: Das Training startet langsamer
+* \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
 
 ==== Folgt Lernfortschritt aus mehr Siegen? ====
 
-* \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
+\pause
+\begin{table} [H]
+ \centering
+
+  \begin{tabular}{ c c c c }
+  \\
+	Evolved Player vs...       &   \\
+  \hline
+  Baseline & 557W, 155L, 228D \\
+  Bayesian Opt. & 442W, 388L, 190D  \\
+  \end{tabular}
+  
+\end{table}
+
 * \pause Klarer Sieger: Die Evolution
 * \pause Viele gewonne Spiele bedeuten also nicht hoher Lernfortschritt
 * \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
@@ -171,16 +203,19 @@
 * \pause Spiele als MCTS-Baum
 * \pause Notwendigkeit für MCTS-Evaluation Service
 * \pause Nebeneffekt: Keine doppelte Auswertung von Positionen
-\pause \center \includegraphics[scale=0.425]{cache_play}
+-<6>{\center \includegraphics[scale=0.425]{cache_play0}}
+-<7>{\center \includegraphics[scale=0.425]{cache_play1}}
+-<8>{\center \includegraphics[scale=0.425]{cache_play}}
+
 
 ==== Zurücksetzen auf kritische Position ====
 
 * \pause Nach einer Niederlage darf der Verlierer einen Zug zurücknehmen
 * \pause Wähle Position anhand der Entwicklung der Positionsevaluation
 * \pause Beginne neues Spiel in dieser Position
-\pause \center \includegraphics[scale=0.365]{winp_tree}
-* \pause Die Spieldiversität nimmt deutlich ab
-
+-<5>{\center \includegraphics[scale=0.425]{winp_tree0}}
+-<6>{\center \includegraphics[scale=0.425]{winp_tree1}}
+-<7>{\center \includegraphics[scale=0.425]{winp_tree}}
 
 ==== Spiele als MCTS-Baum ====
 
@@ -188,7 +223,11 @@
 * \pause Baue einen einzigen MCTS Baum
 ** \pause 150k+ Knoten
 * \pause Reporte die Positionen in den Knoten als Trainingspositionen
-\pause \center \includegraphics[scale=0.425]{mcts_tree_explore}
+-<5>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
+-<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
+-<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
+-<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
+-<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
 
 === Auxiliary features ===
 
@@ -197,10 +236,10 @@
 * \pause Trainiere ein kleines Netzwerk, ca. 70k Parameter
 * \pause Verwende interne Features aus diesem Netzwerk zur Regularisierung des großen Netzwerkes
 * \pause Verschiedene Optionen wurden im Supervised Setting vorselektiert
+* \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
 
 ==== Untersuchung ====
 
-* \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
 * \pause Positiver Effekt auf initialen Anstieg der Spielstärke
 * \pause Negativer Effekt auf finale Spielstärke
 * \pause Ein zufälliges Netzwerk zeigt diesen Effekt deutlich weniger
@@ -208,6 +247,14 @@
 * \pause Zwei Probleme mit dem Ansatz:
 ** \pause Trainingskosten des kleinen Netzwerks
 ** \pause Finale Spielstärke wird gestört
+
+==== Untersuchung ====
+-<1>{\center \includegraphics[scale=0.425]{rndVsTrainedAux0}}
+-<2>{\center \includegraphics[scale=0.425]{rndVsTrainedAux1}}
+-<3>{\center \includegraphics[scale=0.425]{rndVsTrainedAux2}}
+-<4>{\center \includegraphics[scale=0.425]{rndVsTrainedAux3}}
+-<5>{\center \includegraphics[scale=0.425]{rndVsTrainedAux}}
+
 
 ==== Das Netzwerk wachsen lassen ====
 
