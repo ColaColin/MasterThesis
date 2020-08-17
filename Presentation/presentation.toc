@@ -1,12 +1,12 @@
 \beamer@endinputifotherversion {3.36pt}
 \select@language {english}
 \beamer@sectionintoc {1}{Einleitung}{3}{0}{1}
-\beamer@sectionintoc {2}{Grundlagen}{21}{0}{2}
-\beamer@subsectionintoc {2}{1}{Algorithmus}{22}{0}{2}
-\beamer@subsectionintoc {2}{2}{Baselines}{61}{0}{2}
-\beamer@sectionintoc {3}{Untersuchte neue Ideen}{87}{0}{3}
-\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{88}{0}{3}
-\beamer@subsectionintoc {3}{2}{Games as trees}{131}{0}{3}
-\beamer@subsectionintoc {3}{3}{Auxiliary features}{156}{0}{3}
-\beamer@subsectionintoc {3}{4}{Fazit}{183}{0}{3}
-\beamer@sectionintoc {4}{Ende}{194}{0}{4}
+\beamer@sectionintoc {2}{Grundlagen}{18}{0}{2}
+\beamer@subsectionintoc {2}{1}{Algorithmus}{19}{0}{2}
+\beamer@subsectionintoc {2}{2}{Baselines}{56}{0}{2}
+\beamer@sectionintoc {3}{Untersuchte neue Ideen}{69}{0}{3}
+\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{70}{0}{3}
+\beamer@subsectionintoc {3}{2}{Games as trees}{91}{0}{3}
+\beamer@subsectionintoc {3}{3}{Auxiliary features}{116}{0}{3}
+\beamer@subsectionintoc {3}{4}{Fazit}{132}{0}{3}
+\beamer@sectionintoc {4}{Ende}{145}{0}{4}

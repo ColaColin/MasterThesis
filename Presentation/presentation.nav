@@ -10,81 +10,67 @@
 \headcommand {\beamer@framepages {3}{3}}
 \headcommand {\slideentry {1}{0}{2}{4/12}{}{0}}
 \headcommand {\beamer@framepages {4}{12}}
-\headcommand {\slideentry {1}{0}{3}{13/20}{}{0}}
-\headcommand {\beamer@framepages {13}{20}}
-\headcommand {\sectionentry {2}{Grundlagen}{21}{Grundlagen}{0}}
-\headcommand {\beamer@sectionpages {3}{20}}
-\headcommand {\beamer@subsectionpages {3}{20}}
-\headcommand {\slideentry {2}{0}{1}{21/21}{}{0}}
-\headcommand {\beamer@framepages {21}{21}}
-\headcommand {\beamer@subsectionentry {0}{2}{1}{22}{Algorithmus}}\headcommand {\beamer@subsectionpages {21}{21}}
-\headcommand {\slideentry {2}{1}{1}{22/33}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {22}{33}}
-\headcommand {\slideentry {2}{1}{2}{34/41}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {34}{41}}
-\headcommand {\slideentry {2}{1}{3}{42/51}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {42}{51}}
-\headcommand {\slideentry {2}{1}{4}{52/56}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {52}{56}}
-\headcommand {\slideentry {2}{1}{5}{57/60}{Algorithmus}{0}}
-\headcommand {\beamer@framepages {57}{60}}
-\headcommand {\beamer@subsectionentry {0}{2}{2}{61}{Baselines}}\headcommand {\beamer@subsectionpages {22}{60}}
-\headcommand {\slideentry {2}{2}{1}{61/64}{Baselines}{0}}
-\headcommand {\beamer@framepages {61}{64}}
-\headcommand {\slideentry {2}{2}{2}{65/73}{Baselines}{0}}
-\headcommand {\beamer@framepages {65}{73}}
-\headcommand {\slideentry {2}{2}{3}{74/83}{Baselines}{0}}
-\headcommand {\beamer@framepages {74}{83}}
-\headcommand {\slideentry {2}{2}{4}{84/86}{Baselines}{0}}
-\headcommand {\beamer@framepages {84}{86}}
-\headcommand {\sectionentry {3}{Untersuchte neue Ideen}{87}{Untersuchte neue Ideen}{0}}
-\headcommand {\beamer@sectionpages {21}{86}}
-\headcommand {\beamer@subsectionpages {61}{86}}
-\headcommand {\slideentry {3}{0}{1}{87/87}{}{0}}
-\headcommand {\beamer@framepages {87}{87}}
-\headcommand {\beamer@subsectionentry {0}{3}{1}{88}{Evolutionary Self-play}}\headcommand {\beamer@subsectionpages {87}{87}}
-\headcommand {\slideentry {3}{1}{1}{88/97}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {88}{97}}
-\headcommand {\slideentry {3}{1}{2}{98/101}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {98}{101}}
-\headcommand {\slideentry {3}{1}{3}{102/105}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {102}{105}}
-\headcommand {\slideentry {3}{1}{4}{106/115}{Evolutionary Self-play}{0}}
+\headcommand {\slideentry {1}{0}{3}{13/17}{}{0}}
+\headcommand {\beamer@framepages {13}{17}}
+\headcommand {\sectionentry {2}{Grundlagen}{18}{Grundlagen}{0}}
+\headcommand {\beamer@sectionpages {3}{17}}
+\headcommand {\beamer@subsectionpages {3}{17}}
+\headcommand {\slideentry {2}{0}{1}{18/18}{}{0}}
+\headcommand {\beamer@framepages {18}{18}}
+\headcommand {\beamer@subsectionentry {0}{2}{1}{19}{Algorithmus}}\headcommand {\beamer@subsectionpages {18}{18}}
+\headcommand {\slideentry {2}{1}{1}{19/28}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {19}{28}}
+\headcommand {\slideentry {2}{1}{2}{29/36}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {29}{36}}
+\headcommand {\slideentry {2}{1}{3}{37/46}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {37}{46}}
+\headcommand {\slideentry {2}{1}{4}{47/51}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {47}{51}}
+\headcommand {\slideentry {2}{1}{5}{52/55}{Algorithmus}{0}}
+\headcommand {\beamer@framepages {52}{55}}
+\headcommand {\beamer@subsectionentry {0}{2}{2}{56}{Baselines}}\headcommand {\beamer@subsectionpages {19}{55}}
+\headcommand {\slideentry {2}{2}{1}{56/65}{Baselines}{0}}
+\headcommand {\beamer@framepages {56}{65}}
+\headcommand {\slideentry {2}{2}{2}{66/68}{Baselines}{0}}
+\headcommand {\beamer@framepages {66}{68}}
+\headcommand {\sectionentry {3}{Untersuchte neue Ideen}{69}{Untersuchte neue Ideen}{0}}
+\headcommand {\beamer@sectionpages {18}{68}}
+\headcommand {\beamer@subsectionpages {56}{68}}
+\headcommand {\slideentry {3}{0}{1}{69/69}{}{0}}
+\headcommand {\beamer@framepages {69}{69}}
+\headcommand {\beamer@subsectionentry {0}{3}{1}{70}{Evolutionary Self-play}}\headcommand {\beamer@subsectionpages {69}{69}}
+\headcommand {\slideentry {3}{1}{1}{70/78}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {70}{78}}
+\headcommand {\slideentry {3}{1}{2}{79/82}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {79}{82}}
+\headcommand {\slideentry {3}{1}{3}{83/90}{Evolutionary Self-play}{0}}
+\headcommand {\beamer@framepages {83}{90}}
+\headcommand {\beamer@subsectionentry {0}{3}{2}{91}{Games as trees}}\headcommand {\beamer@subsectionpages {70}{90}}
+\headcommand {\slideentry {3}{2}{1}{91/98}{Games as trees}{0}}
+\headcommand {\beamer@framepages {91}{98}}
+\headcommand {\slideentry {3}{2}{2}{99/105}{Games as trees}{0}}
+\headcommand {\beamer@framepages {99}{105}}
+\headcommand {\slideentry {3}{2}{3}{106/115}{Games as trees}{0}}
 \headcommand {\beamer@framepages {106}{115}}
-\headcommand {\slideentry {3}{1}{5}{116/122}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {116}{122}}
-\headcommand {\slideentry {3}{1}{6}{123/130}{Evolutionary Self-play}{0}}
-\headcommand {\beamer@framepages {123}{130}}
-\headcommand {\beamer@subsectionentry {0}{3}{2}{131}{Games as trees}}\headcommand {\beamer@subsectionpages {88}{130}}
-\headcommand {\slideentry {3}{2}{1}{131/138}{Games as trees}{0}}
-\headcommand {\beamer@framepages {131}{138}}
-\headcommand {\slideentry {3}{2}{2}{139/145}{Games as trees}{0}}
-\headcommand {\beamer@framepages {139}{145}}
-\headcommand {\slideentry {3}{2}{3}{146/155}{Games as trees}{0}}
-\headcommand {\beamer@framepages {146}{155}}
-\headcommand {\beamer@subsectionentry {0}{3}{3}{156}{Auxiliary features}}\headcommand {\beamer@subsectionpages {131}{155}}
-\headcommand {\slideentry {3}{3}{1}{156/160}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {156}{160}}
-\headcommand {\slideentry {3}{3}{2}{161/165}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {161}{165}}
-\headcommand {\slideentry {3}{3}{3}{166/169}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {166}{169}}
-\headcommand {\slideentry {3}{3}{4}{170/177}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {170}{177}}
-\headcommand {\slideentry {3}{3}{5}{178/182}{Auxiliary features}{0}}
-\headcommand {\beamer@framepages {178}{182}}
-\headcommand {\beamer@subsectionentry {0}{3}{4}{183}{Fazit}}\headcommand {\beamer@subsectionpages {156}{182}}
-\headcommand {\slideentry {3}{4}{1}{183/193}{Fazit}{0}}
-\headcommand {\beamer@framepages {183}{193}}
-\headcommand {\sectionentry {4}{Ende}{194}{Ende}{0}}
-\headcommand {\beamer@sectionpages {87}{193}}
-\headcommand {\beamer@subsectionpages {183}{193}}
-\headcommand {\slideentry {4}{0}{1}{194/194}{}{0}}
-\headcommand {\beamer@framepages {194}{194}}
-\headcommand {\slideentry {4}{0}{2}{195/195}{}{0}}
-\headcommand {\beamer@framepages {195}{195}}
-\headcommand {\beamer@partpages {1}{195}}
-\headcommand {\beamer@subsectionpages {194}{195}}
-\headcommand {\beamer@sectionpages {194}{195}}
-\headcommand {\beamer@documentpages {195}}
-\headcommand {\def \inserttotalframenumber {29}}
+\headcommand {\beamer@subsectionentry {0}{3}{3}{116}{Auxiliary features}}\headcommand {\beamer@subsectionpages {91}{115}}
+\headcommand {\slideentry {3}{3}{1}{116/120}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {116}{120}}
+\headcommand {\slideentry {3}{3}{2}{121/125}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {121}{125}}
+\headcommand {\slideentry {3}{3}{3}{126/131}{Auxiliary features}{0}}
+\headcommand {\beamer@framepages {126}{131}}
+\headcommand {\beamer@subsectionentry {0}{3}{4}{132}{Fazit}}\headcommand {\beamer@subsectionpages {116}{131}}
+\headcommand {\slideentry {3}{4}{1}{132/144}{Fazit}{0}}
+\headcommand {\beamer@framepages {132}{144}}
+\headcommand {\sectionentry {4}{Ende}{145}{Ende}{0}}
+\headcommand {\beamer@sectionpages {69}{144}}
+\headcommand {\beamer@subsectionpages {132}{144}}
+\headcommand {\slideentry {4}{0}{1}{145/145}{}{0}}
+\headcommand {\beamer@framepages {145}{145}}
+\headcommand {\slideentry {4}{0}{2}{146/146}{}{0}}
+\headcommand {\beamer@framepages {146}{146}}
+\headcommand {\beamer@partpages {1}{146}}
+\headcommand {\beamer@subsectionpages {145}{146}}
+\headcommand {\beamer@sectionpages {145}{146}}
+\headcommand {\beamer@documentpages {146}}
+\headcommand {\def \inserttotalframenumber {22}}

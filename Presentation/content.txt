@@ -18,9 +18,6 @@
 * \pause Solide Baseline
 * \pause Experimentiere mit Vier gewinnt
 * \pause Evaluiere verschiedende neue Ideen
-** \pause Evolution von Hyperparametern
-** \pause Self-play im Baumformat
-** \pause Auxiliary Features
 
 == Grundlagen ==
 
@@ -30,12 +27,10 @@
 
 * \pause Seit 2006 sehr verbreitet in Computer Go
 * \pause Iterativer Baumsuchalgorithmus verwendet in AlphaGo/AlphaGoZero/AlphaZero
-** \pause Wandere den Baum von der Wurzel hinab
-** \pause Wäge ab zwischen bekannten guten Zügen und wenig untersuchten neuen Zügen
-** \pause Schließlich propagiere Spielergebnis zurück durch den Baum
 * \pause Benötigt:
 ** \pause Eine Policy die Züge einschätzen kann
-** \pause Eine sehr schnelle Rolloutpolicy
+** \pause Lösung um die Suchtiefe zu begrenzen
+*** \pause Eine sehr schnelle Rolloutpolicy
 *** \pause Alternativ: Policy zur Positionseinschätzung
 * \pause Output: Eine bessere Policy über die Züge in der analysierten Position
 * \pause MCTS ist praktisch ein Verbesserungsoperator
@@ -82,26 +77,6 @@
 
 === Baselines ===
 
-==== Aufbau der Experimente ====
-
--<1>{\includegraphics[scale=0.425]{framework_0}}
--<2>{\includegraphics[scale=0.425]{framework_1}}
--<3>{\includegraphics[scale=0.425]{framework_2}}
--<4>{\includegraphics[scale=0.425]{framework_3}}
-
-==== Hyperparametersuche ====
-
-* \pause Optimiere wichtige Hyperparameter für Vier gewinnt
-* \pause Bayesian Optimization Package verwendet
-* \pause Fitnessfunktion: Trainiere über 2 Stunden, messe Accuracy
-* \pause 65 Steps, Laufzeit ca. eine Woche
--<6>{\center \includegraphics[scale=0.425]{hyper_compare0}}
--<7>{\center \includegraphics[scale=0.425]{hyper_compare1}}
--<8>{\center \includegraphics[scale=0.425]{hyper_compare2}}
--<9>{\center \includegraphics[scale=0.425]{hyper_compare}}
-
-
-
 ==== Extended baseline ====
 
 * \pause Erweitere die Baselineimplementierung mit Verbesserungen anderer Arbeiten
@@ -127,8 +102,7 @@
 
 ==== Implementierung: Evolutionary Self-play ====
 
-* \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
-* \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
+* \pause Verwende die Selbstspielphase zur Evolution von Hyperparametern
 * \pause Implementiert als eine Liga von Spielern
 * \pause Ein Spieler ist ein Hyperparameterset
 * \pause Bewerte Spieler mit Elo
@@ -149,51 +123,11 @@
 
 * \pause Bedingungen für erfolgreiche Evolution:
 ** \pause Die Liga muss gute Parameter erkennen
+*** \pause Sie funktioniert
 ** \pause Viele Siege müssen sich übertragen auf schnelleren Lernfortschritt
-
-==== Erkennt die Liga gute Parameter? ====
-
-* \pause "Gut" im Sinne der Evolution: Gewinne viele Spiele
-* \pause Erfinde einen neuen Parameter für den der optimale Wert klar ist
-* \pause Stelle die Bewertung der Spielzüge auf den Kopf.
-* \pause Wertebereich von 0 bis 1.
-** \pause Bei 0 hat der Parameter keinen Effekt
-** \pause Bei 1 werden gute Züge selten gespielt, schlechte am häufigsten.
-\pause \center \includegraphics[scale=0.3]{inversion_reduction}
-* \pause Ein voller Trainingslauf hat eher 30 bis 50 Generationen
-* \pause Die Liga mit Evolution funktioniert
-
-==== Folgt Lernfortschritt aus mehr Siegen? ====
-
-* \pause Lernfortschritt bedeutet höhere Übereinstimmung mit dem Solver
-* \pause Vergleiche 3 Hyperparametersets
-** \pause Bester Spieler aus der Evolution
-** \pause Baseline Parameter
-** \pause Bayesian Optimization
-* \pause Vergleiche die 3 Optionen in 1000 Spiele Matches
-
-==== Folgt Lernfortschritt aus mehr Siegen? ====
-
-\pause
-\begin{table} [H]
- \centering
-
-  \begin{tabular}{ c c c c }
-  \\
-	Evolved Player vs...       &   \\
-  \hline
-  Baseline & 557W, 155L, 228D \\
-  Bayesian Opt. & 442W, 388L, 190D  \\
-  \end{tabular}
-  
-\end{table}
-
-* \pause Klarer Sieger: Die Evolution
+*** \pause Dies ist das Problem
 * \pause Viele gewonne Spiele bedeuten also nicht hoher Lernfortschritt
 * \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
-* \pause Eine weitere untersuchte Alternative: Novelty search
-** \pause Keine bedeutend höhere Diversität
-** \pause Die Hyperparametersuche hat darauf schon implizit geachtet
 
 === Games as trees ===
 
@@ -249,25 +183,9 @@
 
 * \pause Zwei Probleme mit dem Ansatz:
 ** \pause Trainingskosten des kleinen Netzwerks
+*** \pause Das Netzwerk mit dem Trainingslauf wachsen lassen hilft
 ** \pause Finale Spielstärke wird gestört
-
-==== Das Netzwerk wachsen lassen ====
-
-* \pause Beginne den AlphaZero Trainingslauf mit kleinem Netzwerk
-* \pause Tausche des Netzwerk alle paar Iterationen gegen Größeres aus
-* \pause Keine neue Idee
-* \pause Die Trainingskosten des kleinen Netzwerkes könnten so versteckt werden
-
--<6>{\center \includegraphics[scale=0.425]{growNetwork0}}
--<7>{\center \includegraphics[scale=0.425]{growNetwork1}}
--<8>{\center \includegraphics[scale=0.425]{growNetwork}}
-
-==== Finale Spielstärke darf nicht geschadet werden ====
-
-* \pause Auxiliary features dürfen nicht der finalen Spielstärke schaden
-* \pause Es wurden verschiedene Optionen erprobt
-* \pause Keine verbesserte die Situation
-* \pause Dies bleibt ein ungelöstes Problem
+*** \pause Keine Lösung gefunden
 
 === Fazit ===
 
@@ -281,8 +199,10 @@
 *** \pause Nur eine gute Fitnessfunktion fehlt
 *** \pause Unterschied zwischen Lernfortschritt und Spielstärke
 ** \pause Alternative Explorationsmethoden zeigen vor allem wie gut die einfache Standardversion funktioniert
-** \pause Auxiliary features aus dem inneren eines kleineren Netzwerks sind nur schwer nutzbar
-*** \pause Aber das Konzept des Netzwerkwachstums sollte weiter erforscht werden
+** \pause Auxiliary Features aus dem inneren eines kleineren Netzwerks sind nur schwer nutzbar
+* \pause Vorschläge für weitere Forschung
+** \pause Suche nach Fitnessfunktion für Evolution
+** \pause Das Konzept des Netzwerkwachstums sollte weiter erforscht werden
 
 
 == Ende ==
