@@ -37,7 +37,7 @@
   \item \pause Untersuche mögliche Effizienzsteigerungen
   \item \pause Solide Baseline
   \item \pause Experimentiere mit Vier gewinnt
-  \item \pause Evaluiere verschiende neue Ideen
+  \item \pause Evaluiere verschiedende neue Ideen
 \begin{itemize}
   \item \pause Evolution von Hyperparametern
   \item \pause Self-play im Baumformat
@@ -63,7 +63,7 @@
 
 
 \begin{itemize}
-  \item \pause Seit 2006 sehr verbreitet in Computer Go.
+  \item \pause Seit 2006 sehr verbreitet in Computer Go
   \item \pause Iterativer Baumsuchalgorithmus verwendet in AlphaGo/AlphaGoZero/AlphaZero
 \begin{itemize}
   \item \pause Wandere den Baum von der Wurzel hinab
@@ -208,7 +208,7 @@
 
 \begin{itemize}
   \item \pause Alle außer Playout Caps zeigten eine tendenzielle Verbesserung
-  \item \pause Kombiniert ist die Verbesserung sehr erheblich.
+  \item \pause Kombiniert ist die Verbesserung sehr erheblich
 \end{itemize}
 
   
@@ -242,7 +242,7 @@
 \begin{itemize}
   \item \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
   \item \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
-  \item \pause Implementiert als eine Liga von Spielern.
+  \item \pause Implementiert als eine Liga von Spielern
   \item \pause Ein Spieler ist ein Hyperparameterset
   \item \pause Bewerte Spieler mit Elo
   \item \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
@@ -351,7 +351,7 @@
   \item \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
   \item \pause Eine weitere untersuchte Alternative: Novelty search
 \begin{itemize}
-  \item \pause Keine bedeutend höhere Diversität.
+  \item \pause Keine bedeutend höhere Diversität
   \item \pause Die Hyperparametersuche hat darauf schon implizit geachtet
 \end{itemize}
 \end{itemize}
@@ -410,11 +410,11 @@
 \end{itemize}
   \item \pause Reporte die Positionen in den Knoten als Trainingspositionen
 \end{itemize}
-\only<5>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
-\only<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
-\only<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
-\only<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
-\only<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
+\only<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
+\only<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
+\only<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
+\only<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
+\only<10>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
 
   
 \end{frame}
@@ -432,26 +432,7 @@
   \item \pause Trainiere ein kleines Netzwerk, ca. 70k Parameter
   \item \pause Verwende interne Features aus diesem Netzwerk zur Regularisierung des großen Netzwerkes
   \item \pause Verschiedene Optionen wurden im Supervised Setting vorselektiert
-  \item \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
-\end{itemize}
-
-  
-\end{frame}
-\begin{frame}
- \frametitle{Untersuchung}
-  
-
-
-\begin{itemize}
-  \item \pause Positiver Effekt auf initialen Anstieg der Spielstärke
-  \item \pause Negativer Effekt auf finale Spielstärke
-  \item \pause Ein zufälliges Netzwerk zeigt diesen Effekt deutlich weniger
-  \item \pause Kosten des Trainings des kleinen Netzwerkes sind zu hoch.
-  \item \pause Zwei Probleme mit dem Ansatz:
-\begin{itemize}
-  \item \pause Trainingskosten des kleinen Netzwerks
-  \item \pause Finale Spielstärke wird gestört
-\end{itemize}
+  \item \pause Kleine Gewinne im Supervised Setting
 \end{itemize}
 
   
@@ -466,6 +447,20 @@
 \only<4>{\center \includegraphics[scale=0.425]{rndVsTrainedAux3}}
 \only<5>{\center \includegraphics[scale=0.425]{rndVsTrainedAux}}
 
+  
+\end{frame}
+\begin{frame}
+ \frametitle{Probleme}
+  
+
+
+\begin{itemize}
+  \item \pause Zwei Probleme mit dem Ansatz:
+\begin{itemize}
+  \item \pause Trainingskosten des kleinen Netzwerks
+  \item \pause Finale Spielstärke wird gestört
+\end{itemize}
+\end{itemize}
 
   
 \end{frame}
@@ -476,11 +471,14 @@
 
 \begin{itemize}
   \item \pause Beginne den AlphaZero Trainingslauf mit kleinem Netzwerk
-  \item \pause Tausche des Netzwerk alle paar Iterationen gegen größeres aus
-  \item \pause Dieses Vorgehen ist generell effektiver
-  \item \pause Aber keine neue Idee
-  \item \pause Die Trainingskosten des kleinen Netzwerkes verschwinden
+  \item \pause Tausche des Netzwerk alle paar Iterationen gegen Größeres aus
+  \item \pause Keine neue Idee
+  \item \pause Die Trainingskosten des kleinen Netzwerkes könnten so versteckt werden
 \end{itemize}
+
+\only<6>{\center \includegraphics[scale=0.425]{growNetwork0}}
+\only<7>{\center \includegraphics[scale=0.425]{growNetwork1}}
+\only<8>{\center \includegraphics[scale=0.425]{growNetwork}}
 
   
 \end{frame}
@@ -493,6 +491,7 @@
   \item \pause Auxiliary features dürfen nicht der finalen Spielstärke schaden
   \item \pause Es wurden verschiedene Optionen erprobt
   \item \pause Keine verbesserte die Situation
+  \item \pause Dies bleibt ein ungelöstes Problem
 \end{itemize}
 
   
@@ -510,7 +509,7 @@
 \begin{itemize}
   \item \pause AlphaZero Experimentalframework entwickelt
   \item \pause Keine großen Verbesserungen gefunden
-  \item \pause Trotzdem einiges Interessante Erkenntnisse
+  \item \pause Trotzdem einiges interessante Erkenntnisse
 \begin{itemize}
   \item \pause Nicht alle Ideen vorheriger Arbeiten funktionieren mit Vier gewinnt
   \item \pause Evolution für Hyperparameter funktioniert
@@ -539,13 +538,15 @@
   
 
 
-\centering Danke für Ihre Aufmerksamkeit.
-
-
 \begin{itemize}
-  \item Maybe do some references here...
+  \item Levente Kocsis et al.: Bandit based monte-carlo planning, 2006.
+  \item David Silver et al.: Mastering the game of go with deep neural networks and tree search, 2016
+  \item David Silver et al.: A general reinforcement learning algorithm that masters chess, shogi, and go through self-play, 2018
+  \item David J Wu: Accelerating self-play learning in go, 2019
+  \item Leslie N Smith: Cyclical learning rates for training neural networks, 2017
 \end{itemize}
 
+\centering Danke für Ihre Aufmerksamkeit.
 
 
   

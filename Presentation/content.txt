@@ -17,7 +17,7 @@
 * \pause Untersuche mögliche Effizienzsteigerungen
 * \pause Solide Baseline
 * \pause Experimentiere mit Vier gewinnt
-* \pause Evaluiere verschiende neue Ideen
+* \pause Evaluiere verschiedende neue Ideen
 ** \pause Evolution von Hyperparametern
 ** \pause Self-play im Baumformat
 ** \pause Auxiliary Features
@@ -28,7 +28,7 @@
 
 ==== Monte Carlo tree search (MCTS) ====
 
-* \pause Seit 2006 sehr verbreitet in Computer Go.
+* \pause Seit 2006 sehr verbreitet in Computer Go
 * \pause Iterativer Baumsuchalgorithmus verwendet in AlphaGo/AlphaGoZero/AlphaZero
 ** \pause Wandere den Baum von der Wurzel hinab
 ** \pause Wäge ab zwischen bekannten guten Zügen und wenig untersuchten neuen Zügen
@@ -113,7 +113,7 @@
 ** \pause Verbesserung des Netzwerks
 
 * \pause Alle außer Playout Caps zeigten eine tendenzielle Verbesserung
-* \pause Kombiniert ist die Verbesserung sehr erheblich.
+* \pause Kombiniert ist die Verbesserung sehr erheblich
 
 ==== Extended baseline Ergebnisse ====
 
@@ -129,7 +129,7 @@
 
 * \pause Verwende die Self-play-phase zur Evolution von Hyperparametern
 * \pause Beschränkt auf Hyperparameter, welche sich leicht ändern lassen
-* \pause Implementiert als eine Liga von Spielern.
+* \pause Implementiert als eine Liga von Spielern
 * \pause Ein Spieler ist ein Hyperparameterset
 * \pause Bewerte Spieler mit Elo
 * \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
@@ -155,8 +155,8 @@
 
 * \pause "Gut" im Sinne der Evolution: Gewinne viele Spiele
 * \pause Erfinde einen neuen Parameter für den der optimale Wert klar ist
-* \pause Stelle die Bewertung der Spielzüge auf den Kopf. 
-* \pause Wertebereich von 0 bis 1. 
+* \pause Stelle die Bewertung der Spielzüge auf den Kopf.
+* \pause Wertebereich von 0 bis 1.
 ** \pause Bei 0 hat der Parameter keinen Effekt
 ** \pause Bei 1 werden gute Züge selten gespielt, schlechte am häufigsten.
 \pause \center \includegraphics[scale=0.3]{inversion_reduction}
@@ -192,7 +192,7 @@
 * \pause Viele gewonne Spiele bedeuten also nicht hoher Lernfortschritt
 * \pause Nach hoher Siegesrate zu optimieren ist also nicht zielführend
 * \pause Eine weitere untersuchte Alternative: Novelty search
-** \pause Keine bedeutend höhere Diversität.
+** \pause Keine bedeutend höhere Diversität
 ** \pause Die Hyperparametersuche hat darauf schon implizit geachtet
 
 === Games as trees ===
@@ -223,11 +223,11 @@
 * \pause Baue einen einzigen MCTS Baum
 ** \pause 150k+ Knoten
 * \pause Reporte die Positionen in den Knoten als Trainingspositionen
--<5>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
--<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
--<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
--<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
--<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
+-<6>{\center \includegraphics[scale=0.425]{mcts_tree_explore0}}
+-<7>{\center \includegraphics[scale=0.425]{mcts_tree_explore1}}
+-<8>{\center \includegraphics[scale=0.425]{mcts_tree_explore2}}
+-<9>{\center \includegraphics[scale=0.425]{mcts_tree_explore3}}
+-<10>{\center \includegraphics[scale=0.425]{mcts_tree_explore}}
 
 === Auxiliary features ===
 
@@ -236,17 +236,7 @@
 * \pause Trainiere ein kleines Netzwerk, ca. 70k Parameter
 * \pause Verwende interne Features aus diesem Netzwerk zur Regularisierung des großen Netzwerkes
 * \pause Verschiedene Optionen wurden im Supervised Setting vorselektiert
-* \pause Kleine Gewinne im Supervised Setting, keine Gewinne im AlphaZero Setting
-
-==== Untersuchung ====
-
-* \pause Positiver Effekt auf initialen Anstieg der Spielstärke
-* \pause Negativer Effekt auf finale Spielstärke
-* \pause Ein zufälliges Netzwerk zeigt diesen Effekt deutlich weniger
-* \pause Kosten des Trainings des kleinen Netzwerkes sind zu hoch.
-* \pause Zwei Probleme mit dem Ansatz:
-** \pause Trainingskosten des kleinen Netzwerks
-** \pause Finale Spielstärke wird gestört
+* \pause Kleine Gewinne im Supervised Setting
 
 ==== Untersuchung ====
 -<1>{\center \includegraphics[scale=0.425]{rndVsTrainedAux0}}
@@ -255,20 +245,29 @@
 -<4>{\center \includegraphics[scale=0.425]{rndVsTrainedAux3}}
 -<5>{\center \includegraphics[scale=0.425]{rndVsTrainedAux}}
 
+==== Probleme ====
+
+* \pause Zwei Probleme mit dem Ansatz:
+** \pause Trainingskosten des kleinen Netzwerks
+** \pause Finale Spielstärke wird gestört
 
 ==== Das Netzwerk wachsen lassen ====
 
 * \pause Beginne den AlphaZero Trainingslauf mit kleinem Netzwerk
-* \pause Tausche des Netzwerk alle paar Iterationen gegen größeres aus
-* \pause Dieses Vorgehen ist generell effektiver
-* \pause Aber keine neue Idee
-* \pause Die Trainingskosten des kleinen Netzwerkes verschwinden
+* \pause Tausche des Netzwerk alle paar Iterationen gegen Größeres aus
+* \pause Keine neue Idee
+* \pause Die Trainingskosten des kleinen Netzwerkes könnten so versteckt werden
+
+-<6>{\center \includegraphics[scale=0.425]{growNetwork0}}
+-<7>{\center \includegraphics[scale=0.425]{growNetwork1}}
+-<8>{\center \includegraphics[scale=0.425]{growNetwork}}
 
 ==== Finale Spielstärke darf nicht geschadet werden ====
 
 * \pause Auxiliary features dürfen nicht der finalen Spielstärke schaden
 * \pause Es wurden verschiedene Optionen erprobt
 * \pause Keine verbesserte die Situation
+* \pause Dies bleibt ein ungelöstes Problem
 
 === Fazit ===
 
@@ -276,7 +275,7 @@
 
 * \pause AlphaZero Experimentalframework entwickelt
 * \pause Keine großen Verbesserungen gefunden
-* \pause Trotzdem einiges Interessante Erkenntnisse
+* \pause Trotzdem einiges interessante Erkenntnisse
 ** \pause Nicht alle Ideen vorheriger Arbeiten funktionieren mit Vier gewinnt
 ** \pause Evolution für Hyperparameter funktioniert
 *** \pause Nur eine gute Fitnessfunktion fehlt
@@ -290,9 +289,11 @@
 
 ==== Referenzen ====
 
+* Levente Kocsis et al.: Bandit based monte-carlo planning, 2006.
+* David Silver et al.: Mastering the game of go with deep neural networks and tree search, 2016
+* David Silver et al.: A general reinforcement learning algorithm that masters chess, shogi, and go through self-play, 2018
+* David J Wu: Accelerating self-play learning in go, 2019
+* Leslie N Smith: Cyclical learning rates for training neural networks, 2017
+
 \centering Danke für Ihre Aufmerksamkeit.
-
-
-* Maybe do some references here...
-
 
