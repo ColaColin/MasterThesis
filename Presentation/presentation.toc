@@ -8,5 +8,6 @@
 \beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{63}{0}{3}
 \beamer@subsectionintoc {3}{2}{Games as trees}{84}{0}{3}
 \beamer@subsectionintoc {3}{3}{Auxiliary features}{109}{0}{3}
-\beamer@subsectionintoc {3}{4}{Fazit}{125}{0}{3}
-\beamer@sectionintoc {4}{Ende}{138}{0}{4}
+\beamer@sectionintoc {4}{Ende}{125}{0}{4}
+\beamer@subsectionintoc {4}{1}{Fazit}{126}{0}{4}
+\beamer@subsectionintoc {4}{2}{Referenzen}{138}{0}{4}

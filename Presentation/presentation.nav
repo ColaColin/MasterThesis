@@ -59,18 +59,19 @@
 \headcommand {\beamer@framepages {114}{118}}
 \headcommand {\slideentry {3}{3}{3}{119/124}{Auxiliary features}{0}}
 \headcommand {\beamer@framepages {119}{124}}
-\headcommand {\beamer@subsectionentry {0}{3}{4}{125}{Fazit}}\headcommand {\beamer@subsectionpages {109}{124}}
-\headcommand {\slideentry {3}{4}{1}{125/137}{Fazit}{0}}
-\headcommand {\beamer@framepages {125}{137}}
-\headcommand {\sectionentry {4}{Ende}{138}{Ende}{0}}
-\headcommand {\beamer@sectionpages {62}{137}}
-\headcommand {\beamer@subsectionpages {125}{137}}
-\headcommand {\slideentry {4}{0}{1}{138/138}{}{0}}
+\headcommand {\sectionentry {4}{Ende}{125}{Ende}{0}}
+\headcommand {\beamer@sectionpages {62}{124}}
+\headcommand {\beamer@subsectionpages {109}{124}}
+\headcommand {\slideentry {4}{0}{1}{125/125}{}{0}}
+\headcommand {\beamer@framepages {125}{125}}
+\headcommand {\beamer@subsectionentry {0}{4}{1}{126}{Fazit}}\headcommand {\beamer@subsectionpages {125}{125}}
+\headcommand {\slideentry {4}{1}{1}{126/137}{Fazit}{0}}
+\headcommand {\beamer@framepages {126}{137}}
+\headcommand {\beamer@subsectionentry {0}{4}{2}{138}{Referenzen}}\headcommand {\beamer@subsectionpages {126}{137}}
+\headcommand {\slideentry {4}{2}{1}{138/138}{Referenzen}{0}}
 \headcommand {\beamer@framepages {138}{138}}
-\headcommand {\slideentry {4}{0}{2}{139/139}{}{0}}
-\headcommand {\beamer@framepages {139}{139}}
-\headcommand {\beamer@partpages {1}{139}}
-\headcommand {\beamer@subsectionpages {138}{139}}
-\headcommand {\beamer@sectionpages {138}{139}}
-\headcommand {\beamer@documentpages {139}}
+\headcommand {\beamer@partpages {1}{138}}
+\headcommand {\beamer@subsectionpages {138}{138}}
+\headcommand {\beamer@sectionpages {125}{138}}
+\headcommand {\beamer@documentpages {138}}
 \headcommand {\def \inserttotalframenumber {22}}

@@ -179,6 +179,9 @@
 ** \pause Finale Spielstärke wird gestört
 *** \pause Keine Lösung gefunden
 
+
+== Ende ==
+
 === Fazit ===
 
 ==== Fazit ====
@@ -186,7 +189,6 @@
 * \pause AlphaZero Experimentalframework entwickelt
 * \pause Keine großen Verbesserungen gefunden
 * \pause Trotzdem einiges interessante Erkenntnisse
-** \pause Nicht alle Ideen vorheriger Arbeiten funktionieren mit Vier gewinnt
 ** \pause Evolution für Hyperparameter funktioniert
 *** \pause Nur eine gute Fitnessfunktion fehlt
 *** \pause Unterschied zwischen Lernfortschritt und Spielstärke
@@ -196,8 +198,7 @@
 ** \pause Suche nach Fitnessfunktion für Evolution
 ** \pause Das Konzept des Netzwerkwachstums sollte weiter erforscht werden
 
-
-== Ende ==
+=== Referenzen ===
 
 ==== Referenzen ====
 
