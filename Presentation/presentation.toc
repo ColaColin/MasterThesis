@@ -4,9 +4,9 @@
 \beamer@sectionintoc {2}{Grundlagen}{18}{0}{2}
 \beamer@subsectionintoc {2}{1}{Algorithmus}{19}{0}{2}
 \beamer@subsectionintoc {2}{2}{Baselines}{56}{0}{2}
-\beamer@sectionintoc {3}{Untersuchte neue Ideen}{69}{0}{3}
-\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{70}{0}{3}
-\beamer@subsectionintoc {3}{2}{Games as trees}{91}{0}{3}
-\beamer@subsectionintoc {3}{3}{Auxiliary features}{116}{0}{3}
-\beamer@subsectionintoc {3}{4}{Fazit}{132}{0}{3}
-\beamer@sectionintoc {4}{Ende}{145}{0}{4}
+\beamer@sectionintoc {3}{Untersuchte neue Ideen}{62}{0}{3}
+\beamer@subsectionintoc {3}{1}{Evolutionary Self-play}{63}{0}{3}
+\beamer@subsectionintoc {3}{2}{Games as trees}{84}{0}{3}
+\beamer@subsectionintoc {3}{3}{Auxiliary features}{109}{0}{3}
+\beamer@subsectionintoc {3}{4}{Fazit}{125}{0}{3}
+\beamer@sectionintoc {4}{Ende}{138}{0}{4}

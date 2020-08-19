@@ -80,14 +80,6 @@
 ==== Extended baseline ====
 
 * \pause Erweitere die Baselineimplementierung mit Verbesserungen anderer Arbeiten
-** \pause Deduplikation
-** \pause Cyclic learning rate
-** \pause Verbessertes Trainingswindow
-** \pause Playout Caps
-** \pause Vorhersage des nächsten Zuges des Gegners
-** \pause Verbesserung des Netzwerks
-
-* \pause Alle außer Playout Caps zeigten eine tendenzielle Verbesserung
 * \pause Kombiniert ist die Verbesserung sehr erheblich
 
 ==== Extended baseline Ergebnisse ====
@@ -212,8 +204,6 @@
 * Levente Kocsis et al.: Bandit based monte-carlo planning, 2006.
 * David Silver et al.: Mastering the game of go with deep neural networks and tree search, 2016
 * David Silver et al.: A general reinforcement learning algorithm that masters chess, shogi, and go through self-play, 2018
-* David J Wu: Accelerating self-play learning in go, 2019
-* Leslie N Smith: Cyclical learning rates for training neural networks, 2017
 
 \centering Danke für Ihre Aufmerksamkeit.
 
