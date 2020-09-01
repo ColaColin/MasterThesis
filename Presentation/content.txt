@@ -100,16 +100,14 @@
 * \pause Bewerte Spieler mit Elo
 * \pause Verwende Gaussian Mutation um die besten Spieler zu mutieren
 
-* \pause Zwei Arten von Hyperparametern untersucht
-** \pause Verwendung von Kullback-Leibler divergence um "Denkzeit" zu wählen.
+* \pause Untersuchte Hyperparameter
 ** \pause MCTS Parameter: cpuct, fpu, drawValue
 
 ==== Erste Ergebnisse ====
 
 -<1>{\center \includegraphics[scale=0.625]{evolve_results0}}
 -<2>{\center \includegraphics[scale=0.625]{evolve_results1}}
--<3>{\center \includegraphics[scale=0.625]{evolve_results2}}
--<4>{\center \includegraphics[scale=0.625]{evolve_results}}
+-<3>{\center \includegraphics[scale=0.625]{evolve_results}}
 
 ==== Untersuchung  ====
 

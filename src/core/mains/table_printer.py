@@ -55,30 +55,30 @@ command = "http://127.0.0.1:8042"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/aux_extra_output.eps"
 
-plot_name = "Growing the network during the run"
-groups = {
-    "extended": {
-        "order": 0,
-        "color": (1,0,0),
-        "runs": [
-            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
-            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
-            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
-            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
-            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
-        ]
-    },
-    "grow network": {
-        "order": 1,
-        "color": (0, 1, 0),
-        "runs": [
-            "6b4e3e40-883c-4907-816f-9f99f681fddd",
-            "3811cae0-baa4-4baf-869f-27e3fc5dd5d0",
-            "448a572b-2564-4adf-98d3-98dadeea4bb6"
-        ]
-    }
-}
-img_output = "/ImbaKeks/git/MasterThesis/Write/images/growNetwork.eps"
+# plot_name = "Growing the network during the run"
+# groups = {
+#     "extended": {
+#         "order": 0,
+#         "color": (1,0,0),
+#         "runs": [
+#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+#         ]
+#     },
+#     "grow network": {
+#         "order": 1,
+#         "color": (0, 1, 0),
+#         "runs": [
+#             "6b4e3e40-883c-4907-816f-9f99f681fddd",
+#             "3811cae0-baa4-4baf-869f-27e3fc5dd5d0",
+#             "448a572b-2564-4adf-98d3-98dadeea4bb6"
+#         ]
+#     }
+# }
+# img_output = "/ImbaKeks/git/MasterThesis/Write/images/growNetwork.eps"
 
 # plot_name = "Auxiliary features: Auxiliary network training costs are an issue"
 # groups = {
@@ -455,35 +455,35 @@ img_output = "/ImbaKeks/git/MasterThesis/Write/images/growNetwork.eps"
 # }
 # img_output = "/ImbaKeks/git/MasterThesis/Write/images/player_evolution_low_diversity.eps"
 
-# plot_name = "Player evolution of key parameters"
-# groups = {
-#     "extended": {
-#         "order": 0,
-#         "color": (1,0,0),
-#         "runs": [
-#             "7d675f5e-0926-43f9-b508-a55b06a42b2c",
-#             "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
-#             "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
-#             "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
-#             "658f11a2-a862-418e-a3b5-32d145d3dbdf"
-#         ]
-#     },
-#     "evolve cpuct, fpu, drawValue": {
-#         "order": 1,
-#         "color": (0, 1, 0),
-#         "runs": [
-#             "325d9f51-97d2-48ab-8999-25f2583979ba"
-#         ]
-#     },
-#     "evolve kldgain": {
-#         "order": 2,
-#         "color": (0, 0, 1),
-#         "runs": [
-#             "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
-#         ]
-#     }
-# }
-# img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_results.eps"
+plot_name = "Player evolution of key parameters"
+groups = {
+    "extended": {
+        "order": 0,
+        "color": (1,0,0),
+        "runs": [
+            "7d675f5e-0926-43f9-b508-a55b06a42b2c",
+            "5c3f34d0-deae-4aa4-a6c1-be6ecb9d4e86",
+            "b9336ccf-69e1-4ad4-8a5a-246e734d7a81",
+            "e2f7655f-94f4-4e58-9397-a3b8d11ef5d8",
+            "658f11a2-a862-418e-a3b5-32d145d3dbdf"
+        ]
+    },
+    "evolve cpuct, fpu, drawValue": {
+        "order": 1,
+        "color": (0, 1, 0),
+        "runs": [
+            "325d9f51-97d2-48ab-8999-25f2583979ba"
+        ]
+    }
+    # "evolve kldgain": {
+    #     "order": 2,
+    #     "color": (0, 0, 1),
+    #     "runs": [
+    #         "1a4c1c39-a812-4f82-9da4-17bf237baeb7"
+    #     ]
+    # }
+}
+img_output = "/ImbaKeks/git/MasterThesis/Write/images/evolve_results.eps"
 
 # plot_name = "Player evolution of key parameters and training data diversity"
 # groups = {
